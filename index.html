@@ -3,138 +3,190 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TaxUSA Pro Smart</title>
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#1e40af">
+    <title>TaxUSA</title>
     <style>
-        :root { --primary: #1e40af; --success: #15803d; --warning: #b45309; --bg: #f1f5f9; }
+        :root {
+            --primary: #2563eb;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #1e293b;
+        }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: -apple-system, system-ui, sans-serif; background-color: var(--bg); margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
-        .nav-bar { width: 100%; max-width: 450px; margin-bottom: 15px; }
-        .btn-nav { width: 100%; padding: 12px; background: #fff; border: 2px solid var(--primary); color: var(--primary); border-radius: 14px; font-weight: 800; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; text-decoration: none; }
-        .card { background: #fff; padding: 1.5rem; border-radius: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 100%; max-width: 450px; border: 1px solid #e2e8f0; }
-        h2 { margin: 0 0 1.2rem 0; text-align: center; color: var(--primary); font-weight: 800; }
-        .field { margin-bottom: 0.8rem; }
-        label { display: block; margin-bottom: 4px; font-size: 0.7rem; font-weight: 700; color: #64748b; text-transform: uppercase; }
-        input, select { width: 100%; padding: 12px; border: 2px solid #f1f5f9; border-radius: 14px; font-size: 1rem; background: #f8fafc; }
-        .alert-tax { background: #fffbeb; border: 1px solid #fef3c7; color: #92400e; padding: 10px; border-radius: 12px; font-size: 0.75rem; margin-bottom: 12px; display: none; }
-        .result-box { margin: 1.2rem 0; padding: 1.5rem; background: #f0fdf4; border-radius: 20px; text-align: center; border: 1px solid #dcfce7; }
-        .total-price { font-size: 2.8rem; font-weight: 900; color: var(--success); }
-        button.main-btn { width: 100%; padding: 16px; border: none; border-radius: 14px; cursor: pointer; font-weight: 700; font-size: 1rem; background-color: var(--primary); color: white; }
+        body { 
+            font-family: -apple-system, system-ui, sans-serif; 
+            background: var(--bg); 
+            margin: 0; 
+            padding: 15px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            min-height: 100vh;
+        }
+        .card { 
+            background: var(--card); 
+            padding: 1.8rem; 
+            border-radius: 24px; 
+            width: 100%; 
+            max-width: 400px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05); 
+            text-align: center;
+        }
+        h1 { margin: 0 0 1.5rem 0; font-size: 1.8rem; font-weight: 800; color: var(--primary); }
+        .input-group { margin-bottom: 1.2rem; text-align: left; }
+        label { display: block; font-size: 0.75rem; font-weight: 800; color: #64748b; margin-bottom: 0.5rem; margin-left: 5px; text-transform: uppercase; }
+        input, select { 
+            width: 100%; 
+            padding: 14px; 
+            border: 2px solid #f1f5f9; 
+            border-radius: 16px; 
+            font-size: 1rem; 
+            font-weight: 600; 
+            outline: none; 
+            background: white;
+        }
+        input:focus, select:focus { border-color: var(--primary); }
+        .result-box { 
+            background: #eff6ff; 
+            padding: 1.5rem; 
+            border-radius: 22px; 
+            margin-top: 1rem; 
+            border: 1px dashed var(--primary);
+        }
+        .result-label { font-size: 0.7rem; font-weight: 800; color: #3b82f6; text-transform: uppercase; }
+        .result-value { font-size: 2.2rem; font-weight: 900; color: var(--primary); margin: 5px 0; }
+        .btn-link {
+            margin-top: 20px;
+            display: block;
+            text-decoration: none;
+            color: #64748b;
+            font-weight: 800;
+            font-size: 0.85rem;
+            padding: 15px;
+            border-radius: 16px;
+            background: #f1f5f9;
+        }
+        .state-tag { font-size: 0.65rem; font-weight: 800; color: #94a3b8; margin-top: 10px; display: block; }
     </style>
 </head>
 <body>
 
-<div class="nav-bar">
-    <a href="compras.html" class="btn-nav">
-        <span>💰 IR A MI PRESUPUESTO Y TALLES</span>
-    </a>
-</div>
-
-<div class="card">
-    <h2>TaxUSA 🇺🇸</h2>
-    <div id="tax-alert" class="alert-tax"></div>
-    <div class="field"><label>Producto</label><input type="text" id="nombreItem" placeholder="Ej: iPhone, Zapatillas..."></div>
-    <div class="field">
-        <label>Categoría</label>
-        <select id="categoria" onchange="calcular()">
-            <option value="general">General (Electrónica)</option>
-            <option value="ropa">Ropa y Calzado</option>
-            <option value="comida">Comestibles (Supermercado)</option>
-            <option value="medicina">Medicina / Salud</option>
-        </select>
-    </div>
-    <div style="display: flex; gap: 10px;">
-        <div class="field" style="flex: 2;"><label>Precio Base</label><input type="number" id="psi" placeholder="0.00" oninput="calcular()"></div>
-        <div class="field" style="flex: 1;"><label>Tax %</label><input type="number" id="pci" step="0.01" oninput="calcular()"></div>
-    </div>
-    <div class="field"><label>Estado</label><select id="estado" onchange="cargarCiudades()"></select></div>
-    <div class="field" id="contenedor-ciudad" style="display:none;"><label>Ciudad</label><select id="ciudad" onchange="actualizarTax()"></select></div>
-    
-    <div class="result-box">
-        <div class="total-price" id="total">USD 0.00</div>
-        <div id="detalle" style="font-size: 0.8rem; color: #166534; font-weight: 500;"></div>
-    </div>
-    <button class="main-btn" onclick="guardar()">GUARDAR EN HISTORIAL</button>
-</div>
-
-<script>
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js'); });
-    }
-
-    // Base de datos completa con los 50 estados (Tasas promedio 2026)
-    const dbTax = {
-        "Alabama": {"Birmingham": 10.0}, "Alaska": {"Anchorage": 0.0}, "Arizona": {"Phoenix": 8.6}, "Arkansas": {"Little Rock": 9.625}, 
-        "California": {"LA": 9.5, "SF": 8.62, "San Diego": 7.75}, "Colorado": {"Denver": 8.81}, "Connecticut": {"Todo": 6.35}, 
-        "Delaware": {"Sin Tax": 0.0}, "Florida": {"Orlando": 6.5, "Miami": 7.0, "Tampa": 7.5, "Fort Lauderdale": 7.0}, "Georgia": {"Atlanta": 8.9}, 
-        "Hawaii": {"Honolulu": 4.5}, "Idaho": {"Boise": 6.0}, "Illinois": {"Chicago": 10.25}, "Indiana": {"Indy": 7.0}, 
-        "Iowa": {"Des Moines": 7.0}, "Kansas": {"Wichita": 7.5}, "Kentucky": {"Louisville": 6.0}, "Louisiana": {"New Orleans": 9.45}, 
-        "Maine": {"Portland": 5.5}, "Maryland": {"Baltimore": 6.0}, "Massachusetts": {"Boston": 6.25}, "Michigan": {"Detroit": 6.0}, 
-        "Minnesota": {"Minneapolis": 8.025}, "Mississippi": {"Jackson": 8.0}, "Missouri": {"St. Louis": 9.679}, "Montana": {"Sin Tax": 0.0}, 
-        "Nebraska": {"Omaha": 7.0}, "Nevada": {"Las Vegas": 8.37}, "New Hampshire": {"Sin Tax": 0.0}, "New Jersey": {"Jersey City": 6.62}, 
-        "New Mexico": {"Albuquerque": 7.75}, "New York": {"NYC": 8.875, "Buffalo": 8.75}, "North Carolina": {"Charlotte": 7.25}, 
-        "North Dakota": {"Fargo": 7.5}, "Ohio": {"Cleveland": 8.0}, "Oklahoma": {"OKC": 8.62}, "Oregon": {"Sin Tax": 0.0}, 
-        "Pennsylvania": {"Philly": 8.0}, "Rhode Island": {"Providence": 7.0}, "South Carolina": {"Charleston": 9.0}, "South Dakota": {"Sioux Falls": 6.5}, 
-        "Tennessee": {"Nashville": 9.25}, "Texas": {"Houston": 8.25, "Dallas": 8.25, "Austin": 8.25}, "Utah": {"SLC": 7.75}, 
-        "Vermont": {"Burlington": 7.0}, "Virginia": {"Beach": 6.0}, "Washington": {"Seattle": 10.25}, "West Virginia": {"Charleston": 7.0}, 
-        "Wisconsin": {"Milwaukee": 5.5}, "Wyoming": {"Cheyenne": 6.0}
-    };
-
-    function calcular() {
-        const p = parseFloat(document.getElementById('psi').value) || 0;
-        let t = parseFloat(document.getElementById('pci').value) || 0;
+    <div class="card">
+        <h1>TaxUSA 🇺🇸</h1>
         
-        // Redondeo del porcentaje a 2 decimales
-        t = Math.round(t * 100) / 100;
+        <div class="input-group">
+            <label>Precio Etiqueta (USD)</label>
+            <input type="number" id="price" placeholder="0.00" oninput="calculate()" step="0.01">
+        </div>
 
-        const e = document.getElementById('estado').value;
-        const c = document.getElementById('categoria').value;
-        const alertBox = document.getElementById('tax-alert');
-        let msg = "";
+        <div class="input-group">
+            <label>Estado / Región</label>
+            <select id="state-select" onchange="updateTax()">
+                <option value="6.5">Orlando, FL (6.5%)</option>
+                <option value="7.0">Miami, FL (7.0%)</option>
+                <option value="4.0">Alabama (4.0%)</option>
+                <option value="0.0">Alaska (0%)</option>
+                <option value="5.6">Arizona (5.6%)</option>
+                <option value="6.5">Arkansas (6.5%)</option>
+                <option value="7.25">California (7.25%)</option>
+                <option value="2.9">Colorado (2.9%)</option>
+                <option value="6.35">Connecticut (6.35%)</option>
+                <option value="0.0">Delaware (0%)</option>
+                <option value="6.0">Florida - Base (6.0%)</option>
+                <option value="4.0">Georgia (4.0%)</option>
+                <option value="4.0">Hawaii (4.0%)</option>
+                <option value="6.0">Idaho (6.0%)</option>
+                <option value="6.25">Illinois (6.25%)</option>
+                <option value="7.0">Indiana (7.0%)</option>
+                <option value="6.0">Iowa (6.0%)</option>
+                <option value="6.5">Kansas (6.5%)</option>
+                <option value="6.0">Kentucky (6.0%)</option>
+                <option value="4.45">Louisiana (4.45%)</option>
+                <option value="5.5">Maine (5.5%)</option>
+                <option value="6.0">Maryland (6.0%)</option>
+                <option value="6.25">Massachusetts (6.25%)</option>
+                <option value="6.0">Michigan (6.0%)</option>
+                <div class="size-row"></div>
+                <option value="6.875">Minnesota (6.875%)</option>
+                <option value="7.0">Mississippi (7.0%)</option>
+                <option value="4.225">Missouri (4.225%)</option>
+                <option value="0.0">Montana (0%)</option>
+                <option value="5.5">Nebraska (5.5%)</option>
+                <option value="6.85">Nevada (6.85%)</option>
+                <option value="0.0">New Hampshire (0%)</option>
+                <option value="6.625">New Jersey (6.625%)</option>
+                <option value="5.125">New Mexico (5.125%)</option>
+                <option value="4.0">New York State (4.0%)</option>
+                <option value="8.875">New York City (8.875%)</option>
+                <option value="4.75">North Carolina (4.75%)</option>
+                <option value="5.0">North Dakota (5.0%)</option>
+                <option value="5.75">Ohio (5.75%)</option>
+                <option value="4.5">Oklahoma (4.5%)</option>
+                <option value="0.0">Oregon (0%)</option>
+                <option value="6.0">Pennsylvania (6.0%)</option>
+                <option value="7.0">Rhode Island (7.0%)</option>
+                <option value="6.0">South Carolina (6.0%)</option>
+                <option value="4.5">South Dakota (4.5%)</option>
+                <option value="7.0">Tennessee (7.0%)</option>
+                <option value="6.25">Texas (6.25%)</option>
+                <option value="6.1">Utah (6.1%)</option>
+                <option value="6.0">Vermont (6.0%)</option>
+                <option value="5.3">Virginia (5.3%)</option>
+                <option value="6.5">Washington (6.5%)</option>
+                <option value="6.0">West Virginia (6.0%)</option>
+                <option value="5.0">Wisconsin (5.0%)</option>
+                <option value="4.0">Wyoming (4.0%)</option>
+                <option value="custom">Otro (Manual)</option>
+            </select>
+        </div>
 
-        // Reglas de exención
-        if(c === "comida" && ["Florida", "California", "Texas", "New York", "Pennsylvania"].includes(e)) { t = 0; msg = "Comida exenta en " + e; }
-        else if(c === "ropa" && (e === "Pennsylvania" || e === "New Jersey")) { t = 0; msg = "Ropa exenta en " + e; }
-        else if(c === "ropa" && e === "New York" && p < 110) { t = 4.38; msg = "Ropa < $110 en NY: Tax reducido."; }
-        else if(c === "medicina") { t = 0; msg = "Medicina exenta."; }
+        <div class="input-group" id="custom-tax-group" style="display:none;">
+            <label>Tax Manual (%)</label>
+            <input type="number" id="tax" value="6.5" oninput="calculate()" step="0.001">
+        </div>
 
-        alertBox.innerText = msg; alertBox.style.display = msg ? "block" : "none";
-        
-        const totalRaw = p * (1 + (t/100));
-        // REDONDEO CRÍTICO: .toLocaleString fuerza 2 decimales para el precio
-        document.getElementById('total').innerText = 'USD ' + totalRaw.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-        document.getElementById('detalle').innerText = p > 0 ? `Tax: ${t.toFixed(2)}% (+ $${(totalRaw - p).toFixed(2)})` : "";
-    }
+        <div class="result-box">
+            <div class="result-label">Total Final</div>
+            <div class="result-value" id="total">USD 0.00</div>
+        </div>
 
-    function init() {
-        const selE = document.getElementById('estado');
-        selE.add(new Option("Seleccionar Estado...", ""));
-        Object.keys(dbTax).sort().forEach(e => selE.add(new Option(e, e)));
-    }
+        <span class="state-tag" id="current-tax-label">Tax aplicado: 6.5%</span>
 
-    function cargarCiudades() {
-        const e = document.getElementById('estado').value;
-        const selC = document.getElementById('ciudad');
-        selC.innerHTML = '';
-        if(e && dbTax[e]) {
-            document.getElementById('contenedor-ciudad').style.display = 'block';
-            Object.keys(dbTax[e]).forEach(c => {
-                let taxVal = Math.round(dbTax[e][c] * 100) / 100;
-                selC.add(new Option(`${c} (${taxVal.toFixed(2)}%)`, taxVal));
-            });
-            actualizarTax();
+        <a href="compras.html" class="btn-link">Ir a Shopping Orlando →</a>
+    </div>
+
+    <script>
+        function updateTax() {
+            const select = document.getElementById('state-select');
+            const taxInput = document.getElementById('tax');
+            const customGroup = document.getElementById('custom-tax-group');
+
+            if (select.value === "custom") {
+                customGroup.style.display = "block";
+            } else {
+                customGroup.style.display = "none";
+                taxInput.value = select.value;
+            }
+            calculate();
         }
-    }
 
-    function actualizarTax() { 
-        let val = parseFloat(document.getElementById('ciudad').value);
-        document.getElementById('pci').value = val.toFixed(2); 
-        calcular(); 
-    }
+        function calculate() {
+            const price = parseFloat(document.getElementById('price').value) || 0;
+            const tax = parseFloat(document.getElementById('tax').value) || 0;
+            const total = price + (price * (tax / 100));
+            
+            document.getElementById('total').innerText = 'USD ' + total.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
 
-    init();
-</script>
+            document.getElementById('current-tax-label').innerText = `Tax aplicado: ${tax}%`;
+        }
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js');
+            });
+        }
+    </script>
 </body>
 </html>
