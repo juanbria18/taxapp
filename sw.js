@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tax-usa-v7'; // Subimos a v6
+const CACHE_NAME = 'tax-usa-v8'; // Subimos a v6
 const assets = [
     './',
     './index.html',
