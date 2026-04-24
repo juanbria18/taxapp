@@ -22,8 +22,6 @@
         .result-box { margin: 1.2rem 0; padding: 1.5rem; background: #f0fdf4; border-radius: 20px; text-align: center; border: 1px solid #dcfce7; }
         .total-price { font-size: 2.8rem; font-weight: 900; color: var(--success); }
         button.main-btn { width: 100%; padding: 16px; border: none; border-radius: 14px; cursor: pointer; font-weight: 700; font-size: 1rem; background-color: var(--primary); color: white; }
-        .history-item { background: white; padding: 15px; border-radius: 16px; margin-top: 10px; border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 450px; }
-        .item-info { font-size: 0.8rem; }
     </style>
 </head>
 <body>
@@ -35,9 +33,9 @@
 </div>
 
 <div class="card">
-    <h2>TaxUSA Smart 🇺🇸</h2>
+    <h2>TaxUSA 🇺🇸</h2>
     <div id="tax-alert" class="alert-tax"></div>
-    <div class="field"><label>Producto</label><input type="text" id="nombreItem" placeholder="Ej: Zapatillas, iPhone..."></div>
+    <div class="field"><label>Producto</label><input type="text" id="nombreItem" placeholder="Ej: iPhone, Zapatillas..."></div>
     <div class="field">
         <label>Categoría</label>
         <select id="categoria" onchange="calcular()">
@@ -61,35 +59,42 @@
     <button class="main-btn" onclick="guardar()">GUARDAR EN HISTORIAL</button>
 </div>
 
-<div id="lista-historial" style="width: 100%; max-width: 450px; margin-top: 20px;"></div>
-
 <script>
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js'); });
     }
 
+    // Base de datos completa con los 50 estados (Tasas promedio 2026)
     const dbTax = {
-        "Alabama": {"Birmingham": 10.0}, "Alaska": {"Anchorage": 0.0}, "Arizona": {"Phoenix": 8.6}, 
-        "California": {"LA": 9.5, "SF": 8.62, "San Diego": 7.75}, "Delaware": {"Sin Tax": 0.0}, 
-        "Florida": {"Orlando": 6.5, "Miami": 7.0, "Tampa": 7.5, "Fort Lauderdale": 7.0}, "Georgia": {"Atlanta": 8.9}, 
-        "Illinois": {"Chicago": 10.25}, "Nevada": {"Las Vegas": 8.37}, "New Jersey": {"Jersey City": 6.62}, 
-        "New York": {"NYC": 8.875, "Buffalo": 8.75}, "Pennsylvania": {"Philly": 8.0}, 
-        "Texas": {"Houston": 8.25, "Dallas": 8.25, "Austin": 8.25}, "Washington": {"Seattle": 10.25}
+        "Alabama": {"Birmingham": 10.0}, "Alaska": {"Anchorage": 0.0}, "Arizona": {"Phoenix": 8.6}, "Arkansas": {"Little Rock": 9.625}, 
+        "California": {"LA": 9.5, "SF": 8.62, "San Diego": 7.75}, "Colorado": {"Denver": 8.81}, "Connecticut": {"Todo": 6.35}, 
+        "Delaware": {"Sin Tax": 0.0}, "Florida": {"Orlando": 6.5, "Miami": 7.0, "Tampa": 7.5, "Fort Lauderdale": 7.0}, "Georgia": {"Atlanta": 8.9}, 
+        "Hawaii": {"Honolulu": 4.5}, "Idaho": {"Boise": 6.0}, "Illinois": {"Chicago": 10.25}, "Indiana": {"Indy": 7.0}, 
+        "Iowa": {"Des Moines": 7.0}, "Kansas": {"Wichita": 7.5}, "Kentucky": {"Louisville": 6.0}, "Louisiana": {"New Orleans": 9.45}, 
+        "Maine": {"Portland": 5.5}, "Maryland": {"Baltimore": 6.0}, "Massachusetts": {"Boston": 6.25}, "Michigan": {"Detroit": 6.0}, 
+        "Minnesota": {"Minneapolis": 8.025}, "Mississippi": {"Jackson": 8.0}, "Missouri": {"St. Louis": 9.679}, "Montana": {"Sin Tax": 0.0}, 
+        "Nebraska": {"Omaha": 7.0}, "Nevada": {"Las Vegas": 8.37}, "New Hampshire": {"Sin Tax": 0.0}, "New Jersey": {"Jersey City": 6.62}, 
+        "New Mexico": {"Albuquerque": 7.75}, "New York": {"NYC": 8.875, "Buffalo": 8.75}, "North Carolina": {"Charlotte": 7.25}, 
+        "North Dakota": {"Fargo": 7.5}, "Ohio": {"Cleveland": 8.0}, "Oklahoma": {"OKC": 8.62}, "Oregon": {"Sin Tax": 0.0}, 
+        "Pennsylvania": {"Philly": 8.0}, "Rhode Island": {"Providence": 7.0}, "South Carolina": {"Charleston": 9.0}, "South Dakota": {"Sioux Falls": 6.5}, 
+        "Tennessee": {"Nashville": 9.25}, "Texas": {"Houston": 8.25, "Dallas": 8.25, "Austin": 8.25}, "Utah": {"SLC": 7.75}, 
+        "Vermont": {"Burlington": 7.0}, "Virginia": {"Beach": 6.0}, "Washington": {"Seattle": 10.25}, "West Virginia": {"Charleston": 7.0}, 
+        "Wisconsin": {"Milwaukee": 5.5}, "Wyoming": {"Cheyenne": 6.0}
     };
 
     function calcular() {
         const p = parseFloat(document.getElementById('psi').value) || 0;
         let t = parseFloat(document.getElementById('pci').value) || 0;
         
-        // Redondeo a 2 dígitos después de la coma para el %
+        // Redondeo del porcentaje a 2 decimales
         t = Math.round(t * 100) / 100;
-        document.getElementById('pci').value = t;
 
         const e = document.getElementById('estado').value;
         const c = document.getElementById('categoria').value;
         const alertBox = document.getElementById('tax-alert');
         let msg = "";
 
+        // Reglas de exención
         if(c === "comida" && ["Florida", "California", "Texas", "New York", "Pennsylvania"].includes(e)) { t = 0; msg = "Comida exenta en " + e; }
         else if(c === "ropa" && (e === "Pennsylvania" || e === "New Jersey")) { t = 0; msg = "Ropa exenta en " + e; }
         else if(c === "ropa" && e === "New York" && p < 110) { t = 4.38; msg = "Ropa < $110 en NY: Tax reducido."; }
@@ -97,16 +102,16 @@
 
         alertBox.innerText = msg; alertBox.style.display = msg ? "block" : "none";
         
-        const total = p * (1 + (t/100));
-        document.getElementById('total').innerText = 'USD ' + total.toLocaleString('en-US', {minimumFractionDigits: 2});
-        document.getElementById('detalle').innerText = p > 0 ? `Tax Final: ${t.toFixed(2)}% (+ $${(total-p).toFixed(2)})` : "";
+        const totalRaw = p * (1 + (t/100));
+        // REDONDEO CRÍTICO: .toLocaleString fuerza 2 decimales para el precio
+        document.getElementById('total').innerText = 'USD ' + totalRaw.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        document.getElementById('detalle').innerText = p > 0 ? `Tax: ${t.toFixed(2)}% (+ $${(totalRaw - p).toFixed(2)})` : "";
     }
 
     function init() {
         const selE = document.getElementById('estado');
         selE.add(new Option("Seleccionar Estado...", ""));
         Object.keys(dbTax).sort().forEach(e => selE.add(new Option(e, e)));
-        mostrar();
     }
 
     function cargarCiudades() {
@@ -116,7 +121,6 @@
         if(e && dbTax[e]) {
             document.getElementById('contenedor-ciudad').style.display = 'block';
             Object.keys(dbTax[e]).forEach(c => {
-                // Redondeo de los valores de la base de datos al cargar
                 let taxVal = Math.round(dbTax[e][c] * 100) / 100;
                 selC.add(new Option(`${c} (${taxVal.toFixed(2)}%)`, taxVal));
             });
@@ -128,20 +132,6 @@
         let val = parseFloat(document.getElementById('ciudad').value);
         document.getElementById('pci').value = val.toFixed(2); 
         calcular(); 
-    }
-    
-    function guardar() {
-        const p = document.getElementById('psi').value;
-        if(!p) return;
-        const h = JSON.parse(localStorage.getItem('taxAppVFinal')) || [];
-        h.unshift({ n: document.getElementById('nombreItem').value || "Item", t: document.getElementById('total').innerText, m: document.getElementById('estado').value });
-        localStorage.setItem('taxAppVFinal', JSON.stringify(h.slice(0, 5)));
-        mostrar();
-    }
-
-    function mostrar() {
-        const h = JSON.parse(localStorage.getItem('taxAppVFinal')) || [];
-        document.getElementById('lista-historial').innerHTML = h.map(i => `<div class="history-item"><div class="item-info"><b>${i.n}</b><br><small>${i.m}</small></div><div style="font-weight:800; color:var(--success);">${i.t}</div></div>`).join('');
     }
 
     init();
