@@ -1,13 +1,13 @@
-const CACHE_NAME = 'tax-usa-v6'; // Cambiado a v4 para forzar actualización
+const CACHE_NAME = 'tax-usa-v6'; // Subimos a v6
 const assets = [
     './',
     './index.html',
-    './compras.html' // Agregamos el nuevo archivo a la memoria offline
+    './compras.html'
 ];
 
-// Instalación: Guarda los archivos en la caché
+// Instalación: Baja los archivos nuevos
 self.addEventListener('install', event => {
-    self.skipWaiting(); // Obliga al nuevo service worker a activarse de inmediato
+    self.skipWaiting(); 
     event.waitUntil(
         caches.open(CACHE_NAME).then(cache => {
             return cache.addAll(assets);
@@ -15,7 +15,7 @@ self.addEventListener('install', event => {
     );
 });
 
-// Activación: Limpia versiones viejas de la caché
+// Activación: Borra la v5 y anteriores
 self.addEventListener('activate', event => {
     event.waitUntil(
         caches.keys().then(keys => {
@@ -27,7 +27,7 @@ self.addEventListener('activate', event => {
     );
 });
 
-// Estrategia: Primero busca en internet, si falla usa la caché
+// Estrategia: Buscar en red, si no hay señal, usar caché
 self.addEventListener('fetch', event => {
     event.respondWith(
         fetch(event.request).catch(() => {
