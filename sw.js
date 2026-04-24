@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tax-usa-v2';
+const CACHE_NAME = 'tax-usa-v4';
 const assets = ['./', './index.html'];
 
 self.addEventListener('install', event => {
