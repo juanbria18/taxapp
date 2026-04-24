@@ -5,33 +5,113 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Shopping Pro Orlando</title>
     <style>
-        :root { --primary: #2563eb; --accent: #7c3aed; --success: #059669; --bg: #f8fafc; --danger: #ef4444; }
+        :root { 
+            --primary: #2563eb; 
+            --accent: #7c3aed; 
+            --success: #059669; 
+            --bg: #f8fafc; 
+            --danger: #ef4444; 
+            --female: #db2777;
+        }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; }
-        .card { background: white; padding: 1.5rem; border-radius: 24px; width: 100%; max-width: 450px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 15px; }
-        h2 { margin: 0 0 1rem 0; color: var(--primary); text-align: center; font-size: 1.3rem; }
+        body { 
+            font-family: -apple-system, system-ui, sans-serif; 
+            background: var(--bg); 
+            margin: 0; 
+            padding: 15px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+        }
+        .card { 
+            background: white; 
+            padding: 1.5rem; 
+            border-radius: 24px; 
+            width: 100%; 
+            max-width: 450px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05); 
+            margin-bottom: 15px; 
+        }
+        h2 { margin: 0 0 1rem 0; color: var(--primary); text-align: center; font-size: 1.3rem; font-weight: 800; }
         
-        /* Gestión de Gastos */
-        .budget-display { background: #eff6ff; padding: 1.2rem; border-radius: 20px; text-align: center; margin-bottom: 1rem; border: 1px dashed var(--primary); }
+        /* Presupuesto */
+        .budget-display { 
+            background: #eff6ff; 
+            padding: 1.2rem; 
+            border-radius: 20px; 
+            text-align: center; 
+            margin-bottom: 1rem; 
+            border: 1px dashed var(--primary); 
+        }
         .amount { font-size: 2rem; font-weight: 900; color: var(--primary); }
-        input { width: 100%; padding: 12px; border: 2px solid #f1f5f9; border-radius: 12px; margin-bottom: 10px; font-size: 1rem; }
-        .btn-add { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; }
+        
+        input { 
+            width: 100%; 
+            padding: 12px; 
+            border: 2px solid #f1f5f9; 
+            border-radius: 12px; 
+            margin-bottom: 10px; 
+            font-size: 1rem; 
+            outline: none;
+        }
+        input:focus { border-color: var(--primary); }
+
+        .btn-add { 
+            width: 100%; 
+            padding: 15px; 
+            background: var(--primary); 
+            color: white; 
+            border: none; 
+            border-radius: 12px; 
+            font-weight: 700; 
+            cursor: pointer; 
+        }
         
         /* Historial */
-        .history-item { background: white; padding: 12px 15px; border-radius: 16px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; width: 100%; max-width: 450px;}
-        .history-info { font-size: 0.85rem; font-weight: 600; }
+        .history-item { 
+            background: white; 
+            padding: 12px 15px; 
+            border-radius: 16px; 
+            margin-bottom: 8px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border: 1px solid #e2e8f0; 
+            width: 100%;
+            max-width: 450px;
+        }
+        .history-info { font-size: 0.85rem; font-weight: 700; color: #1e293b; }
         .history-price { color: var(--danger); font-weight: 800; }
 
         /* Talles */
-        .gender-header { background: #1e293b; color: white; padding: 10px; border-radius: 12px; text-align: center; font-weight: 800; margin: 15px 0 10px; font-size: 0.9rem; }
-        .size-section { margin-bottom: 15px; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; }
-        .size-title { background: #f1f5f9; color: #475569; padding: 8px 12px; font-size: 0.75rem; font-weight: 800; border-bottom: 1px solid #e2e8f0; }
-        .size-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; text-align: center; font-size: 0.8rem; background: white; }
-        .size-row { padding: 8px; border-bottom: 1px solid #f8fafc; font-weight: 600; }
-        .size-head { font-weight: 800; color: #94a3b8; padding: 5px; font-size: 0.65rem; text-transform: uppercase; border-bottom: 2px solid #f1f5f9; }
+        .gender-header { 
+            color: white; 
+            padding: 12px; 
+            border-radius: 14px; 
+            text-align: center; 
+            font-weight: 900; 
+            margin: 20px 0 10px; 
+            font-size: 1rem; 
+        }
+        .size-section { margin-bottom: 15px; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; background: white; }
+        .size-title { background: #f8fafc; color: #475569; padding: 10px 15px; font-size: 0.75rem; font-weight: 800; border-bottom: 1px solid #e2e8f0; text-transform: uppercase; }
+        .size-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; text-align: center; font-size: 0.85rem; }
+        .size-head { font-weight: 800; color: #94a3b8; padding: 8px; font-size: 0.7rem; background: #f1f5f9; }
+        .size-row { padding: 10px; border-bottom: 1px solid #f1f5f9; font-weight: 600; }
 
+        /* Tabs */
         .tabs { display: flex; gap: 8px; margin-bottom: 15px; width: 100%; max-width: 450px; }
-        .tab { flex: 1; padding: 12px; text-align: center; background: #e2e8f0; border-radius: 12px; font-weight: 700; font-size: 0.75rem; cursor: pointer; }
+        .tab { 
+            flex: 1; 
+            padding: 14px; 
+            text-align: center; 
+            background: #e2e8f0; 
+            border-radius: 14px; 
+            font-weight: 800; 
+            font-size: 0.8rem; 
+            cursor: pointer; 
+            color: #64748b;
+        }
         .tab.active { background: var(--primary); color: white; }
     </style>
 </head>
@@ -44,112 +124,79 @@
 
     <div id="sec-calc" style="width: 100%; max-width: 450px;">
         <div class="card">
-            <h2>Presupuesto 💸</h2>
+            <h2>Mi Presupuesto 💸</h2>
             <div class="budget-display">
-                <div style="font-size: 0.7rem; font-weight: 700; color: #64748b;">DISPONIBLE</div>
+                <div style="font-size: 0.7rem; font-weight: 800; color: #64748b; text-transform: uppercase;">Disponible</div>
                 <div class="amount" id="disponible">USD 0.00</div>
             </div>
-            <input type="number" id="base-budget" placeholder="Nuevo Total (Ej: 2500)">
-            <button class="btn-add" style="background:#64748b; padding:10px; margin-bottom:15px;" onclick="setBudget()">SETEAR TOTAL</button>
-            
+            <input type="number" id="base-budget" placeholder="Setear Total (Ej: 2000)">
+            <button class="btn-add" style="background:#64748b; padding:10px; margin-bottom:15px;" onclick="setBudget()">ACTUALIZAR FONDO</button>
+            <hr style="border:0; border-top:1px solid #f1f5f9; margin-bottom:15px;">
             <input type="text" id="gasto-nom" placeholder="¿Qué compraste?">
             <input type="number" id="gasto-val" placeholder="Precio Final USD">
             <button class="btn-add" onclick="restarGasto()">REGISTRAR COMPRA</button>
         </div>
         <div id="lista-compras"></div>
-        <button onclick="borrarHistorial()" style="width:100%; background:none; border:none; color:var(--danger); font-size:0.7rem; font-weight:700; margin-top:10px; cursor:pointer;">BORRAR TODO EL HISTORIAL</button>
+        <button onclick="borrarHistorial()" style="width:100%; background:none; border:none; color:var(--danger); font-size:0.7rem; font-weight:800; margin-top:15px; cursor:pointer;">BORRAR TODO EL HISTORIAL</button>
     </div>
 
-    <div id="sec-sizes" class="card" style="display:none; padding: 1rem;">
-        <h2 style="margin-bottom: 5px;">Guía de Talles US 🇺🇸</h2>
-        <p style="text-align:center; font-size:0.7rem; color:#64748b; margin-top:0;">AR = Argentina | US = Estados Unidos</p>
-
-        <div class="gender-header">MEN / HOMBRE</div>
+    <div id="sec-sizes" class="card" style="display:none; padding: 1.2rem;">
+        <h2>Conversor Talles 🇺🇸</h2>
         
+        <div class="gender-header" style="background:#1e293b;">MEN / HOMBRE</div>
         <div class="size-section">
-            <div class="size-title">ZAPATILLAS HOMBRE</div>
+            <div class="size-title">Zapatillas Hombre</div>
             <div class="size-grid">
                 <div class="size-head">AR</div><div class="size-head">US</div><div class="size-head">CM</div>
-                <div class="size-row">38</div><div class="size-row">6</div><div class="size-row">24.5</div>
-                <div class="size-row">39</div><div class="size-row">7</div><div class="size-row">25.5</div>
-                <div class="size-row">40</div><div class="size-row">8</div><div class="size-row">26.5</div>
-                <div class="size-row">41</div><div class="size-row">9</div><div class="size-row">27.5</div>
-                <div class="size-row">42</div><div class="size-row">10</div><div class="size-row">28.5</div>
-                <div class="size-row">43</div><div class="size-row">11</div><div class="size-row">29.5</div>
-                <div class="size-row">44</div><div class="size-row">12</div><div class="size-row">30.5</div>
-                <div class="size-row">45</div><div class="size-row">13</div><div class="size-row">31.5</div>
+                <div class="size-row">38</div><div class="size-row">6.0</div><div class="size-row">24.5</div>
+                <div class="size-row">39</div><div class="size-row">7.0</div><div class="size-row">25.5</div>
+                <div class="size-row">40</div><div class="size-row">8.0</div><div class="size-row">26.5</div>
+                <div class="size-row">41</div><div class="size-row">9.0</div><div class="size-row">27.5</div>
+                <div class="size-row">42</div><div class="size-row">10.0</div><div class="size-row">28.5</div>
+                <div class="size-row">43</div><div class="size-row">11.0</div><div class="size-row">29.5</div>
+                <div class="size-row">44</div><div class="size-row">12.0</div><div class="size-row">30.5</div>
             </div>
         </div>
 
         <div class="size-section">
-            <div class="size-title">REMERAS / BUZOS HOMBRE</div>
+            <div class="size-title">Remeras / Buzos</div>
             <div class="size-grid">
-                <div class="size-head">AR</div><div class="size-head">US</div><div class="size-head">DETALLE</div>
-                <div class="size-row">XS</div><div class="size-row">XS</div><div class="size-row">Extra Small</div>
-                <div class="size-row">S</div><div class="size-row">S</div><div class="size-row">Small</div>
-                <div class="size-row">M</div><div class="size-row">M</div><div class="size-row">Medium</div>
-                <div class="size-row">L</div><div class="size-row">L</div><div class="size-row">Large</div>
-                <div class="size-row">XL</div><div class="size-row">XL</div><div class="size-row">X-Large</div>
-                <div class="size-row">XXL</div><div class="size-row">XXL</div><div class="size-row">2X-Large</div>
+                <div class="size-head">AR</div><div class="size-head">US</div><div class="size-head">Pecho</div>
+                <div class="size-row">S</div><div class="size-row">S</div><div class="size-row">90cm</div>
+                <div class="size-row">M</div><div class="size-row">M</div><div class="size-row">100cm</div>
+                <div class="size-row">L</div><div class="size-row">L</div><div class="size-row">110cm</div>
+                <div class="size-row">XL</div><div class="size-row">XL</div><div class="size-row">120cm</div>
             </div>
         </div>
 
+        <div class="gender-header" style="background:var(--female);">WOMEN / MUJER</div>
         <div class="size-section">
-            <div class="size-title">PANTALONES HOMBRE (CINTURA)</div>
-            <div class="size-grid">
-                <div class="size-head">AR</div><div class="size-head">US</div><div class="size-head">WAIST</div>
-                <div class="size-row">38</div><div class="size-row">28</div><div class="size-row">71 cm</div>
-                <div class="size-row">40</div><div class="size-row">30</div><div class="size-row">76 cm</div>
-                <div class="size-row">42</div><div class="size-row">32</div><div class="size-row">81 cm</div>
-                <div class="size-row">44</div><div class="size-row">34</div><div class="size-row">86 cm</div>
-                <div class="size-row">46</div><div class="size-row">36</div><div class="size-row">91 cm</div>
-                <div class="size-row">48</div><div class="size-row">38</div><div class="size-row">96 cm</div>
-            </div>
-        </div>
-
-        <div class="gender-header" style="background:#db2777;">WOMEN / MUJER</div>
-        
-        <div class="size-section">
-            <div class="size-title">ZAPATILLAS MUJER</div>
+            <div class="size-title">Zapatillas Mujer</div>
             <div class="size-grid">
                 <div class="size-head">AR</div><div class="size-head">US</div><div class="size-head">CM</div>
-                <div class="size-row">35</div><div class="size-row">5</div><div class="size-row">22</div>
-                <div class="size-row">36</div><div class="size-row">6</div><div class="size-row">23</div>
-                <div class="size-row">37</div><div class="size-row">7</div><div class="size-row">24</div>
-                <div class="size-row">38</div><div class="size-row">8</div><div class="size-row">25</div>
-                <div class="size-row">39</div><div class="size-row">9</div><div class="size-row">26</div>
-                <div class="size-row">40</div><div class="size-row">10</div><div class="size-row">27</div>
+                <div class="size-row">34</div><div class="size-row">4.0</div><div class="size-row">21.0</div>
+                <div class="size-row">35</div><div class="size-row">5.0</div><div class="size-row">22.0</div>
+                <div class="size-row">36</div><div class="size-row">6.0</div><div class="size-row">23.0</div>
+                <div class="size-row">37</div><div class="size-row">7.0</div><div class="size-row">24.0</div>
+                <div class="size-row">38</div><div class="size-row">8.0</div><div class="size-row">25.0</div>
+                <div class="size-row">39</div><div class="size-row">9.0</div><div class="size-row">26.0</div>
+                <div class="size-row">40</div><div class="size-row">10.0</div><div class="size-row">27.0</div>
             </div>
         </div>
 
         <div class="size-section">
-            <div class="size-title">REMERAS / TOPS MUJER</div>
+            <div class="size-title">Pantalones Mujer</div>
             <div class="size-grid">
-                <div class="size-head">AR</div><div class="size-head">US</div><div class="size-head">NUM</div>
-                <div class="size-row">XS</div><div class="size-row">XS</div><div class="size-row">0-2</div>
-                <div class="size-row">S</div><div class="size-row">S</div><div class="size-row">4-6</div>
-                <div class="size-row">M</div><div class="size-row">M</div><div class="size-row">8-10</div>
-                <div class="size-row">L</div><div class="size-row">L</div><div class="size-row">12-14</div>
-                <div class="size-row">XL</div><div class="size-row">XL</div><div class="size-row">16-18</div>
-            </div>
-        </div>
-
-        <div class="size-section">
-            <div class="size-title">PANTALONES MUJER</div>
-            <div class="size-grid">
-                <div class="size-head">AR</div><div class="size-head">US</div><div class="size-head">WAIST</div>
+                <div class="size-head">AR</div><div class="size-head">US</div><div class="size-head">Waist</div>
                 <div class="size-row">36</div><div class="size-row">2</div><div class="size-row">26"</div>
                 <div class="size-row">38</div><div class="size-row">4</div><div class="size-row">27"</div>
-                <div class="size-row">40</div><div class="size-row">6-8</div><div class="size-row">29"</div>
+                <div class="size-row">40</div><div class="size-row">6</div><div class="size-row">29"</div>
                 <div class="size-row">42</div><div class="size-row">10</div><div class="size-row">31"</div>
-                <div class="size-row">44</div><div class="size-row">12-14</div><div class="size-row">33"</div>
             </div>
         </div>
     </div>
 
-    <div style="margin-top: 20px;">
-        <button onclick="window.location.href='index.html'" style="background:none; border:none; color:#64748b; font-weight:700; cursor:pointer;">← Volver a Calculadora Tax</button>
-    </div>
+    <button onclick="window.location.href='index.html'" style="background:none; border:none; color:#64748b; font-weight:800; cursor:pointer; margin-top:20px;">← VOLVER A CALCULADORA</button>
 
     <script>
         let balance = parseFloat(localStorage.getItem('tripBalance')) || 0;
@@ -167,7 +214,7 @@
         function restarGasto() {
             const nom = document.getElementById('gasto-nom').value || "Compra";
             const val = parseFloat(document.getElementById('gasto-val').value);
-            if(val > 0) {
+            if(!isNaN(val) && val > 0) {
                 balance -= val;
                 history.unshift({ nombre: nom, precio: val });
                 updateUI();
@@ -177,17 +224,16 @@
         }
 
         function borrarHistorial() {
-            if(confirm("¿Borrar todo el historial de compras?")) {
+            if(confirm("¿Borrar todo el historial?")) {
                 history = [];
                 updateUI();
             }
         }
 
         function updateUI() {
-            document.getElementById('disponible').innerText = 'USD ' + balance.toLocaleString('en-US', {minimumFractionDigits: 2});
+            document.getElementById('disponible').innerText = 'USD ' + balance.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
             localStorage.setItem('tripBalance', balance);
             localStorage.setItem('tripHistory', JSON.stringify(history));
-            
             const lista = document.getElementById('lista-compras');
             lista.innerHTML = history.map(item => `
                 <div class="history-item">
