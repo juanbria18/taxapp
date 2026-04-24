@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tax-usa-v4'; // Cambiado a v4 para forzar actualización
+const CACHE_NAME = 'tax-usa-v5'; // Cambiado a v4 para forzar actualización
 const assets = [
     './',
     './index.html',
