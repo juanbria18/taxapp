@@ -1,37 +1,45 @@
-const CACHE_NAME = 'tax-usa-v30'; // Subimos a v6
-const assets = [
-    './',
-    './index.html',
-    './compras.html'
+const CACHE_NAME = 'tax-usa-v40'; // Incrementamos la versión
+const ASSETS = [
+  '/',
+  '/index.html',
+  '/compras.html', // Nuevo archivo agregado
+  '/manifest.json',
+  '/sw.js'
 ];
 
-// Instalación: Baja los archivos nuevos
-self.addEventListener('install', event => {
-    self.skipWaiting(); 
-    event.waitUntil(
-        caches.open(CACHE_NAME).then(cache => {
-            return cache.addAll(assets);
-        })
-    );
+// Instalación: Guardar archivos esenciales en caché
+self.addEventListener('install', (evt) => {
+  evt.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => {
+      console.log('Cacheando recursos principales');
+      return cache.addAll(ASSETS);
+    })
+  );
+  self.skipWaiting();
 });
 
-// Activación: Borra la v5 y anteriores
-self.addEventListener('activate', event => {
-    event.waitUntil(
-        caches.keys().then(keys => {
-            return Promise.all(
-                keys.filter(key => key !== CACHE_NAME)
-                    .map(key => caches.delete(key))
-            );
-        })
-    );
+// Activación: Limpiar cachés antiguos
+self.addEventListener('activate', (evt) => {
+  evt.waitUntil(
+    caches.keys().then((keys) => {
+      return Promise.all(
+        keys.filter((key) => key !== CACHE_NAME)
+            .map((key) => caches.delete(key))
+      );
+    })
+  );
 });
 
-// Estrategia: Buscar en red, si no hay señal, usar caché
-self.addEventListener('fetch', event => {
-    event.respondWith(
-        fetch(event.request).catch(() => {
-            return caches.match(event.request);
-        })
-    );
+// Estrategia de respuesta
+self.addEventListener('fetch', (evt) => {
+  // Ignorar las llamadas a la API de Dólar (queremos que siempre sean en tiempo real)
+  if (evt.request.url.includes('dolarapi.com')) {
+    return; 
+  }
+
+  evt.respondWith(
+    caches.match(evt.request).then((cacheRes) => {
+      return cacheRes || fetch(evt.request);
+    })
+  );
 });
