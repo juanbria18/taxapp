@@ -4,105 +4,160 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Shopping Pro Orlando</title>
-    <meta name="apple-mobile-web-app-capable" content="yes">
     <style>
-        :root { --primary: #2563eb; --accent: #7c3aed; --success: #059669; --bg: #f8fafc; }
+        :root { --primary: #2563eb; --accent: #7c3aed; --success: #059669; --bg: #f8fafc; --danger: #ef4444; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; }
         .card { background: white; padding: 1.5rem; border-radius: 24px; width: 100%; max-width: 450px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 15px; }
-        h2 { margin: 0 0 1rem 0; color: var(--primary); text-align: center; font-size: 1.5rem; }
-        .budget-display { background: #eff6ff; padding: 1.5rem; border-radius: 20px; text-align: center; margin-bottom: 1rem; border: 1px dashed var(--primary); }
-        .amount { font-size: 2.2rem; font-weight: 900; color: var(--primary); }
-        input, select { width: 100%; padding: 12px; border: 2px solid #f1f5f9; border-radius: 12px; margin-bottom: 10px; font-size: 1rem; }
-        .btn-add { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; }
+        h2 { margin: 0 0 1rem 0; color: var(--primary); text-align: center; font-size: 1.3rem; }
+        .budget-display { background: #eff6ff; padding: 1.2rem; border-radius: 20px; text-align: center; margin-bottom: 1rem; border: 1px dashed var(--primary); }
+        .amount { font-size: 2rem; font-weight: 900; color: var(--primary); }
+        input { width: 100%; padding: 12px; border: 2px solid #f1f5f9; border-radius: 12px; margin-bottom: 10px; font-size: 1rem; }
+        .btn-add { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; margin-bottom: 10px; }
         
-        /* Tabla de Talles */
-        .size-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; text-align: center; font-size: 0.85rem; }
-        .size-header { font-weight: 800; color: #64748b; background: #f1f5f9; padding: 5px; border-radius: 5px; }
-        .size-row { padding: 8px 0; border-bottom: 1px solid #f1f5f9; font-weight: 600; }
+        /* Historial */
+        .history-list { width: 100%; max-width: 450px; }
+        .history-item { background: white; padding: 12px 15px; border-radius: 16px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; }
+        .history-info { font-size: 0.85rem; font-weight: 600; }
+        .history-price { color: var(--danger); font-weight: 800; }
 
-        .tabs { display: flex; gap: 10px; margin-bottom: 15px; width: 100%; max-width: 450px; }
-        .tab { flex: 1; padding: 10px; text-align: center; background: #e2e8f0; border-radius: 10px; font-weight: 700; font-size: 0.8rem; cursor: pointer; }
+        /* Talles */
+        .size-section { margin-bottom: 20px; }
+        .size-title { background: var(--primary); color: white; padding: 8px 15px; border-radius: 10px; font-size: 0.8rem; font-weight: 800; margin-bottom: 10px; text-transform: uppercase; }
+        .size-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; text-align: center; font-size: 0.8rem; }
+        .size-row { padding: 6px; border-bottom: 1px solid #f1f5f9; }
+        .size-head { font-weight: 800; color: #64748b; background: #f8fafc; padding: 5px; }
+
+        .tabs { display: flex; gap: 8px; margin-bottom: 15px; width: 100%; max-width: 450px; }
+        .tab { flex: 1; padding: 12px; text-align: center; background: #e2e8f0; border-radius: 12px; font-weight: 700; font-size: 0.75rem; cursor: pointer; }
         .tab.active { background: var(--primary); color: white; }
     </style>
 </head>
 <body>
 
     <div class="tabs">
-        <div class="tab active" onclick="showSec('calc')">PRESUPUESTO</div>
-        <div class="tab" onclick="showSec('sizes')">TALLES (US vs AR)</div>
+        <div class="tab active" id="tab-calc" onclick="showSec('calc')">PRESUPUESTO</div>
+        <div class="tab" id="tab-sizes" onclick="showSec('sizes')">CONVERSOR TALLES</div>
     </div>
 
-    <div id="sec-calc" class="card">
-        <h2>Presupuesto Real 💸</h2>
-        <div class="budget-display">
-            <div style="font-size: 0.8rem; font-weight: 700; color: #64748b;">DISPONIBLE</div>
-            <div class="amount" id="disponible">USD 0.00</div>
+    <div id="sec-calc" style="width: 100%; max-width: 450px;">
+        <div class="card">
+            <h2>Gestor de Gastos 💸</h2>
+            <div class="budget-display">
+                <div style="font-size: 0.7rem; font-weight: 700; color: #64748b;">DISPONIBLE PARA COMPRAS</div>
+                <div class="amount" id="disponible">USD 0.00</div>
+            </div>
+            <input type="number" id="base-budget" placeholder="Setear Presupuesto Total">
+            <button class="btn-add" style="background:#64748b; padding:8px;" onclick="setBudget()">RESETEAR TOTAL</button>
+            
+            <hr style="margin: 15px 0; border: 0; border-top: 1px solid #f1f5f9;">
+            
+            <input type="text" id="gasto-nom" placeholder="Ej: Hoodie Nike, iPhone...">
+            <input type="number" id="gasto-val" placeholder="Precio Final (USD)">
+            <button class="btn-add" onclick="restarGasto()">REGISTRAR COMPRA</button>
         </div>
-        <label style="font-size: 0.7rem; font-weight: 700; color: #64748b;">SETEAR PRESUPUESTO INICIAL</label>
-        <input type="number" id="base-budget" placeholder="Ej: 2000" onchange="setBudget()">
         
-        <hr style="margin: 15px 0; border: 0; border-top: 1px solid #f1f5f9;">
-        
-        <input type="text" id="gasto-nom" placeholder="¿Qué compraste?">
-        <input type="number" id="gasto-val" placeholder="Precio Final (con Tax)">
-        <button class="btn-add" onclick="restarGasto()">REGISTRAR COMPRA</button>
+        <h3 style="font-size: 0.9rem; color: #64748b; margin-left: 10px;">HISTORIAL DE COMPRAS</h3>
+        <div id="lista-compras" class="history-list"></div>
+        <button onclick="borrarHistorial()" style="width:100%; background:none; border:none; color:var(--danger); font-size:0.7rem; font-weight:700; margin-top:10px; cursor:pointer;">BORRAR TODO EL HISTORIAL</button>
     </div>
 
     <div id="sec-sizes" class="card" style="display:none;">
-        <h2>Conversor de Talles 👟</h2>
-        <p style="font-size: 0.7rem; color: #64748b; text-align: center; margin-bottom: 15px;">Referencia promedio para Outlets</p>
-        
-        <div class="size-header" style="margin-bottom: 10px;">CALZADO HOMBRE</div>
-        <div class="size-grid">
-            <div class="size-header">AR</div><div class="size-header">US</div><div class="size-header">CM</div>
-            <div class="size-row">40</div><div class="size-row">8.5</div><div class="size-row">26.5</div>
-            <div class="size-row">41</div><div class="size-row">9.5</div><div class="size-row">27.5</div>
-            <div class="size-row">42</div><div class="size-row">10.5</div><div class="size-row">28.5</div>
-            <div class="size-row">43</div><div class="size-row">11.5</div><div class="size-row">29.5</div>
+        <h2>Guía de Talles US 🇺🇸</h2>
+
+        <div class="size-section">
+            <div class="size-title">👟 Zapatillas (Hombre)</div>
+            <div class="size-grid">
+                <div class="size-head">AR</div><div class="size-head">US</div><div class="size-head">UK</div>
+                <div class="size-row">39</div><div class="size-row">7</div><div class="size-row">6.5</div>
+                <div class="size-row">40</div><div class="size-row">8</div><div class="size-row">7.5</div>
+                <div class="size-row">41</div><div class="size-row">9</div><div class="size-row">8.5</div>
+                <div class="size-row">42</div><div class="size-row">10</div><div class="size-row">9.5</div>
+                <div class="size-row">43</div><div class="size-row">11</div><div class="size-row">10.5</div>
+                <div class="size-row">44</div><div class="size-row">12</div><div class="size-row">11.5</div>
+            </div>
         </div>
 
-        <div class="size-header" style="margin: 20px 0 10px;">ROPA HOMBRE</div>
-        <div class="size-grid">
-            <div class="size-header">AR</div><div class="size-header">US</div><div class="size-header">Letra</div>
-            <div class="size-row">48</div><div class="size-row">32</div><div class="size-row">M</div>
-            <div class="size-row">50</div><div class="size-row">34</div><div class="size-row">L</div>
-            <div class="size-row">52</div><div class="size-row">36</div><div class="size-row">XL</div>
+        <div class="size-section">
+            <div class="size-title">👕 Remeras y Buzos</div>
+            <div class="size-grid">
+                <div class="size-head">AR</div><div class="size-head">US</div><div class="size-head">Pecho (cm)</div>
+                <div class="size-row">S</div><div class="size-row">S</div><div class="size-row">86-94</div>
+                <div class="size-row">M</div><div class="size-row">M</div><div class="size-row">94-102</div>
+                <div class="size-row">L</div><div class="size-row">L</div><div class="size-row">102-112</div>
+                <div class="size-row">XL</div><div class="size-row">XL</div><div class="size-row">112-122</div>
+                <div class="size-row">XXL</div><div class="size-row">XXL</div><div class="size-row">122-132</div>
+            </div>
+        </div>
+
+        <div class="size-section">
+            <div class="size-title">👖 Pantalones / Jeans</div>
+            <div class="size-grid">
+                <div class="size-head">AR</div><div class="size-head">US (Waist)</div><div class="size-head">Equiv.</div>
+                <div class="size-row">40</div><div class="size-row">30</div><div class="size-row">S</div>
+                <div class="size-row">42</div><div class="size-row">32</div><div class="size-row">M</div>
+                <div class="size-row">44</div><div class="size-row">34</div><div class="size-row">L</div>
+                <div class="size-row">46</div><div class="size-row">36</div><div class="size-row">L/XL</div>
+                <div class="size-row">48</div><div class="size-row">38</div><div class="size-row">XL</div>
+            </div>
         </div>
     </div>
 
-    <div style="text-align: center;">
-        <button onclick="window.location.href='index.html'" style="background:none; border:none; color:#64748b; font-weight:700; cursor:pointer;">← Volver a Calc Tax</button>
+    <div style="margin-top: 20px;">
+        <button onclick="window.location.href='index.html'" style="background:none; border:none; color:#64748b; font-weight:700; cursor:pointer;">← Volver a Calculadora Tax</button>
     </div>
 
     <script>
         let balance = parseFloat(localStorage.getItem('tripBalance')) || 0;
+        let history = JSON.parse(localStorage.getItem('tripHistory')) || [];
 
         function setBudget() {
-            balance = parseFloat(document.getElementById('base-budget').value);
-            updateUI();
+            const input = document.getElementById('base-budget');
+            if(input.value) {
+                balance = parseFloat(input.value);
+                updateUI();
+                input.value = '';
+            }
         }
 
         function restarGasto() {
+            const nom = document.getElementById('gasto-nom').value || "Compra";
             const val = parseFloat(document.getElementById('gasto-val').value);
             if(val > 0) {
                 balance -= val;
+                history.unshift({ nombre: nom, precio: val });
                 updateUI();
                 document.getElementById('gasto-val').value = '';
                 document.getElementById('gasto-nom').value = '';
             }
         }
 
+        function borrarHistorial() {
+            if(confirm("¿Seguro quieres borrar todas las anotaciones?")) {
+                history = [];
+                updateUI();
+            }
+        }
+
         function updateUI() {
             document.getElementById('disponible').innerText = 'USD ' + balance.toLocaleString('en-US', {minimumFractionDigits: 2});
             localStorage.setItem('tripBalance', balance);
+            localStorage.setItem('tripHistory', JSON.stringify(history));
+            
+            const lista = document.getElementById('lista-compras');
+            lista.innerHTML = history.map(item => `
+                <div class="history-item">
+                    <div class="history-info">${item.nombre}</div>
+                    <div class="history-price">- USD ${item.precio.toFixed(2)}</div>
+                </div>
+            `).join('');
         }
 
         function showSec(sec) {
             document.getElementById('sec-calc').style.display = sec === 'calc' ? 'block' : 'none';
             document.getElementById('sec-sizes').style.display = sec === 'sizes' ? 'block' : 'none';
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            event.target.classList.add('active');
+            document.getElementById('tab-calc').classList.toggle('active', sec === 'calc');
+            document.getElementById('tab-sizes').classList.toggle('active', sec === 'sizes');
         }
 
         updateUI();
