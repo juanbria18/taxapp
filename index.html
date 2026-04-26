@@ -36,7 +36,7 @@
         
         .nav-buttons { margin-top: 25px; display: flex; flex-direction: column; gap: 10px; }
         .nav-btn { text-decoration: none; padding: 16px; border-radius: 14px; font-weight: 800; text-align: center; font-size: 0.9rem; transition: 0.2s; }
-        .btn-blue { background: #2563eb; color: white; border: none; width: 100%; }
+        .btn-blue { background: #2563eb; color: white; border: none; width: 100%; cursor: pointer; }
         .btn-purple { background: #7c3aed; color: white; }
 
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(4px); }
@@ -96,6 +96,10 @@
         </div>
     </div>
 
+    <div class="footer">
+        <span>Creado por Juan Cruz Bria <img src="https://flagcdn.com/w40/ar.png" style="width:18px;" alt="Argentina"></span>
+    </div>
+
     <div id="tripModal" class="modal">
         <div class="modal-content">
             <h3 style="margin-top:0; color: var(--primary);">Mi Viaje</h3>
@@ -116,7 +120,7 @@
     <div id="settingsDrawer" class="settings-drawer">
         <h3 style="margin-top:0; color: var(--primary);">Ajustes</h3>
         <p id="userEmail" style="font-size:0.75rem; color:#64748b; margin-bottom:20px; font-weight:700;"></p>
-        <button class="drawer-btn" onclick="logout()">Cerrar Sesión</button>
+        <button class="drawer-btn" style="width:100%; padding:12px; border-radius:10px; border:1px solid #ddd; background:white; cursor:pointer;" onclick="logout()">Cerrar Sesión</button>
     </div>
 
     <script type="module">
@@ -140,27 +144,44 @@
         let tripData = { destination: "Orlando", date: "2027-01-01" };
 
         onAuthStateChanged(auth, async (user) => {
-            if (!user) { window.location.replace("login.html"); } 
-            else {
+            if (!user) { 
+                window.location.replace("login.html"); 
+            } else {
                 currentUser = user;
                 document.getElementById('userEmail').innerText = user.email;
-                const docRef = doc(db, "users", user.uid);
-                const docSnap = await getDoc(docRef);
-                if (docSnap.exists() && docSnap.data().trip) { tripData = docSnap.data().trip; }
-                updateTripUI();
+                try {
+                    const docSnap = await getDoc(doc(db, "users", user.uid));
+                    if (docSnap.exists() && docSnap.data().trip) {
+                        tripData = docSnap.data().trip;
+                    }
+                    updateTripUI();
+                } catch (e) {
+                    console.error("Error al cargar datos:", e);
+                }
             }
         });
 
+        // FUNCIÓN GUARDAR RE-CORREGIDA
         window.saveTripSettings = async () => {
             const dest = document.getElementById('input-destination').value || "Orlando";
             const date = document.getElementById('input-date').value || "2027-01-01";
+            
             if (!currentUser) return;
+            
             tripData = { destination: dest, date: date };
+            
             try {
-                await setDoc(doc(db, "users", currentUser.uid), { trip: tripData }, { merge: true });
+                // Forzamos el guardado usando la referencia directa del UID
+                const userRef = doc(db, "users", currentUser.uid);
+                await setDoc(userRef, { trip: tripData }, { merge: true });
+                
                 updateTripUI();
                 closeTripModal();
-            } catch (e) { alert("Error: " + e.message); }
+                alert("¡Configuración guardada!");
+            } catch (e) {
+                console.error("Error al guardar:", e);
+                alert("Error al guardar: " + e.message + ". Recordá actualizar las Rules en la consola de Firebase.");
+            }
         };
 
         function updateTripUI() {
@@ -172,7 +193,6 @@
         window.openTripModal = () => document.getElementById('tripModal').style.display = 'flex';
         window.closeTripModal = () => document.getElementById('tripModal').style.display = 'none';
 
-        // --- BASE DE DATOS DE LOS 50 ESTADOS ---
         const taxData = {
             "Alabama": [{n:"Promedio", t:9.29}], "Alaska": [{n:"Sin Tax", t:0}], "Arizona": [{n:"Phoenix", t:8.6}], "Arkansas": [{n:"Little Rock", t:9.47}],
             "California": [{n:"Los Angeles", t:9.5}, {n:"San Francisco", t:8.63}, {n:"San Diego", t:7.75}], "Colorado": [{n:"Denver", t:8.81}], 
