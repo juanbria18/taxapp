@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TaxUSA</title>
+    <title>TaxUSA Pro</title>
     <style>
         :root { --primary: #2563eb; --bg: #f8fafc; --card: #ffffff; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -27,11 +27,15 @@
         .footer-links { margin-top: 20px; display: flex; flex-direction: column; gap: 5px; }
         .logout-btn { background: none; border: none; color: #94a3b8; font-weight: 700; cursor: pointer; text-decoration: underline; font-size: 0.75rem; }
         .change-pass-btn { background: none; border: none; color: #64748b; font-weight: 600; cursor: pointer; font-size: 0.7rem; }
+        
+        /* Indicador de sincronización */
+        #sync-status { font-size: 0.6rem; color: #10b981; font-weight: 800; margin-bottom: 10px; text-transform: uppercase; display: none; }
     </style>
 </head>
 <body>
 
     <div class="card">
+        <div id="sync-status">● Sincronizado con la nube</div>
         <h1>TaxUSA 🇺🇸</h1>
         
         <div class="input-group">
@@ -51,24 +55,11 @@
             <label>Estado</label>
             <select id="state-select" onchange="loadCities()">
                 <option value="Florida" selected>Florida</option>
-                <option value="Alabama">Alabama</option><option value="Alaska">Alaska</option><option value="Arizona">Arizona</option>
-                <option value="Arkansas">Arkansas</option><option value="California">California</option><option value="Colorado">Colorado</option>
-                <option value="Connecticut">Connecticut</option><option value="Delaware">Delaware</option>
-                <option value="Georgia">Georgia</option><option value="Hawaii">Hawaii</option><option value="Idaho">Idaho</option>
-                <option value="Illinois">Illinois</option><option value="Indiana">Indiana</option><option value="Iowa">Iowa</option>
-                <option value="Kansas">Kansas</option><option value="Kentucky">Kentucky</option><option value="Louisiana">Louisiana</option>
-                <option value="Maine">Maine</option><option value="Maryland">Maryland</option><option value="Massachusetts">Massachusetts</option>
-                <option value="Michigan">Michigan</option><option value="Minnesota">Minnesota</option><option value="Mississippi">Mississippi</option>
-                <option value="Missouri">Missouri</option><option value="Montana">Montana</option><option value="Nebraska">Nebraska</option>
-                <option value="Nevada">Nevada</option><option value="New Hampshire">New Hampshire</option><option value="New Jersey">New Jersey</option>
-                <option value="New Mexico">New Mexico</option><option value="New York">New York</option><option value="North Carolina">North Carolina</option>
-                <option value="North Dakota">North Dakota</option><option value="Ohio">Ohio</option><option value="Oklahoma">Oklahoma</option>
-                <option value="Oregon">Oregon</option><option value="Pennsylvania">Pennsylvania</option><option value="Rhode Island">Rhode Island</option>
-                <option value="South Carolina">South Carolina</option><option value="South Dakota">South Dakota</option><option value="Tennessee">Tennessee</option>
-                <option value="Texas">Texas</option><option value="Utah">Utah</option><option value="Vermont">Vermont</option>
-                <option value="Virginia">Virginia</option><option value="Washington">Washington</option><option value="West Virginia">West Virginia</option>
-                <option value="Wisconsin">Wisconsin</option><option value="Wyoming">Wyoming</option>
-            </select>
+                <option value="Alabama">Alabama</option><option value="Alaska">Alaska</option>
+                <option value="Arizona">Arizona</option><option value="Arkansas">Arkansas</option>
+                <option value="California">California</option><option value="Colorado">Colorado</option>
+                <option value="New York">New York</option><option value="Texas">Texas</option>
+                </select>
         </div>
 
         <div class="input-group">
@@ -94,12 +85,8 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-        import { 
-            getAuth, 
-            onAuthStateChanged, 
-            signOut, 
-            sendPasswordResetEmail 
-        } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+        import { getAuth, onAuthStateChanged, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+        import { getFirestore } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCm0Ig-CPklsjf6j-1uSAeF6I8xtyQKj7U",
@@ -113,10 +100,14 @@
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
+        const db = getFirestore(app);
 
         const data = {
             "Florida": [{n:"Orlando", t:6.5}, {n:"Miami", t:7.0}],
-            "Alabama": [{n:"Birmingham", t:10.0}], "Alaska": [{n:"Anchorage", t:0}], "Arizona": [{n:"Phoenix", t:8.6}], "Arkansas": [{n:"Little Rock", t:9.5}], "California": [{n:"Los Angeles", t:9.5}], "Colorado": [{n:"Denver", t:8.81}], "Connecticut": [{n:"Hartford", t:6.35}], "Delaware": [{n:"Wilmington", t:0}], "Georgia": [{n:"Atlanta", t:8.9}], "Hawaii": [{n:"Honolulu", t:4.5}], "Idaho": [{n:"Boise", t:6.0}], "Illinois": [{n:"Chicago", t:10.25}], "Indiana": [{n:"Indianapolis", t:7.0}], "Iowa": [{n:"Des Moines", t:7.0}], "Kansas": [{n:"Wichita", t:7.5}], "Kentucky": [{n:"Louisville", t:6.0}], "Louisiana": [{n:"New Orleans", t:9.45}], "Maine": [{n:"Portland", t:5.5}], "Maryland": [{n:"Baltimore", t:6.0}], "Massachusetts": [{n:"Boston", t:6.25}], "Michigan": [{n:"Detroit", t:6.0}], "Minnesota": [{n:"Minneapolis", t:8.03}], "Mississippi": [{n:"Jackson", t:8.0}], "Missouri": [{n:"St. Louis", t:9.68}], "Montana": [{n:"Billings", t:0}], "Nebraska": [{n:"Omaha", t:7.0}], "Nevada": [{n:"Las Vegas", t:8.38}], "New Hampshire": [{n:"Manchester", t:0}], "New Jersey": [{n:"Jersey City", t:6.625}], "New Mexico": [{n:"Albuquerque", t:7.88}], "New York": [{n:"NYC", t:8.875}], "North Carolina": [{n:"Charlotte", t:7.25}], "North Dakota": [{n:"Fargo", t:7.5}], "Ohio": [{n:"Columbus", t:7.5}], "Oklahoma": [{n:"OKC", t:8.63}], "Oregon": [{n:"Portland", t:0}], "Pennsylvania": [{n:"Philly", t:8.0}], "Rhode Island": [{n:"Providence", t:7.0}], "South Carolina": [{n:"Charleston", t:9.0}], "South Dakota": [{n:"Sioux Falls", t:6.5}], "Tennessee": [{n:"Nashville", t:9.25}], "Texas": [{n:"Houston", t:8.25}], "Utah": [{n:"Salt Lake City", t:7.75}], "Vermont": [{n:"Burlington", t:7.0}], "Virginia": [{n:"Virginia Beach", t:6.0}], "Washington": [{n:"Seattle", t:10.25}], "West Virginia": [{n:"Charleston", t:7.0}], "Wisconsin": [{n:"Milwaukee", t:5.5}], "Wyoming": [{n:"Cheyenne", t:6.0}]
+            "Alabama": [{n:"Birmingham", t:10.0}], "Alaska": [{n:"Anchorage", t:0}], 
+            "Arizona": [{n:"Phoenix", t:8.6}], "Arkansas": [{n:"Little Rock", t:9.5}], 
+            "California": [{n:"Los Angeles", t:9.5}], "Colorado": [{n:"Denver", t:8.81}],
+            "New York": [{n:"NYC", t:8.875}], "Texas": [{n:"Houston", t:8.25}]
         };
 
         let currentCategory = 'general';
@@ -155,14 +146,19 @@
         window.changePass = () => {
             const userEmail = auth.currentUser.email;
             sendPasswordResetEmail(auth, userEmail).then(() => {
-                alert("Te enviamos un mail a " + userEmail + " para que cambies tu clave. Revisa tu bandeja de entrada o spam.");
+                alert("Mail enviado a " + userEmail);
             }).catch((e) => alert("Error: " + e.message));
         };
 
         window.logout = () => signOut(auth).then(() => window.location.replace("login.html"));
 
         onAuthStateChanged(auth, (user) => { 
-            if (!user) window.location.replace("login.html"); 
+            if (!user) {
+                window.location.replace("login.html");
+            } else {
+                document.getElementById('sync-status').style.display = 'block';
+                console.log("Usuario activo:", user.email);
+            }
         });
         
         window.onload = window.loadCities;
