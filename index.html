@@ -3,86 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TaxUSA - Calculadora Completa</title>
+    <title>TaxUSA</title>
     <style>
         :root { --primary: #2563eb; --bg: #f8fafc; --card: #ffffff; }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
-        .card { background: var(--card); padding: 1.5rem; border-radius: 24px; width: 100%; max-width: 420px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); text-align: center; }
-        h1 { margin: 0 0 1rem 0; font-size: 1.6rem; font-weight: 800; color: var(--primary); }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; }
+        .card { background: white; padding: 1.5rem; border-radius: 24px; width: 100%; max-width: 420px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); text-align: center; }
+        h1 { color: var(--primary); font-size: 1.6rem; font-weight: 800; margin-bottom: 1rem; }
         .input-group { margin-bottom: 1rem; text-align: left; }
         label { display: block; font-size: 0.7rem; font-weight: 800; color: #64748b; margin-bottom: 0.4rem; text-transform: uppercase; }
-        input, select { width: 100%; padding: 12px; border: 2px solid #f1f5f9; border-radius: 14px; font-size: 1rem; font-weight: 600; outline: none; background: white; }
-        .category-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 1.2rem; }
-        .cat-btn { padding: 10px; border: 2px solid #f1f5f9; border-radius: 12px; background: white; font-size: 0.65rem; font-weight: 800; color: #64748b; cursor: pointer; transition: 0.2s; }
+        input, select { width: 100%; padding: 12px; border: 2px solid #f1f5f9; border-radius: 14px; font-size: 1rem; outline: none; background: white; }
+        .category-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 1rem; }
+        .cat-btn { padding: 10px; border: 2px solid #f1f5f9; border-radius: 12px; background: white; font-size: 0.7rem; font-weight: 800; cursor: pointer; }
         .cat-btn.active { border-color: var(--primary); background: #eff6ff; color: var(--primary); }
-        .result-box { background: #eff6ff; padding: 1.2rem; border-radius: 20px; margin-top: 0.8rem; border: 1px dashed var(--primary); }
-        .result-value { font-size: 2.2rem; font-weight: 900; color: var(--primary); margin: 4px 0; }
-        .info-tag { font-size: 0.65rem; font-weight: 800; color: #94a3b8; margin-top: 8px; display: block; }
-        .logout-btn { background: none; border: none; color: #94a3b8; font-weight: 700; margin-top: 20px; cursor: pointer; text-decoration: underline; font-size: 0.75rem; }
+        .result-box { background: #eff6ff; padding: 1.5rem; border-radius: 20px; margin-top: 1rem; border: 1px dashed var(--primary); }
+        .result-value { font-size: 2.2rem; font-weight: 900; color: var(--primary); }
+        .logout-btn { background: none; border: none; color: #94a3b8; font-weight: 700; margin-top: 20px; cursor: pointer; text-decoration: underline; }
     </style>
 </head>
 <body>
-
     <div class="card">
         <h1>TaxUSA 🇺🇸</h1>
-        
         <div class="input-group">
             <label>Precio Etiqueta (USD)</label>
             <input type="number" id="price" placeholder="0.00" oninput="calculate()" step="0.01">
         </div>
-
-        <label>Categoría</label>
         <div class="category-grid">
             <button class="cat-btn active" id="btn-general" onclick="setCategory('general')">🛍️ GENERAL</button>
             <button class="cat-btn" id="btn-tech" onclick="setCategory('tech')">💻 TECH</button>
             <button class="cat-btn" id="btn-food" onclick="setCategory('food')">🍎 COMIDA</button>
             <button class="cat-btn" id="btn-med" onclick="setCategory('med')">💊 MEDICINA</button>
         </div>
-
         <div class="input-group">
             <label>Estado</label>
             <select id="state-select" onchange="loadCities()">
-                <option value="Alabama">Alabama</option><option value="Alaska">Alaska</option>
-                <option value="Arizona">Arizona</option><option value="Arkansas">Arkansas</option>
-                <option value="California">California</option><option value="Colorado">Colorado</option>
-                <option value="Connecticut">Connecticut</option><option value="Delaware">Delaware</option>
-                <option value="Florida" selected>Florida</option><option value="Georgia">Georgia</option>
-                <option value="Hawaii">Hawaii</option><option value="Idaho">Idaho</option>
-                <option value="Illinois">Illinois</option><option value="Indiana">Indiana</option>
-                <option value="Iowa">Iowa</option><option value="Kansas">Kansas</option>
-                <option value="Kentucky">Kentucky</option><option value="Louisiana">Louisiana</option>
-                <option value="Maine">Maine</option><option value="Maryland">Maryland</option>
-                <option value="Massachusetts">Massachusetts</option><option value="Michigan">Michigan</option>
-                <option value="Minnesota">Minnesota</option><option value="Mississippi">Mississippi</option>
-                <option value="Missouri">Missouri</option><option value="Montana">Montana</option>
-                <option value="Nebraska">Nebraska</option><option value="Nevada">Nevada</option>
-                <option value="New Hampshire">New Hampshire</option><option value="New Jersey">New Jersey</option>
-                <option value="New Mexico">New Mexico</option><option value="New York">New York</option>
-                <option value="North Carolina">North Carolina</option><option value="North Dakota">North Dakota</option>
-                <option value="Ohio">Ohio</option><option value="Oklahoma">Oklahoma</option>
-                <option value="Oregon">Oregon</option><option value="Pennsylvania">Pennsylvania</option>
-                <option value="Rhode Island">Rhode Island</option><option value="South Carolina">South Carolina</option>
-                <option value="South Dakota">South Dakota</option><option value="Tennessee">Tennessee</option>
-                <option value="Texas">Texas</option><option value="Utah">Utah</option>
-                <option value="Vermont">Vermont</option><option value="Virginia">Virginia</option>
-                <option value="Washington">Washington</option><option value="West Virginia">West Virginia</option>
-                <option value="Wisconsin">Wisconsin</option><option value="Wyoming">Wyoming</option>
+                <option value="Alabama">Alabama</option><option value="Alaska">Alaska</option><option value="Arizona">Arizona</option><option value="Arkansas">Arkansas</option><option value="California">California</option><option value="Colorado">Colorado</option><option value="Connecticut">Connecticut</option><option value="Delaware">Delaware</option><option value="Florida" selected>Florida</option><option value="Georgia">Georgia</option><option value="Hawaii">Hawaii</option><option value="Idaho">Idaho</option><option value="Illinois">Illinois</option><option value="Indiana">Indiana</option><option value="Iowa">Iowa</option><option value="Kansas">Kansas</option><option value="Kentucky">Kentucky</option><option value="Louisiana">Louisiana</option><option value="Maine">Maine</option><option value="Maryland">Maryland</option><option value="Massachusetts">Massachusetts</option><option value="Michigan">Michigan</option><option value="Minnesota">Minnesota</option><option value="Mississippi">Mississippi</option><option value="Missouri">Missouri</option><option value="Montana">Montana</option><option value="Nebraska">Nebraska</option><option value="Nevada">Nevada</option><option value="New Hampshire">New Hampshire</option><option value="New Jersey">New Jersey</option><option value="New Mexico">New Mexico</option><option value="New York">New York</option><option value="North Carolina">North Carolina</option><option value="North Dakota">North Dakota</option><option value="Ohio">Ohio</option><option value="Oklahoma">Oklahoma</option><option value="Oregon">Oregon</option><option value="Pennsylvania">Pennsylvania</option><option value="Rhode Island">Rhode Island</option><option value="South Carolina">South Carolina</option><option value="South Dakota">South Dakota</option><option value="Tennessee">Tennessee</option><option value="Texas">Texas</option><option value="Utah">Utah</option><option value="Vermont">Vermont</option><option value="Virginia">Virginia</option><option value="Washington">Washington</option><option value="West Virginia">West Virginia</option><option value="Wisconsin">Wisconsin</option><option value="Wyoming">Wyoming</option>
             </select>
         </div>
-
         <div class="input-group">
             <label>Ciudad</label>
             <select id="city-select" onchange="calculate()"></select>
         </div>
-
         <div class="result-box">
-            <div class="result-label" style="font-size: 0.7rem; font-weight: 800; color: #3b82f6;">PRECIO FINAL</div>
             <div class="result-value" id="total">USD 0.00</div>
+            <div id="tax-detail" style="font-size: 0.8rem; color: #3b82f6; font-weight: bold;">Tax: 6.5%</div>
         </div>
-
-        <span class="info-tag" id="tax-detail">Tax Aplicado: 6.5%</span>
-
         <button class="logout-btn" onclick="logout()">Cerrar Sesión</button>
     </div>
 
@@ -103,50 +67,47 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
 
-        let currentCategory = 'general';
         const data = {
             "Alabama": [{n:"Birmingham", t:10.0}], "Alaska": [{n:"Anchorage", t:0}], "Arizona": [{n:"Phoenix", t:8.6}], "Arkansas": [{n:"Little Rock", t:9.0}], "California": [{n:"Los Angeles", t:9.5}], "Colorado": [{n:"Denver", t:8.81}], "Connecticut": [{n:"Hartford", t:6.35}], "Delaware": [{n:"Wilmington", t:0}], "Florida": [{n:"Orlando", t:6.5}, {n:"Miami", t:7.0}], "Georgia": [{n:"Atlanta", t:8.9}], "Hawaii": [{n:"Honolulu", t:4.5}], "Idaho": [{n:"Boise", t:6.0}], "Illinois": [{n:"Chicago", t:10.25}], "Indiana": [{n:"Indianapolis", t:7.0}], "Iowa": [{n:"Des Moines", t:7.0}], "Kansas": [{n:"Wichita", t:7.5}], "Kentucky": [{n:"Louisville", t:6.0}], "Louisiana": [{n:"New Orleans", t:9.45}], "Maine": [{n:"Portland", t:5.5}], "Maryland": [{n:"Baltimore", t:6.0}], "Massachusetts": [{n:"Boston", t:6.25}], "Michigan": [{n:"Detroit", t:6.0}], "Minnesota": [{n:"Minneapolis", t:8.03}], "Mississippi": [{n:"Jackson", t:8.0}], "Missouri": [{n:"St. Louis", t:9.68}], "Montana": [{n:"Billings", t:0}], "Nebraska": [{n:"Omaha", t:7.0}], "Nevada": [{n:"Las Vegas", t:8.38}], "New Hampshire": [{n:"Manchester", t:0}], "New Jersey": [{n:"Jersey City", t:6.625}], "New Mexico": [{n:"Albuquerque", t:7.88}], "New York": [{n:"NYC", t:8.875}], "North Carolina": [{n:"Charlotte", t:7.25}], "North Dakota": [{n:"Fargo", t:7.5}], "Ohio": [{n:"Columbus", t:7.5}], "Oklahoma": [{n:"Oklahoma City", t:8.63}], "Oregon": [{n:"Portland", t:0}], "Pennsylvania": [{n:"Philadelphia", t:8.0}], "Rhode Island": [{n:"Providence", t:7.0}], "South Carolina": [{n:"Charleston", t:9.0}], "South Dakota": [{n:"Sioux Falls", t:6.5}], "Tennessee": [{n:"Nashville", t:9.25}], "Texas": [{n:"Houston", t:8.25}], "Utah": [{n:"Salt Lake City", t:7.75}], "Vermont": [{n:"Burlington", t:7.0}], "Virginia": [{n:"Virginia Beach", t:6.0}], "Washington": [{n:"Seattle", t:10.25}], "West Virginia": [{n:"Charleston", t:7.0}], "Wisconsin": [{n:"Milwaukee", t:5.5}], "Wyoming": [{n:"Cheyenne", t:6.0}]
         };
 
-        window.loadCities = function() {
+        let currentCategory = 'general';
+
+        window.loadCities = () => {
             const state = document.getElementById('state-select').value;
             const citySelect = document.getElementById('city-select');
             citySelect.innerHTML = "";
-            if(data[state]){
-                data[state].forEach(city => {
-                    let opt = document.createElement('option');
-                    opt.value = city.t;
-                    opt.text = `${city.n} (${city.t}%)`;
-                    citySelect.appendChild(opt);
-                });
-            }
+            data[state].forEach(city => {
+                let opt = document.createElement('option');
+                opt.value = city.t;
+                opt.text = `${city.n} (${city.t}%)`;
+                citySelect.appendChild(opt);
+            });
             window.calculate();
         };
 
-        window.setCategory = function(cat) {
+        window.setCategory = (cat) => {
             currentCategory = cat;
             document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
             document.getElementById('btn-' + cat).classList.add('active');
             window.calculate();
         };
 
-        window.calculate = function() {
+        window.calculate = () => {
             const price = parseFloat(document.getElementById('price').value) || 0;
             let tax = parseFloat(document.getElementById('city-select').value) || 0;
             if (currentCategory === 'med' || currentCategory === 'food') tax = 0;
             const total = price + (price * (tax / 100));
             document.getElementById('total').innerText = 'USD ' + total.toLocaleString('en-US', {minimumFractionDigits: 2});
-            document.getElementById('tax-detail').innerText = (tax === 0) ? "Producto Exento de Tax" : `Tax Aplicado: ${tax}%`;
+            document.getElementById('tax-detail').innerText = `Tax Aplicado: ${tax}%`;
         };
 
-        window.logout = function() {
-            signOut(auth).then(() => { window.location.href = "login.html"; });
-        };
+        window.logout = () => signOut(auth).then(() => window.location.replace("login.html"));
 
-        onAuthStateChanged(auth, (user) => {
-            if (!user) window.location.href = "login.html";
+        onAuthStateChanged(auth, (user) => { 
+            if (!user) window.location.replace("login.html"); 
         });
-
+        
         window.onload = window.loadCities;
     </script>
 </body>
