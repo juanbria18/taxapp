@@ -26,12 +26,12 @@
         .tab { flex: 1; padding: 12px; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; background: transparent; color: #64748b; font-size: 0.8rem; }
         .tab.active { background: var(--white); color: var(--primary); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
 
-        /* TABLA DE TALLES RESTAURADA COMPLETAMENTE */
-        .talles-scroll { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; scrollbar-width: none; }
-        .talles-scroll::-webkit-scrollbar { display: none; }
-        .talle-col { min-width: 140px; background: #f8fafc; padding: 15px 10px; border-radius: 18px; border: 1px solid #e2e8f0; text-align: center; }
-        .talle-col small { color: var(--accent); font-weight: 800; font-size: 0.6rem; display: block; text-transform: uppercase; margin-bottom: 10px; }
-        .talle-row { display: flex; justify-content: space-between; padding: 5px 8px; border-bottom: 1px solid #f1f5f9; font-size: 0.75rem; font-weight: 600; color: #1e293b; }
+        /* TALLES CONFIGURADOS UNO ABAJO DEL OTRO */
+        .talles-lista { display: flex; flex-direction: column; gap: 15px; }
+        .talle-col { width: 100%; background: #f8fafc; padding: 15px; border-radius: 18px; border: 1px solid #e2e8f0; text-align: center; }
+        .talle-col small { color: var(--accent); font-weight: 800; font-size: 0.7rem; display: block; text-transform: uppercase; margin-bottom: 12px; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px; }
+        .talle-row { display: flex; justify-content: space-between; padding: 8px 12px; border-bottom: 1px solid #f1f5f9; font-size: 0.85rem; font-weight: 600; color: #1e293b; }
+        .talle-row:last-child { border-bottom: none; }
         .talle-row span:first-child { color: #64748b; font-weight: 800; }
 
         .input-group { margin-bottom: 1.2rem; text-align: left; }
@@ -91,7 +91,7 @@
         </div>
 
         <div id="sec-talles" style="display:none;">
-            <div class="talles-scroll">
+            <div class="talles-lista">
                 <div class="talle-col">
                     <small>👟 Calzado (ARG vs US)</small>
                     <div class="talle-row"><span>35</span><span>5.0</span></div>
@@ -243,40 +243,10 @@
             "Muchos locales dan descuento si te anotás al newsletter en el momento.",
             "Ross Dress for Less recibe mercadería nueva los lunes y martes.",
             "Walmart es el mejor lugar para comprar valijas baratas si te falta espacio.",
-            "En Florida, la ropa y calzado de menos de $1000 NO tiene tax extra.",
-            "Las Vitaminas en CVS o Walgreens suelen estar 2x1 (BOGO).",
-            "Tommy Hilfiger suele tener cupones del 15% acumulables en la entrada.",
-            "Cuidado con el talle 'Slim Fit', es mucho más ajustado que el estándar.",
-            "Para perfumes originales baratos, visitá 'Perfumania' en los Outlets.",
-            "Los Crocs en USA tienen colores que nunca llegan a Argentina.",
-            "H&M y Zara tienen talles idénticos a los de Argentina.",
-            "En Florida Mall, el Apple Store suele tener más stock que el de los Outlets.",
+            "Florida Mall, el Apple Store suele tener más stock que el de los Outlets.",
             "Si vas a comprar mucho, llevá una valija vacía con rueditas al Outlet.",
-            "Five Below es genial para chucherías tecnológicas por menos de 5 USD.",
-            "En los SuperTarget encontrás ropa de buena calidad a precios de Walmart.",
-            "La marca 'Old Navy' es excelente para básicos y suele tener liquidación.",
-            "Calvin Klein suele tener ofertas fuertes en packs de ropa interior.",
-            "Un talle 10 US de hombre equivale a unos 28 centímetros de pie.",
-            "Revisá siempre el ticket; a veces los descuentos se aplican en la caja.",
-            "Las Converse suelen venir en talles grandes, comprá medio punto menos.",
-            "En Orlando, el tax de ventas general es del 6.5%. Tenelo en cuenta.",
-            "Los termos Stanley son mucho más baratos en Walmart que en shoppings.",
             "GAP suele tener '40% off everything' casi todos los fines de semana.",
-            "Si buscás zapatillas de básquet, visitá los 'Nike Clearance Stores'.",
-            "Los talles de bebés en USA se dividen por meses (6M, 9M, 12M).",
             "Carter's es el lugar N°1 para ropa de niños por precio y calidad.",
-            "En Bath & Body Works, las velas de 3 mechas suelen estar en oferta.",
-            "Victoria's Secret tiene talles de corpiño distintos; pedí que te midan.",
-            "La electrónica NO se puede devolver si ya saliste de USA.",
-            "Las laptops en Best Buy suelen venir con teclado en inglés (sin Ñ).",
-            "Si comprás un iPhone, asegurate que sea el modelo 'Unlocked'.",
-            "En los Outlets, pedí el 'Savings Passport' en el centro de informes.",
-            "Disney Springs tiene locales de marca (Uniqlo, Zara) sin pagar entrada.",
-            "Uniqlo es el mejor lugar para comprar camperas de pluma ultra livianas.",
-            "Los talles de Ralph Lauren son un poco más grandes que la media.",
-            "Revisá la sección 'Open Box' en Best Buy para descuentos en tecnología.",
-            "En Orlando, estacionar en los Outlets es gratis, en los parques NO.",
-            "Si el presupuesto está ajustado, priorizá marcas que no hay en Argentina.",
             "¡Guardá todos los tickets físicos por si tenés que cambiar algo!"
         ];
         let currentTipIndex = 0;
@@ -292,5 +262,4 @@
         setInterval(window.nextTip, 8000);
     </script>
 </body>
-</html>
 </html>
