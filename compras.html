@@ -70,17 +70,39 @@
             overflow: hidden; 
             border: 1px solid #e2e8f0; 
             margin-bottom: 15px;
-            table-layout: fixed; /* Esto evita que se ensanchen de más */
+            table-layout: fixed; 
         }
         .talles-table th, .talles-table td { 
             padding: 8px 2px; 
             text-align: center; 
             border: 1px solid #e2e8f0; 
-            font-size: 0.65rem; /* Letra un poco más chica para que entre todo */
+            font-size: 0.65rem; 
             word-break: break-word;
         }
         .talles-table th { background: #e2e8f0; font-weight: 800; color: #475569; }
         .talles-table td { font-weight: 700; color: #1e293b; }
+
+        /* NUEVOS ESTILOS COTIZADOR AESTHETIC */
+        .converter-box { 
+            background: #ffffff; 
+            border-radius: 20px; 
+            padding: 18px; 
+            margin-top: 10px;
+            margin-bottom: 20px; 
+            border: 1px solid #eef2f6;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+            width: 100%;
+            max-width: 450px;
+        }
+        .converter-header { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; color: #64748b; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
+        .conv-input-group { display: flex; background: #f8fafc; border-radius: 14px; padding: 8px 12px; align-items: center; border: 2px solid #f1f5f9; margin-bottom: 10px; }
+        .conv-input-group input { background: transparent; border: none; padding: 5px; font-size: 1.1rem; font-weight: 800; color: #1e293b; width: 100%; outline: none; }
+        .currency-selector-wrapper { display: flex; align-items: center; gap: 10px; background: #ffffff; padding: 8px 12px; border-radius: 14px; border: 2px solid #f1f5f9; }
+        .flag-icon { width: 22px; height: 16px; object-fit: cover; border-radius: 3px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        #currency-select { border: none; background: transparent; font-weight: 700; font-size: 0.85rem; color: #334155; outline: none; width: 100%; cursor: pointer; }
+        .result-badge { margin-top: 12px; background: var(--primary); color: white; padding: 12px; border-radius: 14px; display: flex; justify-content: space-between; align-items: center; font-weight: 800; }
+        .result-label { font-size: 0.6rem; text-transform: uppercase; opacity: 0.8; }
+        .result-amount { font-size: 1rem; }
     </style>
 </head>
 <body>
@@ -168,6 +190,31 @@
         </div>
     </div>
 
+    <div class="converter-box">
+        <div class="converter-header"><span>🔄 Convertidor de divisas</span></div>
+        <div class="conv-input-group">
+            <input type="number" id="conv-amount" value="1" oninput="convertCurrency()" placeholder="0.00">
+        </div>
+        <div class="currency-selector-wrapper">
+            <img id="current-flag" src="https://flagcdn.com/w40/eu.png" class="flag-icon">
+            <select id="currency-select" onchange="updateFlagAndConvert()">
+                <option value="EUR" data-flag="eu">EUR - Euro</option>
+                <option value="GBP" data-flag="gb">GBP - Libra Esterlina</option>
+                <option value="BRL" data-flag="br">BRL - Real Brasileño</option>
+                <option value="CLP" data-flag="cl">CLP - Peso Chileno</option>
+                <option value="UYU" data-flag="uy">UYU - Peso Uruguayo</option>
+                <option value="COP" data-flag="co">COP - Peso Colombiano</option>
+                <option value="MXN" data-flag="mx">MXN - Peso Mexicano</option>
+                <option value="PEN" data-flag="pe">PEN - Sol Peruano</option>
+                <option value="ARS" data-flag="ar">ARS - Peso Argentino</option>
+            </select>
+        </div>
+        <div class="result-badge">
+            <span class="result-label" id="cur-base-text">A Dólar (USD)</span>
+            <span class="result-amount" id="cur-result">...</span>
+        </div>
+    </div>
+
     <div id="menuOverlay" class="menu-overlay" onclick="toggleSettings()"></div>
     <div id="settingsDrawer" class="settings-drawer">
         <h3 style="color:var(--primary); margin-top:0;">Ajustes</h3>
@@ -192,6 +239,33 @@
         const db = getFirestore(app);
         let currentUser = null;
         let presupuestoBase = 0;
+        let rates = {}; // Guardaremos los rates aquí
+
+        // Lógica del Cotizador
+        window.updateFlagAndConvert = () => {
+            const select = document.getElementById('currency-select');
+            const flagCode = select.options[select.selectedIndex].getAttribute('data-flag');
+            document.getElementById('current-flag').src = `https://flagcdn.com/w40/${flagCode}.png`;
+            window.convertCurrency();
+        };
+
+        window.convertCurrency = () => {
+            const code = document.getElementById('currency-select').value;
+            const amount = parseFloat(document.getElementById('conv-amount').value) || 0;
+            const resVal = document.getElementById('cur-result');
+            const baseText = document.getElementById('cur-base-text');
+            if (rates && rates[code]) {
+                const totalInUsd = amount / rates[code];
+                baseText.innerText = `${amount} ${code} =`;
+                resVal.innerText = `$${totalInUsd.toFixed(2)} USD`;
+            }
+        };
+
+        // Fetch de DolarApi
+        fetch('https://dolarapi.com/v1/cotizaciones').then(r => r.json()).then(data => {
+            data.forEach(c => { rates[c.moneda] = c.venta; });
+            window.convertCurrency();
+        });
 
         window.updateFondo = async () => { 
             const val = document.getElementById('input-fondo').value; 
