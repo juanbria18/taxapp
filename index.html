@@ -12,191 +12,137 @@
         .card { background: var(--card); padding: 1.5rem; border-radius: 24px; width: 100%; max-width: 420px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); text-align: center; position: relative; }
         h1 { margin: 0 0 1rem 0; font-size: 1.6rem; font-weight: 800; color: var(--primary); }
         
-        .settings-trigger { position: absolute; top: 20px; right: 20px; background: #f1f5f9; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; }
+        .input-group { margin-bottom: 1rem; text-align: left; }
+        label { display: block; font-size: 0.7rem; font-weight: 800; color: #64748b; margin-bottom: 0.4rem; text-transform: uppercase; margin-left: 5px; }
+        input, select { width: 100%; padding: 14px; border: 2px solid #f1f5f9; border-radius: 14px; font-size: 1rem; outline: none; background: white; font-weight: 600; }
+        
+        /* Botones de Categoría (Restaurados) */
+        .category-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1.2rem; }
+        .cat-btn { padding: 15px 10px; border: 2px solid #f1f5f9; border-radius: 16px; background: white; font-size: 0.7rem; font-weight: 800; color: #64748b; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; align-items: center; gap: 5px; }
+        .cat-btn i { font-style: normal; font-size: 1.2rem; }
+        .cat-btn.active { border-color: var(--primary); background: #eff6ff; color: var(--primary); box-shadow: 0 4px 10px rgba(37, 99, 235, 0.1); }
+        
+        .result-box { background: #eff6ff; padding: 1.2rem; border-radius: 20px; margin-top: 0.8rem; border: 2px dashed var(--primary); }
+        .result-value { font-size: 2.2rem; font-weight: 900; color: var(--primary); margin: 4px 0; }
+        
+        .nav-buttons { margin-top: 25px; display: flex; flex-direction: column; gap: 10px; }
+        .nav-btn { text-decoration: none; padding: 16px; border-radius: 14px; font-weight: 800; text-align: center; font-size: 0.9rem; transition: 0.2s; }
+        .btn-blue { background: #2563eb; color: white; }
+        .btn-purple { background: #7c3aed; color: white; }
 
-        .input-group { margin-bottom: 1.2rem; text-align: left; }
-        label { display: block; font-size: 0.85rem; font-weight: 700; color: #64748b; margin-bottom: 0.5rem; margin-left: 5px; }
-        input, select { width: 100%; padding: 14px; border: 2px solid #f1f5f9; border-radius: 16px; font-size: 1rem; font-weight: 600; outline: none; transition: 0.3s; background: #f8fafc; }
-        input:focus { border-color: var(--primary); background: #fff; }
-
-        .result-box { background: #eff6ff; padding: 20px; border-radius: 20px; margin-top: 1rem; border: 2px dashed var(--primary); }
-        .total-label { font-size: 0.8rem; font-weight: 800; color: var(--primary); text-transform: uppercase; letter-spacing: 1px; }
-        .total-amount { font-size: 2.4rem; font-weight: 900; color: var(--primary); margin: 5px 0; }
-        .tax-info { font-size: 0.85rem; color: #64748b; font-weight: 600; }
-        #tax-note { font-size: 0.75rem; color: var(--accent); font-weight: 700; margin-top: 8px; display: block; }
-
-        .nav-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; max-width: 420px; margin-top: 15px; }
-        .nav-item { background: var(--card); padding: 15px; border-radius: 20px; text-decoration: none; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 2px solid transparent; transition: 0.3s; }
-        .nav-item:active { transform: scale(0.95); border-color: var(--primary); }
-        .nav-icon { font-size: 1.5rem; display: block; margin-bottom: 5px; }
-        .nav-text { font-size: 0.75rem; font-weight: 800; color: #1e293b; text-transform: uppercase; }
-
-        .footer { width: 100%; max-width: 420px; margin-top: 30px; margin-bottom: 20px; text-align: center; font-size: 0.75rem; color: #94a3b8; font-weight: 600; }
-        .footer span { display: flex; align-items: center; justify-content: center; gap: 5px; }
-
-        /* Drawer */
-        .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; z-index: 1000; }
-        .settings-drawer { position: fixed; top: 0; right: -300px; width: 280px; height: 100%; background: white; z-index: 1001; transition: 0.3s; padding: 25px; display: flex; flex-direction: column; }
-        .settings-drawer.open { right: 0; }
-        .drawer-btn { width: 100%; padding: 14px; margin-bottom: 10px; border-radius: 12px; border: 1px solid #e2e8f0; background: white; font-weight: 700; text-align: left; cursor: pointer; font-size: 0.85rem; }
+        .settings-trigger { position: absolute; top: 15px; right: 15px; background: #f1f5f9; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        #sync-status { font-size: 0.6rem; color: #10b981; font-weight: 800; margin-bottom: 5px; text-transform: uppercase; }
     </style>
 </head>
 <body>
 
     <div class="card">
         <button class="settings-trigger" onclick="toggleSettings()">⚙️</button>
-        <h1>TaxUSA Pro</h1>
+        <div id="sync-status">● En línea</div>
+        <h1>TaxUSA 🇺🇸</h1>
         
         <div class="input-group">
-            <label>CATEGORÍA DE COMPRA</label>
-            <select id="category" onchange="calculate()">
-                <option value="general">📦 General / Otros</option>
-                <option value="ropa">👕 Ropa y Calzado</option>
-                <option value="tech">💻 Electrónica / Tech</option>
-            </select>
+            <label>Precio en Etiqueta (USD)</label>
+            <input type="number" id="price" placeholder="0.00" oninput="calculate()" step="0.01" inputmode="decimal">
+        </div>
+
+        <label>Categoría de Compra</label>
+        <div class="category-grid">
+            <button class="cat-btn active" id="btn-general" onclick="setCategory('general')"><i>🛍️</i>GENERAL</button>
+            <button class="cat-btn" id="btn-tech" onclick="setCategory('tech')"><i>💻</i>TECH / ELECTR.</button>
+            <button class="cat-btn" id="btn-food" onclick="setCategory('food')"><i>🍎</i>COMIDA</button>
+            <button class="cat-btn" id="btn-med" onclick="setCategory('med')"><i>💊</i>MEDICINA</button>
         </div>
 
         <div class="input-group">
-            <label>PRECIO EN ETIQUETA (USD)</label>
-            <input type="number" id="price" placeholder="0.00" oninput="calculate()">
+            <label>Estado</label>
+            <select id="state-select" onchange="loadCities()"></select>
         </div>
 
         <div class="input-group">
-            <label>ESTADO / CIUDAD</label>
-            <select id="state" onchange="calculate()">
-                <optgroup label="Sin Tax">
-                    <option value="0">Delaware / Montana / Oregon (0%)</option>
-                </optgroup>
-                <optgroup label="Destinos Populares">
-                    <option value="6.5">Orlando, FL (6.5%)</option>
-                    <option value="7">Miami, FL (7%)</option>
-                    <option value="8.875">New York City, NY (8.875%)</option>
-                    <option value="9.5">Los Angeles, CA (9.5%)</option>
-                    <option value="10.25">Chicago, IL (10.25%)</option>
-                    <option value="8.25">Las Vegas, NV (8.25%)</option>
-                    <option value="8.25">Houston / Dallas, TX (8.25%)</option>
-                </optgroup>
-                <optgroup label="Otros Estados">
-                    <option value="6">Maryland / Michigan / Virginia (6%)</option>
-                    <option value="4">Hawaii (4%)</option>
-                    <option value="5.6">Arizona (5.6%)</option>
-                    <option value="6.25">Massachusetts (6.25%)</option>
-                </optgroup>
-            </select>
+            <label>Ciudad / Condado</label>
+            <select id="city-select" onchange="calculate()"></select>
         </div>
 
         <div class="result-box">
-            <div class="total-label">Total Final</div>
-            <div class="total-amount" id="total">USD 0.00</div>
-            <div class="tax-info" id="tax-detail">Tax Aplicado: 0%</div>
-            <span id="tax-note"></span>
+            <div class="result-value" id="total">USD 0.00</div>
+            <div id="tax-detail" style="font-size: 0.8rem; color: #3b82f6; font-weight: bold;">Tax: 0%</div>
+        </div>
+
+        <div class="nav-buttons">
+            <a href="compras.html" class="nav-btn btn-blue">🛒 GASTOS Y TALLES</a>
+            <a href="itinerario.html" class="nav-btn btn-purple">📍 ITINERARIO</a>
         </div>
     </div>
 
-    <div class="nav-grid">
-        <a href="itinerario.html" class="nav-item">
-            <span class="nav-icon">📍</span>
-            <span class="nav-text">Itinerario</span>
-        </a>
-        <a href="compras.html" class="nav-item">
-            <span class="nav-icon">🛍️</span>
-            <span class="nav-text">Mis Gastos</span>
-        </a>
-    </div>
-
-    <div class="footer">
-        <span>Creado por Juan Cruz Bria 🇦🇷</span>
-        <div style="margin-top: 4px; opacity: 0.7;">© 2026 Todos los derechos reservados</div>
-    </div>
-
-    <div id="menuOverlay" class="menu-overlay" onclick="toggleSettings()"></div>
-    <div id="settingsDrawer" class="settings-drawer">
-        <h3 style="margin-top:0;">Ajustes</h3>
-        <p id="userEmail" style="font-size:0.75rem; color:#64748b; margin-bottom:20px; font-weight:700;"></p>
-        <button class="drawer-btn" onclick="changePass()">📧 Cambiar clave</button>
-        <button class="drawer-btn" style="color:#ef4444; border-color:#fecaca;" onclick="eliminarCuenta()">🗑️ Eliminar Cuenta</button>
-        <button class="drawer-btn" style="margin-top:auto; color:#64748b;" onclick="logout()">🚪 Cerrar Sesión</button>
-    </div>
-
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut, sendPasswordResetEmail, deleteUser } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
-        import { getFirestore, collection, query, where, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyCm0Ig-CPklsjf6j-1uSAeF6I8xtyQKj7U",
-            authDomain: "viajes-db538.firebaseapp.com",
-            projectId: "viajes-db538",
-            storageBucket: "viajes-db538.firebasestorage.app",
-            messagingSenderId: "237311739178",
-            appId: "1:237311739178:web:333e468b184c0402a98a53"
+        // --- BASE DE DATOS DE LOS 50 ESTADOS ---
+        const taxData = {
+            "Alabama": [{n:"Birmingham", t:10.0}], "Alaska": [{n:"Anchorage", t:0}], "Arizona": [{n:"Phoenix", t:8.6}],
+            "Arkansas": [{n:"Little Rock", t:9.375}], "California": [{n:"Los Angeles", t:9.5}, {n:"San Francisco", t:8.625}],
+            "Colorado": [{n:"Denver", t:8.81}], "Connecticut": [{n:"Hartford", t:6.35}], "Delaware": [{n:"Wilmington", t:0}],
+            "Florida": [{n:"Orlando", t:6.5}, {n:"Miami", t:7.0}, {n:"Kissimmee", t:7.5}],
+            "Georgia": [{n:"Atlanta", t:8.9}], "Hawaii": [{n:"Honolulu", t:4.5}], "Idaho": [{n:"Boise", t:6.0}],
+            "Illinois": [{n:"Chicago", t:10.25}], "Indiana": [{n:"Indianapolis", t:7.0}], "Iowa": [{n:"Des Moines", t:7.0}],
+            "Kansas": [{n:"Wichita", t:7.5}], "Kentucky": [{n:"Louisville", t:6.0}], "Louisiana": [{n:"New Orleans", t:9.45}],
+            "Maine": [{n:"Portland", t:5.5}], "Maryland": [{n:"Baltimore", t:6.0}], "Massachusetts": [{n:"Boston", t:6.25}],
+            "Michigan": [{n:"Detroit", t:6.0}], "Minnesota": [{n:"Minneapolis", t:8.025}], "Mississippi": [{n:"Jackson", t:8.0}],
+            "Missouri": [{n:"St. Louis", t:9.679}], "Montana": [{n:"Billings", t:0}], "Nebraska": [{n:"Omaha", t:7.0}],
+            "Nevada": [{n:"Las Vegas", t:8.375}], "New Hampshire": [{n:"Manchester", t:0}], "New Jersey": [{n:"Jersey City", t:6.625}],
+            "New Mexico": [{n:"Albuquerque", t:7.875}], "New York": [{n:"NYC", t:8.875}], "North Carolina": [{n:"Charlotte", t:7.25}],
+            "North Dakota": [{n:"Fargo", t:7.5}], "Ohio": [{n:"Columbus", t:7.5}], "Oklahoma": [{n:"Oklahoma City", t:8.625}],
+            "Oregon": [{n:"Portland", t:0}], "Pennsylvania": [{n:"Philadelphia", t:8.0}], "Rhode Island": [{n:"Providence", t:7.0}],
+            "South Carolina": [{n:"Charleston", t:9.0}], "South Dakota": [{n:"Sioux Falls", t:6.5}], "Tennessee": [{n:"Nashville", t:9.25}],
+            "Texas": [{n:"Houston", t:8.25}, {n:"Dallas", t:8.25}], "Utah": [{n:"Salt Lake City", t:7.75}], "Vermont": [{n:"Burlington", t:7.0}],
+            "Virginia": [{n:"Virginia Beach", t:6.0}], "Washington": [{n:"Seattle", t:10.25}], "West Virginia": [{n:"Charleston", t:7.0}],
+            "Wisconsin": [{n:"Milwaukee", t:5.5}], "Wyoming": [{n:"Cheyenne", t:6.0}]
         };
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        let currentUser = null;
+        let currentCategory = 'general';
 
-        onAuthStateChanged(auth, (user) => {
-            if (!user) window.location.replace("login.html");
-            else {
-                currentUser = user;
-                document.getElementById('userEmail').innerText = user.email;
-            }
-        });
+        // Cargar Estados al inicio
+        window.onload = () => {
+            const stateSelect = document.getElementById('state-select');
+            Object.keys(taxData).sort().forEach(s => {
+                let opt = document.createElement('option');
+                opt.value = s;
+                opt.text = s;
+                if(s === "Florida") opt.selected = true;
+                stateSelect.appendChild(opt);
+            });
+            loadCities();
+        };
+
+        window.loadCities = () => {
+            const state = document.getElementById('state-select').value;
+            const citySelect = document.getElementById('city-select');
+            citySelect.innerHTML = "";
+            taxData[state].forEach(city => {
+                let opt = document.createElement('option');
+                opt.value = city.t;
+                opt.text = `${city.n} (${city.t}%)`;
+                citySelect.appendChild(opt);
+            });
+            window.calculate();
+        };
+
+        window.setCategory = (cat) => {
+            currentCategory = cat;
+            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('btn-' + cat).classList.add('active');
+            window.calculate();
+        };
 
         window.calculate = () => {
             const price = parseFloat(document.getElementById('price').value) || 0;
-            const stateValue = parseFloat(document.getElementById('state').value);
-            const category = document.getElementById('category').value;
-            const note = document.getElementById('tax-note');
+            let tax = parseFloat(document.getElementById('city-select').value) || 0;
             
-            let finalTax = stateValue;
-            note.innerText = "";
-
-            // Lógica de Avisos por Categoría
-            if (stateValue === 0) {
-                note.innerText = "✅ ¡Estado libre de impuestos!";
-            } else if (category === "ropa") {
-                if (stateValue === 8.875 && price < 110) {
-                    finalTax = 0;
-                    note.innerText = "🎉 NY: Ropa < $110 no paga Tax";
-                } else if (stateValue === 6.25) {
-                    note.innerText = "👕 Massachusetts: Ropa < $175 exenta";
-                } else {
-                    note.innerText = "⚠️ Esta categoría paga Tax normal aquí";
-                }
-            } else if (category === "tech") {
-                note.innerText = "💻 Electrónica siempre paga Tax";
-            }
-
-            const total = price + (price * (finalTax / 100));
+            // Regla de exención (Comida y Medicina suelen ser 0% en la mayoría de estados)
+            if (currentCategory === 'med' || currentCategory === 'food') tax = 0;
+            
+            const total = price + (price * (tax / 100));
             document.getElementById('total').innerText = 'USD ' + total.toLocaleString('en-US', {minimumFractionDigits: 2});
-            document.getElementById('tax-detail').innerText = `Tax Aplicado: ${finalTax}%`;
-        };
-
-        window.toggleSettings = () => {
-            const d = document.getElementById('settingsDrawer');
-            const o = document.getElementById('menuOverlay');
-            d.classList.toggle('open');
-            o.style.display = d.classList.contains('open') ? 'block' : 'none';
-        };
-
-        window.logout = () => signOut(auth).then(() => window.location.replace("login.html"));
-        window.changePass = () => sendPasswordResetEmail(auth, currentUser.email).then(() => alert("Mail enviado"));
-
-        window.eliminarCuenta = async () => {
-            if(!confirm("⚠️ ¿BORRAR TODO?")) return;
-            try {
-                const qn = query(collection(db, "notas"), where("userId", "==", currentUser.uid));
-                const snn = await getDocs(qn);
-                for(let d of snn.docs) await deleteDoc(doc(db, "notas", d.id));
-                const qc = query(collection(db, "compras"), where("userId", "==", currentUser.uid));
-                const snc = await getDocs(qc);
-                for(let d of snc.docs) await deleteDoc(doc(db, "compras", d.id));
-                await deleteUser(currentUser);
-                window.location.replace("login.html");
-            } catch (e) { alert("Re-autentícate para borrar."); }
+            document.getElementById('tax-detail').innerText = `Tax Aplicado: ${tax}%`;
         };
     </script>
 </body>
