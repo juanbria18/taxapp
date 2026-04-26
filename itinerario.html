@@ -243,26 +243,50 @@
                 if (!el) continue;
 
                 try {
-                    // Intento 1: API Wiki (Directo)
-                    let response = await fetch(`https://api.themeparks.wiki/v1/entity/${park.parkId}/live`);
-                    if (!response.ok && park.qtId) {
-                        // Intento 2: API Queue-Times (Backup)
-                        response = await fetch(`https://queue-times.com/parks/${park.qtId}/queue_times.json`);
+                    // Lógica de Reintento con Proxy para evitar bloqueos CORS
+                    const proxy = "https://corsproxy.io/?";
+                    const wikiUrl = `https://api.themeparks.wiki/v1/entity/${park.parkId}/live`;
+                    const qtUrl = park.qtId ? `https://queue-times.com/parks/${park.qtId}/queue_times.json` : null;
+
+                    let response;
+                    let data;
+
+                    // Intentar con Queue-Times primero (es más estable para promedios)
+                    if (qtUrl) {
+                        try {
+                            response = await fetch(proxy + encodeURIComponent(qtUrl));
+                            data = await response.json();
+                        } catch (e) { response = null; }
+                    }
+
+                    // Si falla Queue-Times, intentar con Wiki
+                    if (!data || !data.lands) {
+                        response = await fetch(proxy + encodeURIComponent(wikiUrl));
+                        data = await response.json();
                     }
                     
-                    const data = await response.json();
                     let average = 0;
+                    let totalRides = 0;
 
-                    if (data.liveData) { // Estructura Wiki
-                        const waits = data.liveData.filter(a => a.queue?.STANDBY?.waitTime != null).map(a => a.queue.STANDBY.waitTime);
-                        average = waits.length ? waits.reduce((a,b)=>a+b,0)/waits.length : 0;
-                    } else if (data.lands) { // Estructura Queue-Times
+                    if (data.liveData) { 
+                        // Formato Wiki
+                        const waits = data.liveData
+                            .filter(a => a.queue?.STANDBY?.waitTime != null)
+                            .map(a => a.queue.STANDBY.waitTime);
+                        totalRides = waits.length;
+                        average = totalRides ? waits.reduce((a,b)=>a+b,0)/totalRides : 0;
+                    } else if (data.lands) { 
+                        // Formato Queue-Times
                         const allRides = data.lands.flatMap(l => l.rides).filter(r => r.is_open);
-                        average = allRides.length ? allRides.reduce((a,b)=>a+b,0)/allRides.length : 0;
+                        totalRides = allRides.length;
+                        average = totalRides ? allRides.reduce((a,b)=>a+b,0)/totalRides : 0;
                     }
 
-                    if (average === 0 && (hour < 8 || hour > 22)) {
-                        el.innerText = "Cerrado 🌙"; el.className = "queue-status q-off";
+                    // Mostrar Resultado
+                    if (totalRides === 0 && (hour < 8 || hour > 22)) {
+                        el.innerText = "CERRADO 🌙"; el.className = "queue-status q-off";
+                    } else if (totalRides === 0) {
+                        el.innerText = "SIN INFO 🔄"; el.className = "queue-status q-off";
                     } else if (average < 25) {
                         el.innerText = "BAJA 🟢"; el.className = "queue-status q-low";
                     } else if (average < 50) {
