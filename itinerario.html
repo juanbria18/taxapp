@@ -6,96 +6,119 @@
     <title>Itinerario de Viaje</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <style>
-        :root { --primary: #7c3aed; --bg: #f8fafc; --white: #ffffff; --card-note: #fffbeb; }
+        :root { --primary: #7c3aed; --bg: #f8fafc; --white: #ffffff; --card-note: #fffbeb; --blue: #2563eb; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; }
         
-        .nav-bar { width: 100%; max-width: 450px; margin-bottom: 15px; }
-        .btn-back { width: 100%; padding: 12px; background: var(--white); color: var(--primary); border: 2px solid var(--primary); border-radius: 14px; font-weight: 800; text-align: center; text-decoration: none; display: block; }
+        .nav-bar { width: 100%; max-width: 450px; margin-bottom: 15px; display: flex; gap: 10px; }
+        .btn-nav { flex: 1; padding: 12px; background: var(--white); border-radius: 14px; font-weight: 800; text-align: center; text-decoration: none; display: block; font-size: 0.8rem; border: 2px solid; }
+        .btn-home { color: var(--blue); border-color: var(--blue); }
+        .btn-gastos { color: var(--blue); border-color: var(--blue); }
         
         .card { background: var(--white); padding: 1.5rem; border-radius: 24px; width: 100%; max-width: 450px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 15px; }
-        
         h2 { color: var(--primary); margin-top: 0; text-align: center; font-size: 1.4rem; }
+        textarea { width: 100%; padding: 15px; border: 2px solid #f1f5f9; border-radius: 16px; margin-bottom: 10px; font-size: 1rem; background: #f8fafc; font-family: inherit; resize: none; outline: none; }
         
-        textarea { width: 100%; padding: 15px; border: 2px solid #f1f5f9; border-radius: 16px; margin-bottom: 10px; font-size: 1rem; background: #f8fafc; font-family: inherit; resize: none; }
-        
-        .btn-add { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 16px; font-weight: 700; cursor: pointer; font-size: 1rem; transition: transform 0.1s; }
-        .btn-add:active { transform: scale(0.98); }
+        .btn-add { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 16px; font-weight: 700; cursor: pointer; font-size: 1rem; }
 
         .list-container { width: 100%; max-width: 450px; margin-top: 10px; }
-        
-        .note-item { background: var(--card-note); padding: 15px; border-left: 5px solid #f59e0b; border-radius: 12px; margin-bottom: 12px; position: relative; box-shadow: 0 4px 6px rgba(0,0,0,0.02); animation: slideIn 0.3s ease-out; }
-        
-        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
+        .note-item { background: var(--card-note); padding: 15px; border-left: 5px solid #f59e0b; border-radius: 12px; margin-bottom: 12px; position: relative; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
         .note-text { font-size: 1rem; color: #451a03; font-weight: 500; white-space: pre-wrap; line-height: 1.4; }
-        
         .note-date { font-size: 0.7rem; color: #92400e; margin-top: 8px; font-weight: 700; text-transform: uppercase; }
-
-        .btn-delete { position: absolute; top: 10px; right: 12px; color: #b45309; font-weight: 900; font-size: 1.2rem; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .btn-delete { position: absolute; top: 10px; right: 12px; color: #b45309; font-weight: 900; font-size: 1.2rem; cursor: pointer; }
         
+        .footer-links { margin-top: 20px; display: flex; flex-direction: column; gap: 5px; text-align: center; }
+        .logout-btn { background: none; border: none; color: #94a3b8; font-weight: 700; cursor: pointer; text-decoration: underline; font-size: 0.75rem; }
+        .change-pass-btn { background: none; border: none; color: #64748b; font-weight: 600; cursor: pointer; font-size: 0.7rem; }
         .empty-state { text-align: center; color: #94a3b8; margin-top: 40px; }
     </style>
 </head>
 <body>
 
-    <div class="nav-bar" style="display: flex; gap: 10px; width: 100%; max-width: 450px; margin-bottom: 15px;">
-    <a href="index.html" class="btn-back" style="flex: 1; font-size: 0.8rem;">🏠 INICIO</a>
-    <a href="compras.html" class="btn-back" style="flex: 1; font-size: 0.8rem; border-color: #2563eb; color: #2563eb;">🛍️ GASTOS</a>
-</div>
+    <div class="nav-bar">
+        <a href="index.html" class="btn-nav btn-home">🏠 INICIO</a>
+        <a href="compras.html" class="btn-nav btn-gastos">🛍️ GASTOS</a>
+    </div>
 
     <div class="card">
         <h2>📍 Mis Notas de Viaje</h2>
-        <textarea id="noteInput" rows="4" placeholder="Escribí acá: Vuelos, Hoteles, reservas o recordatorios de Visa..."></textarea>
+        <textarea id="noteInput" rows="4" placeholder="Vuelos, Hoteles, reservas..."></textarea>
         <button class="btn-add" onclick="addNote()">GUARDAR ANOTACIÓN</button>
     </div>
 
-    <div id="notesList" class="list-container">
-        </div>
+    <div id="notesList" class="list-container"></div>
 
-    <script>
+    <div class="footer-links">
+        <button class="change-pass-btn" onclick="changePass()">Cambiar mi contraseña</button>
+        <button class="logout-btn" onclick="logout()">Cerrar Sesión</button>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCm0Ig-CPklsjf6j-1uSAeF6I8xtyQKj7U",
+            authDomain: "viajes-db538.firebaseapp.com",
+            projectId: "viajes-db538",
+            storageBucket: "viajes-db538.firebasestorage.app",
+            messagingSenderId: "237311739178",
+            appId: "1:237311739178:web:333e468b184c0402a98a53",
+            measurementId: "G-WYF0L0YSYJ"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        // --- Seguridad ---
+        onAuthStateChanged(auth, (user) => { 
+            if (!user) window.location.replace("login.html"); 
+        });
+
+        window.logout = () => signOut(auth).then(() => window.location.replace("login.html"));
+
+        window.changePass = () => {
+            const email = auth.currentUser.email;
+            sendPasswordResetEmail(auth, email).then(() => alert("Mail enviado a " + email)).catch(e => alert(e.message));
+        };
+
+        // --- Lógica de Notas ---
         let notes = JSON.parse(localStorage.getItem('trip_notes_v1')) || [];
 
-        function renderNotes() {
+        window.renderNotes = () => {
             const container = document.getElementById('notesList');
             if (notes.length === 0) {
                 container.innerHTML = '<div class="empty-state">No tenés notas guardadas todavía.</div>';
                 return;
             }
-
-            container.innerHTML = notes.map((note, index) => `
+            container.innerHTML = notes.map((n, i) => `
                 <div class="note-item">
-                    <div class="btn-delete" onclick="deleteNote(${index})">×</div>
-                    <div class="note-text">${note.text}</div>
-                    <div class="note-date">${note.date}</div>
-                </div>
-            `).join('');
-        }
+                    <div class="btn-delete" onclick="deleteNote(${i})">×</div>
+                    <div class="note-text">${n.text}</div>
+                    <div class="note-date">${n.date}</div>
+                </div>`).join('');
+        };
 
-        function addNote() {
+        window.addNote = () => {
             const input = document.getElementById('noteInput');
-            if (input.value.trim() === '') return;
-
-            const newNote = {
+            if (!input.value.trim()) return;
+            notes.unshift({
                 text: input.value,
                 date: new Date().toLocaleString('es-AR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
-            };
-
-            notes.unshift(newNote);
+            });
             localStorage.setItem('trip_notes_v1', JSON.stringify(notes));
             input.value = '';
             renderNotes();
-        }
+        };
 
-        function deleteNote(index) {
-            if (confirm('¿Borrar esta nota?')) {
-                notes.splice(index, 1);
+        window.deleteNote = (i) => {
+            if (confirm('¿Borrar nota?')) {
+                notes.splice(i, 1);
                 localStorage.setItem('trip_notes_v1', JSON.stringify(notes));
                 renderNotes();
             }
-        }
+        };
 
-        // Cargar notas al iniciar
         renderNotes();
     </script>
 </body>
