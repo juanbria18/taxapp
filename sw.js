@@ -2,7 +2,8 @@ const CACHE_NAME = 'tax-usa-v40'; // Incrementamos la versión
 const ASSETS = [
   '/',
   '/index.html',
-  '/compras.html', // Nuevo archivo agregado
+  '/compras.html',
+  '/itinerario.html', // Agregamos el nuevo archivo aquí
   '/manifest.json',
   '/sw.js'
 ];
