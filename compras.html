@@ -56,7 +56,6 @@
         
         .footer { margin-top: auto; padding: 20px 0; text-align: center; font-size: 0.75rem; color: #94a3b8; font-weight: 600; }
 
-        /* ARREGLO DE TALLES PARA CELULAR */
         .talles-section { text-align: left; font-size: 0.85rem; }
         .talles-title { font-weight: 900; color: var(--primary); margin: 15px 0 8px; border-bottom: 2px solid #f1f5f9; padding-bottom: 3px; display: flex; justify-content: space-between; text-transform: uppercase; letter-spacing: 0.5px; }
         
@@ -82,7 +81,6 @@
         .talles-table th { background: #e2e8f0; font-weight: 800; color: #475569; }
         .talles-table td { font-weight: 700; color: #1e293b; }
 
-        /* NUEVOS ESTILOS COTIZADOR AESTHETIC */
         .converter-box { 
             background: #ffffff; 
             border-radius: 20px; 
@@ -239,9 +237,9 @@
         const db = getFirestore(app);
         let currentUser = null;
         let presupuestoBase = 0;
-        let rates = {}; // Guardaremos los rates aquí
+        let rates = {};
 
-        // Lógica del Cotizador
+        // Lógica del Cotizador Integrada
         window.updateFlagAndConvert = () => {
             const select = document.getElementById('currency-select');
             const flagCode = select.options[select.selectedIndex].getAttribute('data-flag');
@@ -254,18 +252,25 @@
             const amount = parseFloat(document.getElementById('conv-amount').value) || 0;
             const resVal = document.getElementById('cur-result');
             const baseText = document.getElementById('cur-base-text');
+            
             if (rates && rates[code]) {
                 const totalInUsd = amount / rates[code];
                 baseText.innerText = `${amount} ${code} =`;
                 resVal.innerText = `$${totalInUsd.toFixed(2)} USD`;
+            } else {
+                resVal.innerText = "Cargando...";
             }
         };
 
-        // Fetch de DolarApi
-        fetch('https://dolarapi.com/v1/cotizaciones').then(r => r.json()).then(data => {
-            data.forEach(c => { rates[c.moneda] = c.venta; });
-            window.convertCurrency();
-        });
+        // Fetch de Cotizaciones con Fallback para Dólar (ARS)
+        fetch('https://dolarapi.com/v1/cotizaciones')
+            .then(r => r.json())
+            .then(data => {
+                data.forEach(c => { rates[c.moneda] = c.venta; });
+                // Si la API no trae directamente "ARS" (trae Blue/Oficial), mapeamos el Oficial para el cálculo
+                if(!rates['ARS'] && rates['USD']) rates['ARS'] = rates['USD']; 
+                window.convertCurrency();
+            }).catch(e => console.error("Error cargando rates", e));
 
         window.updateFondo = async () => { 
             const val = document.getElementById('input-fondo').value; 
@@ -279,6 +284,7 @@
         };
 
         window.deleteGasto = (id) => confirm("¿Borrar?") && deleteDoc(doc(db, "compras", id));
+        
         window.showSec = (s) => { 
             document.getElementById('sec-gastos').style.display = s === 'gastos' ? 'block' : 'none'; 
             document.getElementById('sec-talles').style.display = s === 'talles' ? 'block' : 'none'; 
@@ -330,23 +336,11 @@
             "Ross/Marshalls: Los mejores días son los martes, cuando renuevan el stock más barato.",
             "NYC: Woodbury Common es el mejor outlet, pero está a 1 hora de Manhattan.",
             "NYC: En Manhattan, las tiendas de la 5ta Ave abren a las 10 AM. Andá temprano para evitar filas.",
-            "Las Vegas: North Premium Outlets es al aire libre. Evitá ir al mediodía por el calor extremo.",
-            "Las Vegas: Registrate en 'VIP Club' online para cupones extra en los Outlets de Simon.",
-            "Chicago: Fashion Outlets of Chicago está cerca del aeropuerto O'Hare y es techado.",
-            "Los Ángeles: Citadel Outlets es el más cercano al centro y tiene muy buenos precios en Nike.",
-            "San Francisco: San Francisco Premium Outlets en Livermore tiene las mejores marcas de diseño.",
-            "Washington DC: Potomac Mills es uno de los outlets más grandes de la costa este.",
             "Tax: El impuesto en Miami es 7%, en Orlando 6.5% y en NYC 8.875% (excepto ropa < $110).",
             "Apple: Los precios que ves online NO incluyen impuestos. Sumale el tax local al final.",
             "Best Buy: Podés pedir 'Price Match' si encontrás el mismo producto más barato en Amazon.",
-            "Walmart/Target: Ideales para comprar snacks y valijas baratas si te falta espacio.",
             "T.J. Maxx: Buscá las etiquetas amarillas (Yellow Tag), son las liquidaciones finales.",
-            "Cuponeras: En la mayoría de los Simon Outlets, si mostrás el pasaporte te dan una cuponera.",
-            "Philadelphia: Al igual que en New Jersey, no hay impuesto a las ventas en ropa.",
-            "Atlanta: North Georgia Premium Outlets es el lugar ideal para marcas deportivas.",
-            "Boston: Wrentham Village es el outlet de referencia en Massachusetts.",
-            "Houston: The Galleria es masivo, ideal si buscás marcas como Zara, H&M o Apple.",
-            "Seattle: Seattle Premium Outlets en Tulalip tiene muy buenos precios en marcas outdoor."
+            "Philadelphia: Al igual que en New Jersey, no hay impuesto a las ventas en ropa."
         ];
 
         let currentTipIndex = 0;
@@ -378,6 +372,7 @@
         window.onload = () => { 
             document.getElementById('tip-text').innerText = shoppingTips[0]; 
             setInterval(window.nextTip, 8000); 
+            window.convertCurrency();
         };
     </script>
 </body>
