@@ -53,7 +53,6 @@
         .btn-purple { background: #7c3aed; color: white; }
         .btn-cyan { background: #0ea5e9; color: white; }
 
-        /* Modales y Drawer */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(4px); }
         .modal-content { background: white; padding: 25px; border-radius: 24px; width: 100%; max-width: 350px; }
         .settings-trigger { position: absolute; top: 15px; right: 15px; background: #f1f5f9; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; }
@@ -192,6 +191,59 @@
         let tripData = { destination: "Orlando", date: "2027-01-01" };
         let currentTipPercentage = 15;
 
+        const taxData = {
+            "Alabama": [{n:"Promedio", t:9.29}],
+            "Alaska": [{n:"Sin Tax", t:0}],
+            "Arizona": [{n:"Phoenix", t:8.6}],
+            "Arkansas": [{n:"Little Rock", t:9.51}],
+            "California": [{n:"Los Angeles", t:9.5}, {n:"San Francisco", t:8.63}, {n:"San Diego", t:7.75}],
+            "Colorado": [{n:"Denver", t:8.81}],
+            "Connecticut": [{n:"Promedio", t:6.35}],
+            "Delaware": [{n:"Sin Tax", t:0}],
+            "Florida": [{n:"Orlando", t:6.5}, {n:"Miami", t:7.0}, {n:"Tampa", t:8.5}, {n:"Kissimmee", t:7.5}],
+            "Georgia": [{n:"Atlanta", t:8.9}],
+            "Hawaii": [{n:"Honolulu", t:4.5}],
+            "Idaho": [{n:"Boise", t:6.0}],
+            "Illinois": [{n:"Chicago", t:10.25}],
+            "Indiana": [{n:"Promedio", t:7.0}],
+            "Iowa": [{n:"Des Moines", t:7.0}],
+            "Kansas": [{n:"Wichita", t:7.5}],
+            "Kentucky": [{n:"Promedio", t:6.0}],
+            "Louisiana": [{n:"New Orleans", t:9.45}],
+            "Maine": [{n:"Promedio", t:5.5}],
+            "Maryland": [{n:"Promedio", t:6.0}],
+            "Massachusetts": [{n:"Boston", t:6.25}],
+            "Michigan": [{n:"Promedio", t:6.0}],
+            "Minnesota": [{n:"Minneapolis", t:8.03}],
+            "Mississippi": [{n:"Promedio", t:7.07}],
+            "Missouri": [{n:"St. Louis", t:8.29}],
+            "Montana": [{n:"Sin Tax", t:0}],
+            "Nebraska": [{n:"Omaha", t:7.0}],
+            "Nevada": [{n:"Las Vegas", t:8.38}],
+            "New Hampshire": [{n:"Sin Tax", t:0}],
+            "New Jersey": [{n:"Jersey City", t:6.63}],
+            "New Mexico": [{n:"Albuquerque", t:7.88}],
+            "New York": [{n:"NYC", t:8.88}, {n:"Buffalo", t:8.75}],
+            "North Carolina": [{n:"Charlotte", t:7.25}],
+            "North Dakota": [{n:"Fargo", t:6.85}],
+            "Ohio": [{n:"Columbus", t:7.5}],
+            "Oklahoma": [{n:"Oklahoma City", t:8.63}],
+            "Oregon": [{n:"Sin Tax", t:0}],
+            "Pennsylvania": [{n:"Philadelphia", t:8.0}],
+            "Rhode Island": [{n:"Promedio", t:7.0}],
+            "South Carolina": [{n:"Charleston", t:9.0}],
+            "South Dakota": [{n:"Sioux Falls", t:6.4}],
+            "Tennessee": [{n:"Nashville", t:9.25}],
+            "Texas": [{n:"Houston", t:8.25}, {n:"Dallas", t:8.25}, {n:"Austin", t:8.25}],
+            "Utah": [{n:"Salt Lake City", t:7.75}],
+            "Vermont": [{n:"Burlington", t:7.0}],
+            "Virginia": [{n:"Virginia Beach", t:6.0}],
+            "Washington": [{n:"Seattle", t:10.25}],
+            "West Virginia": [{n:"Promedio", t:6.5}],
+            "Wisconsin": [{n:"Milwaukee", t:5.5}],
+            "Wyoming": [{n:"Cheyenne", t:6.0}]
+        };
+
         const econTips = [
             "Delaware y Oregon tienen 0% de Sales Tax. Ideal para comprar Apple o lujo.",
             "En NYC, la ropa y calzado de menos de $110 están exentos de tax municipal.",
@@ -215,7 +267,6 @@
         window.setCategory = (cat) => {
             document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
             document.getElementById('btn-' + cat).classList.add('active');
-            window.currentCategory = cat;
             window.calculate();
         };
 
@@ -239,13 +290,12 @@
         window.calculate = () => {
             const price = parseFloat(document.getElementById('price').value) || 0;
             let tax = parseFloat(document.getElementById('city-select').value) || 0;
-            const category = document.querySelector('.cat-btn.active').id;
+            const categoryBtn = document.querySelector('.cat-btn.active');
             
-            if (category === 'btn-med' || category === 'btn-food') tax = 0;
+            if (categoryBtn && (categoryBtn.id === 'btn-med' || categoryBtn.id === 'btn-food')) tax = 0;
             
             const subtotal = price + (price * (tax / 100));
             
-            // Actualizar montos en los botones de propina
             [0, 10, 15, 20].forEach(p => {
                 const amount = subtotal * (p / 100);
                 document.getElementById(`val-tip-${p}`).innerText = `$${amount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
@@ -263,20 +313,17 @@
             const state = document.getElementById('state-select').value;
             const citySelect = document.getElementById('city-select');
             citySelect.innerHTML = "";
-            taxData[state].forEach(city => {
-                let opt = document.createElement('option');
-                opt.value = city.t; opt.text = `${city.n} (${city.t}%)`;
-                citySelect.appendChild(opt);
-            });
+            if(taxData[state]) {
+                taxData[state].forEach(city => {
+                    let opt = document.createElement('option');
+                    opt.value = city.t; opt.text = `${city.n} (${city.t}%)`;
+                    citySelect.appendChild(opt);
+                });
+            }
             window.calculate();
         };
 
-        const taxData = {
-            "Alabama": [{n:"Promedio", t:9.29}], "Alaska": [{n:"Sin Tax", t:0}], "Arizona": [{n:"Phoenix", t:8.6}], 
-            "California": [{n:"Los Angeles", t:9.5}, {n:"San Francisco", t:8.63}], "Florida": [{n:"Orlando", t:6.5}, {n:"Miami", t:7.0}],
-            "New York": [{n:"NYC", t:8.88}], "Texas": [{n:"Houston", t:8.25}], "Nevada": [{n:"Las Vegas", t:8.38}]
-        };
-
+        // Carga inicial de estados
         const stateSelect = document.getElementById('state-select');
         Object.keys(taxData).sort().forEach(s => {
             let opt = document.createElement('option');
