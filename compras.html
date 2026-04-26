@@ -3,15 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Shopping Orlando Pro</title>
-    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>Shopping Orlando Pro - Cloud</title>
     <style>
-        :root { --primary: #2563eb; --accent: #7c3aed; --bg: #f8fafc; --white: #ffffff; }
+        :root { --primary: #2563eb; --accent: #7c3aed; --bg: #f8fafc; --white: #ffffff; --gray: #94a3b8; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; }
         
-        .nav-bar { width: 100%; max-width: 450px; margin-bottom: 15px; }
-        .btn-tax { width: 100%; padding: 12px; background: var(--white); color: var(--primary); border: 2px solid var(--primary); border-radius: 14px; font-weight: 800; text-align: center; text-decoration: none; display: block; }
+        .nav-bar { width: 100%; max-width: 450px; margin-bottom: 15px; display: flex; gap: 10px; }
+        .btn-nav { flex: 1; padding: 12px; background: var(--white); border-radius: 14px; font-weight: 800; text-align: center; text-decoration: none; font-size: 0.8rem; border: 2px solid var(--accent); color: var(--accent); }
         
         .card { background: var(--white); padding: 1.5rem; border-radius: 24px; width: 100%; max-width: 450px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 15px; }
         
@@ -28,40 +27,28 @@
         .tab { flex: 1; padding: 12px; text-align: center; background: #e2e8f0; border-radius: 12px; font-weight: 700; cursor: pointer; font-size: 0.8rem; }
         .tab.active { background: var(--primary); color: white; }
 
-        input { width: 100%; padding: 12px; border: 2px solid #f1f5f9; border-radius: 12px; margin-bottom: 10px; font-size: 1rem; background: #f8fafc; }
+        input { width: 100%; padding: 12px; border: 2px solid #f1f5f9; border-radius: 12px; margin-bottom: 10px; font-size: 1rem; background: #f8fafc; outline: none; }
         .btn-blue { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; font-size: 1rem; }
+        .btn-blue:disabled { background: var(--gray); opacity: 0.7; }
         
         .history-list { margin-top: 20px; width: 100%; }
         .history-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f1f5f9; }
         .item-name { font-weight: 600; font-size: 0.85rem; color: #1e293b; }
         .item-price { font-weight: 800; font-size: 0.85rem; color: #ef4444; }
-
-        .size-section-title { background: #f1f5f9; color: #475569; font-size: 0.7rem; font-weight: 900; padding: 8px; border-radius: 8px; margin: 15px 0 8px 0; text-align: center; text-transform: uppercase; letter-spacing: 1px; }
-        .size-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; text-align: center; margin-bottom: 10px; }
-        .size-header { font-weight: 800; color: #64748b; font-size: 0.6rem; background: #f8fafc; padding: 5px; border-radius: 4px; border: 1px solid #e2e8f0; }
-        .size-row { padding: 6px 0; border-bottom: 1px solid #f1f5f9; font-size: 0.8rem; font-weight: 600; color: #334155; }
-
-        .footer-links { margin-top: 20px; display: flex; flex-direction: column; gap: 5px; text-align: center; }
-        .logout-btn { background: none; border: none; color: #94a3b8; font-weight: 700; cursor: pointer; text-decoration: underline; font-size: 0.75rem; }
-        .change-pass-btn { background: none; border: none; color: #64748b; font-weight: 600; cursor: pointer; font-size: 0.7rem; }
+        
+        .btn-clear { background: none; border: none; color: #94a3b8; font-size: 0.7rem; font-weight: 700; text-decoration: underline; cursor: pointer; margin-top: 15px; width: 100%; }
     </style>
 </head>
 <body>
 
-    <div class="nav-bar" style="display: flex; gap: 10px; width: 100%; max-width: 450px; margin-bottom: 15px;">
-        <a href="index.html" class="btn-tax" style="flex: 1; font-size: 0.8rem;">🏠 INICIO</a>
-        <a href="itinerario.html" class="btn-tax" style="flex: 1; font-size: 0.8rem; border-color: #7c3aed; color: #7c3aed;">📍 ITINERARIO</a>
+    <div class="nav-bar">
+        <a href="index.html" class="btn-nav">🏠 INICIO</a>
+        <a href="itinerario.html" class="btn-nav">📍 ITINERARIO</a>
     </div>
 
     <div class="dolar-container">
-        <div class="dolar-box">
-            <span>Oficial (BNA)</span>
-            <b id="val-oficial">...</b>
-        </div>
-        <div class="dolar-box" style="background: #fffbeb; border-color: #fef3c7;">
-            <span style="color: #92400e;">Dólar Tarjeta</span>
-            <b id="val-tarjeta" style="color: #b45309;">...</b>
-        </div>
+        <div class="dolar-box"><span>Oficial</span><b id="val-oficial">...</b></div>
+        <div class="dolar-box" style="background:#fffbeb;"><span>Tarjeta</span><b id="val-tarjeta">...</b></div>
     </div>
 
     <div class="tabs">
@@ -71,67 +58,39 @@
 
     <div id="sec-gastos" class="card">
         <div class="budget-box">
-            <small style="font-weight: 800; color: #64748b;">DISPONIBLE</small>
             <div class="amount" id="disp-usd">USD 0.00</div>
-            <div class="amount-ars" id="disp-ars">ARS $0.00</div>
+            <div id="disp-ars" class="amount-ars">ARS $0.00</div>
         </div>
 
-        <input type="number" id="input-base" placeholder="Fondo Total USD">
-        <button class="btn-blue" onclick="setBase()" style="background:#64748b; margin-bottom: 25px; height: 45px;">ACTUALIZAR FONDO</button>
+        <div style="display:flex; gap:5px; margin-bottom: 15px;">
+            <input type="number" id="input-base" placeholder="Nuevo fondo USD" style="margin-bottom:0;">
+            <button class="btn-blue" onclick="updateBase()" style="width:40%; font-size:0.7rem;">SET FONDO</button>
+        </div>
         
+        <hr style="border:0; border-top:1px solid #f1f5f9; margin-bottom:15px;">
+
         <input type="text" id="g-nom" placeholder="¿Qué compraste?">
-        <input type="number" id="g-val" placeholder="Precio Final USD">
-        <button class="btn-blue" onclick="addGasto()">REGISTRAR COMPRA</button>
+        <input type="number" id="g-val" placeholder="Precio USD">
+        <button id="btnReg" class="btn-blue" onclick="addGasto()">REGISTRAR COMPRA</button>
 
         <div id="lista-compras" class="history-list"></div>
-
-        <p onclick="borrar()" style="color:#f87171; font-size: 0.7rem; text-align: center; margin-top: 25px; font-weight: 800; cursor: pointer; text-decoration: underline;">BORRAR TODO EL HISTORIAL</p>
+        
+        <button class="btn-clear" onclick="limpiarHistorial()">BORRAR TODO EL HISTORIAL</button>
     </div>
 
     <div id="sec-talles" class="card" style="display:none;">
-        <h3 style="text-align:center; color: var(--primary); margin: 0 0 10px 0;">Guía US vs AR</h3>
-        <div class="size-section-title">👟 Zapatillas</div>
-        <div class="size-grid">
-            <div class="size-header">AR</div><div class="size-header">US HOMBRE</div><div class="size-header">US MUJER</div>
-            <div class="size-row">35</div><div class="size-row">-</div><div class="size-row">5</div>
-            <div class="size-row">36</div><div class="size-row">4.5</div><div class="size-row">6</div>
-            <div class="size-row">37</div><div class="size-row">5</div><div class="size-row">6.5</div>
-            <div class="size-row">38</div><div class="size-row">6</div><div class="size-row">7.5</div>
-            <div class="size-row">39</div><div class="size-row">7</div><div class="size-row">8.5</div>
-            <div class="size-row">40</div><div class="size-row">7.5</div><div class="size-row">9</div>
-            <div class="size-row">41</div><div class="size-row">8.5</div><div class="size-row">10</div>
-            <div class="size-row">42</div><div class="size-row">9</div><div class="size-row">10.5</div>
-            <div class="size-row">43</div><div class="size-row">10</div><div class="size-row">11.5</div>
-            <div class="size-row">44</div><div class="size-row">11</div><div class="size-row">12.5</div>
-        </div>
-        <div class="size-section-title">👕 Remeras y Buzos</div>
-        <div class="size-grid">
-            <div class="size-header">Talle AR</div><div class="size-header">US Hombre</div><div class="size-header">US Mujer</div>
-            <div class="size-row">S</div><div class="size-row">S</div><div class="size-row">4-6</div>
-            <div class="size-row">M</div><div class="size-row">M</div><div class="size-row">8-10</div>
-            <div class="size-row">L</div><div class="size-row">L</div><div class="size-row">12-14</div>
-            <div class="size-row">XL</div><div class="size-row">XL</div><div class="size-row">16-18</div>
-            <div class="size-row">XXL</div><div class="size-row">XXL</div><div class="size-row">20+</div>
-        </div>
-        <div class="size-section-title">👖 Pantalones</div>
-        <div class="size-grid">
-            <div class="size-header">AR (Talle)</div><div class="size-header">US Hombre</div><div class="size-header">US Mujer</div>
-            <div class="size-row">38</div><div class="size-row">28</div><div class="size-row">6</div>
-            <div class="size-row">40</div><div class="size-row">30</div><div class="size-row">8</div>
-            <div class="size-row">42</div><div class="size-row">32</div><div class="size-row">10</div>
-            <div class="size-row">44</div><div class="size-row">34</div><div class="size-row">12</div>
-            <div class="size-row">46</div><div class="size-row">36</div><div class="size-row">14</div>
-        </div>
-    </div>
-
-    <div class="footer-links">
-        <button class="change-pass-btn" onclick="changePass()">Cambiar mi contraseña</button>
-        <button class="logout-btn" onclick="logout()">Cerrar Sesión</button>
+        <h3 style="color:var(--accent); text-align:center;">Guía de Talles US</h3>
+        <p style="font-size:0.8rem; color:#64748b; line-height:1.4;">
+            <b>Calzado Hombre:</b> US 9 = AR 41 | US 10 = AR 42.5<br>
+            <b>Calzado Mujer:</b> US 7 = AR 37 | US 8 = AR 38<br>
+            <b>Ropa:</b> S (Small), M (Medium), L (Large), XL (Extra Large).
+        </p>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, onSnapshot, collection, addDoc, query, where, orderBy, deleteDoc, getDocs } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCm0Ig-CPklsjf6j-1uSAeF6I8xtyQKj7U",
@@ -145,69 +104,96 @@
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
+        const db = getFirestore(app);
 
-        let balance = parseFloat(localStorage.getItem('tripBal')) || 0;
-        let compras = JSON.parse(localStorage.getItem('tripCompras')) || [];
+        let currentUser = null;
         let usdTarjeta = 0;
+        let fondoActual = 0;
 
-        // --- Lógica de Protección y Sesión ---
-        onAuthStateChanged(auth, (user) => { 
-            if (!user) window.location.replace("login.html"); 
-        });
-
-        window.logout = () => signOut(auth).then(() => window.location.replace("login.html"));
-
-        window.changePass = () => {
-            const userEmail = auth.currentUser.email;
-            sendPasswordResetEmail(auth, userEmail).then(() => {
-                alert("Te enviamos un mail a " + userEmail + " para que cambies tu clave.");
-            }).catch((e) => alert("Error: " + e.message));
-        };
-
-        // --- Lógica de la App (Dólar, Gastos, UI) ---
-        window.fetchDolar = async () => {
+        async function fetchDolar() {
             try {
+                const r = await fetch('https://dolarapi.com/v1/dolares/tarjeta');
+                const d = await r.json();
+                usdTarjeta = d.venta;
+                document.getElementById('val-tarjeta').innerText = '$' + usdTarjeta.toFixed(2);
+                
                 const rOf = await fetch('https://dolarapi.com/v1/dolares/oficial');
                 const dOf = await rOf.json();
                 document.getElementById('val-oficial').innerText = '$' + dOf.venta.toFixed(2);
+                updateDisplay();
+            } catch(e) { console.error("Error dólar:", e); }
+        }
 
-                const rTar = await fetch('https://dolarapi.com/v1/dolares/tarjeta');
-                const dTar = await rTar.json();
-                usdTarjeta = dTar.venta;
-                document.getElementById('val-tarjeta').innerText = '$' + usdTarjeta.toFixed(2);
-                updateUI();
-            } catch (e) { console.error(e); }
-        };
+        onAuthStateChanged(auth, (user) => {
+            if (!user) window.location.replace("login.html");
+            currentUser = user;
+            syncData(user.uid);
+        });
 
-        window.setBase = () => {
+        function syncData(uid) {
+            // Sincronizar Fondo
+            onSnapshot(doc(db, "usuarios", uid), (docSnap) => {
+                fondoActual = docSnap.exists() ? docSnap.data().fondo : 0;
+                updateDisplay();
+            });
+
+            // Sincronizar Historial
+            const q = query(collection(db, "compras"), where("userId", "==", uid), orderBy("createdAt", "desc"));
+            onSnapshot(q, (snap) => {
+                const lista = document.getElementById('lista-compras');
+                lista.innerHTML = snap.docs.map(d => `
+                    <div class="history-item">
+                        <span class="item-name">${d.data().nombre}</span>
+                        <span class="item-price">- USD ${d.data().precio.toFixed(2)}</span>
+                    </div>
+                `).join('');
+            });
+        }
+
+        window.updateBase = async () => {
             const v = document.getElementById('input-base').value;
-            if(v) { balance = parseFloat(v); document.getElementById('input-base').value = ''; updateUI(); }
+            if(v && currentUser) {
+                await setDoc(doc(db, "usuarios", currentUser.uid), { fondo: parseFloat(v) }, { merge: true });
+                document.getElementById('input-base').value = '';
+            }
         };
 
-        window.addGasto = () => {
+        window.addGasto = async () => {
             const nom = document.getElementById('g-nom').value || 'Compra';
-            const val = document.getElementById('g-val').value;
-            if(val) { 
-                const numVal = parseFloat(val);
-                balance -= numVal;
-                compras.unshift({ nombre: nom, precio: numVal });
-                document.getElementById('g-val').value = '';
-                document.getElementById('g-nom').value = '';
-                updateUI(); 
-            }
+            const val = parseFloat(document.getElementById('g-val').value);
+            const btn = document.getElementById('btnReg');
+
+            if(!val || isNaN(val)) return;
+            btn.disabled = true;
+
+            const nuevoFondo = fondoActual - val;
+            await setDoc(doc(db, "usuarios", currentUser.uid), { fondo: nuevoFondo }, { merge: true });
+            await addDoc(collection(db, "compras"), {
+                nombre: nom,
+                precio: val,
+                userId: currentUser.uid,
+                createdAt: Date.now()
+            });
+
+            document.getElementById('g-nom').value = '';
+            document.getElementById('g-val').value = '';
+            btn.disabled = false;
         };
 
-        window.updateUI = () => {
-            document.getElementById('disp-usd').innerText = 'USD ' + balance.toLocaleString('en-US', {minimumFractionDigits:2});
-            if(usdTarjeta > 0) {
-                const ars = balance * usdTarjeta;
-                document.getElementById('disp-ars').innerText = 'ARS $' + ars.toLocaleString('es-AR', {minimumFractionDigits:2});
-            }
-            const lista = document.getElementById('lista-compras');
-            lista.innerHTML = compras.map(c => `<div class="history-item"><span class="item-name">${c.nombre}</span><span class="item-price">- USD ${c.precio.toFixed(2)}</span></div>`).join('');
-            localStorage.setItem('tripBal', balance);
-            localStorage.setItem('tripCompras', JSON.stringify(compras));
+        window.limpiarHistorial = async () => {
+            if(!confirm("¿Borrar todo el historial de gastos? El fondo se mantendrá.")) return;
+            const q = query(collection(db, "compras"), where("userId", "==", currentUser.uid));
+            const snap = await getDocs(q);
+            snap.forEach(async (d) => await deleteDoc(doc(db, "compras", d.id)));
         };
+
+        function updateDisplay() {
+            document.getElementById('disp-usd').innerText = 'USD ' + fondoActual.toLocaleString('en-US', {minimumFractionDigits:2});
+            if(usdTarjeta > 0) {
+                const totalArs = fondoActual * usdTarjeta;
+                document.getElementById('disp-ars').innerText = 'ARS $' + totalArs.toLocaleString('es-AR', {minimumFractionDigits:2});
+            }
+        }
 
         window.showSec = (s) => {
             document.getElementById('sec-gastos').style.display = s==='gastos'?'block':'none';
@@ -216,8 +202,6 @@
             document.getElementById('t-talles').classList.toggle('active', s==='talles');
         };
 
-        window.borrar = () => { if(confirm("¿Borrar todo el historial?")) { balance = 0; compras = []; updateUI(); } };
-        
         fetchDolar();
     </script>
 </body>
