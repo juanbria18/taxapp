@@ -64,7 +64,7 @@
 
     <div class="card">
         <button class="settings-trigger" onclick="toggleSettings()">⚙️</button>
-        <h2>📍 Itinerario</h2>
+        <h2 >📍 Itinerario</h2>
         
         <select id="citySelector" class="city-picker" onchange="renderCityData()">
             <option value="orlando">🎡 Orlando</option>
@@ -128,13 +128,13 @@
 
         const citiesConfig = {
             orlando: [
-                { name: "🏰 Magic Kingdom", id: "mk", parkId: "75ea4cdc-7d70-4ddd-901d-79da399081e7" },
-                { name: "🚀 Epcot", id: "ep", parkId: "47f909e4-bc22-4462-9960-244030d9588c" },
-                { name: "🎬 Hollywood Studios", id: "hs", parkId: "288747d1-8b4f-4a4a-9843-34b09355d5d6" },
-                { name: "🦁 Animal Kingdom", id: "ak", parkId: "1c84a229-8861-4648-9f39-f53fe87d9c27" },
-                { name: "📽️ Universal Studios", id: "us", parkId: "eb38b317-09cd-4bc7-95a2-f6735e2cf94b" },
-                { name: "🦖 Islands of Adventure", id: "ioa", parkId: "207797e5-8777-400d-8549-041846ed3f79" },
-                { name: "✨ Epic Universe", id: "epic", parkId: "097973d4-b9b5-412e-9ad8-2b8474278912", span: true }
+                { name: "🏰 Magic Kingdom", id: "mk", parkId: "75ea4cdc-7d70-4ddd-901d-79da399081e7", altId: "6" },
+                { name: "🚀 Epcot", id: "ep", parkId: "47f909e4-bc22-4462-9960-244030d9588c", altId: "5" },
+                { name: "🎬 Hollywood Studios", id: "hs", parkId: "288747d1-8b4f-4a4a-9843-34b09355d5d6", altId: "7" },
+                { name: "🦁 Animal Kingdom", id: "ak", parkId: "1c84a229-8861-4648-9f39-f53fe87d9c27", altId: "8" },
+                { name: "📽️ Universal Studios", id: "us", parkId: "eb38b317-09cd-4bc7-95a2-f6735e2cf94b", altId: "27" },
+                { name: "🦖 Islands of Adventure", id: "ioa", parkId: "207797e5-8777-400d-8549-041846ed3f79", altId: "28" },
+                { name: "✨ Epic Universe", id: "epic", parkId: "097973d4-b9b5-412e-9ad8-2b8474278912", altId: "none", span: true }
             ],
             nyc: [
                 { name: "🔭 Top of the Rock", id: "rock" }, { name: "🏙️ Empire State", id: "emp" },
@@ -234,34 +234,57 @@
             const now = new Date();
             const hour = now.getHours();
             const parks = [
-                { id: '75ea4cdc-7d70-4ddd-901d-79da399081e7', el: 'mk', open: 8, close: 23 }, 
-                { id: '47f909e4-bc22-4462-9960-244030d9588c', el: 'ep', open: 8, close: 22 }, 
-                { id: '288747d1-8b4f-4a4a-9843-34b09355d5d6', el: 'hs', open: 8, close: 22 }, 
-                { id: '1c84a229-8861-4648-9f39-f53fe87d9c27', el: 'ak', open: 8, close: 20 }, 
-                { id: 'eb38b317-09cd-4bc7-95a2-f6735e2cf94b', el: 'us', open: 9, close: 21 }, 
-                { id: '207797e5-8777-400d-8549-041846ed3f79', el: 'ioa', open: 9, close: 21 },
-                { id: '097973d4-b9b5-412e-9ad8-2b8474278912', el: 'epic', open: 10, close: 22 }
+                { id: '75ea4cdc-7d70-4ddd-901d-79da399081e7', altId: '6', el: 'mk', open: 8, close: 23 }, 
+                { id: '47f909e4-bc22-4462-9960-244030d9588c', altId: '5', el: 'ep', open: 8, close: 22 }, 
+                { id: '288747d1-8b4f-4a4a-9843-34b09355d5d6', altId: '7', el: 'hs', open: 8, close: 22 }, 
+                { id: '1c84a229-8861-4648-9f39-f53fe87d9c27', altId: '8', el: 'ak', open: 8, close: 20 }, 
+                { id: 'eb38b317-09cd-4bc7-95a2-f6735e2cf94b', altId: '27', el: 'us', open: 9, close: 21 }, 
+                { id: '207797e5-8777-400d-8549-041846ed3f79', altId: '28', el: 'ioa', open: 9, close: 21 },
+                { id: '097973d4-b9b5-412e-9ad8-2b8474278912', altId: 'none', el: 'epic', open: 10, close: 22 }
             ];
 
             for (const park of parks) {
                 const el = document.getElementById(park.el);
                 if (!el) continue;
+
                 if (hour < park.open || hour >= park.close) {
                     el.innerText = "Cerrado 🌙"; el.className = "queue-status q-off"; continue;
                 }
+
                 try {
+                    // INTENTO 1: API ThemeParksWiki
                     const res = await fetch(`https://api.themeparks.wiki/v1/entity/${park.id}/live`);
                     if (!res.ok) throw new Error();
                     const data = await res.json();
-                    if (!data.liveData) throw new Error();
-                    const waits = data.liveData.filter(a => a.queue && a.queue.STANDBY && a.queue.STANDBY.waitTime !== null).map(a => a.queue.STANDBY.waitTime);
-                    if (waits.length === 0) { el.innerText = "Sin info 🚫"; el.className = "queue-status q-off"; continue; }
-                    const avg = waits.reduce((a, b) => a + b, 0) / waits.length;
-                    if (avg < 25) { el.innerText = "BAJA 🟢"; el.className = "queue-status q-low"; }
-                    else if (avg < 50) { el.innerText = "MED 🟡"; el.className = "queue-status q-med"; }
-                    else { el.innerText = "ALTA 🔴"; el.className = "queue-status q-high"; }
-                } catch (e) { el.innerText = "Reintentando... 🔄"; el.className = "queue-status q-off"; }
+                    const waits = data.liveData?.filter(a => a.queue?.STANDBY?.waitTime !== null).map(a => a.queue.STANDBY.waitTime) || [];
+                    
+                    if (waits.length > 0) {
+                        setQueueUI(el, waits.reduce((a, b) => a + b, 0) / waits.length);
+                        continue;
+                    }
+
+                    // INTENTO 2: Respaldo Queue-Times.com (si el anterior falló o no tiene datos)
+                    if (park.altId !== 'none') {
+                        const resAlt = await fetch(`https://queue-times.com/parks/${park.altId}/queue_times.json`);
+                        const dataAlt = await resAlt.json();
+                        const waitsAlt = dataAlt.lands.flatMap(l => l.rides).filter(r => r.is_open).map(r => r.wait_time);
+                        if (waitsAlt.length > 0) {
+                            setQueueUI(el, waitsAlt.reduce((a, b) => a + b, 0) / waitsAlt.length);
+                            continue;
+                        }
+                    }
+
+                    el.innerText = "Sin info 🚫"; el.className = "queue-status q-off";
+                } catch (e) { 
+                    el.innerText = "Error 🔄"; el.className = "queue-status q-off"; 
+                }
             }
+        }
+
+        function setQueueUI(el, avg) {
+            if (avg < 25) { el.innerText = "BAJA 🟢"; el.className = "queue-status q-low"; }
+            else if (avg < 50) { el.innerText = "MED 🟡"; el.className = "queue-status q-med"; }
+            else { el.innerText = "ALTA 🔴"; el.className = "queue-status q-high"; }
         }
 
         window.changePassword = () => { if (currentUser?.email) sendPasswordResetEmail(auth, currentUser.email).then(() => alert("Correo enviado.")).catch(e => alert(e.message)); };
