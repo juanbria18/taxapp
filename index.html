@@ -47,6 +47,9 @@
         .settings-drawer.open { right: 0; }
         .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; z-index: 1000; }
         
+        .drawer-btn { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0; background: white; cursor: pointer; font-weight: 700; margin-bottom: 10px; font-size: 0.8rem; text-align: left; }
+        .btn-danger { color: #ef4444; border-color: #fecaca; }
+
         .footer { margin-top: 30px; text-align: center; font-size: 0.75rem; color: #94a3b8; font-weight: 600; padding-bottom: 20px; }
     </style>
 </head>
@@ -124,13 +127,18 @@
     <div id="settingsDrawer" class="settings-drawer">
         <h3 style="margin-top:0; color: var(--primary);">Ajustes</h3>
         <p id="userEmail" style="font-size:0.75rem; color:#64748b; margin-bottom:20px; font-weight:700;"></p>
-        <button class="drawer-btn" style="width:100%; padding:12px; border-radius:10px; border:1px solid #ddd; background:white; cursor:pointer;" onclick="logout()">Cerrar Sesión</button>
+        
+        <button class="drawer-btn" onclick="changePassword()">🔑 Cambiar Contraseña</button>
+        <button class="drawer-btn" onclick="logout()">🚪 Cerrar Sesión</button>
+        <div style="margin-top: auto; padding-top: 20px;">
+            <button class="drawer-btn btn-danger" onclick="deleteAccount()">⚠️ Eliminar Cuenta</button>
+        </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged, signOut, sendPasswordResetEmail, deleteUser } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCm0Ig-CPklsjf6j-1uSAeF6I8xtyQKj7U",
@@ -162,7 +170,7 @@
 
         function rotateTips() {
             const el = document.getElementById('tip-content');
-            el.innerText = econTips[Math.floor(Math.random() * econTips.length)];
+            if(el) el.innerText = econTips[Math.floor(Math.random() * econTips.length)];
         }
 
         onAuthStateChanged(auth, async (user) => {
@@ -182,6 +190,29 @@
                 }
             }
         });
+
+        window.changePassword = () => {
+            if (currentUser && currentUser.email) {
+                sendPasswordResetEmail(auth, currentUser.email)
+                    .then(() => alert("Se ha enviado un correo a " + currentUser.email + " para restablecer tu contraseña."))
+                    .catch((error) => alert("Error: " + error.message));
+            }
+        };
+
+        window.deleteAccount = async () => {
+            if (confirm("¿ESTÁS SEGURO? Esta acción eliminará permanentemente tu cuenta y todos tus datos guardados.")) {
+                try {
+                    const userRef = doc(db, "users", currentUser.uid);
+                    const usuariosRef = doc(db, "usuarios", currentUser.uid);
+                    await deleteDoc(userRef);
+                    await deleteDoc(usuariosRef);
+                    await deleteUser(currentUser);
+                    window.location.replace("login.html");
+                } catch (e) {
+                    alert("Por seguridad, debes haber iniciado sesión recientemente para eliminar tu cuenta. Cierra sesión y vuelve a entrar antes de intentarlo de nuevo.");
+                }
+            }
+        };
 
         window.saveTripSettings = async () => {
             const dest = document.getElementById('input-destination').value || "Orlando";
@@ -255,7 +286,6 @@
             let tax = parseFloat(document.getElementById('city-select').value) || 0;
             if (currentCategory === 'med' || currentCategory === 'food') tax = 0;
             const total = price + (price * (tax / 100));
-            // CORRECCIÓN: Forzamos exactamente 2 decimales para el total
             document.getElementById('total').innerText = 'USD ' + total.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
             document.getElementById('tax-detail').innerText = `Tax Aplicado: ${tax}%`;
         };
