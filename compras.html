@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Compras y Talles</title>
+    <script src="https://www.google.com/recaptcha/api.js?render=6LeK6cssAAAAALxcJy-95R2nhVMmnuIyB78AQgvw"></script>
     <script src="https://unpkg.com/twemoji@latest/dist/twemoji.min.js" crossorigin="anonymous"></script>
     <style>
         :root { --primary: #2563eb; --accent: #7c3aed; --bg: #f8fafc; --white: #ffffff; --success: #10b981; }
@@ -71,6 +72,9 @@
         .drawer-btn { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0; background: white; cursor: pointer; font-weight: 700; margin-bottom: 10px; font-size: 0.8rem; text-align: left; }
         .btn-danger { color: #ef4444; border-color: #fecaca; }
         
+        /* Asegurar visibilidad del badge */
+        .grecaptcha-badge { bottom: 75px !important; visibility: visible !important; }
+
         .footer { margin-top: auto; padding: 20px 0; text-align: center; display: flex; flex-direction: column; gap: 5px; }
         .footer-name { font-size: 0.75rem; color: #94a3b8; font-weight: 600; }
         .footer-apis { font-size: 0.6rem; color: #cbd5e1; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
@@ -232,11 +236,22 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut, sendPasswordResetEmail, deleteUser, verifyBeforeUpdateEmail } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, query, where, orderBy, onSnapshot, deleteDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+        // IMPORTACIÓN DE APP CHECK
+        import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app-check.js";
 
         const firebaseConfig = { apiKey: "AIzaSyCm0Ig-CPklsjf6j-1uSAeF6I8xtyQKj7U", authDomain: "viajes-db538.firebaseapp.com", projectId: "viajes-db538", storageBucket: "viajes-db538.firebasestorage.app", messagingSenderId: "237311739178", appId: "1:237311739178:web:333e468b184c0402a98a53" };
+        
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+
+        // INICIALIZAR APP CHECK EN ESTA PÁGINA (Protege escritura en Firestore)
+        self.FIREBASE_APPCHECK_DEBUG_TOKEN = true; // Mantengo debug por el bloqueo de 24hs
+        const appCheck = initializeAppCheck(app, {
+            provider: new ReCaptchaV3Provider('6LeK6cssAAAAALxcJy-95R2nhVMmnuIyB78AQgvw'),
+            isTokenAutoRefreshEnabled: true 
+        });
+
         let currentUser = null;
         let presupuestoBase = 0;
         
@@ -329,18 +344,16 @@
             updateEmojis();
         };
 
-        // Lógica de cambio de correo corregida para compras.html
         window.changeEmail = async () => {
             if (currentUser) {
                 const nuevoEmail = prompt("Ingresa tu nuevo correo electrónico:", currentUser.email);
                 if (nuevoEmail && nuevoEmail !== currentUser.email && nuevoEmail.includes("@")) {
                     try {
-                        // Envía verificación al nuevo correo antes de actualizar
                         await verifyBeforeUpdateEmail(currentUser, nuevoEmail);
-                        alert("¡Correo de verificación enviado a " + nuevoEmail + "!\n\nConfirma el enlace en tu casilla. Luego, deberás volver a iniciar sesión para que el cambio sea oficial.");
+                        alert("¡Correo de verificación enviado a " + nuevoEmail + "!");
                         toggleSettings();
                     } catch (e) {
-                        alert("Error: Por seguridad, debés haber iniciado sesión recientemente para cambiar tu correo.");
+                        alert("Error: Por seguridad, debés haber iniciado sesión recientemente.");
                     }
                 } else if (nuevoEmail) { alert("Correo inválido."); }
             }
