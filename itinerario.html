@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Itinerario y Notas</title>
+    <title>Itinerario Pro - Cloud</title>
     <style>
         :root { --primary: #7c3aed; --bg: #f8fafc; --white: #ffffff; --card-note: #fffbeb; --blue: #2563eb; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -12,26 +12,19 @@
         .nav-bar { width: 100%; max-width: 450px; margin-bottom: 15px; display: flex; gap: 10px; }
         .btn-nav { flex: 1; padding: 12px; background: var(--white); border-radius: 14px; font-weight: 800; text-align: center; text-decoration: none; font-size: 0.8rem; border: 2px solid var(--blue); color: var(--blue); }
         
-        .card { background: var(--white); padding: 1.5rem; border-radius: 24px; width: 100%; max-width: 450px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 15px; position: relative; }
-        h2 { color: var(--primary); margin: 0 0 15px 0; text-align: center; font-size: 1.4rem; }
+        .card { background: var(--white); padding: 1.5rem; border-radius: 24px; width: 100%; max-width: 450px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 15px; }
+        h2 { color: var(--primary); margin-top: 0; text-align: center; font-size: 1.4rem; }
         
-        /* Botón de ajustes corregido */
-        .settings-btn { position: absolute; top: 15px; right: 15px; background: #f1f5f9; border: none; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1rem; }
-
-        textarea { width: 100%; padding: 15px; border: 2px solid #f1f5f9; border-radius: 16px; margin-bottom: 10px; font-size: 1rem; background: #f8fafc; font-family: inherit; resize: none; outline: none; }
+        textarea { width: 100%; padding: 15px; border: 2px solid #f1f5f9; border-radius: 16px; margin-bottom: 10px; font-size: 1rem; background: #f8fafc; font-family: inherit; resize: none; outline: none; transition: border-color 0.3s; }
+        textarea:focus { border-color: var(--primary); }
+        
         .btn-add { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 16px; font-weight: 700; cursor: pointer; font-size: 1rem; }
-
-        /* Estilo del Historial */
+        
         .list-container { width: 100%; max-width: 450px; margin-top: 10px; }
         .note-item { background: var(--card-note); padding: 15px; border-left: 5px solid #f59e0b; border-radius: 12px; margin-bottom: 12px; position: relative; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
         .note-text { font-size: 1rem; color: #451a03; font-weight: 500; white-space: pre-wrap; line-height: 1.4; padding-right: 25px; }
-        .note-date { font-size: 0.65rem; color: #92400e; margin-top: 8px; font-weight: 700; text-transform: uppercase; opacity: 0.7; }
-        .btn-delete { position: absolute; top: 10px; right: 12px; color: #b45309; font-weight: 900; font-size: 1.2rem; cursor: pointer; }
-
-        .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; z-index: 1000; }
-        .settings-drawer { position: fixed; top: 0; right: -300px; width: 280px; height: 100%; background: white; z-index: 1001; transition: 0.3s; padding: 25px; display: flex; flex-direction: column; }
-        .settings-drawer.open { right: 0; }
-        .drawer-btn { width: 100%; padding: 14px; margin-bottom: 10px; border-radius: 12px; border: 1px solid #e2e8f0; background: white; font-weight: 700; text-align: left; cursor: pointer; }
+        .note-date { font-size: 0.65rem; color: #92400e; margin-top: 8px; font-weight: 700; text-transform: uppercase; }
+        .btn-delete { position: absolute; top: 10px; right: 12px; color: #b45309; font-weight: 900; font-size: 1.2rem; cursor: pointer; padding: 5px; }
     </style>
 </head>
 <body>
@@ -42,25 +35,21 @@
     </div>
 
     <div class="card">
-        <button class="settings-btn" onclick="toggleMenu()">⚙️</button>
         <h2>📍 Itinerario</h2>
-        <textarea id="noteInput" rows="3" placeholder="Anota vuelos, hoteles o recordatorios..."></textarea>
+        <textarea id="noteInput" rows="4" placeholder="Anota vuelos, hoteles o recordatorios..."></textarea>
         <button id="btnSave" class="btn-add" onclick="addNote()">AGREGAR AL HISTORIAL</button>
     </div>
 
-    <div id="notesList" class="list-container"></div>
-
-    <div id="menuOverlay" class="menu-overlay" onclick="toggleMenu()"></div>
-    <div id="settingsDrawer" class="settings-drawer">
-        <h3>Ajustes</h3>
-        <button class="drawer-btn" onclick="changePass()">📧 Cambiar clave</button>
-        <button class="drawer-btn" style="margin-top:auto; color:red;" onclick="logout()">🚪 Cerrar Sesión</button>
+    <div id="notesList" class="list-container">
+        <p style="text-align:center; color:#94a3b8;">Cargando notas...</p>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, query, where, orderBy, onSnapshot, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+        import { 
+            getFirestore, collection, addDoc, query, where, orderBy, onSnapshot, deleteDoc, doc, enableIndexedDbPersistence 
+        } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCm0Ig-CPklsjf6j-1uSAeF6I8xtyQKj7U",
@@ -68,30 +57,47 @@
             projectId: "viajes-db538",
             storageBucket: "viajes-db538.firebasestorage.app",
             messagingSenderId: "237311739178",
-            appId: "1:237311739178:web:333e468b184c0402a98a53",
-            measurementId: "G-WYF0L0YSYJ"
+            appId: "1:237311739178:web:333e468b184c0402a98a53"
         };
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        let currentUser = null;
+
+        // Habilitar persistencia de datos (esto ayuda a que se vea en el celular aunque la señal sea débil)
+        enableIndexedDbPersistence(db).catch((err) => {
+            console.warn("La persistencia no se pudo habilitar", err.code);
+        });
 
         onAuthStateChanged(auth, (user) => {
-            if (!user) { window.location.replace("login.html"); return; }
-            currentUser = user;
-            listenNotes(user.uid); // Sincronización automática al entrar
+            if (!user) {
+                window.location.replace("login.html");
+            } else {
+                listenNotes(user.uid);
+            }
         });
 
         function listenNotes(uid) {
-            const q = query(collection(db, "notas"), where("userId", "==", uid), orderBy("createdAt", "desc"));
+            const q = query(
+                collection(db, "notas"), 
+                where("userId", "==", uid), 
+                orderBy("createdAt", "desc")
+            );
+
+            // onSnapshot es clave: mantiene la conexión abierta y actualiza apenas detecta cambios
             onSnapshot(q, (snapshot) => {
                 const container = document.getElementById('notesList');
+                if (snapshot.empty) {
+                    container.innerHTML = '<div style="text-align:center; color:#94a3b8; margin-top:20px;">No hay notas guardadas.</div>';
+                    return;
+                }
+
                 container.innerHTML = snapshot.docs.map(docSnap => {
                     const data = docSnap.data();
                     const dateStr = new Date(data.createdAt).toLocaleString('es-AR', {
-                        day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'
-                    });
+                        day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit', hour12: true
+                    }).replace(".", "").toUpperCase();
+                    
                     return `
                         <div class="note-item">
                             <div class="btn-delete" onclick="deleteNote('${docSnap.id}')">×</div>
@@ -99,36 +105,33 @@
                             <div class="note-date">${dateStr}</div>
                         </div>`;
                 }).join('');
+            }, (error) => {
+                console.error("Error en tiempo real:", error);
             });
         }
 
         window.addNote = async () => {
             const input = document.getElementById('noteInput');
             const text = input.value.trim();
-            if (!text || !currentUser) return;
+            if (!text || !auth.currentUser) return;
+
             try {
                 await addDoc(collection(db, "notas"), {
                     text: text,
-                    userId: currentUser.uid,
+                    userId: auth.currentUser.uid,
                     createdAt: Date.now()
                 });
                 input.value = '';
-            } catch (e) { alert("Error: " + e.message); }
+            } catch (e) {
+                alert("Error al guardar: " + e.message);
+            }
         };
 
         window.deleteNote = async (id) => {
-            if (confirm('¿Eliminar esta nota?')) await deleteDoc(doc(db, "notas", id));
+            if (confirm('¿Eliminar esta nota?')) {
+                await deleteDoc(doc(db, "notas", id));
+            }
         };
-
-        window.toggleMenu = () => {
-            const d = document.getElementById('settingsDrawer');
-            const o = document.getElementById('menuOverlay');
-            d.classList.toggle('open');
-            o.style.display = d.classList.contains('open') ? 'block' : 'none';
-        };
-
-        window.logout = () => signOut(auth).then(() => window.location.replace("login.html"));
-        window.changePass = () => sendPasswordResetEmail(auth, currentUser.email).then(() => alert("Mail enviado"));
     </script>
 </body>
 </html>
