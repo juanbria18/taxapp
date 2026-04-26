@@ -31,7 +31,6 @@
         .cat-btn { padding: 15px 10px; border: 2px solid #f1f5f9; border-radius: 16px; background: white; font-size: 0.7rem; font-weight: 800; color: #64748b; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; align-items: center; gap: 5px; }
         .cat-btn.active { border-color: var(--primary); background: #eff6ff; color: var(--primary); }
         
-        /* Estilos Propinas */
         .tip-section { margin-bottom: 1.2rem; text-align: left; }
         .tip-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 8px; }
         .tip-btn { padding: 10px 2px; border: 2px solid #f1f5f9; border-radius: 12px; background: white; font-size: 0.7rem; font-weight: 800; color: #64748b; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; align-items: center; }
@@ -40,7 +39,7 @@
         
         .custom-tip-container { display: flex; align-items: center; background: #f1f5f9; border-radius: 12px; padding: 5px 12px; }
         .custom-tip-container span { font-weight: 800; color: #64748b; font-size: 0.8rem; }
-        #custom-tip-input { background: transparent; border: none; padding: 8px; text-align: right; font-size: 0.9rem; color: var(--accent); }
+        #custom-tip-input { background: transparent; border: none; padding: 8px; text-align: right; font-size: 0.9rem; color: var(--accent); width: 100%; outline: none; font-weight: 800; }
 
         .result-box { background: #eff6ff; padding: 1.2rem; border-radius: 20px; margin-top: 0.8rem; border: 2px dashed var(--primary); margin-bottom: 10px; }
         .result-value { font-size: 2rem; font-weight: 900; color: var(--primary); margin: 2px 0; }
@@ -192,56 +191,21 @@
         let currentTipPercentage = 15;
 
         const taxData = {
-            "Alabama": [{n:"Promedio", t:9.29}],
-            "Alaska": [{n:"Sin Tax", t:0}],
-            "Arizona": [{n:"Phoenix", t:8.6}],
-            "Arkansas": [{n:"Little Rock", t:9.51}],
-            "California": [{n:"Los Angeles", t:9.5}, {n:"San Francisco", t:8.63}, {n:"San Diego", t:7.75}],
-            "Colorado": [{n:"Denver", t:8.81}],
-            "Connecticut": [{n:"Promedio", t:6.35}],
-            "Delaware": [{n:"Sin Tax", t:0}],
+            "Alabama": [{n:"Promedio", t:9.29}], "Alaska": [{n:"Sin Tax", t:0}], "Arizona": [{n:"Phoenix", t:8.6}], "Arkansas": [{n:"Little Rock", t:9.51}],
+            "California": [{n:"Los Angeles", t:9.5}, {n:"San Francisco", t:8.63}, {n:"San Diego", t:7.75}], "Colorado": [{n:"Denver", t:8.81}],
+            "Connecticut": [{n:"Promedio", t:6.35}], "Delaware": [{n:"Sin Tax", t:0}],
             "Florida": [{n:"Orlando", t:6.5}, {n:"Miami", t:7.0}, {n:"Tampa", t:8.5}, {n:"Kissimmee", t:7.5}],
-            "Georgia": [{n:"Atlanta", t:8.9}],
-            "Hawaii": [{n:"Honolulu", t:4.5}],
-            "Idaho": [{n:"Boise", t:6.0}],
-            "Illinois": [{n:"Chicago", t:10.25}],
-            "Indiana": [{n:"Promedio", t:7.0}],
-            "Iowa": [{n:"Des Moines", t:7.0}],
-            "Kansas": [{n:"Wichita", t:7.5}],
-            "Kentucky": [{n:"Promedio", t:6.0}],
-            "Louisiana": [{n:"New Orleans", t:9.45}],
-            "Maine": [{n:"Promedio", t:5.5}],
-            "Maryland": [{n:"Promedio", t:6.0}],
-            "Massachusetts": [{n:"Boston", t:6.25}],
-            "Michigan": [{n:"Promedio", t:6.0}],
-            "Minnesota": [{n:"Minneapolis", t:8.03}],
-            "Mississippi": [{n:"Promedio", t:7.07}],
-            "Missouri": [{n:"St. Louis", t:8.29}],
-            "Montana": [{n:"Sin Tax", t:0}],
-            "Nebraska": [{n:"Omaha", t:7.0}],
-            "Nevada": [{n:"Las Vegas", t:8.38}],
-            "New Hampshire": [{n:"Sin Tax", t:0}],
-            "New Jersey": [{n:"Jersey City", t:6.63}],
-            "New Mexico": [{n:"Albuquerque", t:7.88}],
-            "New York": [{n:"NYC", t:8.88}, {n:"Buffalo", t:8.75}],
-            "North Carolina": [{n:"Charlotte", t:7.25}],
-            "North Dakota": [{n:"Fargo", t:6.85}],
-            "Ohio": [{n:"Columbus", t:7.5}],
-            "Oklahoma": [{n:"Oklahoma City", t:8.63}],
-            "Oregon": [{n:"Sin Tax", t:0}],
-            "Pennsylvania": [{n:"Philadelphia", t:8.0}],
-            "Rhode Island": [{n:"Promedio", t:7.0}],
-            "South Carolina": [{n:"Charleston", t:9.0}],
-            "South Dakota": [{n:"Sioux Falls", t:6.4}],
-            "Tennessee": [{n:"Nashville", t:9.25}],
-            "Texas": [{n:"Houston", t:8.25}, {n:"Dallas", t:8.25}, {n:"Austin", t:8.25}],
-            "Utah": [{n:"Salt Lake City", t:7.75}],
-            "Vermont": [{n:"Burlington", t:7.0}],
-            "Virginia": [{n:"Virginia Beach", t:6.0}],
-            "Washington": [{n:"Seattle", t:10.25}],
-            "West Virginia": [{n:"Promedio", t:6.5}],
-            "Wisconsin": [{n:"Milwaukee", t:5.5}],
-            "Wyoming": [{n:"Cheyenne", t:6.0}]
+            "Georgia": [{n:"Atlanta", t:8.9}], "Hawaii": [{n:"Honolulu", t:4.5}], "Idaho": [{n:"Boise", t:6.0}], "Illinois": [{n:"Chicago", t:10.25}],
+            "Indiana": [{n:"Promedio", t:7.0}], "Iowa": [{n:"Des Moines", t:7.0}], "Kansas": [{n:"Wichita", t:7.5}], "Kentucky": [{n:"Promedio", t:6.0}],
+            "Louisiana": [{n:"New Orleans", t:9.45}], "Maine": [{n:"Promedio", t:5.5}], "Maryland": [{n:"Promedio", t:6.0}], "Massachusetts": [{n:"Boston", t:6.25}],
+            "Michigan": [{n:"Promedio", t:6.0}], "Minnesota": [{n:"Minneapolis", t:8.03}], "Mississippi": [{n:"Promedio", t:7.07}], "Missouri": [{n:"St. Louis", t:8.29}],
+            "Montana": [{n:"Sin Tax", t:0}], "Nebraska": [{n:"Omaha", t:7.0}], "Nevada": [{n:"Las Vegas", t:8.38}], "New Hampshire": [{n:"Sin Tax", t:0}],
+            "New Jersey": [{n:"Jersey City", t:6.63}], "New Mexico": [{n:"Albuquerque", t:7.88}], "New York": [{n:"NYC", t:8.88}, {n:"Buffalo", t:8.75}],
+            "North Carolina": [{n:"Charlotte", t:7.25}], "North Dakota": [{n:"Fargo", t:6.85}], "Ohio": [{n:"Columbus", t:7.5}], "Oklahoma": [{n:"Oklahoma City", t:8.63}],
+            "Oregon": [{n:"Sin Tax", t:0}], "Pennsylvania": [{n:"Philadelphia", t:8.0}], "Rhode Island": [{n:"Promedio", t:7.0}], "South Carolina": [{n:"Charleston", t:9.0}],
+            "South Dakota": [{n:"Sioux Falls", t:6.4}], "Tennessee": [{n:"Nashville", t:9.25}], "Texas": [{n:"Houston", t:8.25}, {n:"Dallas", t:8.25}, {n:"Austin", t:8.25}],
+            "Utah": [{n:"Salt Lake City", t:7.75}], "Vermont": [{n:"Burlington", t:7.0}], "Virginia": [{n:"Virginia Beach", t:6.0}], "Washington": [{n:"Seattle", t:10.25}],
+            "West Virginia": [{n:"Promedio", t:6.5}], "Wisconsin": [{n:"Milwaukee", t:5.5}], "Wyoming": [{n:"Cheyenne", t:6.0}]
         };
 
         const econTips = [
@@ -283,6 +247,8 @@
             if (!isNaN(val)) {
                 currentTipPercentage = val;
                 document.querySelectorAll('.tip-btn').forEach(b => b.classList.remove('active'));
+            } else {
+                currentTipPercentage = 0;
             }
             window.calculate();
         };
@@ -296,6 +262,7 @@
             
             const subtotal = price + (price * (tax / 100));
             
+            // Actualizar montos en dólares de los botones de sugerencia
             [0, 10, 15, 20].forEach(p => {
                 const amount = subtotal * (p / 100);
                 document.getElementById(`val-tip-${p}`).innerText = `$${amount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
