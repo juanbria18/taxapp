@@ -12,7 +12,6 @@
         .nav-bar { width: 100%; max-width: 450px; margin-bottom: 15px; display: flex; gap: 10px; }
         .btn-nav { flex: 1; padding: 12px; background: var(--white); border-radius: 14px; font-weight: 800; text-align: center; text-decoration: none; font-size: 0.8rem; border: 2px solid var(--primary); color: var(--primary); }
         
-        /* Bloque Presupuesto */
         .budget-card { background: linear-gradient(135deg, #2563eb, #7c3aed); color: white; padding: 20px; border-radius: 24px; width: 100%; max-width: 450px; text-align: center; box-shadow: 0 8px 20px rgba(37, 99, 235, 0.2); margin-bottom: 15px; }
         .budget-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; opacity: 0.9; letter-spacing: 1px; }
         .budget-value { font-size: 2.2rem; font-weight: 900; margin: 8px 0; }
@@ -33,17 +32,19 @@
 
         .btn-add { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 16px; font-weight: 800; cursor: pointer; font-size: 0.9rem; }
 
-        /* Historial */
         .history-item { background: #f8fafc; padding: 15px; border-radius: 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid var(--primary); }
         .h-info b { display: block; font-size: 0.95rem; color: #1e293b; }
         .h-info span { font-size: 0.7rem; color: #94a3b8; font-weight: 700; }
         .h-amount { font-weight: 900; color: var(--primary); font-size: 1rem; }
 
-        /* Talles - Las 3 Divisiones */
-        .talles-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .talle-box { background: #f8fafc; padding: 12px; border-radius: 14px; border: 1px solid #e2e8f0; }
+        /* Talles - Diseño de 3 Divisiones Claras */
+        .talles-section { margin-bottom: 20px; }
+        .talles-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+        .talle-box { background: #f8fafc; padding: 12px; border-radius: 14px; border: 1px solid #e2e8f0; text-align: center; }
         .talle-box small { color: var(--accent); font-weight: 800; font-size: 0.6rem; display: block; text-transform: uppercase; margin-bottom: 3px; }
         .talle-box span { font-weight: 700; font-size: 0.9rem; color: #1e293b; }
+        
+        .dato-clave { background: #f5f3ff; padding: 15px; border-radius: 16px; border: 1.5px solid var(--accent); }
 
         .footer { margin-top: auto; padding: 20px 0; text-align: center; font-size: 0.75rem; color: #94a3b8; font-weight: 600; }
         .footer span { display: flex; align-items: center; justify-content: center; gap: 8px; }
@@ -74,12 +75,12 @@
 
         <div id="sec-gastos">
             <div class="input-group">
-                <label>Descripción</label>
-                <input type="text" id="desc" placeholder="Ej: Outlets Orlando">
+                <label>Nombre del Producto</label>
+                <input type="text" id="nombre" placeholder="Ej: Zapatillas Nike">
             </div>
             <div class="input-group">
-                <label>Monto en USD</label>
-                <input type="number" id="monto" placeholder="0.00" inputmode="decimal">
+                <label>Valor en USD</label>
+                <input type="number" id="valor" placeholder="0.00" inputmode="decimal">
             </div>
             <button class="btn-add" onclick="addGasto()">GUARDAR GASTO</button>
             
@@ -89,24 +90,33 @@
         </div>
 
         <div id="sec-talles" style="display:none;">
-            <div class="talles-grid">
-                <div class="talle-box"><small>Zapatillas Hombre</small><span>9.5 US = 42.5 ARG</span></div>
-                <div class="talle-box"><small>Zapatillas Mujer</small><span>8 US = 38 ARG</span></div>
-                <div class="talle-box"><small>Remeras / Tops</small><span>M (US) = L (ARG)</span></div>
-                <div class="talle-box"><small>Pantalones</small><span>32W = 42 ARG</span></div>
-                <div class="talle-box" style="grid-column: span 2; border-color: var(--accent);">
-                    <small>Dato Clave</small>
-                    <span>Talles "S" en USA suelen ser "M" en Argentina.</span>
+            <div class="talles-section">
+                <label style="margin-bottom: 10px;">👟 Calzado</label>
+                <div class="talles-grid">
+                    <div class="talle-box"><small>Zapatillas Hombre</small><span>9.5 US = 42.5 ARG</span></div>
+                    <div class="talle-box"><small>Zapatillas Mujer</small><span>8 US = 38 ARG</span></div>
+                </div>
+            </div>
+
+            <div class="talles-section">
+                <label style="margin-bottom: 10px;">👕 Indumentaria</label>
+                <div class="talles-grid">
+                    <div class="talle-box"><small>Remeras / Tops</small><span>M (US) = L (ARG)</span></div>
+                    <div class="talle-box"><small>Pantalones</small><span>32W = 42 ARG</span></div>
+                </div>
+            </div>
+
+            <div class="dato-clave">
+                <small style="color: var(--accent); font-weight: 800; font-size: 0.6rem; text-transform: uppercase;">Dato Clave</small>
+                <div style="font-weight: 700; font-size: 0.9rem; color: #1e293b; margin-top: 4px;">
+                    Talles "S" en USA suelen ser "M" en Argentina.
                 </div>
             </div>
         </div>
     </div>
 
     <div class="footer">
-        <span>
-            Creado por Juan Cruz Bria 
-            <img src="https://flagcdn.com/w40/ar.png" class="flag-icon" alt="Argentina">
-        </span>
+        <span>Creado por Juan Cruz Bria <img src="https://flagcdn.com/w40/ar.png" class="flag-icon"></span>
         <div style="margin-top: 4px; opacity: 0.7;">© 2026 Todos los derechos reservados</div>
     </div>
 
@@ -114,7 +124,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
         import { 
-            getFirestore, collection, addDoc, query, where, orderBy, onSnapshot, deleteDoc, doc, setDoc, getDoc 
+            getFirestore, collection, addDoc, query, where, orderBy, onSnapshot, deleteDoc, doc, setDoc 
         } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -137,9 +147,9 @@
             if (!user) window.location.replace("login.html");
             else {
                 currentUser = user;
-                // Escuchar presupuesto del usuario
+                // Escuchar presupuesto del documento de usuario
                 onSnapshot(doc(db, "usuarios", user.uid), (docSnap) => {
-                    presupuestoBase = docSnap.exists() ? docSnap.data().fondo : 0;
+                    presupuestoBase = docSnap.exists() ? (docSnap.data().fondo || 0) : 0;
                     listenGastos(user.uid);
                 });
             }
@@ -159,13 +169,15 @@
 
                 container.innerHTML = snapshot.docs.map(docSnap => {
                     const d = docSnap.data();
-                    totalGastado += d.monto;
+                    // IMPORTANTE: Usamos 'valor' como está en tu Firebase
+                    const montoGasto = parseFloat(d.valor) || 0;
+                    totalGastado += montoGasto;
                     const fecha = new Date(d.createdAt).toLocaleDateString('es-AR');
                     return `
                         <div class="history-item">
-                            <div class="h-info"><b>${d.desc}</b><span>${fecha}</span></div>
+                            <div class="h-info"><b>${d.nombre || 'Sin nombre'}</b><span>${fecha}</span></div>
                             <div style="display:flex; align-items:center; gap:12px;">
-                                <div class="h-amount">-$${d.monto.toFixed(2)}</div>
+                                <div class="h-amount">-$${montoGasto.toFixed(2)}</div>
                                 <div style="color:#ef4444; font-weight:900; cursor:pointer; font-size:1.2rem;" onclick="deleteGasto('${docSnap.id}')">×</div>
                             </div>
                         </div>`;
@@ -189,19 +201,19 @@
         };
 
         window.addGasto = async () => {
-            const desc = document.getElementById('desc').value.trim();
-            const monto = document.getElementById('monto').value;
-            if(!desc || !monto) return;
+            const nombre = document.getElementById('nombre').value.trim();
+            const valor = document.getElementById('valor').value;
+            if(!nombre || !valor) return;
             
             try {
                 await addDoc(collection(db, "compras"), {
-                    desc,
-                    monto: parseFloat(monto),
+                    nombre: nombre,
+                    valor: parseFloat(valor),
                     userId: currentUser.uid,
                     createdAt: Date.now()
                 });
-                document.getElementById('desc').value = '';
-                document.getElementById('monto').value = '';
+                document.getElementById('nombre').value = '';
+                document.getElementById('valor').value = '';
             } catch (e) { alert("Error: " + e.message); }
         };
 
