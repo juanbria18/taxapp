@@ -1,223 +1,60 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TaxUSA Pro</title>
-    <style>
-        :root { --primary: #2563eb; --bg: #f8fafc; --card: #ffffff; --accent: #7c3aed; }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
-        
-        /* Contenedor Principal */
-        .card { background: var(--card); padding: 1.5rem; border-radius: 24px; width: 100%; max-width: 420px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); text-align: center; position: relative; }
-        h1 { margin: 0 0 1rem 0; font-size: 1.6rem; font-weight: 800; color: var(--primary); }
-        
-        /* Formulario y Calculadora */
-        .input-group { margin-bottom: 1rem; text-align: left; }
-        label { display: block; font-size: 0.7rem; font-weight: 800; color: #64748b; margin-bottom: 0.4rem; text-transform: uppercase; }
-        input, select { width: 100%; padding: 12px; border: 2px solid #f1f5f9; border-radius: 14px; font-size: 1rem; outline: none; background: white; }
-        
-        .category-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 1.2rem; }
-        .cat-btn { padding: 10px; border: 2px solid #f1f5f9; border-radius: 12px; background: white; font-size: 0.65rem; font-weight: 800; color: #64748b; cursor: pointer; }
-        .cat-btn.active { border-color: var(--primary); background: #eff6ff; color: var(--primary); }
-        
-        .result-box { background: #eff6ff; padding: 1.2rem; border-radius: 20px; margin-top: 0.8rem; border: 1px dashed var(--primary); }
-        .result-value { font-size: 2.2rem; font-weight: 900; color: var(--primary); margin: 4px 0; }
-        
-        /* Navegación Inferior */
-        .nav-buttons { margin-top: 25px; display: flex; flex-direction: column; gap: 10px; }
-        .nav-btn { text-decoration: none; padding: 16px; border-radius: 14px; font-weight: 800; text-align: center; font-size: 0.9rem; transition: 0.2s; }
-        .btn-blue { background: #2563eb; color: white; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); }
-        .btn-purple { background: #7c3aed; color: white; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2); }
-
-        /* Estilos del Menú de Ajustes */
-        .settings-trigger { 
-            position: absolute; top: 15px; right: 15px; background: #f1f5f9; 
-            border: none; border-radius: 50%; width: 40px; height: 40px; 
-            font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center;
-        }
-        
-        .menu-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5); display: none; z-index: 1000;
-        }
-        .settings-drawer {
-            position: fixed; top: 0; right: -300px; width: 280px; height: 100%;
-            background: white; z-index: 1001; transition: 0.3s; padding: 25px;
-            box-shadow: -5px 0 15px rgba(0,0,0,0.1); display: flex; flex-direction: column;
-        }
-        .settings-drawer.open { right: 0; }
-        .drawer-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-        .close-drawer { font-size: 1.5rem; cursor: pointer; color: #94a3b8; }
-        
-        .user-pill { background: #f1f5f9; padding: 12px; border-radius: 12px; margin-bottom: 20px; text-align: left; }
-        .user-pill span { display: block; font-size: 0.65rem; color: #64748b; font-weight: 800; text-transform: uppercase; }
-        .user-pill b { font-size: 0.85rem; color: #1e293b; word-break: break-all; }
-
-        .drawer-btn {
-            width: 100%; padding: 14px; margin-bottom: 10px; border-radius: 12px;
-            border: 1px solid #e2e8f0; background: white; font-weight: 700;
-            text-align: left; cursor: pointer; font-size: 0.85rem; color: #475569;
-        }
-        .btn-logout { margin-top: auto; color: #ef4444; border-color: #fecaca; font-weight: 800; }
-        
-        #sync-status { font-size: 0.6rem; color: #10b981; font-weight: 800; margin-bottom: 5px; text-transform: uppercase; display: none; }
-    </style>
-</head>
-<body>
-
-    <div class="card">
-        <button class="settings-trigger" onclick="toggleSettings()">⚙️</button>
-        <div id="sync-status">● En línea</div>
-        <h1>TaxUSA 🇺🇸</h1>
-        
-        <div class="input-group">
-            <label>Precio Etiqueta (USD)</label>
-            <input type="number" id="price" placeholder="0.00" oninput="calculate()" step="0.01">
-        </div>
-
-        <label>Categoría</label>
-        <div class="category-grid">
-            <button class="cat-btn active" id="btn-general" onclick="setCategory('general')">🛍️ GENERAL</button>
-            <button class="cat-btn" id="btn-tech" onclick="setCategory('tech')">💻 TECH</button>
-            <button class="cat-btn" id="btn-food" onclick="setCategory('food')">🍎 COMIDA</button>
-            <button class="cat-btn" id="btn-med" onclick="setCategory('med')">💊 MEDICINA</button>
-        </div>
-
-        <div class="input-group">
-            <label>Estado</label>
-            <select id="state-select" onchange="loadCities()">
-                <option value="Florida" selected>Florida</option>
-                <option value="Alabama">Alabama</option>
-                <option value="California">California</option>
-                <option value="New York">New York</option>
-                <option value="Texas">Texas</option>
-            </select>
-        </div>
-
-        <div class="input-group">
-            <label>Ciudad</label>
-            <select id="city-select" onchange="calculate()"></select>
-        </div>
-
-        <div class="result-box">
-            <div class="result-value" id="total">USD 0.00</div>
-            <div id="tax-detail" style="font-size: 0.8rem; color: #3b82f6; font-weight: bold;">Tax: 6.5%</div>
-        </div>
-
-        <div class="nav-buttons">
-            <a href="compras.html" class="nav-btn btn-blue">🛍️ SHOPPING Y PRESUPUESTO</a>
-            <a href="itinerario.html" class="nav-btn btn-purple">📍 ITINERARIO Y NOTAS</a>
-        </div>
+<div id="settingsDrawer" class="settings-drawer">
+    <div class="drawer-header">
+        <h3 style="margin:0;">Ajustes</h3>
+        <span class="close-drawer" onclick="toggleSettings()">×</span>
     </div>
 
-    <div id="menuOverlay" class="menu-overlay" onclick="toggleSettings()"></div>
-    <div id="settingsDrawer" class="settings-drawer">
-        <div class="drawer-header">
-            <h3 style="margin:0;">Ajustes</h3>
-            <span class="close-drawer" onclick="toggleSettings()">×</span>
-        </div>
-
-        <div class="user-pill">
-            <span>Usuario</span>
-            <b id="userEmail">cargando...</b>
-        </div>
-
-        <button class="drawer-btn" onclick="changePass()">📧 Cambiar contraseña</button>
-        <button class="drawer-btn" onclick="alert('Versión 2.0 - Firestore Cloud Enabled')">ℹ️ Información de la App</button>
-
-        <button class="drawer-btn btn-logout" onclick="logout()">🚪 Cerrar Sesión</button>
+    <div class="user-pill">
+        <span>Usuario</span>
+        <b id="userEmail">cargando...</b>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+    <button class="drawer-btn" onclick="changePass()">📧 Cambiar contraseña</button>
+    <button class="drawer-btn" onclick="alert('Versión 2.0 - Firestore Cloud Enabled')">ℹ️ Información de la App</button>
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyCm0Ig-CPklsjf6j-1uSAeF6I8xtyQKj7U",
-            authDomain: "viajes-db538.firebaseapp.com",
-            projectId: "viajes-db538",
-            storageBucket: "viajes-db538.firebasestorage.app",
-            messagingSenderId: "237311739178",
-            appId: "1:237311739178:web:333e468b184c0402a98a53",
-            measurementId: "G-WYF0L0YSYJ"
-        };
+    <button class="drawer-btn" style="color: #ef4444; border-color: #fecaca; margin-top: 10px;" onclick="eliminarCuenta()">🗑️ Eliminar Cuenta</button>
+    
+    <button class="drawer-btn btn-logout" onclick="logout()">🚪 Cerrar Sesión</button>
+</div>
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut, sendPasswordResetEmail, deleteUser } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+    import { getFirestore, collection, query, where, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
-        // --- Lógica de la Calculadora ---
-        const data = {
-            "Florida": [{n:"Orlando", t:6.5}, {n:"Miami", t:7.0}],
-            "Alabama": [{n:"Birmingham", t:10.0}], 
-            "California": [{n:"Los Angeles", t:9.5}], 
-            "New York": [{n:"NYC", t:8.875}], 
-            "Texas": [{n:"Houston", t:8.25}]
-        };
+    // ... (resto de tu config de firebase) ...
 
-        let currentCategory = 'general';
+    window.eliminarCuenta = async () => {
+        const user = auth.currentUser;
+        if (!user) return;
 
-        window.loadCities = () => {
-            const state = document.getElementById('state-select').value;
-            const citySelect = document.getElementById('city-select');
-            citySelect.innerHTML = "";
-            if(data[state]) {
-                data[state].forEach(city => {
-                    let opt = document.createElement('option');
-                    opt.value = city.t;
-                    opt.text = `${city.n} (${city.t}%)`;
-                    citySelect.appendChild(opt);
-                });
-            }
-            window.calculate();
-        };
+        const confirmar = confirm("⚠️ ¿ESTÁS SEGURO? Se borrarán todas tus notas, gastos y tu cuenta permanentemente. Esta acción no se puede deshacer.");
+        if (!confirmar) return;
 
-        window.setCategory = (cat) => {
-            currentCategory = cat;
-            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById('btn-' + cat).classList.add('active');
-            window.calculate();
-        };
+        try {
+            // 1. Borrar Notas
+            const qNotas = query(collection(db, "notas"), where("userId", "==", user.uid));
+            const snapNotas = await getDocs(qNotas);
+            snapNotas.forEach(async (d) => await deleteDoc(doc(db, "notas", d.id)));
 
-        window.calculate = () => {
-            const price = parseFloat(document.getElementById('price').value) || 0;
-            let tax = parseFloat(document.getElementById('city-select').value) || 0;
-            if (currentCategory === 'med' || currentCategory === 'food') tax = 0;
-            const total = price + (price * (tax / 100));
-            document.getElementById('total').innerText = 'USD ' + total.toLocaleString('en-US', {minimumFractionDigits: 2});
-            document.getElementById('tax-detail').innerText = `Tax Aplicado: ${tax}%`;
-        };
+            // 2. Borrar Compras
+            const qCompras = query(collection(db, "compras"), where("userId", "==", user.uid));
+            const snapCompras = await getDocs(qCompras);
+            snapCompras.forEach(async (d) => await deleteDoc(doc(db, "compras", d.id)));
 
-        // --- Lógica del Menú y Auth ---
-        window.toggleSettings = () => {
-            const drawer = document.getElementById('settingsDrawer');
-            const overlay = document.getElementById('menuOverlay');
-            drawer.classList.toggle('open');
-            overlay.style.display = drawer.classList.contains('open') ? 'block' : 'none';
-        };
-
-        window.changePass = () => {
-            const email = auth.currentUser.email;
-            sendPasswordResetEmail(auth, email).then(() => {
-                alert("Te enviamos un mail a " + email + " para cambiar tu clave.");
-            }).catch((e) => alert("Error: " + e.message));
-        };
-
-        window.logout = () => {
-            signOut(auth).then(() => window.location.replace("login.html"));
-        };
-
-        onAuthStateChanged(auth, (user) => { 
-            if (!user) {
-                window.location.replace("login.html");
+            // 3. Borrar el usuario de Auth
+            await deleteUser(user);
+            
+            alert("Cuenta y datos eliminados correctamente.");
+            window.location.replace("login.html");
+        } catch (e) {
+            console.error(e);
+            if (e.code === 'auth/requires-recent-login') {
+                alert("Por seguridad, debes cerrar sesión y volver a entrar para eliminar tu cuenta.");
             } else {
-                document.getElementById('sync-status').style.display = 'block';
-                document.getElementById('userEmail').innerText = user.email;
+                alert("Error al eliminar cuenta: " + e.message);
             }
-        });
-        
-        window.onload = window.loadCities;
-    </script>
-</body>
-</html>
+        }
+    };
+    // ... resto de tus funciones ...
+</script>
