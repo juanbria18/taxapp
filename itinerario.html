@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Itinerario Pro</title>
     <style>
-        :root { --primary: #7c3aed; --bg: #f8fafc; --white: #ffffff; --card-note: #fffbeb; --blue: #2563eb; --accent: #f59e0b; }
+        :root { --primary: #7c3aed; --bg: #f8fafc; --white: #ffffff; --card-note: #fffbeb; --blue: #2563eb; --accent: #f59e0b; --success: #10b981; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
         
@@ -30,15 +30,44 @@
         .dato-itinerario:active { transform: scale(0.98); }
 
         .list-container { width: 100%; max-width: 450px; margin-top: 10px; }
-        
-        /* ESTILOS DEL CHECK */
-        .note-item { background: var(--card-note); padding: 15px; border-left: 5px solid #f59e0b; border-radius: 12px; margin-bottom: 12px; position: relative; cursor: pointer; transition: 0.2s; }
-        .note-item.completed { opacity: 0.6; border-left-color: #10b981; background: #ecfdf5; }
-        .note-item.completed .note-text { text-decoration: line-through; color: #064e3b; }
 
-        .note-text { font-size: 1rem; color: #451a03; font-weight: 500; white-space: pre-wrap; padding-right: 20px; }
-        .note-date { font-size: 0.65rem; color: #92400e; margin-top: 8px; font-weight: 800; text-transform: uppercase; }
-        .btn-delete-note { position: absolute; top: 10px; right: 12px; color: #b45309; font-weight: 900; font-size: 1.2rem; cursor: pointer; z-index: 5; }
+        /* --- ESTILO AESTHETIC DE NOTAS --- */
+        .note-item { 
+            background: var(--white); padding: 18px; border-radius: 20px; 
+            margin-bottom: 12px; position: relative; display: flex; 
+            gap: 15px; align-items: flex-start; box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(0,0,0,0.02);
+        }
+
+        /* Indicador circular de estado */
+        .status-indicator {
+            min-width: 22px; height: 22px; border-radius: 50%;
+            border: 2px solid #e2e8f0; position: relative;
+            margin-top: 3px; transition: 0.3s; display: flex;
+            align-items: center; justify-content: center;
+        }
+
+        /* Estilo cuando está completado */
+        .note-item.completed { background: #f1f5f9; transform: scale(0.98); opacity: 0.7; }
+        .note-item.completed .status-indicator { 
+            background: var(--success); border-color: var(--success); 
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+        }
+        .note-item.completed .status-indicator::after {
+            content: '✓'; color: white; font-size: 0.7rem; font-weight: 900;
+        }
+        .note-item.completed .note-text { text-decoration: line-through; color: #64748b; }
+
+        .note-content { flex: 1; cursor: pointer; }
+        .note-text { font-size: 0.95rem; color: #1e293b; font-weight: 600; white-space: pre-wrap; line-height: 1.4; }
+        .note-date { font-size: 0.6rem; color: #94a3b8; margin-top: 6px; font-weight: 700; letter-spacing: 0.5px; }
+        
+        .btn-delete-note { 
+            opacity: 0.3; padding: 5px; cursor: pointer; 
+            transition: 0.2s; font-size: 1.1rem; color: #64748b;
+        }
+        .note-item:hover .btn-delete-note { opacity: 1; }
 
         .footer { margin-top: auto; padding: 20px 0; text-align: center; font-size: 0.75rem; color: #94a3b8; font-weight: 600; }
         .footer span { display: flex; align-items: center; justify-content: center; gap: 8px; }
@@ -62,7 +91,7 @@
     <div class="card">
         <button class="settings-trigger" onclick="toggleSettings()">⚙️</button>
         <h2>📍 Itinerario</h2>
-        <textarea id="noteInput" rows="4" placeholder="Anota vuelos, hoteles o recordatorios..."></textarea>
+        <textarea id="noteInput" rows="4" placeholder="Vuelos, hoteles, recordatorios..."></textarea>
         <button class="btn-add" onclick="addNote()">AGREGAR AL HISTORIAL</button>
 
         <div class="dato-itinerario" onclick="nextTip()">
@@ -141,13 +170,16 @@
                     const date = data.createdAt ? new Date(data.createdAt) : new Date();
                     const dateStr = date.toLocaleString('es-AR', {
                         day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'
-                    }).toUpperCase();
+                    });
 
                     return `
-                        <div class="note-item ${isCompleted ? 'completed' : ''}" onclick="toggleCheck('${docSnap.id}', ${isCompleted})">
-                            <div class="btn-delete-note" onclick="event.stopPropagation(); deleteNote('${docSnap.id}')">×</div>
-                            <div class="note-text">${data.text}</div>
-                            <div class="note-date">${dateStr} ${isCompleted ? '✅' : ''}</div>
+                        <div class="note-item ${isCompleted ? 'completed' : ''}">
+                            <div class="status-indicator" onclick="toggleCheck('${docSnap.id}', ${isCompleted})"></div>
+                            <div class="note-content" onclick="toggleCheck('${docSnap.id}', ${isCompleted})">
+                                <div class="note-text">${data.text}</div>
+                                <div class="note-date">${dateStr}</div>
+                            </div>
+                            <div class="btn-delete-note" onclick="deleteNote('${docSnap.id}')">×</div>
                         </div>`;
                 }).join('');
             });
@@ -165,7 +197,7 @@
                     completed: false
                 });
                 input.value = '';
-            } catch (e) { alert("Error al guardar: " + e.message); }
+            } catch (e) { alert("Error: " + e.message); }
         };
 
         window.toggleCheck = async (id, currentStatus) => {
@@ -173,11 +205,11 @@
                 await updateDoc(doc(db, "notas", id), {
                     completed: !currentStatus
                 });
-            } catch (e) { console.error("Error al actualizar:", e); }
+            } catch (e) { console.error(e); }
         };
 
         window.deleteNote = async (id) => {
-            if (confirm('¿Eliminar esta nota?')) await deleteDoc(doc(db, "notas", id));
+            if (confirm('¿Eliminar nota?')) await deleteDoc(doc(db, "notas", id));
         };
 
         const itinerarioTips = [
@@ -188,19 +220,19 @@
             "Reservá los restaurantes con 60 días de anticipación.",
             "Cargá el celular a tope; vas a usar mucho las Apps de los parques.",
             "Usá el 'Mobile Order' para comida rápida y evitá filas largas.",
-            "Los shows de cierre (fuegos artificiales) suelen ser a las 21:00.",
+            "Los shows de cierre suelen ser a las 21:00.",
             "En EPCOT, Guardians of the Galaxy requiere Fila Virtual a las 7 AM.",
-            "Si llueve, metete en un show o tienda; las lluvias en FL son cortas.",
-            "El transporte de Disney (buses/skyliner) empieza 1 hora antes que el parque.",
-            "Universal Studios e Island of Adventure se conectan por el Hogwarts Express.",
-            "Llevá una batería portátil (Power Bank), la vas a necesitar sí o sí.",
-            "Los parques de agua suelen cerrar si la temperatura baja de 21°C.",
-            "Hacé el check-in del vuelo 24hs antes desde el celular.",
-            "En Animal Kingdom, Avatar Flight of Passage tiene la fila más larga.",
-            "Los vasos de agua son GRATIS en cualquier puesto de comida rápida.",
-            "Aprovechá la hora final del parque; las filas bajan drásticamente.",
-            "Si tenés Hopper, podés cambiar de parque después de las 14:00.",
-            "Revisá el clima; enero en Orlando puede ser frío por las mañanas."
+            "Si llueve, las lluvias en FL son cortas.",
+            "Transporte Disney (buses/skyliner) empieza 1 hora antes que el parque.",
+            "Universal y Islands se conectan por el Hogwarts Express.",
+            "Llevá una batería portátil (Power Bank) sí o sí.",
+            "Parques de agua suelen cerrar si hace menos de 21°C.",
+            "Check-in del vuelo 24hs antes desde el celular.",
+            "Animal Kingdom: Flight of Passage tiene la fila más larga.",
+            "Vasos de agua son GRATIS en puestos de comida rápida.",
+            "Aprovechá la hora final; las filas bajan drásticamente.",
+            "Con Hopper podés cambiar de parque después de las 14:00.",
+            "Enero en Orlando puede ser frío por las mañanas."
         ];
         
         let currentTipIndex = 0;
@@ -223,24 +255,17 @@
         };
 
         window.logout = () => signOut(auth).then(() => window.location.replace("login.html"));
-
-        window.changePass = () => {
-            sendPasswordResetEmail(auth, currentUser.email)
-                .then(() => alert("Mail de cambio de clave enviado"))
-                .catch(e => alert(e.message));
-        };
+        window.changePass = () => sendPasswordResetEmail(auth, currentUser.email).then(() => alert("Mail enviado")).catch(e => alert(e.message));
 
         window.eliminarCuenta = async () => {
-            if(!confirm("⚠️ ¿BORRAR TODO? Esta acción es irreversible.")) return;
+            if(!confirm("⚠️ ¿BORRAR TODO? Irreversible.")) return;
             try {
                 const qn = query(collection(db, "notas"), where("userId", "==", currentUser.uid));
                 const snn = await getDocs(qn);
                 for(let d of snn.docs) await deleteDoc(doc(db, "notas", d.id));
                 await deleteUser(currentUser);
                 window.location.replace("login.html");
-            } catch (e) {
-                alert("Re-autenticación necesaria: Cierra sesión y vuelve a entrar.");
-            }
+            } catch (e) { alert("Re-autenticación necesaria."); }
         };
     </script>
 </body>
