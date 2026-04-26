@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Itinerario Pro - Cloud</title>
+    <title>Itinerario Pro</title>
     <style>
         :root { --primary: #7c3aed; --bg: #f8fafc; --white: #ffffff; --card-note: #fffbeb; --blue: #2563eb; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -15,7 +15,6 @@
         .card { background: var(--white); padding: 1.5rem; border-radius: 24px; width: 100%; max-width: 450px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 15px; position: relative; }
         h2 { color: var(--primary); margin-top: 0; text-align: center; font-size: 1.4rem; }
         
-        /* Botón Engranaje */
         .settings-trigger { 
             position: absolute; top: 15px; right: 15px; background: #f1f5f9; 
             border: none; border-radius: 50%; width: 35px; height: 35px; 
@@ -28,10 +27,15 @@
         .btn-add { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 16px; font-weight: 700; cursor: pointer; font-size: 1rem; }
         
         .list-container { width: 100%; max-width: 450px; margin-top: 10px; }
-        .note-item { background: var(--card-note); padding: 15px; border-left: 5px solid #f59e0b; border-radius: 12px; margin-bottom: 12px; position: relative; transition: 0.3s; }
+        .note-item { background: var(--card-note); padding: 15px; border-left: 5px solid #f59e0b; border-radius: 12px; margin-bottom: 12px; position: relative; }
         .note-text { font-size: 1rem; color: #451a03; font-weight: 500; white-space: pre-wrap; padding-right: 20px; }
         .note-date { font-size: 0.65rem; color: #92400e; margin-top: 8px; font-weight: 800; text-transform: uppercase; }
         .btn-delete-note { position: absolute; top: 10px; right: 12px; color: #b45309; font-weight: 900; font-size: 1.2rem; cursor: pointer; }
+
+        /* Footer con bandera arreglada */
+        .footer { margin-top: auto; padding: 20px 0; text-align: center; font-size: 0.75rem; color: #94a3b8; font-weight: 600; }
+        .footer span { display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .flag-icon { width: 18px; height: auto; border-radius: 2px; }
 
         /* Menú Ajustes */
         .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; z-index: 1000; }
@@ -57,17 +61,23 @@
     </div>
 
     <div id="notesList" class="list-container">
-        <p style="text-align:center; color:#94a3b8;">Sincronizando notas...</p>
+        <p style="text-align:center; color:#94a3b8;">Cargando notas...</p>
+    </div>
+
+    <div class="footer">
+        <span>
+            Creado por Juan Cruz Bria 
+            <img src="https://flagcdn.com/w40/ar.png" class="flag-icon" alt="Argentina">
+        </span>
+        <div style="margin-top: 4px; opacity: 0.7;">© 2026 Todos los derechos reservados</div>
     </div>
 
     <div id="menuOverlay" class="menu-overlay" onclick="toggleSettings()"></div>
     <div id="settingsDrawer" class="settings-drawer">
         <h3 style="margin-top:0; color: var(--primary);">Ajustes</h3>
         <p id="userEmail" style="font-size:0.75rem; color:#64748b; margin-bottom:20px; font-weight:700;"></p>
-        
         <button class="drawer-btn" onclick="changePass()">📧 Cambiar clave</button>
         <button class="drawer-btn btn-delete-acc" onclick="eliminarCuenta()">🗑️ Eliminar Cuenta</button>
-        
         <button class="drawer-btn btn-logout" onclick="logout()">🚪 Cerrar Sesión</button>
     </div>
 
@@ -75,7 +85,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut, sendPasswordResetEmail, deleteUser } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
         import { 
-            getFirestore, collection, addDoc, query, where, orderBy, onSnapshot, deleteDoc, doc, getDocs, enableIndexedDbPersistence 
+            getFirestore, collection, addDoc, query, where, orderBy, onSnapshot, deleteDoc, doc, getDocs
         } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -91,9 +101,6 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // Habilitar persistencia offline para velocidad en Argentina
-        enableIndexedDbPersistence(db).catch(err => console.warn("Modo offline limitado"));
-
         let currentUser = null;
 
         onAuthStateChanged(auth, (user) => {
@@ -106,12 +113,11 @@
             }
         });
 
-        // --- Lógica de Notas Instantáneas ---
         function listenNotes(uid) {
+            // Consulta directa sin metadatos complejos para evitar trabas
             const q = query(collection(db, "notas"), where("userId", "==", uid), orderBy("createdAt", "desc"));
             
-            // includeMetadataChanges permite que la nota aparezca apenas la escribes localmente
-            onSnapshot(q, { includeMetadataChanges: true }, (snapshot) => {
+            onSnapshot(q, (snapshot) => {
                 const container = document.getElementById('notesList');
                 if (snapshot.empty) {
                     container.innerHTML = '<div style="text-align:center; color:#94a3b8; margin-top:20px;">Sin notas guardadas.</div>';
@@ -121,19 +127,22 @@
                 container.innerHTML = snapshot.docs.map(docSnap => {
                     const data = docSnap.data();
                     const date = data.createdAt ? new Date(data.createdAt) : new Date();
-                    const isPending = docSnap.metadata.hasPendingWrites;
-                    
                     const dateStr = date.toLocaleString('es-AR', {
                         day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'
                     }).toUpperCase();
 
                     return `
-                        <div class="note-item" style="opacity: ${isPending ? '0.6' : '1'}">
+                        <div class="note-item">
                             <div class="btn-delete-note" onclick="deleteNote('${docSnap.id}')">×</div>
                             <div class="note-text">${data.text}</div>
-                            <div class="note-date">${dateStr} ${isPending ? '...SUBIENDO' : ''}</div>
+                            <div class="note-date">${dateStr}</div>
                         </div>`;
                 }).join('');
+            }, (error) => {
+                console.error("Error en tiempo real:", error);
+                if(error.code === 'failed-precondition') {
+                    document.getElementById('notesList').innerHTML = '<p style="text-align:center; color:red; font-size:0.7rem;">Falta crear índice en Firebase</p>';
+                }
             });
         }
 
@@ -142,17 +151,15 @@
             const text = input.value.trim();
             if (!text || !currentUser) return;
 
-            // Limpiamos el input inmediatamente para dar sensación de rapidez
-            input.value = '';
-
             try {
                 await addDoc(collection(db, "notas"), {
                     text: text,
                     userId: currentUser.uid,
                     createdAt: Date.now()
                 });
+                input.value = '';
             } catch (e) {
-                console.error("Error al guardar:", e);
+                alert("Error al guardar: " + e.message);
             }
         };
 
@@ -160,7 +167,7 @@
             if (confirm('¿Eliminar esta nota?')) await deleteDoc(doc(db, "notas", id));
         };
 
-        // --- Ajustes y Auth ---
+        // --- Ajustes ---
         window.toggleSettings = () => {
             const d = document.getElementById('settingsDrawer');
             const o = document.getElementById('menuOverlay');
@@ -177,22 +184,16 @@
         };
 
         window.eliminarCuenta = async () => {
-            if(!confirm("⚠️ ¿BORRAR TODO? Esta acción eliminará tus notas, gastos y cuenta permanentemente.")) return;
+            if(!confirm("⚠️ ¿BORRAR TODO? Esta acción es irreversible.")) return;
             try {
-                // Borrar Notas
                 const qn = query(collection(db, "notas"), where("userId", "==", currentUser.uid));
                 const snn = await getDocs(qn);
                 for(let d of snn.docs) await deleteDoc(doc(db, "notas", d.id));
 
-                // Borrar Gastos
-                const qc = query(collection(db, "compras"), where("userId", "==", currentUser.uid));
-                const snc = await getDocs(qc);
-                for(let d of snc.docs) await deleteDoc(doc(db, "compras", d.id));
-
                 await deleteUser(currentUser);
                 window.location.replace("login.html");
             } catch (e) {
-                alert("Por seguridad, debes cerrar sesión y volver a entrar antes de eliminar la cuenta.");
+                alert("Re-autenticación necesaria: Cierra sesión y vuelve a entrar para borrar la cuenta.");
             }
         };
     </script>
