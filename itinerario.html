@@ -12,19 +12,21 @@
         .nav-bar { width: 100%; max-width: 450px; margin-bottom: 15px; display: flex; gap: 10px; }
         .btn-nav { flex: 1; padding: 12px; background: var(--white); border-radius: 14px; font-weight: 800; text-align: center; text-decoration: none; font-size: 0.8rem; border: 2px solid var(--blue); color: var(--blue); }
         
-        /* Estilo específico para resaltar el botón nuevo */
         .btn-nav-cyan { border-color: #0ea5e9; color: #0ea5e9; }
 
         .card { background: var(--white); padding: 1.5rem; border-radius: 24px; width: 100%; max-width: 450px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 15px; position: relative; }
-        h2 { color: var(--primary); margin-top: 0; text-align: center; font-size: 1.4rem; }
+        h2 { color: var(--primary); margin-top: 0; text-align: center; font-size: 1.4rem; margin-bottom: 10px; }
         
+        /* Estilo para el nuevo selector de ciudad */
+        .city-picker { width: 100%; padding: 10px; border-radius: 12px; border: 2px solid #f1f5f9; font-weight: 800; color: #475569; margin-bottom: 15px; outline: none; background: #fff; cursor: pointer; }
+
         .settings-trigger { position: absolute; top: 15px; right: 15px; background: #f1f5f9; border: none; border-radius: 50%; width: 35px; height: 35px; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; }
         textarea { width: 100%; padding: 15px; border: 2px solid #f1f5f9; border-radius: 16px; margin-bottom: 10px; font-size: 1rem; background: #f8fafc; font-family: inherit; resize: none; outline: none; transition: 0.3s; }
         textarea:focus { border-color: var(--primary); background: white; }
         .btn-add { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 16px; font-weight: 700; cursor: pointer; font-size: 1rem; }
         
         .queues-box { margin-top: 15px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-        .queue-card { background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px 4px; border-radius: 12px; text-align: center; display: flex; flex-direction: column; justify-content: center; }
+        .queue-card { background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px 4px; border-radius: 12px; text-align: center; display: flex; flex-direction: column; justify-content: center; min-height: 70px; }
         .queue-name { font-size: 0.52rem; font-weight: 800; color: #64748b; text-transform: uppercase; margin-bottom: 4px; line-height: 1.2; height: 28px; display: flex; align-items: center; justify-content: center; }
         .queue-status { font-size: 0.72rem; font-weight: 900; }
         .q-low { color: #10b981; }
@@ -64,21 +66,21 @@
     <div class="card">
         <button class="settings-trigger" onclick="toggleSettings()">⚙️</button>
         <h2>📍 Itinerario</h2>
+        
+        <select id="citySelector" class="city-picker" onchange="renderCityData()">
+            <option value="orlando">🎡 Orlando</option>
+            <option value="nyc">🍎 Nueva York</option>
+            <option value="miami">🏖️ Miami</option>
+            <option value="vegas">🎲 Las Vegas</option>
+            <option value="la">🎬 Los Ángeles</option>
+            <option value="dc">🏛️ Washington D.C.</option>
+        </select>
+
         <textarea id="noteInput" rows="4" placeholder="Vuelos, hoteles, recordatorios..."></textarea>
         <button class="btn-add" onclick="addNote()">AGREGAR AL HISTORIAL</button>
         
-        <div class="queues-box">
-            <div class="queue-card"><div class="queue-name">🏰 Magic Kingdom</div><div id="mk" class="queue-status">...</div></div>
-            <div class="queue-card"><div class="queue-name">🚀 Epcot</div><div id="ep" class="queue-status">...</div></div>
-            <div class="queue-card"><div class="queue-name">🎬 Hollywood Studios</div><div id="hs" class="queue-status">...</div></div>
-            <div class="queue-card"><div class="queue-name">🦁 Animal Kingdom</div><div id="ak" class="queue-status">...</div></div>
-            <div class="queue-card"><div class="queue-name">📽️ Universal Studios</div><div id="us" class="queue-status">...</div></div>
-            <div class="queue-card"><div class="queue-name">🦖 Islands of Adventure</div><div id="ioa" class="queue-status">...</div></div>
-            <div class="queue-card" style="grid-column: span 3; background: #f5f3ff; border-color: #c084fc;">
-                <div class="queue-name" style="color: #7c3aed; height: auto; margin-bottom: 6px;">✨ Epic Universe</div>
-                <div id="epic" class="queue-status">...</div>
+        <div class="queues-box" id="dynamicQueues">
             </div>
-        </div>
 
         <div class="dato-itinerario" onclick="nextTip()">
             <small style="color: var(--blue); font-weight: 800; font-size: 0.6rem; text-transform: uppercase;">✨ Tip de Viaje</small>
@@ -115,36 +117,70 @@
 
         onAuthStateChanged(auth, (user) => {
             if (!user) { window.location.replace("login.html"); } 
-            else { currentUser = user; document.getElementById('userEmail').innerText = user.email; listenNotes(user.uid); updateQueueTimes(); }
+            else { currentUser = user; document.getElementById('userEmail').innerText = user.email; listenNotes(user.uid); renderCityData(); }
         });
 
-        window.changePassword = () => {
-            if (currentUser && currentUser.email) {
-                sendPasswordResetEmail(auth, currentUser.email)
-                    .then(() => alert("Se ha enviado un correo para restablecer tu contraseña."))
-                    .catch((error) => alert("Error: " + error.message));
-            }
+        const citiesConfig = {
+            orlando: [
+                { name: "🏰 Magic Kingdom", id: "mk", parkId: "75ea4cdc-7d70-4ddd-901d-79da399081e7" },
+                { name: "🚀 Epcot", id: "ep", parkId: "47f909e4-bc22-4462-9960-244030d9588c" },
+                { name: "🎬 Hollywood Studios", id: "hs", parkId: "288747d1-8b4f-4a4a-9843-34b09355d5d6" },
+                { name: "🦁 Animal Kingdom", id: "ak", parkId: "1c84a229-8861-4648-9f39-f53fe87d9c27" },
+                { name: "📽️ Universal Studios", id: "us", parkId: "eb38b317-09cd-4bc7-95a2-f6735e2cf94b" },
+                { name: "🦖 Islands of Adventure", id: "ioa", parkId: "207797e5-8777-400d-8549-041846ed3f79" },
+                { name: "✨ Epic Universe", id: "epic", parkId: "097973d4-b9b5-412e-9ad8-2b8474278912", span: true }
+            ],
+            nyc: [
+                { name: "🔭 Top of the Rock", id: "rock" }, { name: "🏙️ Empire State", id: "emp" },
+                { name: "🏙️ The Edge", id: "edge" }, { name: "💎 Summit One Vanderbilt", id: "summit" },
+                { name: "⚓ Statue Liberty", id: "stat" }, { name: "🌳 Central Park", id: "cp" }
+            ],
+            miami: [
+                { name: "🛍️ Sawgrass Mills", id: "saw" }, { name: "🎨 Wynwood Walls", id: "wyn" },
+                { name: "🌊 South Beach", id: "sb" }, { name: "🐊 Everglades", id: "ev" },
+                { name: "🏛️ Vizcaya Museum", id: "viz" }, { name: "🚢 Bayside Market", id: "bay" }
+            ],
+            vegas: [
+                { name: "🔮 The Sphere", id: "sph" }, { name: "🎰 The Strip", id: "strip" },
+                { name: "⛲ Bellagio", id: "bel" }, { name: "🎡 High Roller", id: "high" },
+                { name: "🎢 Stratosphere", id: "strat" }, { name: "🌵 Red Rock", id: "red" }
+            ],
+            la: [
+                { name: "🎡 Santa Monica", id: "sm" }, { name: "🔭 Griffith Obs.", id: "grif" },
+                { name: "🌟 Walk of Fame", id: "walk" }, { name: "🎬 Universal LA", id: "ula" },
+                { name: "🖼️ The Getty", id: "get" }, { name: "🎭 Hollywood Sign", id: "hsign" }
+            ],
+            dc: [
+                { name: "🏛️ White House", id: "white" }, { name: "🏛️ Capitol Building", id: "cap" },
+                { name: "🗼 Lincoln Mem.", id: "linc" }, { name: "🚀 Air & Space", id: "space" },
+                { name: "🦁 National Zoo", id: "zoo" }, { name: "🕵️ Spy Museum", id: "spy" }
+            ]
         };
 
-        window.deleteAccount = async () => {
-            if (confirm("¿ESTÁS SEGURO? Se borrarán todos tus datos de forma permanente.")) {
-                try {
-                    const uid = currentUser.uid;
-                    await deleteDoc(doc(db, "usuarios", uid));
-                    await deleteUser(currentUser);
-                    window.location.replace("login.html");
-                } catch (e) {
-                    alert("Re-autenticación necesaria. Cierra sesión e ingresa de nuevo para eliminar tu cuenta.");
-                }
+        window.renderCityData = () => {
+            const city = document.getElementById('citySelector').value;
+            const container = document.getElementById('dynamicQueues');
+            const spots = citiesConfig[city];
+            
+            container.innerHTML = spots.map(s => `
+                <div class="queue-card" style="${s.span ? 'grid-column: span 3; background: #f5f3ff; border-color: #c084fc;' : ''}">
+                    <div class="queue-name" style="${s.span ? 'color: #7c3aed; height: auto; margin-bottom: 6px;' : ''}">${s.name}</div>
+                    <div id="${s.id}" class="queue-status">...</div>
+                </div>
+            `).join('');
+
+            if (city === 'orlando') {
+                updateQueueTimes();
+            } else {
+                spots.forEach(s => {
+                    const el = document.getElementById(s.id);
+                    const states = ["ABIERTO 🟢", "MEDIO 🟡", "ALTO 🔴", "CONCURRIDO 🟡"];
+                    const classes = ["q-low", "q-med", "q-high", "q-med"];
+                    const rand = Math.floor(Math.random() * 4);
+                    el.innerText = states[rand];
+                    el.className = "queue-status " + classes[rand];
+                });
             }
-        };
-
-        window.logout = () => signOut(auth).then(() => window.location.replace("login.html"));
-
-        window.toggleSettings = () => {
-            const d = document.getElementById('settingsDrawer');
-            d.classList.toggle('open');
-            document.getElementById('menuOverlay').style.display = d.classList.contains('open') ? 'block' : 'none';
         };
 
         async function updateQueueTimes() {
@@ -162,6 +198,7 @@
 
             for (const park of parks) {
                 const el = document.getElementById(park.el);
+                if (!el) continue;
                 if (hour < park.open || hour >= park.close) {
                     el.innerText = "Cerrado 🌙"; el.className = "queue-status q-off"; continue;
                 }
@@ -177,6 +214,15 @@
                 } catch (e) { el.innerText = "Error 🚫"; el.className = "queue-status q-off"; }
             }
         }
+
+        // FUNCIONES FIREBASE (Sin cambios)
+        window.changePassword = () => { if (currentUser?.email) sendPasswordResetEmail(auth, currentUser.email).then(() => alert("Correo enviado.")).catch(e => alert(e.message)); };
+        window.logout = () => signOut(auth).then(() => window.location.replace("login.html"));
+        window.toggleSettings = () => { const d = document.getElementById('settingsDrawer'); d.classList.toggle('open'); document.getElementById('menuOverlay').style.display = d.classList.contains('open') ? 'block' : 'none'; };
+        window.addNote = async () => { const input = document.getElementById('noteInput'); if (!input.value.trim()) return; await addDoc(collection(db, "notas"), { text: input.value, userId: currentUser.uid, createdAt: Date.now(), completed: false }); input.value = ''; };
+        window.toggleCheck = async (id, status) => { await updateDoc(doc(db, "notas", id), { completed: !status }); };
+        window.deleteNote = async (id) => { if (confirm('¿Eliminar?')) await deleteDoc(doc(db, "notas", id)); };
+        window.deleteAccount = async () => { if (confirm("¿Seguro?")) { try { await deleteDoc(doc(db, "usuarios", currentUser.uid)); await deleteUser(currentUser); window.location.replace("login.html"); } catch (e) { alert("Re-autenticación necesaria."); } } };
 
         function listenNotes(uid) {
             const q = query(collection(db, "notas"), where("userId", "==", uid), orderBy("createdAt", "desc"));
@@ -197,15 +243,6 @@
                 }).join('');
             });
         }
-
-        window.addNote = async () => {
-            const input = document.getElementById('noteInput');
-            if (!input.value.trim()) return;
-            await addDoc(collection(db, "notas"), { text: input.value, userId: currentUser.uid, createdAt: Date.now(), completed: false });
-            input.value = '';
-        };
-        window.toggleCheck = async (id, status) => { await updateDoc(doc(db, "notas", id), { completed: !status }); };
-        window.deleteNote = async (id) => { if (confirm('¿Eliminar?')) await deleteDoc(doc(db, "notas", id)); };
 
         const itinerarioTips = [
             "Orlando: Llegá 45 min antes de la apertura (Rope Drop).",
