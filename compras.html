@@ -31,6 +31,12 @@
         .budget-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; opacity: 0.9; letter-spacing: 1px; }
         .budget-value { font-size: 2.2rem; font-weight: 900; margin: 8px 0; }
         
+        /* NUEVAS MÉTRICAS: FLEX Y POSICIÓN */
+        .budget-metrics { display: flex; gap: 10px; margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 15px; }
+        .metric-box { flex: 1; text-align: center; }
+        .metric-val { font-weight: 800; font-size: 1rem; display: block; }
+        .metric-lab { font-size: 0.55rem; text-transform: uppercase; opacity: 0.8; font-weight: 700; }
+
         .set-budget { display: flex; gap: 8px; margin-top: 12px; background: rgba(255,255,255,0.15); padding: 8px; border-radius: 15px; }
         .set-budget input { flex: 1; background: transparent; border: none; color: white; padding: 5px 10px; font-weight: 700; outline: none; width: 50px; }
         .set-budget input::placeholder { color: white; opacity: 0.8; }
@@ -56,6 +62,7 @@
         
         .footer { margin-top: auto; padding: 20px 0; text-align: center; font-size: 0.75rem; color: #94a3b8; font-weight: 600; }
 
+        /* ARREGLO DE TALLES PARA CELULAR */
         .talles-section { text-align: left; font-size: 0.85rem; }
         .talles-title { font-weight: 900; color: var(--primary); margin: 15px 0 8px; border-bottom: 2px solid #f1f5f9; padding-bottom: 3px; display: flex; justify-content: space-between; text-transform: uppercase; letter-spacing: 0.5px; }
         
@@ -81,6 +88,7 @@
         .talles-table th { background: #e2e8f0; font-weight: 800; color: #475569; }
         .talles-table td { font-weight: 700; color: #1e293b; }
 
+        /* NUEVOS ESTILOS COTIZADOR AESTHETIC */
         .converter-box { 
             background: #ffffff; 
             border-radius: 20px; 
@@ -98,9 +106,13 @@
         .currency-selector-wrapper { display: flex; align-items: center; gap: 10px; background: #ffffff; padding: 8px 12px; border-radius: 14px; border: 2px solid #f1f5f9; }
         .flag-icon { width: 22px; height: 16px; object-fit: cover; border-radius: 3px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
         #currency-select { border: none; background: transparent; font-weight: 700; font-size: 0.85rem; color: #334155; outline: none; width: 100%; cursor: pointer; }
+        
         .result-badge { margin-top: 12px; background: var(--primary); color: white; padding: 12px; border-radius: 14px; display: flex; justify-content: space-between; align-items: center; font-weight: 800; }
         .result-label { font-size: 0.6rem; text-transform: uppercase; opacity: 0.8; }
         .result-amount { font-size: 1rem; }
+        
+        /* CARD EXTRA PARA ARS */
+        .ars-detail { margin-top: 10px; padding: 10px; background: #f1f5f9; border-radius: 12px; display: flex; justify-content: space-between; font-size: 0.7rem; font-weight: 700; color: #475569; }
     </style>
 </head>
 <body>
@@ -114,7 +126,22 @@
     <div class="budget-card">
         <div class="budget-label">Presupuesto Restante</div>
         <div class="budget-value" id="disp-fondo">USD 0.00</div>
-        <div class="set-budget"><input type="number" id="input-fondo" placeholder="TOTAL USD"><button onclick="updateFondo()">SET</button></div>
+        
+        <div class="budget-metrics">
+            <div class="metric-box">
+                <span class="metric-val" id="disp-posicion">0%</span>
+                <span class="metric-lab">Posición</span>
+            </div>
+            <div class="metric-box">
+                <span class="metric-val" id="disp-flex">0.0</span>
+                <span class="metric-lab">Flexibilidad</span>
+            </div>
+        </div>
+
+        <div class="set-budget">
+            <input type="number" id="input-fondo" placeholder="TOTAL USD">
+            <button onclick="updateFondo()">SET</button>
+        </div>
     </div>
 
     <div class="card">
@@ -173,18 +200,6 @@
                     <tr><td>2XL</td><td>3XL</td></tr>
                 </tbody>
             </table>
-
-            <div class="talles-title">🧥 Buzos / Camperas</div>
-            <table class="talles-table" style="table-layout: auto;">
-                <thead><tr><th>ARG</th><th>US SIZE</th></tr></thead>
-                <tbody>
-                    <tr><td>S</td><td>XS/S</td></tr>
-                    <tr><td>M</td><td>S/M</td></tr>
-                    <tr><td>L</td><td>M/L</td></tr>
-                    <tr><td>XL</td><td>L/XL</td></tr>
-                    <tr><td>XXL</td><td>XL/XXL</td></tr>
-                </tbody>
-            </table>
         </div>
     </div>
 
@@ -210,6 +225,10 @@
         <div class="result-badge">
             <span class="result-label" id="cur-base-text">A Dólar (USD)</span>
             <span class="result-amount" id="cur-result">...</span>
+        </div>
+        <div id="ars-card-detail" class="ars-detail" style="display:none;">
+            <span>Dólar Tarjeta (Est.):</span>
+            <span id="ars-card-val">$0.00</span>
         </div>
     </div>
 
@@ -239,11 +258,15 @@
         let presupuestoBase = 0;
         let rates = {};
 
-        // Lógica del Cotizador Integrada
+        // Lógica del Cotizador
         window.updateFlagAndConvert = () => {
             const select = document.getElementById('currency-select');
             const flagCode = select.options[select.selectedIndex].getAttribute('data-flag');
             document.getElementById('current-flag').src = `https://flagcdn.com/w40/${flagCode}.png`;
+            
+            // Mostrar/Ocultar Dólar Tarjeta si es ARS
+            document.getElementById('ars-card-detail').style.display = (select.value === 'ARS') ? 'flex' : 'none';
+            
             window.convertCurrency();
         };
 
@@ -257,20 +280,23 @@
                 const totalInUsd = amount / rates[code];
                 baseText.innerText = `${amount} ${code} =`;
                 resVal.innerText = `$${totalInUsd.toFixed(2)} USD`;
-            } else {
-                resVal.innerText = "Cargando...";
+                
+                // Cálculo de Dólar Tarjeta (aprox +60% impuestos sobre el oficial que devuelve la API)
+                if(code === 'ARS') {
+                    const tarjetaVal = amount / (rates['Oficial'] * 1.6); 
+                    document.getElementById('ars-card-val').innerText = `$${tarjetaVal.toFixed(2)} USD`;
+                }
             }
         };
 
-        // Fetch de Cotizaciones con Fallback para Dólar (ARS)
-        fetch('https://dolarapi.com/v1/cotizaciones')
-            .then(r => r.json())
-            .then(data => {
-                data.forEach(c => { rates[c.moneda] = c.venta; });
-                // Si la API no trae directamente "ARS" (trae Blue/Oficial), mapeamos el Oficial para el cálculo
-                if(!rates['ARS'] && rates['USD']) rates['ARS'] = rates['USD']; 
-                window.convertCurrency();
-            }).catch(e => console.error("Error cargando rates", e));
+        // Fetch de DolarApi mejorado para capturar Oficial
+        fetch('https://dolarapi.com/v1/cotizaciones').then(r => r.json()).then(data => {
+            data.forEach(c => { 
+                rates[c.moneda] = c.venta; 
+                if(c.casa === 'oficial') rates['Oficial'] = c.venta;
+            });
+            window.convertCurrency();
+        });
 
         window.updateFondo = async () => { 
             const val = document.getElementById('input-fondo').value; 
@@ -299,22 +325,6 @@
             o.style.display = d.classList.contains('open') ? 'block' : 'none'; 
         };
 
-        window.changePassword = () => {
-            if (currentUser && currentUser.email) {
-                sendPasswordResetEmail(auth, currentUser.email).then(() => alert("Correo enviado.")).catch((e) => alert(e.message));
-            }
-        };
-
-        window.deleteAccount = async () => {
-            if (confirm("¿Borrar cuenta permanentemente?")) {
-                try {
-                    await deleteDoc(doc(db, "usuarios", currentUser.uid));
-                    await deleteUser(currentUser);
-                    window.location.replace("login.html");
-                } catch (e) { alert("Re-autenticación necesaria."); }
-            }
-        };
-
         window.logout = () => signOut(auth).then(() => window.location.replace("login.html"));
 
         onAuthStateChanged(auth, (user) => {
@@ -329,37 +339,16 @@
             }
         });
 
-        const shoppingTips = [
-            "Orlando: Premium Outlets Vineland es mejor para lujo y marcas europeas.",
-            "Miami: Sawgrass Mills requiere un día entero. Llevá una valija vacía para las compras.",
-            "Jersey Gardens (NJ): ¡Aprovechá! No pagás impuesto (Tax Free) en ropa y calzado.",
-            "Ross/Marshalls: Los mejores días son los martes, cuando renuevan el stock más barato.",
-            "NYC: Woodbury Common es el mejor outlet, pero está a 1 hora de Manhattan.",
-            "NYC: En Manhattan, las tiendas de la 5ta Ave abren a las 10 AM. Andá temprano para evitar filas.",
-            "Tax: El impuesto en Miami es 7%, en Orlando 6.5% y en NYC 8.875% (excepto ropa < $110).",
-            "Apple: Los precios que ves online NO incluyen impuestos. Sumale el tax local al final.",
-            "Best Buy: Podés pedir 'Price Match' si encontrás el mismo producto más barato en Amazon.",
-            "T.J. Maxx: Buscá las etiquetas amarillas (Yellow Tag), son las liquidaciones finales.",
-            "Philadelphia: Al igual que en New Jersey, no hay impuesto a las ventas en ropa."
-        ];
-
-        let currentTipIndex = 0;
-        window.nextTip = () => { 
-            currentTipIndex = (currentTipIndex + 1) % shoppingTips.length; 
-            const el = document.getElementById('tip-text');
-            el.style.opacity = 0;
-            setTimeout(() => {
-                el.innerText = shoppingTips[currentTipIndex];
-                el.style.opacity = 1;
-            }, 300);
-        };
-
         function listenGastos(uid) {
             const q = query(collection(db, "compras"), where("userId", "==", uid), orderBy("createdAt", "desc"));
             onSnapshot(q, (snapshot) => {
                 const container = document.getElementById('listaGastos');
                 let totalGastado = 0;
-                if (snapshot.empty) { container.innerHTML = '<p style="text-align:center; color:#94a3b8;">No hay gastos.</p>'; updateDisplay(0); return; }
+                if (snapshot.empty) { 
+                    container.innerHTML = '<p style="text-align:center; color:#94a3b8;">No hay gastos.</p>'; 
+                    updateDisplay(0); 
+                    return; 
+                }
                 container.innerHTML = snapshot.docs.map(docSnap => {
                     const d = docSnap.data(); totalGastado += parseFloat(d.valor);
                     return `<div class="history-item"><div><b>${d.nombre}</b></div><div style="display:flex; align-items:center; gap:12px;"><div class="h-amount">-$${d.valor}</div><div onclick="deleteGasto('${docSnap.id}')" style="cursor:pointer; color:#ef4444; font-weight:bold;">×</div></div></div>`;
@@ -367,12 +356,56 @@
                 updateDisplay(totalGastado);
             });
         }
-        function updateDisplay(gastado) { document.getElementById('disp-fondo').innerText = 'USD ' + (presupuestoBase - gastado).toFixed(2); }
-        
+
+        function updateDisplay(gastado) { 
+            const restante = presupuestoBase - gastado;
+            document.getElementById('disp-fondo').innerText = 'USD ' + restante.toFixed(2); 
+            
+            // Lógica de Posición (qué % del total ya gastaste)
+            const posicion = presupuestoBase > 0 ? (gastado / presupuestoBase) * 100 : 0;
+            document.getElementById('disp-posicion').innerText = posicion.toFixed(1) + '%';
+            
+            // Lógica de Flexibilidad (cuántos USD te quedan por cada 1% de presupuesto total)
+            const flexibilidad = presupuestoBase > 0 ? (restante / (presupuestoBase * 0.01)) / 100 : 0;
+            document.getElementById('disp-flex').innerText = flexibilidad.toFixed(2);
+        }
+
+        const shoppingTips = [
+            ""Orlando: Premium Outlets Vineland es mejor para lujo y marcas europeas.",
+            "Miami: Sawgrass Mills requiere un día entero. Llevá una valija vacía para las compras.",
+            "Jersey Gardens (NJ): ¡Aprovechá! No pagás impuesto (Tax Free) en ropa y calzado.",
+            "Ross/Marshalls: Los mejores días son los martes, cuando renuevan el stock más barato.",
+            "NYC: Woodbury Common es el mejor outlet, pero está a 1 hora de Manhattan.",
+            "NYC: En Manhattan, las tiendas de la 5ta Ave abren a las 10 AM. Andá temprano para evitar filas.",
+            "Las Vegas: North Premium Outlets es al aire libre. Evitá ir al mediodía por el calor extremo.",
+            "Las Vegas: Registrate en 'VIP Club' online para cupones extra en los Outlets de Simon.",
+            "Chicago: Fashion Outlets of Chicago está cerca del aeropuerto O'Hare y es techado.",
+            "Los Ángeles: Citadel Outlets es el más cercano al centro y tiene muy buenos precios en Nike.",
+            "San Francisco: San Francisco Premium Outlets en Livermore tiene las mejores marcas de diseño.",
+            "Washington DC: Potomac Mills es uno de los outlets más grandes de la costa este.",
+            "Tax: El impuesto en Miami es 7%, en Orlando 6.5% y en NYC 8.875% (excepto ropa < $110).",
+            "Apple: Los precios que ves online NO incluyen impuestos. Sumale el tax local al final.",
+            "Best Buy: Podés pedir 'Price Match' si encontrás el mismo producto más barato en Amazon.",
+            "Walmart/Target: Ideales para comprar snacks y valijas baratas si te falta espacio.",
+            "T.J. Maxx: Buscá las etiquetas amarillas (Yellow Tag), son las liquidaciones finales.",
+            "Cuponeras: En la mayoría de los Simon Outlets, si mostrás el pasaporte te dan una cuponera.",
+            "Philadelphia: Al igual que en New Jersey, no hay impuesto a las ventas en ropa.",
+            "Atlanta: North Georgia Premium Outlets es el lugar ideal para marcas deportivas.",
+            "Boston: Wrentham Village es el outlet de referencia en Massachusetts.",
+            "Houston: The Galleria es masivo, ideal si buscás marcas como Zara, H&M o Apple.",
+            "Seattle: Seattle Premium Outlets en Tulalip tiene muy buenos precios en marcas outdoor."
+        ];
+
+        let currentTipIndex = 0;
+        window.nextTip = () => { 
+            currentTipIndex = (currentTipIndex + 1) % shoppingTips.length; 
+            const el = document.getElementById('tip-text');
+            el.innerText = shoppingTips[currentTipIndex];
+        };
+
         window.onload = () => { 
             document.getElementById('tip-text').innerText = shoppingTips[0]; 
             setInterval(window.nextTip, 8000); 
-            window.convertCurrency();
         };
     </script>
 </body>
