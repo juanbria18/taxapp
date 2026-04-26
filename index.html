@@ -11,7 +11,6 @@
         
         .card { background: var(--card); padding: 1.5rem; border-radius: 24px; width: 100%; max-width: 420px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); text-align: center; position: relative; }
         
-        /* Ajuste para alinear texto y bandera en el título */
         h1 { 
             margin: 0 0 1rem 0; 
             font-size: 1.6rem; 
@@ -43,8 +42,16 @@
         .btn-blue { background: #2563eb; color: white; }
         .btn-purple { background: #7c3aed; color: white; }
 
-        .settings-trigger { position: absolute; top: 15px; right: 15px; background: #f1f5f9; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .settings-trigger { position: absolute; top: 15px; right: 15px; background: #f1f5f9; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; }
         #sync-status { font-size: 0.6rem; color: #10b981; font-weight: 800; margin-bottom: 5px; text-transform: uppercase; }
+
+        /* ESTILOS DEL DRAWER (Ajustes) */
+        .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; z-index: 1000; }
+        .settings-drawer { position: fixed; top: 0; right: -300px; width: 280px; height: 100%; background: white; z-index: 1001; transition: 0.3s; padding: 25px; display: flex; flex-direction: column; }
+        .settings-drawer.open { right: 0; }
+        .drawer-btn { width: 100%; padding: 14px; margin-bottom: 10px; border-radius: 12px; border: 1px solid #e2e8f0; background: white; font-weight: 700; text-align: left; cursor: pointer; font-size: 0.85rem; }
+        .btn-delete-acc { color: #ef4444; border-color: #fecaca; }
+        .btn-logout { margin-top: auto; color: #64748b; border: none; background: #f1f5f9; text-align: center; }
 
         .footer { margin-top: 30px; text-align: center; font-size: 0.75rem; color: #94a3b8; font-weight: 600; padding-bottom: 20px; }
         .footer span { display: flex; align-items: center; justify-content: center; gap: 8px; }
@@ -99,6 +106,15 @@
         </div>
     </div>
 
+    <div id="menuOverlay" class="menu-overlay" onclick="toggleSettings()"></div>
+    <div id="settingsDrawer" class="settings-drawer">
+        <h3 style="margin-top:0; color: var(--primary);">Ajustes</h3>
+        <p id="userEmail" style="font-size:0.75rem; color:#64748b; margin-bottom:20px; font-weight:700;"></p>
+        <button class="drawer-btn" onclick="changePass()">📧 Cambiar clave</button>
+        <button class="drawer-btn btn-delete-acc" onclick="eliminarCuenta()">🗑️ Eliminar Cuenta</button>
+        <button class="drawer-btn btn-logout" onclick="logout()">🚪 Cerrar Sesión</button>
+    </div>
+
     <div class="footer">
         <span>
             Creado por Juan Cruz Bria 
@@ -108,6 +124,35 @@
     </div>
 
     <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut, sendPasswordResetEmail, deleteUser } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+        import { getFirestore, collection, query, where, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCm0Ig-CPklsjf6j-1uSAeF6I8xtyQKj7U",
+            authDomain: "viajes-db538.firebaseapp.com",
+            projectId: "viajes-db538",
+            storageBucket: "viajes-db538.firebasestorage.app",
+            messagingSenderId: "237311739178",
+            appId: "1:237311739178:web:333e468b184c0402a98a53"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        let currentUser = null;
+
+        // --- AUTH LOGIC ---
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                window.location.replace("login.html");
+            } else {
+                currentUser = user;
+                document.getElementById('userEmail').innerText = user.email;
+            }
+        });
+
+        // --- TAX LOGIC ---
         const taxData = {
             "Alabama": [{n:"Birmingham", t:10.0}], "Alaska": [{n:"Anchorage", t:0}], "Arizona": [{n:"Phoenix", t:8.6}],
             "Arkansas": [{n:"Little Rock", t:9.375}], "California": [{n:"Los Angeles", t:9.5}, {n:"San Francisco", t:8.625}],
@@ -131,17 +176,14 @@
 
         let currentCategory = 'general';
 
-        window.onload = () => {
-            const stateSelect = document.getElementById('state-select');
-            Object.keys(taxData).sort().forEach(s => {
-                let opt = document.createElement('option');
-                opt.value = s;
-                opt.text = s;
-                if(s === "Florida") opt.selected = true;
-                stateSelect.appendChild(opt);
-            });
-            loadCities();
-        };
+        const stateSelect = document.getElementById('state-select');
+        Object.keys(taxData).sort().forEach(s => {
+            let opt = document.createElement('option');
+            opt.value = s;
+            opt.text = s;
+            if(s === "Florida") opt.selected = true;
+            stateSelect.appendChild(opt);
+        });
 
         window.loadCities = () => {
             const state = document.getElementById('state-select').value;
@@ -155,6 +197,7 @@
             });
             window.calculate();
         };
+        loadCities();
 
         window.setCategory = (cat) => {
             currentCategory = cat;
@@ -166,69 +209,50 @@
         window.calculate = () => {
             const price = parseFloat(document.getElementById('price').value) || 0;
             let tax = parseFloat(document.getElementById('city-select').value) || 0;
-            
             if (currentCategory === 'med' || currentCategory === 'food') tax = 0;
-            
             const total = price + (price * (tax / 100));
             document.getElementById('total').innerText = 'USD ' + total.toLocaleString('en-US', {minimumFractionDigits: 2});
             document.getElementById('tax-detail').innerText = `Tax Aplicado: ${tax}%`;
         };
 
+        // --- SETTINGS DRAWER LOGIC ---
         window.toggleSettings = () => {
-            alert("Ajustes: Se gestionan desde la pantalla de Login o Menú Lateral");
+            const d = document.getElementById('settingsDrawer');
+            const o = document.getElementById('menuOverlay');
+            d.classList.toggle('open');
+            o.style.display = d.classList.contains('open') ? 'block' : 'none';
         };
 
+        window.logout = () => signOut(auth).then(() => window.location.replace("login.html"));
+
+        window.changePass = () => {
+            sendPasswordResetEmail(auth, currentUser.email)
+                .then(() => alert("Mail de cambio de clave enviado"))
+                .catch(e => alert(e.message));
+        };
+
+        window.eliminarCuenta = async () => {
+            if(!confirm("⚠️ ¿BORRAR TODO? Esta acción es irreversible.")) return;
+            try {
+                // Borrar sus notas antes de irse
+                const qn = query(collection(db, "notas"), where("userId", "==", currentUser.uid));
+                const snn = await getDocs(qn);
+                for(let d of snn.docs) await deleteDoc(doc(db, "notas", d.id));
+                
+                await deleteUser(currentUser);
+                window.location.replace("login.html");
+            } catch (e) {
+                alert("Re-autenticación necesaria: Cierra sesión y vuelve a entrar.");
+            }
+        };
+
+        // --- TIPS LOGIC ---
         const tips = [
             "En Florida, el tax general es 6.5%, pero en Kissimmee suele ser 7.5%.",
             "La mayoría de los alimentos básicos de supermercado NO pagan tax.",
             "Medicamentos con receta y muchos de venta libre están exentos de impuestos.",
-            "Los precios que ves en las estanterías de USA NUNCA tienen el tax incluido.",
-            "Delaware, Montana, New Hampshire y Oregon tienen 0% de tax en ventas.",
-            "Si comprás online y retirás en tienda, pagás el tax de la ubicación del local.",
-            "En Apple Store, el tax se calcula sobre el precio final después de cualquier descuento.",
-            "Muchos estados tienen un 'Tax-Free Weekend' en agosto por la vuelta a clases.",
-            "La ropa de menos de $110 en NYC está exenta del tax local (4%).",
-            "Los restaurantes suelen aplicar tax sobre el total antes de la propina.",
-            "El tax de hoteles en Orlando suele ser más alto (aprox 12.5%) por tasas turísticas.",
-            "Ciertos artículos de higiene femenina están exentos de tax en varios estados.",
-            "Las propinas (Tips) NO llevan tax; se calculan sobre el precio con o sin tax.",
-            "Si enviás una compra a otro estado, pagás el tax del estado de destino.",
-            "En las estaciones de servicio, el tax de la nafta ya está incluido en el precio.",
-            "Las Gift Cards no pagan tax al comprarlas, el tax se paga al usarlas.",
-            "Guardá tus tickets; algunos seguros de viaje cubren el reembolso de impuestos.",
-            "Los servicios (como masajes o cortes de pelo) a veces no tienen tax de ventas.",
-            "En Walmart, fijate en el ticket: los artículos marcados con 'T' tienen tax.",
-            "Best Buy aplica tax sobre el valor total, incluso si pagás con puntos.",
-            "El tax en Chicago es uno de los más altos de USA (10.25%).",
-            "Si comprás un auto en USA siendo turista, el trámite de tax es especial.",
-            "Las compras en el Duty Free del aeropuerto no pagan tax si vas al exterior.",
-            "Muchos Outlets están en zonas con tax un poco más bajo para atraer turistas.",
-            "El tax por 'comida preparada' suele ser mayor que por comida de almacén.",
-            "Las suscripciones digitales (como Netflix) pueden tener tax según tu dirección.",
-            "Si hacés un 'Trade-in', a veces solo pagás tax sobre la diferencia de precio.",
-            "En New Jersey, la ropa y el calzado NO pagan tax de ventas.",
-            "Los suplementos deportivos a veces califican como comida (0% tax).",
-            "El tax de ventas en Miami-Dade es del 7%.",
-            "Aprovechá a comprar tecnología en estados con tax bajo si viajás por USA.",
-            "Los envíos de Amazon suelen cobrar tax de acuerdo al código postal de entrega.",
-            "Las bebidas alcohólicas suelen tener un impuesto específico adicional.",
-            "Cuidado: las máquinas expendedoras a veces ya incluyen el tax en el precio.",
-            "En Texas, podés pedir la devolución de taxes (TaxFree Shopping) en el aeropuerto.",
-            "Los libros están exentos de impuestos en algunos estados específicos.",
-            "Los tickets de parques temáticos en Orlando ya suelen mostrar el precio con tax.",
-            "El tax en Las Vegas (condado de Clark) es del 8.375%.",
-            "Si comprás algo para uso comercial, podrías pedir una exención (Resale Certificate).",
-            "Las bolsas de plástico en algunos estados (como CA o NY) se cobran aparte.",
-            "El tax 'ad valorem' se aplica en algunos estados sobre el valor de ciertos bienes.",
-            "En Pennsylvania, la mayoría de la ropa está exenta de tax.",
-            "Los productos de Apple reacondicionados (Certified Refurbished) también pagan tax.",
-            "Si alquilás un auto, el tax se suma a una larga lista de tasas locales.",
-            "El 'Luxury Tax' se aplica en algunos estados para artículos muy caros.",
-            "En Disney World, si te hospedás en un hotel de Disney, el tax es fijo.",
-            "Las propinas sugeridas en el ticket se calculan usualmente sobre el subtotal.",
-            "Si comprás en una reserva indígena, las reglas de taxes pueden ser diferentes.",
-            "¡Chequeá siempre que el estado seleccionado en la App sea el correcto!",
-            "Tocar el cuadro de Tip cambia el consejo manualmente. ¡Probá!"
+            "Los precios en estanterías de USA NUNCA tienen el tax incluido.",
+            "En New Jersey, la ropa y el calzado NO pagan tax de ventas."
         ];
         let currentTipIndex = 0;
         window.nextTip = () => {
