@@ -22,18 +22,24 @@
             gap: 10px; 
         }
 
-        /* Estilo del Contador */
+        /* Estilo del Contador Dinámico */
         .countdown-box {
             background: #f1f5f9;
-            padding: 10px;
+            padding: 12px;
             border-radius: 16px;
             margin-bottom: 1.5rem;
             display: flex;
             flex-direction: column;
             gap: 2px;
+            cursor: pointer; /* Indica que se puede hacer clic para editar */
+            position: relative;
+            border: 1px solid transparent;
+            transition: 0.2s;
         }
+        .countdown-box:hover { border-color: var(--primary); }
         .countdown-label { font-size: 0.6rem; font-weight: 800; color: #64748b; text-transform: uppercase; }
         #timer { font-size: 1.1rem; font-weight: 900; color: #1e3a8a; letter-spacing: 0.5px; }
+        .edit-hint { position: absolute; top: 5px; right: 8px; font-size: 0.7rem; opacity: 0.5; }
         
         .input-group { margin-bottom: 1rem; text-align: left; }
         label { display: block; font-size: 0.7rem; font-weight: 800; color: #64748b; margin-bottom: 0.4rem; text-transform: uppercase; margin-left: 5px; }
@@ -48,37 +54,35 @@
         .result-value { font-size: 2.2rem; font-weight: 900; color: var(--primary); margin: 4px 0; }
         
         .dato-clave { background: #f5f3ff; padding: 15px; border-radius: 16px; border: 1.5px solid var(--accent); margin-top: 10px; text-align: center; cursor: pointer; transition: all 0.2s ease; min-height: 85px; display: flex; flex-direction: column; justify-content: center; }
-        .dato-clave:active { transform: scale(0.98); }
 
         .nav-buttons { margin-top: 25px; display: flex; flex-direction: column; gap: 10px; }
         .nav-btn { text-decoration: none; padding: 16px; border-radius: 14px; font-weight: 800; text-align: center; font-size: 0.9rem; transition: 0.2s; }
         .btn-blue { background: #2563eb; color: white; }
         .btn-purple { background: #7c3aed; color: white; }
 
-        .settings-trigger { position: absolute; top: 15px; right: 15px; background: #f1f5f9; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; }
-        #sync-status { font-size: 0.6rem; color: #10b981; font-weight: 800; margin-bottom: 5px; text-transform: uppercase; }
+        /* Estilos del Modal de Configuración */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; padding: 20px; }
+        .modal-content { background: white; padding: 25px; border-radius: 24px; width: 100%; max-width: 350px; text-align: left; }
 
+        .settings-trigger { position: absolute; top: 15px; right: 15px; background: #f1f5f9; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; }
         .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; z-index: 1000; }
         .settings-drawer { position: fixed; top: 0; right: -300px; width: 280px; height: 100%; background: white; z-index: 1001; transition: 0.3s; padding: 25px; display: flex; flex-direction: column; }
         .settings-drawer.open { right: 0; }
         .drawer-btn { width: 100%; padding: 14px; margin-bottom: 10px; border-radius: 12px; border: 1px solid #e2e8f0; background: white; font-weight: 700; text-align: left; cursor: pointer; font-size: 0.85rem; }
-        .btn-delete-acc { color: #ef4444; border-color: #fecaca; }
-        .btn-logout { margin-top: auto; color: #64748b; border: none; background: #f1f5f9; text-align: center; }
 
         .footer { margin-top: 30px; text-align: center; font-size: 0.75rem; color: #94a3b8; font-weight: 600; padding-bottom: 20px; }
-        .footer span { display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .flag-icon { width: 18px; height: auto; border-radius: 2px; }
     </style>
 </head>
 <body>
 
     <div class="card">
         <button class="settings-trigger" onclick="toggleSettings()">⚙️</button>
-        <div id="sync-status">● En línea</div>
+        <div id="sync-status" style="font-size: 0.6rem; color: #10b981; font-weight: 800; margin-bottom: 5px;">● En línea</div>
         <h1>TaxUSA <img src="https://flagcdn.com/w40/us.png" style="width: 28px; border-radius: 3px;" alt="USA"></h1>
         
-        <div class="countdown-box">
-            <span class="countdown-label">Faltan para Orlando ✈️</span>
+        <div class="countdown-box" onclick="openTripModal()">
+            <span class="edit-hint">✏️</span>
+            <span class="countdown-label" id="trip-label">Faltan para Orlando ✈️</span>
             <span id="timer">00d 00h 00m 00s</span>
         </div>
         
@@ -123,6 +127,22 @@
         </div>
     </div>
 
+    <div id="tripModal" class="modal">
+        <div class="modal-content">
+            <h3 style="margin-top:0; color: var(--primary);">Mi Viaje</h3>
+            <div class="input-group">
+                <label>¿A qué ciudad vas?</label>
+                <input type="text" id="input-destination" placeholder="Ej: New York">
+            </div>
+            <div class="input-group">
+                <label>Fecha del viaje</label>
+                <input type="date" id="input-date">
+            </div>
+            <button class="nav-btn btn-blue" style="width:100%; border:none; cursor:pointer;" onclick="saveTripSettings()">GUARDAR</button>
+            <button onclick="closeTripModal()" style="width:100%; background:none; border:none; margin-top:10px; color:#64748b; font-weight:700; cursor:pointer;">Cancelar</button>
+        </div>
+    </div>
+
     <div id="menuOverlay" class="menu-overlay" onclick="toggleSettings()"></div>
     <div id="settingsDrawer" class="settings-drawer">
         <h3 style="margin-top:0; color: var(--primary);">Ajustes</h3>
@@ -143,7 +163,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut, sendPasswordResetEmail, deleteUser } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
-        import { getFirestore, collection, query, where, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+        import { getFirestore, collection, query, where, getDocs, deleteDoc, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCm0Ig-CPklsjf6j-1uSAeF6I8xtyQKj7U",
@@ -158,15 +178,42 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
         let currentUser = null;
+        let tripData = { destination: "Orlando", date: "2027-01-01" };
 
-        onAuthStateChanged(auth, (user) => {
+        onAuthStateChanged(auth, async (user) => {
             if (!user) {
                 window.location.replace("login.html");
             } else {
                 currentUser = user;
                 document.getElementById('userEmail').innerText = user.email;
+                // Cargar datos del viaje guardados
+                const docRef = doc(db, "users", currentUser.uid);
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists() && docSnap.data().trip) {
+                    tripData = docSnap.data().trip;
+                }
+                updateTripUI();
             }
         });
+
+        // Guardar configuración del viaje
+        window.saveTripSettings = async () => {
+            const dest = document.getElementById('input-destination').value || "Orlando";
+            const date = document.getElementById('input-date').value || "2027-01-01";
+            tripData = { destination: dest, date: date };
+            
+            await setDoc(doc(db, "users", currentUser.uid), { trip: tripData }, { merge: true });
+            updateTripUI();
+            closeTripModal();
+        };
+
+        function updateTripUI() {
+            document.getElementById('trip-label').innerText = `Faltan para ${tripData.destination} ✈️`;
+            updateCountdown();
+        }
+
+        window.openTripModal = () => document.getElementById('tripModal').style.display = 'flex';
+        window.closeTripModal = () => document.getElementById('tripModal').style.display = 'none';
 
         const taxData = {
             "Alabama": [{n:"Birmingham", t:10.0}], "Alaska": [{n:"Anchorage", t:0}], "Arizona": [{n:"Phoenix", t:8.6}],
@@ -275,9 +322,9 @@
             }, 300);
         };
 
-        // Función del Contador
+        // Función del Contador Dinámico
         function updateCountdown() {
-            const targetDate = new Date("January 1, 2027 00:00:00").getTime();
+            const targetDate = new Date(tripData.date + "T00:00:00").getTime();
             const now = new Date().getTime();
             const diff = targetDate - now;
 
@@ -296,7 +343,6 @@
 
         window.onload = () => {
             window.loadCities();
-            updateCountdown();
             setInterval(updateCountdown, 1000);
             setInterval(window.nextTip, 8000);
         };
