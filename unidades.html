@@ -28,7 +28,10 @@
 
         .info-tip { font-size: 0.7rem; color: #64748b; margin-top: 8px; font-style: italic; display: flex; gap: 4px; }
         
-        .footer { margin-top: auto; padding: 20px 0; text-align: center; font-size: 0.75rem; color: #94a3b8; font-weight: 600; }
+        .footer { margin-top: auto; padding: 20px 0; text-align: center; display: flex; flex-direction: column; gap: 5px; }
+        .footer-name { font-size: 0.75rem; color: #94a3b8; font-weight: 600; }
+        .footer-apis { font-size: 0.6rem; color: #cbd5e1; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+        .footer-apis span { color: var(--primary); opacity: 0.8; }
     </style>
 </head>
 <body>
@@ -83,7 +86,10 @@
         </div>
     </div>
 
-    <div class="footer"><span>Creado por Juan Cruz Bria <img src="https://flagcdn.com/w40/ar.png" style="width:18px;"></span></div>
+    <div class="footer">
+        <span class="footer-name">Creado por Juan Cruz Bria <img src="https://flagcdn.com/w40/ar.png" style="width:18px; vertical-align: middle; margin-left: 3px;"></span>
+        <span class="footer-apis">Lógica: <span>JS Math</span> • Referencias: <span>NIST Standard</span> • UI: <span>Sky Custom</span></span>
+    </div>
 
     <script>
         function conv(id) {
@@ -133,7 +139,6 @@
         }
 
         function clearAll(id) {
-            // Esta función limpia los campos relacionados si el input actual está vacío
             const groups = [
                 ['f', 'c'], ['mph', 'kmh'], ['lb', 'kg'], 
                 ['oz', 'gr'], ['gal', 'lit', 'floz'], ['ft', 'in', 'cm']
