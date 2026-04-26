@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Itinerario</title>
-    <script src="https://www.google.com/recaptcha/api.js?render=6Lda_90qAAAAALl8q8L0D7Y-0O8kO_ySve_3MskM"></script>
+    <title>Itinerario - TaxUSA</title>
+    <script src="https://www.google.com/recaptcha/api.js?render=6LeK6cssAAAAALxcJy-95R2nhVMmnuIyB78AQgvw"></script>
     <style>
         :root { --primary: #7c3aed; --bg: #f8fafc; --white: #ffffff; --card-note: #fffbeb; --blue: #2563eb; --accent: #f59e0b; --success: #10b981; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -12,7 +12,6 @@
         
         .nav-bar { width: 100%; max-width: 450px; margin-bottom: 15px; display: flex; gap: 10px; }
         .btn-nav { flex: 1; padding: 12px; background: var(--white); border-radius: 14px; font-weight: 800; text-align: center; text-decoration: none; font-size: 0.8rem; border: 2px solid var(--blue); color: var(--blue); }
-        
         .btn-nav-cyan { border-color: #0ea5e9; color: #0ea5e9; }
 
         .card { background: var(--white); padding: 1.5rem; border-radius: 24px; width: 100%; max-width: 450px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 15px; position: relative; }
@@ -118,10 +117,10 @@
     </div>
 
     <div class="footer">
-        <span>Creado por Juan Cruz Bria <img src="https://flagcdn.com/w40/ar.png" style="width:18px;"></span>
+        <span>Creado por Juan Cruz Bria <img src="https://flagcdn.com/w40/ar.png" style="width:18px;" alt="ARG"></span>
     </div>
     <div class="api-credits">
-        APIs: Firebase • Queue-Times • FlagCDN • CorsProxy
+        APIs: Firebase • Queue-Times • FlagCDN • reCAPTCHA v3
     </div>
 
     <script type="module">
@@ -140,6 +139,7 @@
             else { currentUser = user; document.getElementById('userEmail').innerText = user.email; listenNotes(user.uid); renderCityData(); }
         });
 
+        // Configuración de ciudades y spots
         const citiesConfig = {
             orlando: [
                 { name: "🏰 Magic Kingdom", id: "mk", parkId: "6" },
@@ -202,7 +202,7 @@
             ],
             philly: [
                 { name: "🔔 Liberty Bell", id: "lib" }, { name: "🏛️ Art Museum", id: "philart" },
-                { name: " Sandwich Reading Market", id: "read" }, { name: "⚖️ Indep. Hall", id: "ihall" },
+                { name: "🥪 Reading Market", id: "read" }, { name: "⚖️ Indep. Hall", id: "ihall" },
                 { name: "🥊 Rocky Steps", id: "rocky" }, { name: "🏘️ Elfreth's Alley", id: "elf" }
             ],
             nola: [
@@ -213,7 +213,7 @@
             atlanta: [
                 { name: "🐠 GA Aquarium", id: "gaq" }, { name: "🥤 World of CocaCola", id: "wcc" },
                 { name: "🎡 SkyView ATL", id: "skyv" }, { name: "🏟️ Mercedes-Benz", id: "mbz" },
-                { name: "🌸 Botanical Garden", id: "abg" }, { name: " television CNN Center", id: "cnn" }
+                { name: "🌸 Botanical Garden", id: "abg" }, { name: "📺 CNN Center", id: "cnn" }
             ]
         };
 
@@ -231,13 +231,10 @@
 
             if (city === 'orlando') {
                 html += `<div class="api-attribution"><a href="https://queue-times.com/" target="_blank">Powered by Queue-Times.com</a></div>`;
-            }
-
-            container.innerHTML = html;
-
-            if (city === 'orlando') {
+                container.innerHTML = html;
                 updateQueueTimes();
             } else {
+                container.innerHTML = html;
                 spots.forEach(s => {
                     const el = document.getElementById(s.id);
                     if(!el) return;
@@ -257,40 +254,26 @@
             if (city !== 'orlando') return;
 
             const parks = citiesConfig.orlando.filter(p => p.parkId);
-
             for (const park of parks) {
                 const el = document.getElementById(park.id);
                 if (!el) continue;
-
                 try {
                     const proxy = "https://corsproxy.io/?";
                     const apiUrl = `https://queue-times.com/parks/${park.parkId}/queue_times.json`;
-                    
                     const response = await fetch(proxy + encodeURIComponent(apiUrl));
                     const data = await response.json();
-                    
-                    let totalWait = 0;
-                    let count = 0;
-
+                    let totalWait = 0, count = 0;
                     if (data && data.lands) {
                         data.lands.forEach(land => {
                             land.rides.forEach(ride => {
-                                if (ride.is_open) {
-                                    totalWait += ride.wait_time;
-                                    count++;
-                                }
+                                if (ride.is_open) { totalWait += ride.wait_time; count++; }
                             });
                         });
                     }
-
                     const average = count > 0 ? totalWait / count : 0;
-
                     if (count === 0) {
-                        if (hour < 8 || hour > 22) {
-                            el.innerText = "CERRADO 🌙"; el.className = "queue-status q-off";
-                        } else {
-                            el.innerText = "SIN INFO 🔄"; el.className = "queue-status q-off";
-                        }
+                        el.innerText = (hour < 8 || hour > 22) ? "CERRADO 🌙" : "SIN INFO 🔄";
+                        el.className = "queue-status q-off";
                     } else if (average <= 20) {
                         el.innerText = "BAJA 🟢"; el.className = "queue-status q-low";
                     } else if (average <= 45) {
@@ -298,27 +281,18 @@
                     } else {
                         el.innerText = "ALTA 🔴"; el.className = "queue-status q-high";
                     }
-                } catch (e) {
-                    el.innerText = "Error 🔄"; el.className = "queue-status q-off";
-                }
+                } catch (e) { el.innerText = "Error 🔄"; el.className = "queue-status q-off"; }
             }
         }
 
+        // FUNCIONES DE AJUSTES
         window.changeEmail = async () => {
-            const newEmail = prompt("Ingresa el nuevo correo electrónico. Se enviará un enlace de verificación:");
+            const newEmail = prompt("Ingresa el nuevo correo electrónico:");
             if (newEmail && newEmail.includes("@")) {
                 try {
                     await verifyBeforeUpdateEmail(currentUser, newEmail);
-                    alert("¡Correo de verificación enviado! El cambio se aplicará automáticamente una vez que confirmes el enlace en tu nuevo email (" + newEmail + ").");
-                } catch (e) {
-                    if (e.code === 'auth/requires-recent-login') {
-                        alert("Error: Por seguridad, debes haber iniciado sesión recientemente para cambiar tu correo. Por favor, cierra sesión y vuelve a entrar.");
-                    } else {
-                        alert("Error: " + e.message);
-                    }
-                }
-            } else if (newEmail) {
-                alert("Correo inválido.");
+                    alert("¡Correo de verificación enviado a " + newEmail + "!");
+                } catch (e) { alert("Error: " + e.message); }
             }
         };
 
@@ -326,39 +300,30 @@
         window.logout = () => signOut(auth).then(() => window.location.replace("login.html"));
         window.toggleSettings = () => { const d = document.getElementById('settingsDrawer'); d.classList.toggle('open'); document.getElementById('menuOverlay').style.display = d.classList.contains('open') ? 'block' : 'none'; };
         
-        // MODIFICADO: addNote con reCAPTCHA v3 Invisible
+        // RECAPTCHA V3 INVISIBLE EN ADDNOTE
         window.addNote = async () => { 
             const input = document.getElementById('noteInput'); 
-            
-            if (!input.value.trim()) {
-                alert("Escribe una nota primero.");
-                return;
-            }
+            if (!input.value.trim()) { alert("Escribe una nota primero."); return; }
 
-            // Ejecuta el captcha de forma invisible
-            grecaptcha.ready(function() {
-                grecaptcha.execute('6Lda_90qAAAAALl8q8L0D7Y-0O8kO_ySve_3MskM', {action: 'submit'}).then(async (token) => {
-                    // En un entorno real, enviarías el 'token' a tu servidor para validar.
-                    // Aquí procedemos con el guardado en Firebase:
+            grecaptcha.ready(() => {
+                grecaptcha.execute('6LeK6cssAAAAALxcJy-95R2nhVMmnuIyB78AQgvw', {action: 'submit_note'}).then(async (token) => {
                     try {
                         await addDoc(collection(db, "notas"), { 
                             text: input.value, 
                             userId: currentUser.uid, 
                             createdAt: Date.now(), 
                             completed: false,
-                            captchaToken: token // Opcional: guardar el token para auditoría
+                            captchaToken: token 
                         }); 
                         input.value = ''; 
-                    } catch (e) {
-                        alert("Error al guardar: " + e.message);
-                    }
+                    } catch (e) { alert("Error: " + e.message); }
                 });
             });
         };
 
         window.toggleCheck = async (id, status) => { await updateDoc(doc(db, "notas", id), { completed: !status }); };
         window.deleteNote = async (id) => { if (confirm('¿Eliminar?')) await deleteDoc(doc(db, "notas", id)); };
-        window.deleteAccount = async () => { if (confirm("¿Seguro que quieres eliminar tu cuenta? Esta acción es irreversible.")) { try { await deleteDoc(doc(db, "usuarios", currentUser.uid)); await deleteUser(currentUser); window.location.replace("login.html"); } catch (e) { alert("Re-autenticación necesaria para realizar esta acción."); } } };
+        window.deleteAccount = async () => { if (confirm("¿Eliminar cuenta permanentemente?")) { try { await deleteDoc(doc(db, "usuarios", currentUser.uid)); await deleteUser(currentUser); window.location.replace("login.html"); } catch (e) { alert("Re-autenticación necesaria."); } } };
 
         function listenNotes(uid) {
             const q = query(collection(db, "notas"), where("userId", "==", uid), orderBy("createdAt", "desc"));
@@ -386,27 +351,9 @@
             "Miami: Usá el 'Trolley' gratuito para moverte por South Beach y Brickell.",
             "Vegas: Registrate en los programas de recompensas de los hoteles (MGM/Caesars) para parking gratis.",
             "Washington: Reservá con meses de anticipación si querés subir al Monumento a Washington.",
-            "LA: Descargá mapas offline; hay zonas de cañones y playas donde la señal de celular desaparece.",
-            "Chicago: El pase de arquitectura en barco es la mejor forma de conocer la ciudad.",
-            "SF: Llevá siempre una campera, aunque haga calor. La niebla (Karl) baja la temperatura de golpe.",
-            "Boston: Caminá el Freedom Trail; son 4km de historia señalizados con una línea de ladrillos rojos.",
-            "Seattle: Evitá el Pike Place los fines de semana al mediodía, es imposible caminar.",
-            "Dallas: El JFK Sixth Floor Museum suele agotar entradas, compralas online una semana antes.",
-            "Philly: Los mejores Cheesesteaks no están en el centro, probá en el Reading Terminal Market.",
-            "NOLA: No camines solo por zonas oscuras fuera de Bourbon St. de noche; usá Uber.",
-            "Atlanta: El acuario es inmenso, dedicale al menos 4 horas completas para verlo todo.",
+            "SF: No dejes nada de valor a la vista dentro de un auto alquilado. Los robos son frecuentes.",
             "Orlando: Llevá tu propio poncho de lluvia; adentro de los parques cuestan el triple.",
-            "NYC: Si querés ver Broadway barato, bajá la app 'TodayTix' o hacé la fila en TKTS.",
-            "USA: La propina estándar es del 18% al 22%. Revisá si el 'Service Charge' ya está incluido.",
-            "Miami: Sawgrass Mills es gigante, alquilá un carrito para las valijas apenas llegues.",
-            "LA: Santa Monica Pier es mejor al atardecer, pero el parking es más caro y difícil.",
-            "Vegas: Bebidas gratis en los casinos mientras juegues (aunque sea un centavo), no olvides la propina.",
-            "SF: No dejes nada, NADA de valor a la vista dentro de un auto alquilado. Los robos son frecuentes.",
-            "Washington: El metro es súper eficiente pero el precio varía según la distancia y la hora pico.",
-            "Chicago: El Skydeck de la Willis Tower es mejor al atardecer para ver las luces de la ciudad.",
-            "Boston: Visitá Harvard en Cambridge; el campus es abierto y podés pasear libremente.",
-            "Seattle: Subí al Smith Tower en vez del Space Needle para una vista más barata y con bar incluido.",
-            "Dallas: Visitá el Stockyards en Fort Worth para ver el arreo de ganado real dos veces al día."
+            "USA: La propina estándar es del 18% al 22%. Revisá si el 'Service Charge' ya está incluido."
         ];
         
         let currentTipIndex = 0;
