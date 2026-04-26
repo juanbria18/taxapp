@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tax-usa-v40'; // Incrementamos la versión
+const CACHE_NAME = 'tax-usa-v70'; // Incrementamos la versión
 const ASSETS = [
   '/',
   '/index.html',
