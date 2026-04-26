@@ -8,19 +8,45 @@
         :root { --primary: #2563eb; --accent: #7c3aed; --bg: #f8fafc; --white: #ffffff; --success: #10b981; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
-        .nav-bar { width: 100%; max-width: 450px; margin-bottom: 15px; display: flex; gap: 10px; position: relative; }
+        
+        /* BARRA DE NAVEGACIÓN CORREGIDA */
+        .nav-bar { 
+            width: 100%; 
+            max-width: 450px; 
+            margin-bottom: 15px; 
+            display: flex; 
+            gap: 10px; 
+            position: relative; 
+            padding-right: 45px; /* Espacio reservado para la tuerca */
+        }
         .btn-nav { flex: 1; padding: 12px; background: var(--white); border-radius: 14px; font-weight: 800; text-align: center; text-decoration: none; font-size: 0.8rem; border: 2px solid var(--primary); color: var(--primary); }
+        
+        .settings-trigger { 
+            position: absolute; 
+            top: 50%; 
+            right: 0; 
+            transform: translateY(-50%); 
+            background: #f1f5f9; 
+            border: none; 
+            border-radius: 50%; 
+            width: 35px; 
+            height: 35px; 
+            cursor: pointer; 
+            z-index: 10; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
         .budget-card { background: linear-gradient(135deg, #2563eb, #7c3aed); color: white; padding: 20px; border-radius: 24px; width: 100%; max-width: 450px; text-align: center; box-shadow: 0 8px 20px rgba(37, 99, 235, 0.2); margin-bottom: 15px; }
         .budget-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; opacity: 0.9; letter-spacing: 1px; }
         .budget-value { font-size: 2.2rem; font-weight: 900; margin: 8px 0; }
         
         .set-budget { display: flex; gap: 8px; margin-top: 12px; background: rgba(255,255,255,0.15); padding: 8px; border-radius: 15px; }
-        
-        /* CAMBIO: Tipografía blanca para el input y su placeholder */
         .set-budget input { flex: 1; background: transparent; border: none; color: white; padding: 5px 10px; font-weight: 700; outline: none; width: 50px; }
         .set-budget input::placeholder { color: white; opacity: 0.8; }
-        
         .set-budget button { background: white; color: var(--primary); border: none; padding: 8px 15px; border-radius: 10px; font-weight: 800; font-size: 0.7rem; cursor: pointer; }
+
         .card { background: var(--white); padding: 1.5rem; border-radius: 24px; width: 100%; max-width: 450px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 20px; position: relative; }
         .tab-container { display: flex; background: #f1f5f9; padding: 5px; border-radius: 16px; margin-bottom: 20px; }
         .tab { flex: 1; padding: 12px; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; background: transparent; color: #64748b; font-size: 0.8rem; }
@@ -31,9 +57,9 @@
         .btn-add { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 16px; font-weight: 800; cursor: pointer; font-size: 0.9rem; }
         .history-item { background: #f8fafc; padding: 15px; border-radius: 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid var(--primary); }
         .dato-clave { background: #f0fdf4; padding: 15px; border-radius: 16px; border: 1.5px solid var(--success); margin-bottom: 15px; text-align: center; cursor: pointer; min-height: 85px; display: flex; flex-direction: column; justify-content: center; }
-        .settings-trigger { position: absolute; top: 5px; right: 5px; background: #f1f5f9; border: none; border-radius: 50%; width: 35px; height: 35px; cursor: pointer; z-index: 10; }
+        
         .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; z-index: 1000; }
-        .settings-drawer { position: fixed; top: 0; right: -300px; width: 280px; height: 100%; background: white; z-index: 1001; transition: 0.3s; padding: 25px; display: flex; flex-direction: column; }
+        .settings-drawer { position: fixed; top: 0; right: -300px; width: 280px; height: 100%; background: white; z-index: 1001; transition: 0.3s; padding: 25px; display: flex; flex-direction: column; box-shadow: -5px 0 15px rgba(0,0,0,0.1); }
         .settings-drawer.open { right: 0; }
         .footer { margin-top: auto; padding: 20px 0; text-align: center; font-size: 0.75rem; color: #94a3b8; font-weight: 600; }
 
@@ -46,21 +72,29 @@
     </style>
 </head>
 <body>
-    <div class="nav-bar"><a href="index.html" class="btn-nav">🏠 INICIO</a><a href="itinerario.html" class="btn-nav">📍 ITINERARIO</a><button class="settings-trigger" onclick="toggleSettings()">⚙️</button></div>
+    <div class="nav-bar">
+        <a href="index.html" class="btn-nav">🏠 INICIO</a>
+        <a href="itinerario.html" class="btn-nav">📍 ITINERARIO</a>
+        <button class="settings-trigger" onclick="toggleSettings()">⚙️</button>
+    </div>
+
     <div class="budget-card">
         <div class="budget-label">Presupuesto Restante</div>
         <div class="budget-value" id="disp-fondo">USD 0.00</div>
         <div class="set-budget"><input type="number" id="input-fondo" placeholder="TOTAL USD"><button onclick="updateFondo()">SET</button></div>
     </div>
+
     <div class="card">
         <div class="dato-clave" onclick="nextTip()"><small style="color:var(--success); font-weight:800; font-size:0.6rem;">🛍️ GUÍA DE COMPRAS</small><div id="tip-text">Cargando consejos...</div></div>
         <div class="tab-container"><button class="tab active" onclick="showSec('gastos')" id="t-gastos">GASTOS</button><button class="tab" onclick="showSec('talles')" id="t-talles">TALLES</button></div>
+        
         <div id="sec-gastos">
             <input type="text" id="nombre" placeholder="Producto" style="margin-bottom:10px;">
             <input type="number" id="valor" placeholder="Precio USD" style="margin-bottom:10px;">
             <button class="btn-add" onclick="addGasto()">GUARDAR GASTO</button>
             <div id="listaGastos" style="margin-top:20px;"><p style="text-align:center; color:#94a3b8;">Cargando...</p></div>
         </div>
+
         <div id="sec-talles" style="display:none;" class="talles-section">
             <div class="talles-title">👟 CALZADO <span>ARG → US</span></div>
             <table>
@@ -80,8 +114,14 @@
             </table>
         </div>
     </div>
+
     <div id="menuOverlay" class="menu-overlay" onclick="toggleSettings()"></div>
-    <div id="settingsDrawer" class="settings-drawer"><h3 style="color:var(--primary);">Ajustes</h3><p id="userEmail"></p><button onclick="logout()" style="padding:10px; border-radius:10px;">Cerrar Sesión</button></div>
+    <div id="settingsDrawer" class="settings-drawer">
+        <h3 style="color:var(--primary); margin-top:0;">Ajustes</h3>
+        <p id="userEmail" style="font-size:0.8rem; color:#64748b; margin-bottom:20px;"></p>
+        <button onclick="logout()" style="width:100%; padding:12px; border-radius:10px; border:1px solid #ddd; background:white; font-weight:800; cursor:pointer;">Cerrar Sesión</button>
+    </div>
+
     <div class="footer"><span>Creado por Juan Cruz Bria <img src="https://flagcdn.com/w40/ar.png" style="width:18px;"></span></div>
 
     <script type="module">
@@ -96,7 +136,6 @@
         let currentUser = null;
         let presupuestoBase = 0;
 
-        // REPARACIÓN: Definimos las funciones y las pasamos a window explícitamente para que los botones las vean
         window.updateFondo = async () => { 
             const val = document.getElementById('input-fondo').value; 
             if(val && currentUser) await setDoc(doc(db, "usuarios", currentUser.uid), { fondo: parseFloat(val) }, { merge: true }); 
@@ -113,7 +152,12 @@
             document.getElementById('t-gastos').className = s === 'gastos' ? 'tab active' : 'tab';
             document.getElementById('t-talles').className = s === 'talles' ? 'tab active' : 'tab';
         };
-        window.toggleSettings = () => { const d = document.getElementById('settingsDrawer'); document.getElementById('menuOverlay').style.display = d.classList.toggle('open') ? 'block' : 'none'; };
+        window.toggleSettings = () => { 
+            const d = document.getElementById('settingsDrawer'); 
+            const o = document.getElementById('menuOverlay');
+            d.classList.toggle('open'); 
+            o.style.display = d.classList.contains('open') ? 'block' : 'none'; 
+        };
         window.logout = () => signOut(auth).then(() => window.location.replace("login.html"));
 
         onAuthStateChanged(auth, (user) => {
@@ -133,7 +177,7 @@
                 if (snapshot.empty) { container.innerHTML = '<p style="text-align:center; color:#94a3b8;">No hay gastos.</p>'; updateDisplay(0); return; }
                 container.innerHTML = snapshot.docs.map(docSnap => {
                     const d = docSnap.data(); totalGastado += parseFloat(d.valor);
-                    return `<div class="history-item"><div><b>${d.nombre}</b></div><div style="display:flex; align-items:center; gap:12px;"><div class="h-amount">-$${d.valor}</div><div onclick="deleteGasto('${docSnap.id}')">×</div></div></div>`;
+                    return `<div class="history-item"><div><b>${d.nombre}</b></div><div style="display:flex; align-items:center; gap:12px;"><div class="h-amount">-$${d.valor}</div><div onclick="deleteGasto('${docSnap.id}')" style="cursor:pointer; color:#ef4444; font-weight:bold;">×</div></div></div>`;
                 }).join('');
                 updateDisplay(totalGastado);
             });
