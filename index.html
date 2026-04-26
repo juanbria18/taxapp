@@ -10,7 +10,18 @@
         body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
         
         .card { background: var(--card); padding: 1.5rem; border-radius: 24px; width: 100%; max-width: 420px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); text-align: center; position: relative; }
-        h1 { margin: 0 0 1rem 0; font-size: 1.6rem; font-weight: 800; color: var(--primary); }
+        
+        /* Ajuste para alinear texto y bandera en el título */
+        h1 { 
+            margin: 0 0 1rem 0; 
+            font-size: 1.6rem; 
+            font-weight: 800; 
+            color: var(--primary); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 10px; 
+        }
         
         .input-group { margin-bottom: 1rem; text-align: left; }
         label { display: block; font-size: 0.7rem; font-weight: 800; color: #64748b; margin-bottom: 0.4rem; text-transform: uppercase; margin-left: 5px; }
@@ -24,7 +35,6 @@
         .result-box { background: #eff6ff; padding: 1.2rem; border-radius: 20px; margin-top: 0.8rem; border: 2px dashed var(--primary); margin-bottom: 15px; }
         .result-value { font-size: 2.2rem; font-weight: 900; color: var(--primary); margin: 4px 0; }
         
-        /* ESTILO DE TIPS DINÁMICOS */
         .dato-clave { background: #f5f3ff; padding: 15px; border-radius: 16px; border: 1.5px solid var(--accent); margin-top: 10px; text-align: center; cursor: pointer; transition: all 0.2s ease; min-height: 85px; display: flex; flex-direction: column; justify-content: center; }
         .dato-clave:active { transform: scale(0.98); }
 
@@ -46,7 +56,7 @@
     <div class="card">
         <button class="settings-trigger" onclick="toggleSettings()">⚙️</button>
         <div id="sync-status">● En línea</div>
-        <h1>TaxUSA 🇺🇸</h1>
+        <h1>TaxUSA <img src="https://flagcdn.com/w40/us.png" style="width: 28px; border-radius: 3px;" alt="USA"></h1>
         
         <div class="input-group">
             <label>Precio en Etiqueta (USD)</label>
@@ -168,7 +178,6 @@
             alert("Ajustes: Se gestionan desde la pantalla de Login o Menú Lateral");
         };
 
-        // LÓGICA DE 50 TIPS DINÁMICOS
         const tips = [
             "En Florida, el tax general es 6.5%, pero en Kissimmee suele ser 7.5%.",
             "La mayoría de los alimentos básicos de supermercado NO pagan tax.",
