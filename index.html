@@ -31,9 +31,16 @@
         .cat-btn { padding: 15px 10px; border: 2px solid #f1f5f9; border-radius: 16px; background: white; font-size: 0.7rem; font-weight: 800; color: #64748b; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; align-items: center; gap: 5px; }
         .cat-btn.active { border-color: var(--primary); background: #eff6ff; color: var(--primary); }
         
-        .result-box { background: #eff6ff; padding: 1.2rem; border-radius: 20px; margin-top: 0.8rem; border: 2px dashed var(--primary); margin-bottom: 15px; }
+        /* Tip Buttons */
+        .tip-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 10px; }
+        .tip-btn { padding: 10px 5px; border: 2px solid #f1f5f9; border-radius: 12px; background: white; font-size: 0.7rem; font-weight: 800; color: #64748b; cursor: pointer; }
+        .tip-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+
+        .result-box { background: #eff6ff; padding: 1.2rem; border-radius: 20px; margin-top: 0.8rem; border: 2px dashed var(--primary); margin-bottom: 10px; }
         .result-value { font-size: 2.2rem; font-weight: 900; color: var(--primary); margin: 4px 0; }
         
+        .grand-total-box { background: var(--primary); padding: 15px; border-radius: 20px; color: white; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); }
+
         .nav-buttons { margin-top: 25px; display: flex; flex-direction: column; gap: 10px; }
         .nav-btn { text-decoration: none; padding: 16px; border-radius: 14px; font-weight: 800; text-align: center; font-size: 0.9rem; transition: 0.2s; }
         .btn-blue { background: #2563eb; color: white; border: none; width: 100%; cursor: pointer; }
@@ -81,18 +88,31 @@
         </div>
 
         <div class="input-group">
-            <label>Estado</label>
-            <select id="state-select" onchange="loadCities()"></select>
-        </div>
-
-        <div class="input-group">
-            <label>Ciudad / Condado</label>
-            <select id="city-select" onchange="calculate()"></select>
+            <label>Estado / Ciudad</label>
+            <div style="display: flex; gap: 10px;">
+                <select id="state-select" onchange="loadCities()" style="flex: 1;"></select>
+                <select id="city-select" onchange="calculate()" style="flex: 1.2;"></select>
+            </div>
         </div>
 
         <div class="result-box">
             <div class="result-value" id="total">USD 0.00</div>
             <div id="tax-detail" style="font-size: 0.8rem; color: #3b82f6; font-weight: bold;">Tax: 0%</div>
+        </div>
+
+        <div id="tip-section" style="margin-bottom: 15px; text-align: left;">
+            <label>Propina (Tip) <span id="tip-usd-label" style="float: right; color: var(--accent);">+$0.00</span></label>
+            <div class="tip-grid">
+                <button class="tip-btn" id="tip-0" onclick="setTip(0)">0%</button>
+                <button class="tip-btn" id="tip-15" onclick="setTip(15)">15%</button>
+                <button class="tip-btn active" id="tip-18" onclick="setTip(18)">18%</button>
+                <button class="tip-btn" id="tip-20" onclick="setTip(20)">20%</button>
+            </div>
+        </div>
+
+        <div class="grand-total-box">
+            <div style="font-size: 0.7rem; font-weight: 800; text-transform: uppercase; opacity: 0.9;">Total Final (Inc. Tip)</div>
+            <div style="font-size: 1.8rem; font-weight: 900;" id="grand-total">USD 0.00</div>
         </div>
 
         <div id="dynamic-tip" style="background: #f0fdf4; padding: 10px; border-radius: 12px; font-size: 0.75rem; color: #166534; font-weight: 700; margin-bottom: 15px; border: 1px solid #bbf7d0;">
@@ -133,7 +153,6 @@
     <div id="settingsDrawer" class="settings-drawer">
         <h3 style="margin-top:0; color: var(--primary);">Ajustes</h3>
         <p id="userEmail" style="font-size:0.75rem; color:#64748b; margin-bottom:20px; font-weight:700;"></p>
-        
         <button class="drawer-btn" onclick="changePassword()">🔑 Cambiar Contraseña</button>
         <button class="drawer-btn" onclick="logout()">🚪 Cerrar Sesión</button>
         <div style="margin-top: auto; padding-top: 20px;">
@@ -160,6 +179,7 @@
         const db = getFirestore(app);
         let currentUser = null;
         let tripData = { destination: "Orlando", date: "2027-01-01" };
+        let currentTipPercent = 18;
 
         const econTips = [
             "Delaware y Oregon tienen 0% de Sales Tax. Ideal para comprar Apple o lujo.",
@@ -167,9 +187,6 @@
             "New Jersey tiene 0% de tax en ropa. Ideal si estás cerca de NYC (Jersey Gardens).",
             "En Miami, el tax es del 7%. Los outlets como Sawgrass rinden más por cupones.",
             "Texas ofrece 'Tax Free Shopping' para turistas extranjeros en ciertos locales.",
-            "En California (LA/SF), el tax puede llegar al 10.25% en algunas zonas.",
-            "Las Vegas tiene un tax de 8.38%. Los hoteles cobran 'Resort Fees' aparte.",
-            "Boston: La ropa de menos de $175 no paga Sales Tax en Massachusetts.",
             "Chicago tiene uno de los Sales Tax más altos de EE.UU. (10.25%).",
             "Recuerda que en EE.UU. el precio de etiqueta NUNCA incluye el impuesto."
         ];
@@ -180,81 +197,22 @@
         }
 
         onAuthStateChanged(auth, async (user) => {
-            if (!user) { 
-                window.location.replace("login.html"); 
-            } else {
+            if (!user) { window.location.replace("login.html"); } 
+            else {
                 currentUser = user;
                 document.getElementById('userEmail').innerText = user.email;
-                try {
-                    const docSnap = await getDoc(doc(db, "users", user.uid));
-                    if (docSnap.exists() && docSnap.data().trip) {
-                        tripData = docSnap.data().trip;
-                    }
-                    updateTripUI();
-                } catch (e) {
-                    console.error("Error al cargar datos:", e);
-                }
+                const docSnap = await getDoc(doc(db, "users", user.uid));
+                if (docSnap.exists() && docSnap.data().trip) tripData = docSnap.data().trip;
+                updateTripUI();
             }
         });
 
-        window.changePassword = () => {
-            if (currentUser && currentUser.email) {
-                sendPasswordResetEmail(auth, currentUser.email)
-                    .then(() => alert("Se ha enviado un correo a " + currentUser.email + " para restablecer tu contraseña."))
-                    .catch((error) => alert("Error: " + error.message));
-            }
-        };
-
-        window.deleteAccount = async () => {
-            if (confirm("¿ESTÁS SEGURO? Esta acción eliminará permanentemente tu cuenta y todos tus datos guardados.")) {
-                try {
-                    const userRef = doc(db, "users", currentUser.uid);
-                    await deleteDoc(userRef);
-                    await deleteUser(currentUser);
-                    window.location.replace("login.html");
-                } catch (e) {
-                    alert("Por seguridad, debes haber iniciado sesión recientemente para eliminar tu cuenta.");
-                }
-            }
-        };
-
-        window.saveTripSettings = async () => {
-            const dest = document.getElementById('input-destination').value || "Orlando";
-            const date = document.getElementById('input-date').value || "2027-01-01";
-            if (!currentUser) return;
-            tripData = { destination: dest, date: date };
-            updateTripUI();
-            closeTripModal();
-            try {
-                const userRef = doc(db, "users", currentUser.uid);
-                await setDoc(userRef, { trip: tripData }, { merge: true });
-            } catch (e) { console.error(e); }
-        };
-
-        function updateTripUI() {
-            document.getElementById('trip-label').innerText = `Faltan para ${tripData.destination} ✈️`;
-            document.getElementById('input-destination').value = tripData.destination;
-            document.getElementById('input-date').value = tripData.date;
-        }
-
-        window.openTripModal = () => document.getElementById('tripModal').style.display = 'flex';
-        window.closeTripModal = () => document.getElementById('tripModal').style.display = 'none';
-
         const taxData = {
-            "Alabama": [{n:"Promedio", t:9.29}], "Alaska": [{n:"Sin Tax", t:0}], "Arizona": [{n:"Phoenix", t:8.6}], "Arkansas": [{n:"Little Rock", t:9.47}],
-            "California": [{n:"Los Angeles", t:9.5}, {n:"San Francisco", t:8.63}, {n:"San Diego", t:7.75}], "Colorado": [{n:"Denver", t:8.81}], 
-            "Connecticut": [{n:"Estado", t:6.35}], "Delaware": [{n:"Sin Tax", t:0}], "Florida": [{n:"Orlando", t:6.5}, {n:"Miami", t:7.0}, {n:"Tampa", t:8.5}],
-            "Georgia": [{n:"Atlanta", t:8.9}], "Hawaii": [{n:"Honolulu", t:4.5}], "Idaho": [{n:"Boise", t:6.0}], "Illinois": [{n:"Chicago", t:10.25}],
-            "Indiana": [{n:"Estado", t:7.0}], "Iowa": [{n:"Des Moines", t:7.0}], "Kansas": [{n:"Wichita", t:9.5}], "Kentucky": [{n:"Estado", t:6.0}],
-            "Louisiana": [{n:"New Orleans", t:9.45}], "Maine": [{n:"Estado", t:5.5}], "Maryland": [{n:"Estado", t:6.0}], "Massachusetts": [{n:"Boston", t:6.25}],
-            "Michigan": [{n:"Detroit", t:6.0}], "Minnesota": [{n:"Minneapolis", t:8.03}], "Mississippi": [{n:"Estado", t:7.07}], "Missouri": [{n:"St. Louis", t:9.68}],
-            "Montana": [{n:"Sin Tax", t:0}], "Nebraska": [{n:"Omaha", t:7.0}], "Nevada": [{n:"Las Vegas", t:8.38}], "New Hampshire": [{n:"Sin Tax", t:0}],
-            "New Jersey": [{n:"Jersey City", t:6.63}], "New Mexico": [{n:"Albuquerque", t:7.75}], "New York": [{n:"NYC", t:8.88}], "North Carolina": [{n:"Charlotte", t:7.25}],
-            "North Dakota": [{n:"Fargo", t:7.5}], "Ohio": [{n:"Columbus", t:7.5}], "Oklahoma": [{n:"Ok. City", t:8.63}], "Oregon": [{n:"Sin Tax", t:0}],
-            "Pennsylvania": [{n:"Philadelphia", t:8.0}], "Rhode Island": [{n:"Providence", t:7.0}], "South Carolina": [{n:"Charleston", t:9.0}],
-            "South Dakota": [{n:"Sioux Falls", t:6.5}], "Tennessee": [{n:"Nashville", t:9.25}], "Texas": [{n:"Houston", t:8.25}, {n:"Dallas", t:8.25}, {n:"Austin", t:8.25}],
-            "Utah": [{n:"Salt Lake City", t:7.75}], "Vermont": [{n:"Burlington", t:7.0}], "Virginia": [{n:"Virginia Beach", t:6.0}], "Washington": [{n:"Seattle", t:10.25}],
-            "West Virginia": [{n:"Charleston", t:7.0}], "Wisconsin": [{n:"Milwaukee", t:5.5}], "Wyoming": [{n:"Cheyenne", t:6.0}]
+            "Alabama": [{n:"Promedio", t:9.29}], "Alaska": [{n:"Sin Tax", t:0}], "Arizona": [{n:"Phoenix", t:8.6}],
+            "California": [{n:"Los Angeles", t:9.5}, {n:"San Francisco", t:8.63}], "Delaware": [{n:"Sin Tax", t:0}], 
+            "Florida": [{n:"Orlando", t:6.5}, {n:"Miami", t:7.0}, {n:"Tampa", t:8.5}], "Illinois": [{n:"Chicago", t:10.25}],
+            "Nevada": [{n:"Las Vegas", t:8.38}], "New Jersey": [{n:"Jersey City", t:6.63}], "New York": [{n:"NYC", t:8.88}],
+            "Oregon": [{n:"Sin Tax", t:0}], "Pennsylvania": [{n:"Philadelphia", t:8.0}], "Texas": [{n:"Houston", t:8.25}]
         };
 
         const stateSelect = document.getElementById('state-select');
@@ -277,36 +235,68 @@
             window.calculate();
         };
 
-        let currentCategory = 'general';
         window.setCategory = (cat) => {
-            currentCategory = cat;
             document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
             document.getElementById('btn-' + cat).classList.add('active');
+            window.currentCategory = cat;
+            window.calculate();
+        };
+
+        window.setTip = (percent) => {
+            currentTipPercent = percent;
+            document.querySelectorAll('.tip-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('tip-' + percent).classList.add('active');
             window.calculate();
         };
 
         window.calculate = () => {
             const price = parseFloat(document.getElementById('price').value) || 0;
-            let tax = parseFloat(document.getElementById('city-select').value) || 0;
-            if (currentCategory === 'med' || currentCategory === 'food') tax = 0;
-            const total = price + (price * (tax / 100));
-            document.getElementById('total').innerText = 'USD ' + total.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-            document.getElementById('tax-detail').innerText = `Tax Aplicado: ${tax}%`;
+            let taxRate = parseFloat(document.getElementById('city-select').value) || 0;
+            
+            const cat = document.querySelector('.cat-btn.active').id;
+            if (cat === 'btn-med' || cat === 'btn-food') taxRate = 0;
+
+            const taxAmount = price * (taxRate / 100);
+            const priceWithTax = price + taxAmount;
+            
+            const tipAmount = price * (currentTipPercent / 100);
+            const totalFinal = priceWithTax + tipAmount;
+
+            document.getElementById('total').innerText = 'USD ' + priceWithTax.toLocaleString('en-US', {minimumFractionDigits: 2});
+            document.getElementById('tax-detail').innerText = `Tax Aplicado: ${taxRate}%`;
+            document.getElementById('tip-usd-label').innerText = `+ $${tipAmount.toFixed(2)}`;
+            document.getElementById('grand-total').innerText = 'USD ' + totalFinal.toLocaleString('en-US', {minimumFractionDigits: 2});
         };
 
+        // Firebase & UI Utils
+        window.saveTripSettings = async () => {
+            const dest = document.getElementById('input-destination').value;
+            const date = document.getElementById('input-date').value;
+            tripData = { destination: dest, date: date };
+            updateTripUI();
+            closeTripModal();
+            await setDoc(doc(db, "users", currentUser.uid), { trip: tripData }, { merge: true });
+        };
+
+        function updateTripUI() {
+            document.getElementById('trip-label').innerText = `Faltan para ${tripData.destination} ✈️`;
+            document.getElementById('input-destination').value = tripData.destination;
+            document.getElementById('input-date').value = tripData.date;
+        }
+
+        window.openTripModal = () => document.getElementById('tripModal').style.display = 'flex';
+        window.closeTripModal = () => document.getElementById('tripModal').style.display = 'none';
         window.toggleSettings = () => {
             const d = document.getElementById('settingsDrawer');
-            const o = document.getElementById('menuOverlay');
             d.classList.toggle('open');
-            o.style.display = d.classList.contains('open') ? 'block' : 'none';
+            document.getElementById('menuOverlay').style.display = d.classList.contains('open') ? 'block' : 'none';
         };
-
         window.logout = () => signOut(auth).then(() => window.location.replace("login.html"));
 
         function updateCountdown() {
-            if (!tripData.date) return;
-            const targetDate = new Date(tripData.date + "T00:00:00").getTime();
-            const diff = targetDate - new Date().getTime();
+            const target = new Date(tripData.date + "T00:00:00").getTime();
+            const now = new Date().getTime();
+            const diff = target - now;
             if (diff <= 0) { document.getElementById("timer").innerText = "¡Buen viaje! ✈️"; return; }
             const d = Math.floor(diff / 864e5), h = Math.floor((diff % 864e5) / 36e5), m = Math.floor((diff % 36e5) / 6e4), s = Math.floor((diff % 6e4) / 1e3);
             document.getElementById("timer").innerText = `${d}d ${h}h ${m}m ${s}s`;
