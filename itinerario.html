@@ -17,7 +17,6 @@
         .card { background: var(--white); padding: 1.5rem; border-radius: 24px; width: 100%; max-width: 450px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 15px; position: relative; }
         h2 { color: var(--primary); margin-top: 0; text-align: center; font-size: 1.4rem; margin-bottom: 10px; }
         
-        /* Estilo para el nuevo selector de ciudad */
         .city-picker { width: 100%; padding: 10px; border-radius: 12px; border: 2px solid #f1f5f9; font-weight: 800; color: #475569; margin-bottom: 15px; outline: none; background: #fff; cursor: pointer; }
 
         .settings-trigger { position: absolute; top: 15px; right: 15px; background: #f1f5f9; border: none; border-radius: 50%; width: 35px; height: 35px; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; }
@@ -74,13 +73,20 @@
             <option value="vegas">🎲 Las Vegas</option>
             <option value="la">🎬 Los Ángeles</option>
             <option value="dc">🏛️ Washington D.C.</option>
+            <option value="chicago">🏙️ Chicago</option>
+            <option value="sf">🌁 San Francisco</option>
+            <option value="boston">🎓 Boston</option>
+            <option value="seattle">☕ Seattle</option>
+            <option value="dallas">🤠 Dallas</option>
+            <option value="philly">🔔 Philadelphia</option>
+            <option value="nola">🎷 New Orleans</option>
+            <option value="atlanta">🍑 Atlanta</option>
         </select>
 
         <textarea id="noteInput" rows="4" placeholder="Vuelos, hoteles, recordatorios..."></textarea>
         <button class="btn-add" onclick="addNote()">AGREGAR AL HISTORIAL</button>
         
-        <div class="queues-box" id="dynamicQueues">
-            </div>
+        <div class="queues-box" id="dynamicQueues"></div>
 
         <div class="dato-itinerario" onclick="nextTip()">
             <small style="color: var(--blue); font-weight: 800; font-size: 0.6rem; text-transform: uppercase;">✨ Tip de Viaje</small>
@@ -154,6 +160,46 @@
                 { name: "🏛️ White House", id: "white" }, { name: "🏛️ Capitol Building", id: "cap" },
                 { name: "🗼 Lincoln Mem.", id: "linc" }, { name: "🚀 Air & Space", id: "space" },
                 { name: "🦁 National Zoo", id: "zoo" }, { name: "🕵️ Spy Museum", id: "spy" }
+            ],
+            chicago: [
+                { name: "🏢 Willis Tower", id: "willis" }, { name: "☁️ The Bean", id: "bean" },
+                { name: "🎡 Navy Pier", id: "navy" }, { name: "🏙️ 360 Chicago", id: "chi360" },
+                { name: "🖼️ Art Institute", id: "art" }, { name: "🧪 Field Museum", id: "field" }
+            ],
+            sf: [
+                { name: "🌉 Golden Gate", id: "gg" }, { name: "⛓️ Alcatraz", id: "alc" },
+                { name: "⛵ Pier 39", id: "p39" }, { name: "🎢 Lombard St.", id: "lom" },
+                { name: "🎨 SFMOMA", id: "moma" }, { name: "🚠 Cable Car", id: "ccar" }
+            ],
+            boston: [
+                { name: "⚾ Fenway Park", id: "fen" }, { name: "🎓 Harvard", id: "harv" },
+                { name: "🚶 Freedom Trail", id: "free" }, { name: "🐟 Quincy Market", id: "quin" },
+                { name: "🏛️ Public Library", id: "bpl" }, { name: "⛵ Boston Harbor", id: "bhb" }
+            ],
+            seattle: [
+                { name: "🗼 Space Needle", id: "sn" }, { name: "🐟 Pike Place", id: "pike" },
+                { name: "🎸 MoPOP", id: "mop" }, { name: "🎡 Seattle Wheel", id: "swh" },
+                { name: "☕ First Starbucks", id: "stb" }, { name: "🧪 Science Center", id: "psc" }
+            ],
+            dallas: [
+                { name: "🏙️ Reunion Tower", id: "reun" }, { name: "🔫 6th Floor Mus.", id: "jfk" },
+                { name: "🐂 Stockyards", id: "stock" }, { name: "🏈 AT&T Stadium", id: "att" },
+                { name: "🌳 Klyde Warren", id: "kly" }, { name: "🎨 Arts District", id: "dart" }
+            ],
+            philly: [
+                { name: "🔔 Liberty Bell", id: "lib" }, { name: "🏛️ Art Museum", id: "philart" },
+                { name: "🥪 Reading Market", id: "read" }, { name: "⚖️ Indep. Hall", id: "ihall" },
+                { name: "🥊 Rocky Steps", id: "rocky" }, { name: "🏘️ Elfreth's Alley", id: "elf" }
+            ],
+            nola: [
+                { name: "🎷 Bourbon St.", id: "bour" }, { name: "🎭 French Quarter", id: "fq" },
+                { name: "☕ Café Du Monde", id: "caf" }, { name: "🚢 Mississippi R.", id: "miss" },
+                { name: "🌳 City Park", id: "cpk" }, { name: "⛪ St. Louis Cath.", id: "slc" }
+            ],
+            atlanta: [
+                { name: "🐠 GA Aquarium", id: "gaq" }, { name: "🥤 World of CocaCola", id: "wcc" },
+                { name: "🎡 SkyView ATL", id: "skyv" }, { name: "🏟️ Mercedes-Benz", id: "mbz" },
+                { name: "🌸 Botanical Garden", id: "abg" }, { name: "🎥 CNN Center", id: "cnn" }
             ]
         };
 
@@ -174,6 +220,7 @@
             } else {
                 spots.forEach(s => {
                     const el = document.getElementById(s.id);
+                    if(!el) return;
                     const states = ["ABIERTO 🟢", "MEDIO 🟡", "ALTO 🔴", "CONCURRIDO 🟡"];
                     const classes = ["q-low", "q-med", "q-high", "q-med"];
                     const rand = Math.floor(Math.random() * 4);
@@ -187,10 +234,10 @@
             const now = new Date();
             const hour = now.getHours();
             const parks = [
-                { id: '75ea4cdc-7d70-4ddd-901d-79da399081e7', el: 'mk', open: 8, close: 22 }, 
+                { id: '75ea4cdc-7d70-4ddd-901d-79da399081e7', el: 'mk', open: 8, close: 23 }, 
                 { id: '47f909e4-bc22-4462-9960-244030d9588c', el: 'ep', open: 8, close: 22 }, 
                 { id: '288747d1-8b4f-4a4a-9843-34b09355d5d6', el: 'hs', open: 8, close: 22 }, 
-                { id: '1c84a229-8861-4648-9f39-f53fe87d9c27', el: 'ak', open: 8, close: 22 }, 
+                { id: '1c84a229-8861-4648-9f39-f53fe87d9c27', el: 'ak', open: 8, close: 20 }, 
                 { id: 'eb38b317-09cd-4bc7-95a2-f6735e2cf94b', el: 'us', open: 9, close: 21 }, 
                 { id: '207797e5-8777-400d-8549-041846ed3f79', el: 'ioa', open: 9, close: 21 },
                 { id: '097973d4-b9b5-412e-9ad8-2b8474278912', el: 'epic', open: 10, close: 22 }
@@ -204,18 +251,19 @@
                 }
                 try {
                     const res = await fetch(`https://api.themeparks.wiki/v1/entity/${park.id}/live`);
+                    if (!res.ok) throw new Error();
                     const data = await res.json();
+                    if (!data.liveData) throw new Error();
                     const waits = data.liveData.filter(a => a.queue && a.queue.STANDBY && a.queue.STANDBY.waitTime !== null).map(a => a.queue.STANDBY.waitTime);
                     if (waits.length === 0) { el.innerText = "Sin info 🚫"; el.className = "queue-status q-off"; continue; }
                     const avg = waits.reduce((a, b) => a + b, 0) / waits.length;
-                    if (avg < 20) { el.innerText = "BAJA 🟢"; el.className = "queue-status q-low"; }
-                    else if (avg < 45) { el.innerText = "MED 🟡"; el.className = "queue-status q-med"; }
+                    if (avg < 25) { el.innerText = "BAJA 🟢"; el.className = "queue-status q-low"; }
+                    else if (avg < 50) { el.innerText = "MED 🟡"; el.className = "queue-status q-med"; }
                     else { el.innerText = "ALTA 🔴"; el.className = "queue-status q-high"; }
-                } catch (e) { el.innerText = "Error 🚫"; el.className = "queue-status q-off"; }
+                } catch (e) { el.innerText = "Reintentando... 🔄"; el.className = "queue-status q-off"; }
             }
         }
 
-        // FUNCIONES FIREBASE (Sin cambios)
         window.changePassword = () => { if (currentUser?.email) sendPasswordResetEmail(auth, currentUser.email).then(() => alert("Correo enviado.")).catch(e => alert(e.message)); };
         window.logout = () => signOut(auth).then(() => window.location.replace("login.html"));
         window.toggleSettings = () => { const d = document.getElementById('settingsDrawer'); d.classList.toggle('open'); document.getElementById('menuOverlay').style.display = d.classList.contains('open') ? 'block' : 'none'; };
@@ -251,7 +299,7 @@
             "Vegas: Los hoteles son gigantes, calculá 15 min solo para salir a la calle.",
             "Washington: Todos los museos Smithsonian son GRATIS.",
             "LA: El tráfico es real, evitá las autopistas de 7 a 10 AM y 4 a 7 PM.",
-            "Orlando: Agua gratis en cualquier puesto de comida rápida de Disney/Universal."
+            "Londres: El metro (The Tube) es más barato si usas tarjeta Contactless."
         ];
         let currentTipIndex = 0;
         window.nextTip = () => {
