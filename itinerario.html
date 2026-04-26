@@ -3,110 +3,221 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Itinerario - Orlando 2027</title>
+    <title>Itinerario</title>
     <style>
-        :root { --primary: #2563eb; --bg: #f8fafc; --white: #ffffff; }
+        :root { --primary: #7c3aed; --bg: #f8fafc; --white: #ffffff; --card-note: #fffbeb; --blue: #2563eb; --accent: #f59e0b; --success: #10b981; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
         
-        .nav-bar { width: 100%; max-width: 450px; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
-        .btn-nav { flex: 1; padding: 12px; background: var(--white); border-radius: 14px; font-weight: 800; text-align: center; text-decoration: none; font-size: 0.8rem; border: 2px solid var(--primary); color: var(--primary); }
+        .nav-bar { width: 100%; max-width: 450px; margin-bottom: 15px; display: flex; gap: 10px; }
+        .btn-nav { flex: 1; padding: 12px; background: var(--white); border-radius: 14px; font-weight: 800; text-align: center; text-decoration: none; font-size: 0.8rem; border: 2px solid var(--blue); color: var(--blue); }
         
-        .settings-trigger { background: #f1f5f9; border: none; border-radius: 50%; width: 42px; height: 42px; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-
-        .timeline { width: 100%; max-width: 450px; position: relative; }
-        .timeline::before { content: ''; position: absolute; left: 20px; top: 0; bottom: 0; width: 2px; background: #e2e8f0; }
-
-        .day-card { background: var(--white); margin-left: 45px; padding: 15px; border-radius: 20px; margin-bottom: 20px; position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        .day-card::before { content: ''; position: absolute; left: -31px; top: 15px; width: 12px; height: 12px; background: var(--primary); border: 4px solid var(--white); border-radius: 50%; z-index: 1; }
+        .card { background: var(--white); padding: 1.5rem; border-radius: 24px; width: 100%; max-width: 450px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 15px; position: relative; }
+        h2 { color: var(--primary); margin-top: 0; text-align: center; font-size: 1.4rem; }
         
-        .day-title { font-weight: 900; color: var(--primary); font-size: 0.9rem; margin-bottom: 5px; text-transform: uppercase; }
-        .day-desc { font-size: 0.85rem; color: #475569; line-height: 1.4; }
+        .settings-trigger { position: absolute; top: 15px; right: 15px; background: #f1f5f9; border: none; border-radius: 50%; width: 35px; height: 35px; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; }
+        textarea { width: 100%; padding: 15px; border: 2px solid #f1f5f9; border-radius: 16px; margin-bottom: 10px; font-size: 1rem; background: #f8fafc; font-family: inherit; resize: none; outline: none; transition: 0.3s; }
+        textarea:focus { border-color: var(--primary); background: white; }
+        .btn-add { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 16px; font-weight: 700; cursor: pointer; font-size: 1rem; }
+        
+        .queues-box { margin-top: 15px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .queue-card { background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px 4px; border-radius: 12px; text-align: center; display: flex; flex-direction: column; justify-content: center; }
+        .queue-name { font-size: 0.52rem; font-weight: 800; color: #64748b; text-transform: uppercase; margin-bottom: 4px; line-height: 1.2; height: 28px; display: flex; align-items: center; justify-content: center; }
+        .queue-status { font-size: 0.72rem; font-weight: 900; }
+        .q-low { color: #10b981; }
+        .q-med { color: #f59e0b; }
+        .q-high { color: #ef4444; }
+        .q-off { color: #94a3b8; }
 
+        .dato-itinerario { background: #f0f9ff; padding: 15px; border-radius: 16px; border: 1.5px solid var(--blue); margin-top: 15px; text-align: center; cursor: pointer; min-height: 80px; display: flex; flex-direction: column; justify-content: center; }
+        .list-container { width: 100%; max-width: 450px; margin-top: 10px; }
+        .note-item { background: var(--white); padding: 18px; border-radius: 20px; margin-bottom: 12px; position: relative; display: flex; gap: 15px; align-items: flex-start; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.02); }
+        .status-indicator { min-width: 22px; height: 22px; border-radius: 50%; border: 2px solid #e2e8f0; transition: 0.3s; display: flex; align-items: center; justify-content: center; }
+        .note-item.completed { background: #f1f5f9; opacity: 0.7; }
+        .note-item.completed .status-indicator { background: var(--success); border-color: var(--success); }
+        .note-item.completed .status-indicator::after { content: '✓'; color: white; font-size: 0.7rem; font-weight: 900; }
+        .note-item.completed .note-text { text-decoration: line-through; color: #64748b; }
+        .note-content { flex: 1; cursor: pointer; }
+        .note-text { font-size: 0.95rem; color: #1e293b; font-weight: 600; white-space: pre-wrap; }
+        .note-date { font-size: 0.6rem; color: #94a3b8; margin-top: 6px; font-weight: 700; }
+        .btn-delete-note { opacity: 0.3; padding: 5px; cursor: pointer; font-size: 1.1rem; color: #64748b; }
+        .footer { margin-top: auto; padding: 20px 0; text-align: center; font-size: 0.75rem; color: #94a3b8; font-weight: 600; }
         .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; z-index: 1000; }
         .settings-drawer { position: fixed; top: 0; right: -300px; width: 280px; height: 100%; background: white; z-index: 1001; transition: 0.3s; padding: 25px; display: flex; flex-direction: column; }
         .settings-drawer.open { right: 0; }
-        .drawer-btn { width: 100%; padding: 14px; margin-bottom: 10px; border-radius: 12px; border: 1px solid #e2e8f0; background: white; font-weight: 700; cursor: pointer; font-size: 0.85rem; text-align: left; }
-
-        .footer { margin-top: auto; padding: 20px 0; text-align: center; font-size: 0.75rem; color: #94a3b8; font-weight: 600; }
+        .drawer-btn { width: 100%; padding: 14px; margin-bottom: 10px; border-radius: 12px; border: 1px solid #e2e8f0; background: white; font-weight: 700; cursor: pointer; font-size: 0.85rem; }
     </style>
 </head>
 <body>
-
-    <div class="nav-bar">
-        <a href="index.html" class="btn-nav">🏠 INICIO</a>
-        <a href="compras.html" class="btn-nav">🛍️ COMPRAS</a>
+    <div class="nav-bar"><a href="index.html" class="btn-nav">🏠 INICIO</a><a href="compras.html" class="btn-nav">🛍️ GASTOS</a></div>
+    <div class="card">
         <button class="settings-trigger" onclick="toggleSettings()">⚙️</button>
+        <h2>📍 Itinerario</h2>
+        <textarea id="noteInput" rows="4" placeholder="Vuelos, hoteles, recordatorios..."></textarea>
+        <button class="btn-add" onclick="addNote()">AGREGAR AL HISTORIAL</button>
+        
+        <div class="queues-box">
+            <div class="queue-card"><div class="queue-name">🏰 Magic<br>Kingdom</div><div id="mk" class="queue-status">...</div></div>
+            <div class="queue-card"><div class="queue-name">🚀 Epcot</div><div id="ep" class="queue-status">...</div></div>
+            <div class="queue-card"><div class="queue-name">🎬 Hollywood<br>Studios</div><div id="hs" class="queue-status">...</div></div>
+            <div class="queue-card"><div class="queue-name">🦁 Animal<br>Kingdom</div><div id="ak" class="queue-status">...</div></div>
+            <div class="queue-card"><div class="queue-name">📽️ Universal<br>Studios</div><div id="us" class="queue-status">...</div></div>
+            <div class="queue-card"><div class="queue-name">🦖 Islands of<br>Adventure</div><div id="ioa" class="queue-status">...</div></div>
+            <div class="queue-card" style="grid-column: span 3; background: #f5f3ff; border-color: #c084fc;">
+                <div class="queue-name" style="color: #7c3aed; height: auto; margin-bottom: 6px;">✨ Epic Universe</div>
+                <div id="epic" class="queue-status">...</div>
+            </div>
+        </div>
+
+        <div class="dato-itinerario" onclick="nextTip()">
+            <small style="color: var(--blue); font-weight: 800; font-size: 0.6rem; text-transform: uppercase;">✨ Tip de Viaje</small>
+            <div id="tip-text" style="font-weight: 700; font-size: 0.85rem; color: #1e293b; margin-top: 4px; transition: opacity 0.3s ease;">Llegá a los parques 45 min antes de la apertura.</div>
+        </div>
     </div>
 
-    <div class="timeline">
-        <div class="day-card">
-            <div class="day-title">Día 1 - Llegada</div>
-            <div class="day-desc">Arribo a Orlando, retiro de auto y check-in. Tarde de compras suaves en Walmart.</div>
-        </div>
-        <div class="day-card">
-            <div class="day-title">Día 2 - Magic Kingdom</div>
-            <div class="day-desc">Todo el día en el parque. Show nocturno Happily Ever After.</div>
-        </div>
-        <div class="day-card">
-            <div class="day-title">Día 3 - Universal Studios</div>
-            <div class="day-desc">Mundo de Harry Potter y atracciones principales.</div>
-        </div>
-    </div>
-
+    <div id="notesList" class="list-container"><p style="text-align:center; color:#94a3b8;">Cargando...</p></div>
+    
+    <div class="footer"><span>Creado por Juan Cruz Bria <img src="https://flagcdn.com/w40/ar.png" style="width:18px;"></span></div>
+    
     <div id="menuOverlay" class="menu-overlay" onclick="toggleSettings()"></div>
     <div id="settingsDrawer" class="settings-drawer">
-        <h3 style="color:var(--primary); margin-top: 0;">Ajustes</h3>
+        <h3 style="margin-top:0; color: var(--primary);">Ajustes</h3>
         <p id="userEmail" style="font-size:0.75rem; color:#64748b; margin-bottom:20px; font-weight:700;"></p>
         <button class="drawer-btn" onclick="logout()">Cerrar Sesión</button>
-        <button class="drawer-btn" onclick="resetPassword()">Cambiar Contraseña</button>
-        <button class="drawer-btn" style="color: #ef4444; border-color: #fecaca;" onclick="deleteAccount()">Eliminar Cuenta</button>
     </div>
-
-    <div class="footer"><span>Creado por Juan Cruz Bria <img src="https://flagcdn.com/w40/ar.png" style="width:18px;"></span></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut, sendPasswordResetEmail, deleteUser } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, query, where, orderBy, onSnapshot, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
         const firebaseConfig = { apiKey: "AIzaSyCm0Ig-CPklsjf6j-1uSAeF6I8xtyQKj7U", authDomain: "viajes-db538.firebaseapp.com", projectId: "viajes-db538", storageBucket: "viajes-db538.firebasestorage.app", messagingSenderId: "237311739178", appId: "1:237311739178:web:333e468b184c0402a98a53" };
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
-
+        const db = getFirestore(app);
         let currentUser = null;
 
         onAuthStateChanged(auth, (user) => {
-            if (!user) window.location.replace("login.html");
-            else {
-                currentUser = user;
-                document.getElementById('userEmail').innerText = user.email;
-            }
+            if (!user) { window.location.replace("login.html"); } 
+            else { currentUser = user; document.getElementById('userEmail').innerText = user.email; listenNotes(user.uid); updateQueueTimes(); }
         });
 
+        async function updateQueueTimes() {
+            const now = new Date();
+            const hour = now.getHours();
+
+            const parks = [
+                { id: '75ea4cdc-7d70-4ddd-901d-79da399081e7', el: 'mk', open: 8, close: 22 }, 
+                { id: '47f909e4-bc22-4462-9960-244030d9588c', el: 'ep', open: 8, close: 22 }, 
+                { id: '288747d1-8b4f-4a4a-9843-34b09355d5d6', el: 'hs', open: 8, close: 22 }, 
+                { id: '1c84a229-8861-4648-9f39-f53fe87d9c27', el: 'ak', open: 8, close: 22 }, 
+                { id: 'eb38b317-09cd-4bc7-95a2-f6735e2cf94b', el: 'us', open: 9, close: 21 }, 
+                { id: '207797e5-8777-400d-8549-041846ed3f79', el: 'ioa', open: 9, close: 21 },
+                { id: '097973d4-b9b5-412e-9ad8-2b8474278912', el: 'epic', open: 10, close: 22 }
+            ];
+
+            for (const park of parks) {
+                const el = document.getElementById(park.el);
+                
+                // 1. Verificar Horario Fijo
+                if (hour < park.open || hour >= park.close) {
+                    el.innerText = "Cerrado 🌙";
+                    el.className = "queue-status q-off";
+                    continue;
+                }
+
+                // 2. Si está abierto, buscar filas
+                try {
+                    const res = await fetch(`https://api.themeparks.wiki/v1/entity/${park.id}/live`);
+                    const data = await res.json();
+                    
+                    const waits = data.liveData
+                        .filter(a => a.queue && a.queue.STANDBY && a.queue.STANDBY.waitTime !== null)
+                        .map(a => a.queue.STANDBY.waitTime);
+                    
+                    if (waits.length === 0) {
+                        el.innerText = "Sin info 🚫";
+                        el.className = "queue-status q-off";
+                        continue;
+                    }
+
+                    const avg = waits.reduce((a, b) => a + b, 0) / waits.length;
+
+                    if (avg < 20) {
+                        el.innerText = "BAJA 🟢";
+                        el.className = "queue-status q-low";
+                    } else if (avg < 45) {
+                        el.innerText = "MED 🟡";
+                        el.className = "queue-status q-med";
+                    } else {
+                        el.innerText = "ALTA 🔴";
+                        el.className = "queue-status q-high";
+                    }
+                } catch (e) {
+                    el.innerText = "Sin info 🚫";
+                    el.className = "queue-status q-off";
+                }
+            }
+        }
+
+        function listenNotes(uid) {
+            const q = query(collection(db, "notas"), where("userId", "==", uid), orderBy("createdAt", "desc"));
+            onSnapshot(q, (sn) => {
+                const container = document.getElementById('notesList');
+                if (sn.empty) { container.innerHTML = '<p style="text-align:center; color:#94a3b8;">Sin notas.</p>'; return; }
+                container.innerHTML = sn.docs.map(docSnap => {
+                    const d = docSnap.data();
+                    const dateStr = new Date(d.createdAt).toLocaleString('es-AR', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'});
+                    return `<div class="note-item ${d.completed ? 'completed' : ''}">
+                        <div class="status-indicator" onclick="toggleCheck('${docSnap.id}', ${d.completed})"></div>
+                        <div class="note-content" onclick="toggleCheck('${docSnap.id}', ${d.completed})">
+                            <div class="note-text">${d.text}</div>
+                            <div class="note-date">${dateStr}</div>
+                        </div>
+                        <div class="btn-delete-note" onclick="deleteNote('${docSnap.id}')">×</div>
+                    </div>`;
+                }).join('');
+            });
+        }
+
+        window.addNote = async () => {
+            const input = document.getElementById('noteInput');
+            if (!input.value.trim()) return;
+            await addDoc(collection(db, "notas"), { text: input.value, userId: currentUser.uid, createdAt: Date.now(), completed: false });
+            input.value = '';
+        };
+        window.toggleCheck = async (id, status) => { await updateDoc(doc(db, "notas", id), { completed: !status }); };
+        window.deleteNote = async (id) => { if (confirm('¿Eliminar?')) await deleteDoc(doc(db, "notas", id)); };
+
+        const itinerarioTips = [
+            "Orlando: Llegá 45 min antes de la apertura (Rope Drop).",
+            "NYC: Comprá la MetroCard ilimitada si te quedás más de 3 días.",
+            "Miami: Los parkings en South Beach son caros, usá la app 'ParkMobile'.",
+            "Vegas: Los hoteles son gigantes, calculá 15 min solo para salir a la calle.",
+            "Washington: Todos los museos Smithsonian son GRATIS.",
+            "LA: El tráfico es real, evitá las autopistas de 7 a 10 AM y 4 a 7 PM.",
+            "Orlando: Agua gratis en cualquier puesto de comida rápida de Disney/Universal."
+        ];
+        let currentTipIndex = 0;
+        window.nextTip = () => {
+            const el = document.getElementById('tip-text');
+            el.style.opacity = 0;
+            setTimeout(() => {
+                currentTipIndex = (currentTipIndex + 1) % itinerarioTips.length;
+                el.innerText = itinerarioTips[currentTipIndex];
+                el.style.opacity = 1;
+            }, 300);
+        };
         window.toggleSettings = () => {
             const d = document.getElementById('settingsDrawer');
-            const overlay = document.getElementById('menuOverlay');
-            const isOpen = d.classList.toggle('open');
-            overlay.style.display = isOpen ? 'block' : 'none';
+            d.classList.toggle('open');
+            document.getElementById('menuOverlay').style.display = d.classList.contains('open') ? 'block' : 'none';
         };
-
         window.logout = () => signOut(auth).then(() => window.location.replace("login.html"));
-
-        window.resetPassword = () => {
-            if (currentUser) {
-                sendPasswordResetEmail(auth, currentUser.email)
-                    .then(() => alert("¡Correo de cambio de clave enviado!"))
-                    .catch(e => alert("Error: " + e.message));
-            }
-        };
-
-        window.deleteAccount = () => {
-            if(confirm("¿Estás seguro de eliminar tu cuenta? Esta acción es irreversible.")) {
-                deleteUser(currentUser)
-                    .then(() => window.location.replace("login.html"))
-                    .catch(e => alert("Por seguridad, re-inicia sesión antes de realizar esta acción."));
-            }
-        };
+        
+        // Actualizar cada 5 minutos
+        setInterval(updateQueueTimes, 300000);
+        setInterval(window.nextTip, 8000);
     </script>
 </body>
 </html>
