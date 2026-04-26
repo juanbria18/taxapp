@@ -33,6 +33,9 @@
         .q-high { color: #ef4444; }
         .q-off { color: #94a3b8; }
 
+        .api-attribution { grid-column: span 3; text-align: center; margin-top: 5px; margin-bottom: 5px; }
+        .api-attribution a { font-size: 0.6rem; color: #94a3b8; text-decoration: none; font-weight: 600; }
+
         .dato-itinerario { background: #f0f9ff; padding: 15px; border-radius: 16px; border: 1.5px solid var(--blue); margin-top: 15px; text-align: center; cursor: pointer; min-height: 80px; display: flex; flex-direction: column; justify-content: center; }
         .list-container { width: 100%; max-width: 450px; margin-top: 10px; }
         .note-item { background: var(--white); padding: 18px; border-radius: 20px; margin-bottom: 12px; position: relative; display: flex; gap: 15px; align-items: flex-start; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.02); }
@@ -208,12 +211,19 @@
             const container = document.getElementById('dynamicQueues');
             const spots = citiesConfig[city];
             
-            container.innerHTML = spots.map(s => `
+            let html = spots.map(s => `
                 <div class="queue-card" style="${s.span ? 'grid-column: span 3; background: #f5f3ff; border-color: #c084fc;' : ''}">
                     <div class="queue-name" style="${s.span ? 'color: #7c3aed; height: auto; margin-bottom: 6px;' : ''}">${s.name}</div>
                     <div id="${s.id}" class="queue-status">...</div>
                 </div>
             `).join('');
+
+            // Agregar atribución si es Orlando (donde usamos la API)
+            if (city === 'orlando') {
+                html += `<div class="api-attribution"><a href="https://queue-times.com/" target="_blank">Powered by Queue-Times.com</a></div>`;
+            }
+
+            container.innerHTML = html;
 
             if (city === 'orlando') {
                 updateQueueTimes();
