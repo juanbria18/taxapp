@@ -51,7 +51,8 @@
         .drawer-btn { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0; background: white; cursor: pointer; font-weight: 700; margin-bottom: 10px; font-size: 0.8rem; text-align: left; }
         .btn-danger { color: #ef4444; border-color: #fecaca; }
 
-        .footer { margin-top: 30px; text-align: center; font-size: 0.75rem; color: #94a3b8; font-weight: 600; padding-bottom: 20px; }
+        .footer { margin-top: 30px; text-align: center; font-size: 0.75rem; color: #94a3b8; font-weight: 600; padding-bottom: 10px; }
+        .api-credits { font-size: 0.55rem; color: #cbd5e1; letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 20px; text-align: center; font-weight: 500; }
     </style>
 </head>
 <body>
@@ -107,6 +108,9 @@
 
     <div class="footer">
         <span>Creado por Juan Cruz Bria <img src="https://flagcdn.com/w40/ar.png" style="width:18px;" alt="Argentina"></span>
+    </div>
+    <div class="api-credits">
+        APIs USADAS: Firebase • FlagCDN • Google Auth
     </div>
 
     <div id="tripModal" class="modal">
@@ -187,7 +191,6 @@
                         tripData = docSnap.data().trip;
                     }
                     updateTripUI();
-                    listenToUserFondo(user.uid);
                 } catch (e) {
                     console.error("Error al cargar datos:", e);
                 }
@@ -206,13 +209,11 @@
             if (confirm("¿ESTÁS SEGURO? Esta acción eliminará permanentemente tu cuenta y todos tus datos guardados.")) {
                 try {
                     const userRef = doc(db, "users", currentUser.uid);
-                    const usuariosRef = doc(db, "usuarios", currentUser.uid);
                     await deleteDoc(userRef);
-                    await deleteDoc(usuariosRef);
                     await deleteUser(currentUser);
                     window.location.replace("login.html");
                 } catch (e) {
-                    alert("Por seguridad, debes haber iniciado sesión recientemente para eliminar tu cuenta. Cierra sesión y vuelve a entrar antes de intentarlo de nuevo.");
+                    alert("Por seguridad, debes haber iniciado sesión recientemente para eliminar tu cuenta.");
                 }
             }
         };
