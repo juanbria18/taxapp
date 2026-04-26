@@ -107,6 +107,7 @@
         <h3 style="margin-top:0; color: var(--primary);">Ajustes</h3>
         <p id="userEmail" style="font-size:0.75rem; color:#64748b; margin-bottom:20px; font-weight:700;"></p>
         
+        <button class="drawer-btn" onclick="changeEmail()">📧 Cambiar Correo</button>
         <button class="drawer-btn" onclick="changePassword()">🔑 Cambiar Contraseña</button>
         <button class="drawer-btn" onclick="logout()">🚪 Cerrar Sesión</button>
         <div style="margin-top: auto; padding-top: 20px;">
@@ -123,7 +124,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut, sendPasswordResetEmail, deleteUser } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+        import { getAuth, onAuthStateChanged, signOut, sendPasswordResetEmail, deleteUser, updateEmail } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, query, where, orderBy, onSnapshot, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
         const firebaseConfig = { apiKey: "AIzaSyCm0Ig-CPklsjf6j-1uSAeF6I8xtyQKj7U", authDomain: "viajes-db538.firebaseapp.com", projectId: "viajes-db538", storageBucket: "viajes-db538.firebasestorage.app", messagingSenderId: "237311739178", appId: "1:237311739178:web:333e468b184c0402a98a53" };
@@ -301,6 +302,21 @@
             }
         }
 
+        window.changeEmail = async () => {
+            const newEmail = prompt("Ingresa el nuevo correo electrónico:");
+            if (newEmail && newEmail.includes("@")) {
+                try {
+                    await updateEmail(currentUser, newEmail);
+                    alert("Correo actualizado con éxito.");
+                    document.getElementById('userEmail').innerText = newEmail;
+                } catch (e) {
+                    alert("Error: Para cambiar el correo debes haber iniciado sesión recientemente. Intenta cerrar sesión y volver a entrar.");
+                }
+            } else if (newEmail) {
+                alert("Correo inválido.");
+            }
+        };
+
         window.changePassword = () => { if (currentUser?.email) sendPasswordResetEmail(auth, currentUser.email).then(() => alert("Correo enviado.")).catch(e => alert(e.message)); };
         window.logout = () => signOut(auth).then(() => window.location.replace("login.html"));
         window.toggleSettings = () => { const d = document.getElementById('settingsDrawer'); d.classList.toggle('open'); document.getElementById('menuOverlay').style.display = d.classList.contains('open') ? 'block' : 'none'; };
@@ -361,6 +377,7 @@
         let currentTipIndex = 0;
         window.nextTip = () => {
             const el = document.getElementById('tip-text');
+            if(!el) return;
             el.style.opacity = 0;
             setTimeout(() => {
                 currentTipIndex = (currentTipIndex + 1) % itinerarioTips.length;
