@@ -215,7 +215,7 @@
     <div id="settingsDrawer" class="settings-drawer">
         <h3 style="color:var(--primary); margin-top:0;">Ajustes</h3>
         <p id="userEmail" style="font-size:0.75rem; color:#64748b; margin-bottom:20px; font-weight:700;"></p>
-        <button class="drawer-btn" onclick="updateEmail()">📧 Cambiar Correo</button>
+        <button class="drawer-btn" onclick="changeEmail()">📧 Cambiar Correo (Verificación)</button>
         <button class="drawer-btn" onclick="changePassword()">🔑 Cambiar Contraseña</button>
         <button class="drawer-btn" onclick="logout()">🚪 Cerrar Sesión</button>
         <div style="margin-top: auto; padding-top: 20px;">
@@ -312,6 +312,7 @@
         };
 
         window.deleteGasto = (id) => confirm("¿Borrar?") && deleteDoc(doc(db, "compras", id));
+        
         window.showSec = (s) => { 
             document.getElementById('sec-gastos').style.display = s === 'gastos' ? 'block' : 'none'; 
             document.getElementById('sec-talles').style.display = s === 'talles' ? 'block' : 'none'; 
@@ -328,25 +329,27 @@
             updateEmojis();
         };
 
-        window.updateEmail = async () => {
+        // Lógica de cambio de correo corregida para compras.html
+        window.changeEmail = async () => {
             if (currentUser) {
                 const nuevoEmail = prompt("Ingresa tu nuevo correo electrónico:", currentUser.email);
-                if (nuevoEmail && nuevoEmail !== currentUser.email) {
+                if (nuevoEmail && nuevoEmail !== currentUser.email && nuevoEmail.includes("@")) {
                     try {
-                        // verifyBeforeUpdateEmail envía el link de verificación al NUEVO correo.
-                        // El cambio solo se refleja en Firebase después de la verificación.
+                        // Envía verificación al nuevo correo antes de actualizar
                         await verifyBeforeUpdateEmail(currentUser, nuevoEmail);
-                        alert("¡Correo de verificación enviado a " + nuevoEmail + "!\n\nPor seguridad, el cambio se completará una vez que confirmes el enlace en tu casilla. Luego, deberás volver a iniciar sesión.");
+                        alert("¡Correo de verificación enviado a " + nuevoEmail + "!\n\nConfirma el enlace en tu casilla. Luego, deberás volver a iniciar sesión para que el cambio sea oficial.");
                         toggleSettings();
                     } catch (e) {
-                        alert("Error: " + e.message + "\n\nSi el error persiste, cerrá sesión y volvé a entrar para validar tu identidad.");
+                        alert("Error: Por seguridad, debés haber iniciado sesión recientemente para cambiar tu correo.");
                     }
-                }
+                } else if (nuevoEmail) { alert("Correo inválido."); }
             }
         };
 
         window.changePassword = () => { if (currentUser && currentUser.email) sendPasswordResetEmail(auth, currentUser.email).then(() => alert("Correo enviado.")).catch((e) => alert(e.message)); };
+        
         window.deleteAccount = async () => { if (confirm("¿Borrar cuenta permanentemente?")) { try { await deleteDoc(doc(db, "usuarios", currentUser.uid)); await deleteUser(currentUser); window.location.replace("login.html"); } catch (e) { alert("Re-autenticación necesaria."); } } };
+        
         window.logout = () => signOut(auth).then(() => window.location.replace("login.html"));
 
         onAuthStateChanged(auth, (user) => {
@@ -400,6 +403,7 @@
                 updateEmojis();
             });
         }
+
         function updateDisplay(gastado) { document.getElementById('disp-fondo').innerText = 'USD ' + formatNumber(presupuestoBase - gastado); }
         
         window.onload = () => { 
