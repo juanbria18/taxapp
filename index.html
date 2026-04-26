@@ -37,7 +37,6 @@
         .tip-btn span { font-size: 0.55rem; font-weight: 600; opacity: 0.8; }
         .tip-btn.active { border-color: var(--accent); background: #f5f3ff; color: var(--accent); }
         
-        /* Modificado para que el "OTRO" se vea como los botones de arriba */
         .custom-tip-container { 
             display: flex; 
             flex-direction: column; 
@@ -180,8 +179,11 @@
     <div id="settingsDrawer" class="settings-drawer">
         <h3 style="margin-top:0; color: var(--primary);">Ajustes</h3>
         <p id="userEmail" style="font-size:0.75rem; color:#64748b; margin-bottom:20px; font-weight:700;"></p>
+        
+        <button class="drawer-btn" onclick="updateEmail()">📧 Cambiar Correo</button>
         <button class="drawer-btn" onclick="changePassword()">🔑 Cambiar Contraseña</button>
         <button class="drawer-btn" onclick="logout()">🚪 Cerrar Sesión</button>
+        
         <div style="margin-top: auto; padding-top: 20px;">
             <button class="drawer-btn btn-danger" onclick="deleteAccount()">⚠️ Eliminar Cuenta</button>
         </div>
@@ -189,8 +191,12 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut, sendPasswordResetEmail, deleteUser } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+        import { 
+            getAuth, onAuthStateChanged, signOut, sendPasswordResetEmail, deleteUser, verifyBeforeUpdateEmail 
+        } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+        import { 
+            getFirestore, doc, setDoc, getDoc, deleteDoc 
+        } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCm0Ig-CPklsjf6j-1uSAeF6I8xtyQKj7U",
@@ -246,6 +252,36 @@
             }
         });
 
+        // Lógica de Ajustes
+        window.updateEmail = async () => {
+            const newEmail = prompt("Ingresa tu nuevo correo electrónico:");
+            if (newEmail && newEmail !== currentUser.email) {
+                try {
+                    // Firebase pide verificación para cambiar el mail por seguridad
+                    await verifyBeforeUpdateEmail(currentUser, newEmail);
+                    alert("Se ha enviado un correo de verificación a la nueva dirección. El cambio se aplicará cuando confirmes el mail.");
+                } catch (e) { alert("Error: " + e.message); }
+            }
+        };
+
+        window.changePassword = async () => {
+            try {
+                await sendPasswordResetEmail(auth, currentUser.email);
+                alert("Correo de restablecimiento enviado a " + currentUser.email);
+            } catch (e) { alert("Error: " + e.message); }
+        };
+
+        window.deleteAccount = async () => {
+            if (confirm("¿ESTÁS SEGURO? Esta acción eliminará todos tus datos de forma permanente.")) {
+                try {
+                    await deleteDoc(doc(db, "users", currentUser.uid));
+                    await deleteUser(currentUser);
+                    window.location.replace("login.html");
+                } catch (e) { alert("Para eliminar la cuenta, debes haber iniciado sesión recientemente. Cierra sesión e ingresa de nuevo para intentar."); }
+            }
+        };
+
+        // Lógica de Calculadora
         window.setCategory = (cat) => {
             document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
             document.getElementById('btn-' + cat).classList.add('active');
@@ -265,9 +301,7 @@
             if (!isNaN(val)) {
                 currentTipPercentage = val;
                 document.querySelectorAll('.tip-btn').forEach(b => b.classList.remove('active'));
-            } else {
-                currentTipPercentage = 0;
-            }
+            } else { currentTipPercentage = 0; }
             window.calculate();
         };
 
@@ -280,13 +314,11 @@
             
             const subtotal = price + (price * (tax / 100));
             
-            // Actualizar montos en USD de los botones fijos
             [0, 10, 15, 20].forEach(p => {
                 const amount = subtotal * (p / 100);
                 document.getElementById(`val-tip-${p}`).innerText = `$${amount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
             });
 
-            // Actualizar monto en USD del campo "OTRO"
             const customVal = parseFloat(document.getElementById('custom-tip-input').value) || 0;
             const customAmount = subtotal * (customVal / 100);
             document.getElementById('val-tip-custom').innerText = `$${customAmount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
@@ -313,22 +345,7 @@
             window.calculate();
         };
 
-        const stateSelect = document.getElementById('state-select');
-        Object.keys(taxData).sort().forEach(s => {
-            let opt = document.createElement('option');
-            opt.value = s; opt.text = s;
-            if(s === "Florida") opt.selected = true;
-            stateSelect.appendChild(opt);
-        });
-
-        window.toggleSettings = () => {
-            const d = document.getElementById('settingsDrawer');
-            document.getElementById('menuOverlay').style.display = d.classList.toggle('open') ? 'block' : 'none';
-        };
-
-        window.openTripModal = () => document.getElementById('tripModal').style.display = 'flex';
-        window.closeTripModal = () => document.getElementById('tripModal').style.display = 'none';
-
+        // Lógica de Viaje
         window.saveTripSettings = async () => {
             tripData = { 
                 destination: document.getElementById('input-destination').value || "Orlando", 
@@ -354,6 +371,22 @@
             document.getElementById("timer").innerText = `${d}d ${h}h ${m}m ${s}s`;
         }
 
+        // Inicialización General
+        const stateSelect = document.getElementById('state-select');
+        Object.keys(taxData).sort().forEach(s => {
+            let opt = document.createElement('option');
+            opt.value = s; opt.text = s;
+            if(s === "Florida") opt.selected = true;
+            stateSelect.appendChild(opt);
+        });
+
+        window.toggleSettings = () => {
+            const d = document.getElementById('settingsDrawer');
+            document.getElementById('menuOverlay').style.display = d.classList.toggle('open') ? 'block' : 'none';
+        };
+
+        window.openTripModal = () => document.getElementById('tripModal').style.display = 'flex';
+        window.closeTripModal = () => document.getElementById('tripModal').style.display = 'none';
         window.logout = () => signOut(auth).then(() => window.location.replace("login.html"));
 
         window.onload = () => { 
