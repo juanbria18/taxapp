@@ -243,7 +243,6 @@
                 if (!el) continue;
 
                 try {
-                    // Lógica de Reintento con Proxy para evitar bloqueos CORS
                     const proxy = "https://corsproxy.io/?";
                     const wikiUrl = `https://api.themeparks.wiki/v1/entity/${park.parkId}/live`;
                     const qtUrl = park.qtId ? `https://queue-times.com/parks/${park.qtId}/queue_times.json` : null;
@@ -251,7 +250,6 @@
                     let response;
                     let data;
 
-                    // Intentar con Queue-Times primero (es más estable para promedios)
                     if (qtUrl) {
                         try {
                             response = await fetch(proxy + encodeURIComponent(qtUrl));
@@ -259,7 +257,6 @@
                         } catch (e) { response = null; }
                     }
 
-                    // Si falla Queue-Times, intentar con Wiki
                     if (!data || !data.lands) {
                         response = await fetch(proxy + encodeURIComponent(wikiUrl));
                         data = await response.json();
@@ -269,20 +266,17 @@
                     let totalRides = 0;
 
                     if (data.liveData) { 
-                        // Formato Wiki
                         const waits = data.liveData
                             .filter(a => a.queue?.STANDBY?.waitTime != null)
                             .map(a => a.queue.STANDBY.waitTime);
                         totalRides = waits.length;
                         average = totalRides ? waits.reduce((a,b)=>a+b,0)/totalRides : 0;
                     } else if (data.lands) { 
-                        // Formato Queue-Times
                         const allRides = data.lands.flatMap(l => l.rides).filter(r => r.is_open);
                         totalRides = allRides.length;
                         average = totalRides ? allRides.reduce((a,b)=>a+b,0)/totalRides : 0;
                     }
 
-                    // Mostrar Resultado
                     if (totalRides === 0 && (hour < 8 || hour > 22)) {
                         el.innerText = "CERRADO 🌙"; el.className = "queue-status q-off";
                     } else if (totalRides === 0) {
@@ -329,14 +323,34 @@
         }
 
         const itinerarioTips = [
-            "Orlando: Llegá 45 min antes de la apertura (Rope Drop).",
-            "NYC: Comprá la MetroCard ilimitada si te quedás más de 3 días.",
-            "Miami: Los parkings en South Beach son caros, usá la app 'ParkMobile'.",
-            "Vegas: Los hoteles son gigantes, calculá 15 min solo para salir a la calle.",
-            "Washington: Todos los museos Smithsonian son GRATIS.",
-            "LA: El tráfico es real, evitá las autopistas de 7 a 10 AM y 4 a 7 PM.",
-            "Londres: El metro (The Tube) es más barato si usas tarjeta Contactless."
+            "Orlando: Llegá 45 min antes de la apertura (Rope Drop) para subir a la mejor atracción sin fila.",
+            "NYC: No comas en Times Square, caminá 3 cuadras hacia Hell's Kitchen para mejores precios.",
+            "Miami: Usá el 'Trolley' gratuito para moverte por South Beach y Brickell.",
+            "Vegas: Registrate en los programas de recompensas de los hoteles (MGM/Caesars) para parking gratis.",
+            "Washington: Reservá con meses de anticipación si querés subir al Monumento a Washington.",
+            "LA: Descargá mapas offline; hay zonas de cañones y playas donde la señal de celular desaparece.",
+            "Chicago: El pase de arquitectura en barco es la mejor forma de conocer la ciudad.",
+            "SF: Llevá siempre una campera, aunque haga calor. La niebla (Karl) baja la temperatura de golpe.",
+            "Boston: Caminá el Freedom Trail; son 4km de historia señalizados con una línea de ladrillos rojos.",
+            "Seattle: Evitá el Pike Place los fines de semana al mediodía, es imposible caminar.",
+            "Dallas: El JFK Sixth Floor Museum suele agotar entradas, compralas online una semana antes.",
+            "Philly: Los mejores Cheesesteaks no están en el centro, probá en el Reading Terminal Market.",
+            "NOLA: No camines solo por zonas oscuras fuera de Bourbon St. de noche; usá Uber.",
+            "Atlanta: El acuario es inmenso, dedicale al menos 4 horas completas para verlo todo.",
+            "Orlando: Llevá tu propio poncho de lluvia; adentro de los parques cuestan el triple.",
+            "NYC: Si querés ver Broadway barato, bajá la app 'TodayTix' o hacé la fila en TKTS.",
+            "USA: La propina estándar es del 18% al 22%. Revisá si el 'Service Charge' ya está incluido.",
+            "Miami: Sawgrass Mills es gigante, alquilá un carrito para las valijas apenas llegues.",
+            "LA: Santa Monica Pier es mejor al atardecer, pero el parking es más caro y difícil.",
+            "Vegas: Bebidas gratis en los casinos mientras juegues (aunque sea un centavo), no olvides la propina.",
+            "SF: No dejes nada, NADA de valor a la vista dentro de un auto alquilado. Los robos son frecuentes.",
+            "Washington: El metro es súper eficiente pero el precio varía según la distancia y la hora pico.",
+            "Chicago: El Skydeck de la Willis Tower es mejor al atardecer para ver las luces de la ciudad.",
+            "Boston: Visitá Harvard en Cambridge; el campus es abierto y podés pasear libremente.",
+            "Seattle: Subí al Smith Tower en vez del Space Needle para una vista más barata y con bar incluido.",
+            "Dallas: Visitá el Stockyards en Fort Worth para ver el arreo de ganado real dos veces al día."
         ];
+        
         let currentTipIndex = 0;
         window.nextTip = () => {
             const el = document.getElementById('tip-text');
@@ -349,7 +363,7 @@
         };
         
         setInterval(updateQueueTimes, 300000);
-        setInterval(window.nextTip, 8000);
+        setInterval(window.nextTip, 10000); // Cambio de tip cada 10 segundos
         window.onload = () => { 
             if(document.getElementById('tip-text')) document.getElementById('tip-text').innerText = itinerarioTips[0]; 
         };
