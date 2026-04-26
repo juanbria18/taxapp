@@ -12,7 +12,7 @@
         .nav-bar { width: 100%; max-width: 450px; margin-bottom: 15px; display: flex; gap: 10px; }
         .btn-nav { flex: 1; padding: 12px; background: var(--white); border-radius: 14px; font-weight: 800; text-align: center; text-decoration: none; font-size: 0.8rem; border: 2px solid var(--accent); color: var(--accent); }
         
-        .card { background: var(--white); padding: 1.5rem; border-radius: 24px; width: 100%; max-width: 450px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 15px; }
+        .card { background: var(--white); padding: 1.5rem; border-radius: 24px; width: 100%; max-width: 450px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 15px; position: relative; }
         
         .dolar-container { display: flex; gap: 10px; margin-bottom: 15px; width: 100%; max-width: 450px; }
         .dolar-box { flex: 1; background: #f0fdf4; border: 1px solid #dcfce7; padding: 10px; border-radius: 16px; text-align: center; }
@@ -29,14 +29,22 @@
 
         input { width: 100%; padding: 12px; border: 2px solid #f1f5f9; border-radius: 12px; margin-bottom: 10px; font-size: 1rem; background: #f8fafc; outline: none; }
         .btn-blue { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; font-size: 1rem; }
-        .btn-blue:disabled { background: var(--gray); opacity: 0.7; }
         
+        /* DISEÑO DE TALLES RESTAURADO */
+        .size-section-title { background: #f1f5f9; color: #475569; font-size: 0.7rem; font-weight: 900; padding: 8px; border-radius: 8px; margin: 15px 0 8px 0; text-align: center; text-transform: uppercase; letter-spacing: 1px; }
+        .size-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; text-align: center; margin-bottom: 10px; }
+        .size-header { font-weight: 800; color: #64748b; font-size: 0.6rem; background: #f8fafc; padding: 5px; border-radius: 4px; border: 1px solid #e2e8f0; }
+        .size-row { padding: 6px 0; border-bottom: 1px solid #f1f5f9; font-size: 0.8rem; font-weight: 600; color: #334155; }
+
         .history-list { margin-top: 20px; width: 100%; }
         .history-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f1f5f9; }
         .item-name { font-weight: 600; font-size: 0.85rem; color: #1e293b; }
         .item-price { font-weight: 800; font-size: 0.85rem; color: #ef4444; }
-        
-        .btn-clear { background: none; border: none; color: #94a3b8; font-size: 0.7rem; font-weight: 700; text-decoration: underline; cursor: pointer; margin-top: 15px; width: 100%; }
+
+        .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; z-index: 1000; }
+        .settings-drawer { position: fixed; top: 0; right: -300px; width: 280px; height: 100%; background: white; z-index: 1001; transition: 0.3s; padding: 25px; display: flex; flex-direction: column; }
+        .settings-drawer.open { right: 0; }
+        .drawer-btn { width: 100%; padding: 14px; margin-bottom: 10px; border-radius: 12px; border: 1px solid #e2e8f0; background: white; font-weight: 700; text-align: left; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -64,7 +72,7 @@
 
         <div style="display:flex; gap:5px; margin-bottom: 15px;">
             <input type="number" id="input-base" placeholder="Nuevo fondo USD" style="margin-bottom:0;">
-            <button class="btn-blue" onclick="updateBase()" style="width:40%; font-size:0.7rem;">SET FONDO</button>
+            <button id="btnSet" class="btn-blue" onclick="updateBase()" style="width:40%; font-size:0.7rem;">SET FONDO</button>
         </div>
         
         <hr style="border:0; border-top:1px solid #f1f5f9; margin-bottom:15px;">
@@ -74,22 +82,52 @@
         <button id="btnReg" class="btn-blue" onclick="addGasto()">REGISTRAR COMPRA</button>
 
         <div id="lista-compras" class="history-list"></div>
-        
-        <button class="btn-clear" onclick="limpiarHistorial()">BORRAR TODO EL HISTORIAL</button>
+        <button onclick="borrarTodo()" style="background:none; border:none; color:gray; text-decoration:underline; width:100%; margin-top:20px; font-size:0.7rem; cursor:pointer;">Limpiar Historial</button>
     </div>
 
     <div id="sec-talles" class="card" style="display:none;">
-        <h3 style="color:var(--accent); text-align:center;">Guía de Talles US</h3>
-        <p style="font-size:0.8rem; color:#64748b; line-height:1.4;">
-            <b>Calzado Hombre:</b> US 9 = AR 41 | US 10 = AR 42.5<br>
-            <b>Calzado Mujer:</b> US 7 = AR 37 | US 8 = AR 38<br>
-            <b>Ropa:</b> S (Small), M (Medium), L (Large), XL (Extra Large).
-        </p>
+        <h3 style="text-align:center; color: var(--primary); margin: 0 0 10px 0;">Guía US vs AR</h3>
+        
+        <div class="size-section-title">👟 Zapatillas</div>
+        <div class="size-grid">
+            <div class="size-header">AR</div><div class="size-header">US HOMBRE</div><div class="size-header">US MUJER</div>
+            <div class="size-row">35</div><div class="size-row">-</div><div class="size-row">5</div>
+            <div class="size-row">36</div><div class="size-row">4.5</div><div class="size-row">6</div>
+            <div class="size-row">37</div><div class="size-row">5</div><div class="size-row">6.5</div>
+            <div class="size-row">38</div><div class="size-row">6</div><div class="size-row">7.5</div>
+            <div class="size-row">39</div><div class="size-row">7</div><div class="size-row">8.5</div>
+            <div class="size-row">40</div><div class="size-row">7.5</div><div class="size-row">9</div>
+            <div class="size-row">41</div><div class="size-row">8.5</div><div class="size-row">10</div>
+            <div class="size-row">42</div><div class="size-row">9</div><div class="size-row">10.5</div>
+        </div>
+
+        <div class="size-section-title">👕 Remeras y Buzos</div>
+        <div class="size-grid">
+            <div class="size-header">Talle AR</div><div class="size-header">US Hombre</div><div class="size-header">US Mujer</div>
+            <div class="size-row">S</div><div class="size-row">S</div><div class="size-row">4-6</div>
+            <div class="size-row">M</div><div class="size-row">M</div><div class="size-row">8-10</div>
+            <div class="size-row">L</div><div class="size-row">L</div><div class="size-row">12-14</div>
+            <div class="size-row">XL</div><div class="size-row">XL</div><div class="size-row">16-18</div>
+        </div>
+
+        <div class="size-section-title">👖 Pantalones</div>
+        <div class="size-grid">
+            <div class="size-header">AR (Talle)</div><div class="size-header">US Hombre</div><div class="size-header">US Mujer</div>
+            <div class="size-row">38</div><div class="size-row">28</div><div class="size-row">6</div>
+            <div class="size-row">40</div><div class="size-row">30</div><div class="size-row">8</div>
+            <div class="size-row">42</div><div class="size-row">32</div><div class="size-row">10</div>
+            <div class="size-row">44</div><div class="size-row">34</div><div class="size-row">12</div>
+        </div>
+    </div>
+
+    <div style="margin-top: 20px; text-align: center;">
+        <button onclick="changePass()" style="background:none; border:none; color:gray; font-size:0.7rem; text-decoration:underline;">Cambiar contraseña</button><br><br>
+        <button onclick="logout()" style="background:none; border:none; color:red; font-size:0.8rem; font-weight:bold;">Cerrar Sesión</button>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+        import { getAuth, onAuthStateChanged, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, onSnapshot, collection, addDoc, query, where, orderBy, deleteDoc, getDocs } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -116,12 +154,11 @@
                 const d = await r.json();
                 usdTarjeta = d.venta;
                 document.getElementById('val-tarjeta').innerText = '$' + usdTarjeta.toFixed(2);
-                
                 const rOf = await fetch('https://dolarapi.com/v1/dolares/oficial');
                 const dOf = await rOf.json();
                 document.getElementById('val-oficial').innerText = '$' + dOf.venta.toFixed(2);
                 updateDisplay();
-            } catch(e) { console.error("Error dólar:", e); }
+            } catch(e) { console.log("Error DolarAPI"); }
         }
 
         onAuthStateChanged(auth, (user) => {
@@ -131,13 +168,10 @@
         });
 
         function syncData(uid) {
-            // Sincronizar Fondo
             onSnapshot(doc(db, "usuarios", uid), (docSnap) => {
                 fondoActual = docSnap.exists() ? docSnap.data().fondo : 0;
                 updateDisplay();
             });
-
-            // Sincronizar Historial
             const q = query(collection(db, "compras"), where("userId", "==", uid), orderBy("createdAt", "desc"));
             onSnapshot(q, (snap) => {
                 const lista = document.getElementById('lista-compras');
@@ -145,53 +179,43 @@
                     <div class="history-item">
                         <span class="item-name">${d.data().nombre}</span>
                         <span class="item-price">- USD ${d.data().precio.toFixed(2)}</span>
-                    </div>
-                `).join('');
+                    </div>`).join('');
             });
         }
 
         window.updateBase = async () => {
             const v = document.getElementById('input-base').value;
-            if(v && currentUser) {
-                await setDoc(doc(db, "usuarios", currentUser.uid), { fondo: parseFloat(v) }, { merge: true });
-                document.getElementById('input-base').value = '';
-            }
+            if(!v || !currentUser) return;
+            await setDoc(doc(db, "usuarios", currentUser.uid), { fondo: parseFloat(v) }, { merge: true });
+            document.getElementById('input-base').value = '';
         };
 
         window.addGasto = async () => {
             const nom = document.getElementById('g-nom').value || 'Compra';
             const val = parseFloat(document.getElementById('g-val').value);
+            if(!val || !currentUser) return;
             const btn = document.getElementById('btnReg');
-
-            if(!val || isNaN(val)) return;
             btn.disabled = true;
-
-            const nuevoFondo = fondoActual - val;
-            await setDoc(doc(db, "usuarios", currentUser.uid), { fondo: nuevoFondo }, { merge: true });
-            await addDoc(collection(db, "compras"), {
-                nombre: nom,
-                precio: val,
-                userId: currentUser.uid,
-                createdAt: Date.now()
-            });
-
-            document.getElementById('g-nom').value = '';
-            document.getElementById('g-val').value = '';
+            try {
+                await setDoc(doc(db, "usuarios", currentUser.uid), { fondo: fondoActual - val }, { merge: true });
+                await addDoc(collection(db, "compras"), { nombre: nom, precio: val, userId: currentUser.uid, createdAt: Date.now() });
+                document.getElementById('g-nom').value = '';
+                document.getElementById('g-val').value = '';
+            } catch(e) { alert(e.message); }
             btn.disabled = false;
         };
 
-        window.limpiarHistorial = async () => {
-            if(!confirm("¿Borrar todo el historial de gastos? El fondo se mantendrá.")) return;
+        window.borrarTodo = async () => {
+            if(!confirm("¿Borrar historial?")) return;
             const q = query(collection(db, "compras"), where("userId", "==", currentUser.uid));
             const snap = await getDocs(q);
-            snap.forEach(async (d) => await deleteDoc(doc(db, "compras", d.id)));
+            snap.forEach(d => deleteDoc(doc(db, "compras", d.id)));
         };
 
         function updateDisplay() {
             document.getElementById('disp-usd').innerText = 'USD ' + fondoActual.toLocaleString('en-US', {minimumFractionDigits:2});
             if(usdTarjeta > 0) {
-                const totalArs = fondoActual * usdTarjeta;
-                document.getElementById('disp-ars').innerText = 'ARS $' + totalArs.toLocaleString('es-AR', {minimumFractionDigits:2});
+                document.getElementById('disp-ars').innerText = 'ARS $' + (fondoActual * usdTarjeta).toLocaleString('es-AR', {minimumFractionDigits:2});
             }
         }
 
@@ -201,6 +225,9 @@
             document.getElementById('t-gastos').classList.toggle('active', s==='gastos');
             document.getElementById('t-talles').classList.toggle('active', s==='talles');
         };
+
+        window.logout = () => signOut(auth);
+        window.changePass = () => sendPasswordResetEmail(auth, currentUser.email).then(() => alert("Mail enviado"));
 
         fetchDolar();
     </script>
