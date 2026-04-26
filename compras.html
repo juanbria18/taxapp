@@ -70,17 +70,26 @@
             overflow: hidden; 
             border: 1px solid #e2e8f0; 
             margin-bottom: 15px;
-            table-layout: fixed; /* Esto evita que se ensanchen de más */
+            table-layout: fixed; 
         }
         .talles-table th, .talles-table td { 
             padding: 8px 2px; 
             text-align: center; 
             border: 1px solid #e2e8f0; 
-            font-size: 0.65rem; /* Letra un poco más chica para que entre todo */
+            font-size: 0.65rem; 
             word-break: break-word;
         }
         .talles-table th { background: #e2e8f0; font-weight: 800; color: #475569; }
         .talles-table td { font-weight: 700; color: #1e293b; }
+
+        /* NUEVOS ESTILOS COTIZADOR */
+        .converter-box { background: #f1f5f9; border-radius: 16px; padding: 12px; margin-bottom: 15px; border: 1px solid #e2e8f0; }
+        .converter-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+        .converter-row select { flex: 1; padding: 8px; border-radius: 10px; border: 1px solid #cbd5e1; font-weight: 700; font-size: 0.75rem; }
+        .converter-row span { font-weight: 800; color: var(--primary); font-size: 0.9rem; min-width: 80px; text-align: right; }
+        .arg-box { background: #eff6ff; border: 1.5px solid #3b82f6; border-radius: 16px; padding: 12px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .arg-label { font-size: 0.65rem; font-weight: 800; color: #1e40af; text-transform: uppercase; }
+        .arg-value { font-size: 1rem; font-weight: 900; color: #1e3a8a; }
     </style>
 </head>
 <body>
@@ -108,6 +117,32 @@
         </div>
         
         <div id="sec-gastos">
+            <div class="arg-box">
+                <div>
+                    <div class="arg-label">Dólar Tarjeta (ARG)</div>
+                    <div style="font-size: 0.5rem; color: #60a5fa; font-weight: 700;">OFICIAL BNA + IMPUESTOS</div>
+                </div>
+                <div class="arg-value" id="dolar-tarjeta">...</div>
+            </div>
+
+            <div class="converter-box">
+                <div style="font-size: 0.6rem; font-weight: 800; color: #64748b; margin-bottom: 8px; text-transform: uppercase;">Cotizador de Monedas a USD</div>
+                <div class="converter-row">
+                    <select id="currency-select" onchange="convertCurrency()">
+                        <option value="ARS">🇦🇷 Peso Argentino (Oficial)</option>
+                        <option value="EUR">🇪🇺 Euro</option>
+                        <option value="GBP">🇬🇧 Libra Esterlina</option>
+                        <option value="BRL">🇧🇷 Real Brasileño</option>
+                        <option value="CLP">🇨🇱 Peso Chileno</option>
+                        <option value="UYU">🇺🇾 Peso Uruguayo</option>
+                        <option value="COP">🇨🇴 Peso Colombiano</option>
+                        <option value="MXN">🇲🇽 Peso Mexicano</option>
+                        <option value="PEN">🇵🇪 Sol Peruano</option>
+                    </select>
+                    <span id="currency-result">...</span>
+                </div>
+            </div>
+
             <input type="text" id="nombre" placeholder="Producto" style="margin-bottom:10px;">
             <input type="number" id="valor" placeholder="Precio USD" style="margin-bottom:10px;">
             <button class="btn-add" onclick="addGasto()">GUARDAR GASTO</button>
@@ -192,6 +227,35 @@
         const db = getFirestore(app);
         let currentUser = null;
         let presupuestoBase = 0;
+        let rates = {};
+
+        // LOGICA DE COTIZADORES
+        async function fetchRates() {
+            try {
+                // 1. Dolar Blue/Oficial ARG (API Bluelytics)
+                const resArg = await fetch('https://api.bluelytics.com.ar/v2/latest');
+                const dataArg = await resArg.json();
+                const oficial = dataArg.oficial.value_sell;
+                const tarjeta = oficial * 1.60; // 60% Impuestos actuales aproximados
+                document.getElementById('dolar-tarjeta').innerText = `$${tarjeta.toFixed(2)}`;
+                rates['ARS'] = oficial;
+
+                // 2. Otras monedas (Exchangerate-api - USD Base)
+                const resGlobal = await fetch('https://open.er-api.com/v6/latest/USD');
+                const dataGlobal = await resGlobal.json();
+                rates = { ...rates, ...dataGlobal.rates };
+                convertCurrency();
+            } catch (e) { console.error("Error al obtener cotizaciones"); }
+        }
+
+        window.convertCurrency = () => {
+            const code = document.getElementById('currency-select').value;
+            const resEl = document.getElementById('currency-result');
+            if (rates[code]) {
+                const val = code === 'ARS' ? rates[code] : (1 / rates[code]);
+                resEl.innerText = code === 'ARS' ? `$${val.toFixed(2)}` : `$${val.toFixed(2)} USD`;
+            }
+        };
 
         window.updateFondo = async () => { 
             const val = document.getElementById('input-fondo').value; 
@@ -249,42 +313,9 @@
             }
         });
 
-        const shoppingTips = [
-            "Orlando: Premium Outlets Vineland es mejor para lujo y marcas europeas.",
-            "Miami: Sawgrass Mills requiere un día entero. Llevá una valija vacía para las compras.",
-            "Jersey Gardens (NJ): ¡Aprovechá! No pagás impuesto (Tax Free) en ropa y calzado.",
-            "Ross/Marshalls: Los mejores días son los martes, cuando renuevan el stock más barato.",
-            "NYC: Woodbury Common es el mejor outlet, pero está a 1 hora de Manhattan.",
-            "NYC: En Manhattan, las tiendas de la 5ta Ave abren a las 10 AM. Andá temprano para evitar filas.",
-            "Las Vegas: North Premium Outlets es al aire libre. Evitá ir al mediodía por el calor extremo.",
-            "Las Vegas: Registrate en 'VIP Club' online para cupones extra en los Outlets de Simon.",
-            "Chicago: Fashion Outlets of Chicago está cerca del aeropuerto O'Hare y es techado.",
-            "Los Ángeles: Citadel Outlets es el más cercano al centro y tiene muy buenos precios en Nike.",
-            "San Francisco: San Francisco Premium Outlets en Livermore tiene las mejores marcas de diseño.",
-            "Washington DC: Potomac Mills es uno de los outlets más grandes de la costa este.",
-            "Tax: El impuesto en Miami es 7%, en Orlando 6.5% y en NYC 8.875% (excepto ropa < $110).",
-            "Apple: Los precios que ves online NO incluyen impuestos. Sumale el tax local al final.",
-            "Best Buy: Podés pedir 'Price Match' si encontrás el mismo producto más barato en Amazon.",
-            "Walmart/Target: Ideales para comprar snacks y valijas baratas si te falta espacio.",
-            "T.J. Maxx: Buscá las etiquetas amarillas (Yellow Tag), son las liquidaciones finales.",
-            "Cuponeras: En la mayoría de los Simon Outlets, si mostrás el pasaporte te dan una cuponera.",
-            "Philadelphia: Al igual que en New Jersey, no hay impuesto a las ventas en ropa.",
-            "Atlanta: North Georgia Premium Outlets es el lugar ideal para marcas deportivas.",
-            "Boston: Wrentham Village es el outlet de referencia en Massachusetts.",
-            "Houston: The Galleria es masivo, ideal si buscás marcas como Zara, H&M o Apple.",
-            "Seattle: Seattle Premium Outlets en Tulalip tiene muy buenos precios en marcas outdoor."
-        ];
-
+        const shoppingTips = ["Orlando: Premium Outlets Vineland es mejor para lujo.", "Miami: Sawgrass Mills requiere un día entero.", "Jersey Gardens (NJ): No pagás impuesto en ropa.", "Ross/Marshalls: Los mejores días son los martes."];
         let currentTipIndex = 0;
-        window.nextTip = () => { 
-            currentTipIndex = (currentTipIndex + 1) % shoppingTips.length; 
-            const el = document.getElementById('tip-text');
-            el.style.opacity = 0;
-            setTimeout(() => {
-                el.innerText = shoppingTips[currentTipIndex];
-                el.style.opacity = 1;
-            }, 300);
-        };
+        window.nextTip = () => { currentTipIndex = (currentTipIndex + 1) % shoppingTips.length; document.getElementById('tip-text').innerText = shoppingTips[currentTipIndex]; };
 
         function listenGastos(uid) {
             const q = query(collection(db, "compras"), where("userId", "==", uid), orderBy("createdAt", "desc"));
@@ -300,10 +331,10 @@
             });
         }
         function updateDisplay(gastado) { document.getElementById('disp-fondo').innerText = 'USD ' + (presupuestoBase - gastado).toFixed(2); }
-        
         window.onload = () => { 
             document.getElementById('tip-text').innerText = shoppingTips[0]; 
             setInterval(window.nextTip, 8000); 
+            fetchRates(); // Iniciar carga de monedas
         };
     </script>
 </body>
