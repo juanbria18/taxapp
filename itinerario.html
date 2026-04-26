@@ -114,7 +114,6 @@
             else { currentUser = user; document.getElementById('userEmail').innerText = user.email; listenNotes(user.uid); updateQueueTimes(); }
         });
 
-        // FUNCIONES DE AJUSTES
         window.changePassword = () => {
             if (currentUser && currentUser.email) {
                 sendPasswordResetEmail(auth, currentUser.email)
@@ -124,15 +123,14 @@
         };
 
         window.deleteAccount = async () => {
-            if (confirm("¿ESTÁS SEGURO? Se borrarán todas tus notas y datos de forma permanente.")) {
+            if (confirm("¿ESTÁS SEGURO? Se borrarán todos tus datos de forma permanente.")) {
                 try {
                     const uid = currentUser.uid;
                     await deleteDoc(doc(db, "usuarios", uid));
-                    // Nota: Aquí se podrían borrar las notas del usuario en un loop si fuera necesario
                     await deleteUser(currentUser);
                     window.location.replace("login.html");
                 } catch (e) {
-                    alert("Por seguridad, debes cerrar sesión e ingresar nuevamente para realizar esta acción.");
+                    alert("Re-autenticación necesaria. Cierra sesión e ingresa de nuevo para eliminar tu cuenta.");
                 }
             }
         };
@@ -145,7 +143,6 @@
             document.getElementById('menuOverlay').style.display = d.classList.contains('open') ? 'block' : 'none';
         };
 
-        // LÓGICA DE NOTAS E ITINERARIO
         async function updateQueueTimes() {
             const now = new Date();
             const hour = now.getHours();
