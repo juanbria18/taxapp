@@ -6,7 +6,8 @@ const ASSETS = [
   '/itinerario.html',
   '/unidades.html', // Agregamos unidades.html que estaba en tu menú
   '/manifest.json',
-  '/sw.js'
+  '/sw.js',
+  '/icon-512.png' // Agregamos el nuevo icono para soporte offline
 ];
 
 // Instalación: Guardar archivos esenciales en caché
