@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Conversor USA</title>
+    <script src="https://www.google.com/recaptcha/api.js?render=6LeK6cssAAAAALxcJy-95R2nhVMmnuIyB78AQgvw"></script>
     <style>
         :root { --primary: #0ea5e9; --bg: #f8fafc; --white: #ffffff; --text: #1e293b; --accent: #f59e0b; --danger: #ef4444; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -100,11 +101,11 @@
         <h3 style="margin-top:0; color: var(--primary);">Ajustes</h3>
         <p id="userEmail" style="font-size:0.75rem; color:#64748b; margin-bottom:20px; font-weight:700;"></p>
         
-        <button class="drawer-btn" onclick="changeEmail()">📧 Cambiar Correo (Verificación)</button>
-        <button class="drawer-btn" onclick="changePassword()">🔑 Cambiar Contraseña</button>
-        <button class="drawer-btn" onclick="logout()">🚪 Cerrar Sesión</button>
+        <button class="drawer-btn" onclick="executeWithToken(changeEmail)">📧 Cambiar Correo (Verificación)</button>
+        <button class="drawer-btn" onclick="executeWithToken(changePassword)">🔑 Cambiar Contraseña</button>
+        <button class="drawer-btn" onclick="executeWithToken(logout)">🚪 Cerrar Sesión</button>
         <div style="margin-top: auto; padding-top: 20px;">
-            <button class="drawer-btn btn-danger-text" onclick="deleteAccount()">⚠️ Eliminar Cuenta</button>
+            <button class="drawer-btn btn-danger-text" onclick="executeWithToken(deleteAccount)">⚠️ Eliminar Cuenta</button>
         </div>
     </div>
 
@@ -129,6 +130,16 @@
             else { currentUser = user; document.getElementById('userEmail').innerText = user.email; }
         });
 
+        // Función mediadora para reCAPTCHA
+        window.executeWithToken = (actionFunction) => {
+            grecaptcha.ready(() => {
+                grecaptcha.execute('6LeK6cssAAAAALxcJy-95R2nhVMmnuIyB78AQgvw', {action: 'submit'}).then((token) => {
+                    // Aquí se enviaría el token al servidor si fuera necesario validar del lado del backend
+                    actionFunction();
+                });
+            });
+        };
+
         window.toggleSettings = () => {
             const d = document.getElementById('settingsDrawer');
             d.classList.toggle('open');
@@ -139,7 +150,6 @@
             const newEmail = prompt("Ingresa el nuevo correo electrónico:");
             if (newEmail && newEmail.includes("@")) {
                 try {
-                    // Este método envía el correo de verificación al nuevo email antes de cambiarlo
                     await verifyBeforeUpdateEmail(currentUser, newEmail);
                     alert("Se ha enviado un correo de verificación a " + newEmail + ". El cambio se completará una vez que lo confirmes.");
                 } catch (e) {
