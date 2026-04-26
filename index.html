@@ -82,7 +82,7 @@
         
         <div class="countdown-box" onclick="openTripModal()">
             <span class="edit-hint">✏️</span>
-            <span class="countdown-label" id="trip-label">Faltan para Orlando ✈️</span>
+            <span class="countdown-label" id="trip-label">Cargando viaje...</span>
             <span id="timer">00d 00h 00m 00s</span>
         </div>
         
@@ -163,7 +163,12 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut, sendPasswordResetEmail, deleteUser } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
-        import { getFirestore, collection, query, where, getDocs, deleteDoc, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+        import { getFirestore, collection, query, where, getDocs, deleteDoc, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+
+        // Importación corregida de firestore
+        import {  } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+        import * as firestore from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+        const { getFirestore, doc, setDoc, getDoc, collection, query, where, getDocs, deleteDoc } = firestore;
 
         const firebaseConfig = {
             apiKey: "AIzaSyCm0Ig-CPklsjf6j-1uSAeF6I8xtyQKj7U",
@@ -186,7 +191,6 @@
             } else {
                 currentUser = user;
                 document.getElementById('userEmail').innerText = user.email;
-                // Cargar datos del viaje guardados
                 const docRef = doc(db, "users", currentUser.uid);
                 const docSnap = await getDoc(docRef);
                 if (docSnap.exists() && docSnap.data().trip) {
@@ -196,7 +200,6 @@
             }
         });
 
-        // Guardar configuración del viaje
         window.saveTripSettings = async () => {
             const dest = document.getElementById('input-destination').value || "Orlando";
             const date = document.getElementById('input-date').value || "2027-01-01";
@@ -237,12 +240,10 @@
         };
 
         let currentCategory = 'general';
-
         const stateSelect = document.getElementById('state-select');
         Object.keys(taxData).sort().forEach(s => {
             let opt = document.createElement('option');
-            opt.value = s;
-            opt.text = s;
+            opt.value = s; opt.text = s;
             if(s === "Florida") opt.selected = true;
             stateSelect.appendChild(opt);
         });
@@ -253,8 +254,7 @@
             citySelect.innerHTML = "";
             taxData[state].forEach(city => {
                 let opt = document.createElement('option');
-                opt.value = city.t;
-                opt.text = `${city.n} (${city.t}%)`;
+                opt.value = city.t; opt.text = `${city.n} (${city.t}%)`;
                 citySelect.appendChild(opt);
             });
             window.calculate();
@@ -322,7 +322,6 @@
             }, 300);
         };
 
-        // Función del Contador Dinámico
         function updateCountdown() {
             const targetDate = new Date(tripData.date + "T00:00:00").getTime();
             const now = new Date().getTime();
@@ -337,7 +336,6 @@
             const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
             const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
             const s = Math.floor((diff % (1000 * 60)) / 1000);
-
             document.getElementById("timer").innerText = `${d}d ${h}h ${m}m ${s}s`;
         }
 
