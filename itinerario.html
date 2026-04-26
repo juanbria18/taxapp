@@ -15,15 +15,9 @@
         .card { background: var(--white); padding: 1.5rem; border-radius: 24px; width: 100%; max-width: 450px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 15px; position: relative; }
         h2 { color: var(--primary); margin-top: 0; text-align: center; font-size: 1.4rem; }
         
-        .settings-trigger { 
-            position: absolute; top: 15px; right: 15px; background: #f1f5f9; 
-            border: none; border-radius: 50%; width: 35px; height: 35px; 
-            font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10;
-        }
-
+        .settings-trigger { position: absolute; top: 15px; right: 15px; background: #f1f5f9; border: none; border-radius: 50%; width: 35px; height: 35px; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; }
         textarea { width: 100%; padding: 15px; border: 2px solid #f1f5f9; border-radius: 16px; margin-bottom: 10px; font-size: 1rem; background: #f8fafc; font-family: inherit; resize: none; outline: none; transition: 0.3s; }
         textarea:focus { border-color: var(--primary); background: white; }
-        
         .btn-add { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 16px; font-weight: 700; cursor: pointer; font-size: 1rem; }
         
         .queues-box { margin-top: 15px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
@@ -36,30 +30,18 @@
         .q-off { color: #94a3b8; }
 
         .dato-itinerario { background: #f0f9ff; padding: 15px; border-radius: 16px; border: 1.5px solid var(--blue); margin-top: 15px; text-align: center; cursor: pointer; min-height: 80px; display: flex; flex-direction: column; justify-content: center; }
-
         .list-container { width: 100%; max-width: 450px; margin-top: 10px; }
-
-        .note-item { 
-            background: var(--white); padding: 18px; border-radius: 20px; 
-            margin-bottom: 12px; position: relative; display: flex; 
-            gap: 15px; align-items: flex-start; box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-            border: 1px solid rgba(0,0,0,0.02);
-        }
-
+        .note-item { background: var(--white); padding: 18px; border-radius: 20px; margin-bottom: 12px; position: relative; display: flex; gap: 15px; align-items: flex-start; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.02); }
         .status-indicator { min-width: 22px; height: 22px; border-radius: 50%; border: 2px solid #e2e8f0; transition: 0.3s; display: flex; align-items: center; justify-content: center; }
         .note-item.completed { background: #f1f5f9; opacity: 0.7; }
         .note-item.completed .status-indicator { background: var(--success); border-color: var(--success); }
         .note-item.completed .status-indicator::after { content: '✓'; color: white; font-size: 0.7rem; font-weight: 900; }
         .note-item.completed .note-text { text-decoration: line-through; color: #64748b; }
-
         .note-content { flex: 1; cursor: pointer; }
         .note-text { font-size: 0.95rem; color: #1e293b; font-weight: 600; white-space: pre-wrap; }
         .note-date { font-size: 0.6rem; color: #94a3b8; margin-top: 6px; font-weight: 700; }
-        
         .btn-delete-note { opacity: 0.3; padding: 5px; cursor: pointer; font-size: 1.1rem; color: #64748b; }
-
         .footer { margin-top: auto; padding: 20px 0; text-align: center; font-size: 0.75rem; color: #94a3b8; font-weight: 600; }
-
         .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; z-index: 1000; }
         .settings-drawer { position: fixed; top: 0; right: -300px; width: 280px; height: 100%; background: white; z-index: 1001; transition: 0.3s; padding: 25px; display: flex; flex-direction: column; }
         .settings-drawer.open { right: 0; }
@@ -67,18 +49,12 @@
     </style>
 </head>
 <body>
-
-    <div class="nav-bar">
-        <a href="index.html" class="btn-nav">🏠 INICIO</a>
-        <a href="compras.html" class="btn-nav">🛍️ GASTOS</a>
-    </div>
-
+    <div class="nav-bar"><a href="index.html" class="btn-nav">🏠 INICIO</a><a href="compras.html" class="btn-nav">🛍️ GASTOS</a></div>
     <div class="card">
         <button class="settings-trigger" onclick="toggleSettings()">⚙️</button>
         <h2>📍 Itinerario</h2>
         <textarea id="noteInput" rows="4" placeholder="Vuelos, hoteles, recordatorios..."></textarea>
         <button class="btn-add" onclick="addNote()">AGREGAR AL HISTORIAL</button>
-
         <div class="queues-box">
             <div class="queue-card"><div class="queue-name">🏰 Magic<br>Kingdom</div><div id="mk" class="queue-status">...</div></div>
             <div class="queue-card"><div class="queue-name">🚀 Epcot</div><div id="ep" class="queue-status">...</div></div>
@@ -91,23 +67,13 @@
                 <div id="epic" class="queue-status">Abierto 🎡</div>
             </div>
         </div>
-
         <div class="dato-itinerario" onclick="nextTip()">
             <small style="color: var(--blue); font-weight: 800; font-size: 0.6rem; text-transform: uppercase;">✨ Tip de Viaje</small>
-            <div id="tip-text" style="font-weight: 700; font-size: 0.85rem; color: #1e293b; margin-top: 4px; transition: opacity 0.3s ease;">
-                Llegá a los parques 45 min antes de la apertura (Rope Drop).
-            </div>
+            <div id="tip-text" style="font-weight: 700; font-size: 0.85rem; color: #1e293b; margin-top: 4px; transition: opacity 0.3s ease;">Llegá a los parques 45 min antes de la apertura.</div>
         </div>
     </div>
-
-    <div id="notesList" class="list-container">
-        <p style="text-align:center; color:#94a3b8;">Cargando notas...</p>
-    </div>
-
-    <div class="footer">
-        <span>Creado por Juan Cruz Bria <img src="https://flagcdn.com/w40/ar.png" style="width:18px;" alt="Argentina"></span>
-    </div>
-
+    <div id="notesList" class="list-container"><p style="text-align:center; color:#94a3b8;">Cargando...</p></div>
+    <div class="footer"><span>Creado por Juan Cruz Bria <img src="https://flagcdn.com/w40/ar.png" style="width:18px;"></span></div>
     <div id="menuOverlay" class="menu-overlay" onclick="toggleSettings()"></div>
     <div id="settingsDrawer" class="settings-drawer">
         <h3 style="margin-top:0; color: var(--primary);">Ajustes</h3>
@@ -118,72 +84,37 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, query, where, orderBy, onSnapshot, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
-        import { getFirestore as getDB } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, query, where, orderBy, onSnapshot, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
-        // Corregimos la inicialización para asegurar consistencia
-        const firebaseConfig = {
-            apiKey: "AIzaSyCm0Ig-CPklsjf6j-1uSAeF6I8xtyQKj7U",
-            authDomain: "viajes-db538.firebaseapp.com",
-            projectId: "viajes-db538",
-            storageBucket: "viajes-db538.firebasestorage.app",
-            messagingSenderId: "237311739178",
-            appId: "1:237311739178:web:333e468b184c0402a98a53"
-        };
-
+        const firebaseConfig = { apiKey: "AIzaSyCm0Ig-CPklsjf6j-1uSAeF6I8xtyQKj7U", authDomain: "viajes-db538.firebaseapp.com", projectId: "viajes-db538", storageBucket: "viajes-db538.firebasestorage.app", messagingSenderId: "237311739178", appId: "1:237311739178:web:333e468b184c0402a98a53" };
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
-        const db = getDB(app);
+        const db = getFirestore(app);
         let currentUser = null;
 
         onAuthStateChanged(auth, (user) => {
             if (!user) { window.location.replace("login.html"); } 
-            else {
-                currentUser = user;
-                document.getElementById('userEmail').innerText = user.email;
-                listenNotes(user.uid);
-                updateQueueTimes();
-            }
+            else { currentUser = user; document.getElementById('userEmail').innerText = user.email; listenNotes(user.uid); updateQueueTimes(); }
         });
 
         async function updateQueueTimes() {
             const parks = [
-                { id: '75ea4cdc-7d70-4ddd-901d-79da399081e7', el: 'mk' }, 
-                { id: '47f909e4-bc22-4462-9960-244030d9588c', el: 'ep' }, 
-                { id: '288747d1-8b4f-4a4a-9843-34b09355d5d6', el: 'hs' }, 
-                { id: '1c84a229-8861-4648-9f39-f53fe87d9c27', el: 'ak' }, 
-                { id: 'eb38b317-09cd-4bc7-95a2-f6735e2cf94b', el: 'us' }, 
-                { id: '207797e5-8777-400d-8549-041846ed3f79', el: 'ioa' },
-                { id: 'epic-static', el: 'epic' }
+                { id: '75ea4cdc-7d70-4ddd-901d-79da399081e7', el: 'mk' }, { id: '47f909e4-bc22-4462-9960-244030d9588c', el: 'ep' }, 
+                { id: '288747d1-8b4f-4a4a-9843-34b09355d5d6', el: 'hs' }, { id: '1c84a229-8861-4648-9f39-f53fe87d9c27', el: 'ak' }, 
+                { id: 'eb38b317-09cd-4bc7-95a2-f6735e2cf94b', el: 'us' }, { id: '207797e5-8777-400d-8549-041846ed3f79', el: 'ioa' }
             ];
-
             for (const park of parks) {
                 const el = document.getElementById(park.el);
-                if (park.id === 'epic-static') {
-                    el.innerText = "Abierto 🎡";
-                    el.style.color = "#7c3aed";
-                    continue;
-                }
                 try {
                     const res = await fetch(`https://api.themeparks.wiki/v1/entity/${park.id}/live`);
                     const data = await res.json();
-                    const waits = data.liveData
-                        .filter(a => a.queue && a.queue.STANDBY && a.queue.STANDBY.waitTime !== null)
-                        .map(a => a.queue.STANDBY.waitTime);
-                    
-                    if (waits.length === 0) {
-                        el.innerText = "Cerrado 🌙";
-                        el.className = "queue-status q-off";
-                        continue;
-                    }
+                    const waits = data.liveData.filter(a => a.queue && a.queue.STANDBY && a.queue.STANDBY.waitTime !== null).map(a => a.queue.STANDBY.waitTime);
+                    if (waits.length === 0) { el.innerText = "Cerrado 🌙"; el.className = "queue-status q-off"; continue; }
                     const avg = waits.reduce((a, b) => a + b, 0) / waits.length;
                     if (avg < 20) { el.innerText = "BAJA 🟢"; el.className = "queue-status q-low"; }
                     else if (avg < 45) { el.innerText = "MED 🟡"; el.className = "queue-status q-med"; }
                     else { el.innerText = "ALTA 🔴"; el.className = "queue-status q-high"; }
-                } catch (e) {
-                    el.innerText = "Cerrado 🌙";
-                    el.className = "queue-status q-off";
-                }
+                } catch (e) { el.innerText = "Cerrado 🌙"; el.className = "queue-status q-off"; }
             }
         }
 
@@ -191,7 +122,7 @@
             const q = query(collection(db, "notas"), where("userId", "==", uid), orderBy("createdAt", "desc"));
             onSnapshot(q, (sn) => {
                 const container = document.getElementById('notesList');
-                if (sn.empty) { container.innerHTML = '<div style="text-align:center; color:#94a3b8; margin-top:20px;">Sin notas.</div>'; return; }
+                if (sn.empty) { container.innerHTML = '<p style="text-align:center; color:#94a3b8;">Sin notas.</p>'; return; }
                 container.innerHTML = sn.docs.map(docSnap => {
                     const d = docSnap.data();
                     const dateStr = new Date(d.createdAt).toLocaleString('es-AR', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'});
@@ -213,11 +144,9 @@
             await addDoc(collection(db, "notas"), { text: input.value, userId: currentUser.uid, createdAt: Date.now(), completed: false });
             input.value = '';
         };
-
         window.toggleCheck = async (id, status) => { await updateDoc(doc(db, "notas", id), { completed: !status }); };
         window.deleteNote = async (id) => { if (confirm('¿Eliminar?')) await deleteDoc(doc(db, "notas", id)); };
 
-        // TIPS DINÁMICOS MULTI-CIUDAD
         const itinerarioTips = [
             "Orlando: Llegá 45 min antes de la apertura (Rope Drop).",
             "NYC: Comprá la MetroCard ilimitada si te quedás más de 3 días.",
@@ -225,10 +154,7 @@
             "Vegas: Los hoteles son gigantes, calculá 15 min solo para salir a la calle.",
             "Washington: Todos los museos Smithsonian son GRATIS.",
             "LA: El tráfico es real, evitá las autopistas de 7 a 10 AM y 4 a 7 PM.",
-            "NYC: Subí al Summit One Vanderbilt al atardecer para las mejores fotos.",
-            "Orlando: Agua gratis en cualquier puesto de comida rápida de Disney/Universal.",
-            "Vegas: Tomar alcohol en la calle está permitido solo en el Strip.",
-            "Miami: Si vas a Wynwood, hacelo de día para ver mejor los murales."
+            "Orlando: Agua gratis en cualquier puesto de comida rápida de Disney/Universal."
         ];
         let currentTipIndex = 0;
         window.nextTip = () => {
@@ -240,8 +166,6 @@
                 el.style.opacity = 1;
             }, 300);
         };
-        setInterval(window.nextTip, 8000);
-
         window.toggleSettings = () => {
             const d = document.getElementById('settingsDrawer');
             d.classList.toggle('open');
@@ -249,6 +173,7 @@
         };
         window.logout = () => signOut(auth).then(() => window.location.replace("login.html"));
         setInterval(updateQueueTimes, 300000);
+        setInterval(window.nextTip, 8000);
     </script>
 </body>
 </html>
