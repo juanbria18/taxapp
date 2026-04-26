@@ -230,7 +230,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut, sendPasswordResetEmail, deleteUser, updateEmail as firebaseUpdateEmail } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+        import { getAuth, onAuthStateChanged, signOut, sendPasswordResetEmail, deleteUser, verifyBeforeUpdateEmail } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, query, where, orderBy, onSnapshot, deleteDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
         const firebaseConfig = { apiKey: "AIzaSyCm0Ig-CPklsjf6j-1uSAeF6I8xtyQKj7U", authDomain: "viajes-db538.firebaseapp.com", projectId: "viajes-db538", storageBucket: "viajes-db538.firebasestorage.app", messagingSenderId: "237311739178", appId: "1:237311739178:web:333e468b184c0402a98a53" };
@@ -333,11 +333,13 @@
                 const nuevoEmail = prompt("Ingresa tu nuevo correo electrónico:", currentUser.email);
                 if (nuevoEmail && nuevoEmail !== currentUser.email) {
                     try {
-                        await firebaseUpdateEmail(currentUser, nuevoEmail);
-                        alert("Correo actualizado correctamente.");
-                        document.getElementById('userEmail').innerText = nuevoEmail;
+                        // verifyBeforeUpdateEmail envía el link de verificación al NUEVO correo.
+                        // El cambio solo se refleja en Firebase después de la verificación.
+                        await verifyBeforeUpdateEmail(currentUser, nuevoEmail);
+                        alert("¡Correo de verificación enviado a " + nuevoEmail + "!\n\nPor seguridad, el cambio se completará una vez que confirmes el enlace en tu casilla. Luego, deberás volver a iniciar sesión.");
+                        toggleSettings();
                     } catch (e) {
-                        alert("Error: " + e.message + "\n\nPor seguridad, es posible que debas cerrar sesión y volver a entrar para realizar este cambio.");
+                        alert("Error: " + e.message + "\n\nSi el error persiste, cerrá sesión y volvé a entrar para validar tu identidad.");
                     }
                 }
             }
