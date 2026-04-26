@@ -48,7 +48,6 @@
         .history-item { background: #f8fafc; padding: 15px; border-radius: 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid var(--primary); }
         .dato-clave { background: #f0fdf4; padding: 15px; border-radius: 16px; border: 1.5px solid var(--success); margin-bottom: 15px; text-align: center; cursor: pointer; min-height: 85px; display: flex; flex-direction: column; justify-content: center; }
 
-        /* COTIZACIONES AESTHETIC */
         .rates-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
         .rate-box { 
             background: #ffffff; 
@@ -66,11 +65,11 @@
 
         .rate-label { font-size: 0.6rem; font-weight: 800; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; }
         .currency-select { 
-            padding: 4px; 
-            font-size: 0.7rem; 
+            padding: 6px; 
+            font-size: 0.85rem; 
             border: none; 
             background: #f1f5f9; 
-            border-radius: 8px; 
+            border-radius: 10px; 
             font-weight: 800; 
             color: var(--primary);
             cursor: pointer;
@@ -78,7 +77,7 @@
         }
         
         .rate-row { display: flex; align-items: center; gap: 6px; justify-content: center; }
-        .rate-row span { font-size: 0.9rem; }
+        .rate-row span { font-size: 0.95rem; font-weight: bold; }
         .rate-row input { 
             padding: 6px; 
             font-size: 0.85rem; 
@@ -92,7 +91,6 @@
 
         .rate-divider { font-size: 0.7rem; color: #94a3b8; font-weight: 800; margin: -2px 0; }
         
-        /* MENU Y FOOTER */
         .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; z-index: 1000; }
         .settings-drawer { position: fixed; top: 0; right: -300px; width: 280px; height: 100%; background: white; z-index: 1001; transition: 0.3s; padding: 25px; display: flex; flex-direction: column; box-shadow: -5px 0 15px rgba(0,0,0,0.1); }
         .settings-drawer.open { right: 0; }
@@ -100,7 +98,6 @@
         .btn-danger { color: #ef4444; border-color: #fecaca; }
         .footer { margin-top: auto; padding: 20px 0; text-align: center; font-size: 0.75rem; color: #94a3b8; font-weight: 600; }
 
-        /* TALLES */
         .talles-section { text-align: left; font-size: 0.85rem; }
         .talles-title { font-weight: 900; color: var(--primary); margin: 15px 0 8px; border-bottom: 2px solid #f1f5f9; padding-bottom: 3px; display: flex; justify-content: space-between; text-transform: uppercase; letter-spacing: 0.5px; }
         .talles-grid { display: flex; gap: 8px; margin-bottom: 20px; }
@@ -148,6 +145,7 @@
                     <div class="rate-divider">⇅</div>
                     <div class="rate-row"><span>🇦🇷</span><input type="number" id="tarjeta-local" oninput="convert('tarjeta', 'local')"></div>
                 </div>
+                
                 <div class="rate-box multi">
                     <select id="select-eur" class="currency-select" onchange="updateMulti('eur')">
                         <option value="EUR">🇪🇺 Euro</option>
@@ -158,6 +156,7 @@
                     <div class="rate-divider">⇅</div>
                     <div class="rate-row"><span id="flag-eur">🇪🇺</span><input type="number" id="eur-local" oninput="convert('eur', 'local')"></div>
                 </div>
+
                 <div class="rate-box multi">
                     <select id="select-brl" class="currency-select" onchange="updateMulti('brl')">
                         <option value="BRL">🇧🇷 Real</option>
@@ -256,7 +255,7 @@
         let currentUser = null;
         let presupuestoBase = 0;
         
-        let allRates = {}; // Guardaremos todas las monedas aquí
+        let allRates = {};
         let baseRates = { oficial: 0, tarjeta: 0, eur: 0, brl: 0 };
         const flags = { EUR: "🇪🇺", GBP: "🇬🇧", CHF: "🇨🇭", BRL: "🇧🇷", CLP: "🇨🇱", UYU: "🇺🇾", MXN: "🇲🇽", PEN: "🇵🇪", COP: "🇨🇴" };
 
@@ -356,28 +355,12 @@
 
         const shoppingTips = [
             "Orlando: Premium Outlets Vineland es mejor para lujo y marcas europeas.",
-            "Miami: Sawgrass Mills requiere un día entero. Llevá una valija vacía para las compras.",
+            "Miami: Sawgrass Mills requiere un día entero.",
             "Jersey Gardens (NJ): ¡Aprovechá! No pagás impuesto (Tax Free) en ropa y calzado.",
-            "Ross/Marshalls: Los mejores días son los martes, cuando renuevan el stock más barato.",
             "NYC: Woodbury Common es el mejor outlet, pero está a 1 hora de Manhattan.",
-            "NYC: En Manhattan, las tiendas de la 5ta Ave abren a las 10 AM. Andá temprano para evitar filas.",
-            "Las Vegas: North Premium Outlets es al aire libre. Evitá ir al mediodía por el calor extremo.",
-            "Las Vegas: Registrate en 'VIP Club' online para cupones extra en los Outlets de Simon.",
-            "Chicago: Fashion Outlets of Chicago está cerca del aeropuerto O'Hare y es techado.",
-            "Los Ángeles: Citadel Outlets es el más cercano al centro y tiene muy buenos precios en Nike.",
-            "San Francisco: San Francisco Premium Outlets en Livermore tiene las mejores marcas de diseño.",
-            "Washington DC: Potomac Mills es uno de los outlets más grandes de la costa este.",
-            "Tax: El impuesto en Miami es 7%, en Orlando 6.5% y en NYC 8.875% (excepto ropa < $110).",
-            "Apple: Los precios que ves online NO incluyen impuestos. Sumale el tax local al final.",
+            "Apple: Los precios que ves online NO incluyen impuestos locales.",
             "Best Buy: Podés pedir 'Price Match' si encontrás el mismo producto más barato en Amazon.",
-            "Walmart/Target: Ideales para comprar snacks y valijas baratas si te falta espacio.",
-            "T.J. Maxx: Buscá las etiquetas amarillas (Yellow Tag), son las liquidaciones finales.",
-            "Cuponeras: En la mayoría de los Simon Outlets, si mostrás el pasaporte te dan una cuponera.",
-            "Philadelphia: Al igual que en New Jersey, no hay impuesto a las ventas en ropa.",
-            "Atlanta: North Georgia Premium Outlets es el lugar ideal para marcas deportivas.",
-            "Boston: Wrentham Village es el outlet de referencia en Massachusetts.",
-            "Houston: The Galleria es masivo, ideal si buscás marcas como Zara, H&M o Apple.",
-            "Seattle: Seattle Premium Outlets en Tulalip tiene muy buenos precios en marcas outdoor."
+            "Walmart/Target: Ideales para comprar snacks y valijas baratas."
         ];
 
         let currentTipIndex = 0;
