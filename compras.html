@@ -37,14 +37,13 @@
         .h-info span { font-size: 0.7rem; color: #94a3b8; font-weight: 700; }
         .h-amount { font-weight: 900; color: var(--primary); font-size: 1rem; }
 
-        /* Talles - Diseño de 3 Divisiones Claras */
-        .talles-section { margin-bottom: 20px; }
-        .talles-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
-        .talle-box { background: #f8fafc; padding: 12px; border-radius: 14px; border: 1px solid #e2e8f0; text-align: center; }
-        .talle-box small { color: var(--accent); font-weight: 800; font-size: 0.6rem; display: block; text-transform: uppercase; margin-bottom: 3px; }
-        .talle-box span { font-weight: 700; font-size: 0.9rem; color: #1e293b; }
+        /* Talles - Estilo 3 Columnas */
+        .talles-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 15px; }
+        .talle-col { background: #f8fafc; padding: 10px 5px; border-radius: 14px; border: 1px solid #e2e8f0; text-align: center; }
+        .talle-col small { color: var(--accent); font-weight: 800; font-size: 0.55rem; display: block; text-transform: uppercase; margin-bottom: 5px; }
+        .talle-item { font-weight: 700; font-size: 0.75rem; color: #1e293b; margin-bottom: 4px; display: block; line-height: 1.2; }
         
-        .dato-clave { background: #f5f3ff; padding: 15px; border-radius: 16px; border: 1.5px solid var(--accent); }
+        .dato-clave { background: #f5f3ff; padding: 15px; border-radius: 16px; border: 1.5px solid var(--accent); margin-top: 10px; text-align: center; }
 
         .footer { margin-top: auto; padding: 20px 0; text-align: center; font-size: 0.75rem; color: #94a3b8; font-weight: 600; }
         .footer span { display: flex; align-items: center; justify-content: center; gap: 8px; }
@@ -90,25 +89,30 @@
         </div>
 
         <div id="sec-talles" style="display:none;">
-            <div class="talles-section">
-                <label style="margin-bottom: 10px;">👟 Calzado</label>
-                <div class="talles-grid">
-                    <div class="talle-box"><small>Zapatillas Hombre</small><span>9.5 US = 42.5 ARG</span></div>
-                    <div class="talle-box"><small>Zapatillas Mujer</small><span>8 US = 38 ARG</span></div>
+            <div class="talles-grid-3">
+                <div class="talle-col">
+                    <small>👟 Calzado</small>
+                    <span class="talle-item"><b>H:</b> 9.5 US</span>
+                    <span class="talle-item">42.5 ARG</span>
+                    <hr style="border:0; border-top:1px solid #e2e8f0; margin:5px 0;">
+                    <span class="talle-item"><b>M:</b> 8 US</span>
+                    <span class="talle-item">38 ARG</span>
                 </div>
-            </div>
-
-            <div class="talles-section">
-                <label style="margin-bottom: 10px;">👕 Indumentaria</label>
-                <div class="talles-grid">
-                    <div class="talle-box"><small>Remeras / Tops</small><span>M (US) = L (ARG)</span></div>
-                    <div class="talle-box"><small>Pantalones</small><span>32W = 42 ARG</span></div>
+                <div class="talle-col">
+                    <small>🧥 Buzos</small>
+                    <span class="talle-item">L (US)</span>
+                    <span class="talle-item">XL (ARG)</span>
+                </div>
+                <div class="talle-col">
+                    <small>👕 Remeras</small>
+                    <span class="talle-item">M (US)</span>
+                    <span class="talle-item">L (ARG)</span>
                 </div>
             </div>
 
             <div class="dato-clave">
                 <small style="color: var(--accent); font-weight: 800; font-size: 0.6rem; text-transform: uppercase;">Dato Clave</small>
-                <div style="font-weight: 700; font-size: 0.9rem; color: #1e293b; margin-top: 4px;">
+                <div style="font-weight: 700; font-size: 0.85rem; color: #1e293b; margin-top: 4px;">
                     Talles "S" en USA suelen ser "M" en Argentina.
                 </div>
             </div>
@@ -147,7 +151,6 @@
             if (!user) window.location.replace("login.html");
             else {
                 currentUser = user;
-                // Escuchar presupuesto del documento de usuario
                 onSnapshot(doc(db, "usuarios", user.uid), (docSnap) => {
                     presupuestoBase = docSnap.exists() ? (docSnap.data().fondo || 0) : 0;
                     listenGastos(user.uid);
@@ -169,7 +172,6 @@
 
                 container.innerHTML = snapshot.docs.map(docSnap => {
                     const d = docSnap.data();
-                    // IMPORTANTE: Usamos 'valor' como está en tu Firebase
                     const montoGasto = parseFloat(d.valor) || 0;
                     totalGastado += montoGasto;
                     const fecha = new Date(d.createdAt).toLocaleDateString('es-AR');
@@ -204,7 +206,6 @@
             const nombre = document.getElementById('nombre').value.trim();
             const valor = document.getElementById('valor').value;
             if(!nombre || !valor) return;
-            
             try {
                 await addDoc(collection(db, "compras"), {
                     nombre: nombre,
