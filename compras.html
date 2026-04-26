@@ -9,53 +9,29 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
         
-        .nav-bar { width: 100%; max-width: 450px; margin-bottom: 15px; display: flex; gap: 10px; position: relative; }
+        .nav-bar { width: 100%; max-width: 450px; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
         .btn-nav { flex: 1; padding: 12px; background: var(--white); border-radius: 14px; font-weight: 800; text-align: center; text-decoration: none; font-size: 0.8rem; border: 2px solid var(--primary); color: var(--primary); }
         
+        /* Botón de ajustes corregido */
+        .settings-trigger { background: #f1f5f9; border: none; border-radius: 50%; width: 42px; height: 42px; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+
         .budget-card { background: linear-gradient(135deg, #2563eb, #7c3aed); color: white; padding: 20px; border-radius: 24px; width: 100%; max-width: 450px; text-align: center; box-shadow: 0 8px 20px rgba(37, 99, 235, 0.2); margin-bottom: 15px; }
-        .budget-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; opacity: 0.9; letter-spacing: 1px; }
         .budget-value { font-size: 2.2rem; font-weight: 900; margin: 8px 0; }
         .set-budget { display: flex; gap: 8px; margin-top: 12px; background: rgba(255,255,255,0.15); padding: 8px; border-radius: 15px; }
-        .set-budget input { flex: 1; background: transparent; border: none; color: white; padding: 5px 10px; font-weight: 700; outline: none; width: 50px; }
-        .set-budget input::placeholder { color: rgba(255,255,255,0.6); }
-        .set-budget button { background: white; color: var(--primary); border: none; padding: 8px 15px; border-radius: 10px; font-weight: 800; font-size: 0.7rem; cursor: pointer; }
+        .set-budget input { flex: 1; background: transparent; border: none; color: white; padding: 5px 10px; font-weight: 700; outline: none; width: 60px; }
+        .set-budget button { background: white; color: var(--primary); border: none; padding: 8px 15px; border-radius: 10px; font-weight: 800; font-size: 0.7rem; }
 
-        .card { background: var(--white); padding: 1.5rem; border-radius: 24px; width: 100%; max-width: 450px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 20px; position: relative; }
-        
+        .card { background: var(--white); padding: 1.5rem; border-radius: 24px; width: 100%; max-width: 450px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 20px; }
         .tab-container { display: flex; background: #f1f5f9; padding: 5px; border-radius: 16px; margin-bottom: 20px; }
         .tab { flex: 1; padding: 12px; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; background: transparent; color: #64748b; font-size: 0.8rem; }
-        .tab.active { background: var(--white); color: var(--primary); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-
-        .talles-lista { display: flex; flex-direction: column; gap: 15px; }
-        .talle-col { width: 100%; background: #f8fafc; padding: 15px; border-radius: 18px; border: 1px solid #e2e8f0; text-align: center; }
-        .talle-col small { color: var(--accent); font-weight: 800; font-size: 0.7rem; display: block; text-transform: uppercase; margin-bottom: 12px; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px; }
-        .talle-row { display: flex; justify-content: space-between; padding: 8px 12px; border-bottom: 1px solid #f1f5f9; font-size: 0.85rem; font-weight: 600; color: #1e293b; }
-        .talle-row:last-child { border-bottom: none; }
-        .talle-row span:first-child { color: #64748b; font-weight: 800; }
-
-        .input-group { margin-bottom: 1.2rem; text-align: left; }
-        label { display: block; font-size: 0.7rem; font-weight: 800; color: #64748b; margin-bottom: 5px; text-transform: uppercase; margin-left: 5px; }
-        input { width: 100%; padding: 14px; border: 2px solid #f1f5f9; border-radius: 14px; font-size: 1rem; font-weight: 600; outline: none; }
-
-        .btn-add { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 16px; font-weight: 800; cursor: pointer; font-size: 0.9rem; }
+        .tab.active { background: var(--white); color: var(--primary); }
 
         .history-item { background: #f8fafc; padding: 15px; border-radius: 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid var(--primary); }
-        .h-info b { display: block; font-size: 0.95rem; color: #1e293b; }
-        .h-info span { font-size: 0.7rem; color: #94a3b8; font-weight: 700; }
-        .h-amount { font-weight: 900; color: var(--primary); font-size: 1rem; }
-
-        /* TIP DINÁMICO */
-        .dato-clave { background: #f0fdf4; padding: 15px; border-radius: 16px; border: 1.5px solid var(--success); margin-bottom: 15px; text-align: center; cursor: pointer; min-height: 85px; display: flex; flex-direction: column; justify-content: center; }
-        .dato-clave small { color: var(--success); font-weight: 800; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.5px; }
-        #tip-text { font-weight: 700; font-size: 0.85rem; color: #1e293b; margin-top: 4px; transition: opacity 0.3s ease; }
-
-        .settings-trigger { position: absolute; top: 5px; right: 5px; background: #f1f5f9; border: none; border-radius: 50%; width: 35px; height: 35px; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; }
+        .btn-add { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 16px; font-weight: 800; font-size: 0.9rem; cursor: pointer; }
+        
         .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; z-index: 1000; }
-        .settings-drawer { position: fixed; top: 0; right: -300px; width: 280px; height: 100%; background: white; z-index: 1001; transition: 0.3s; padding: 25px; display: flex; flex-direction: column; box-shadow: -5px 0 15px rgba(0,0,0,0.1); }
+        .settings-drawer { position: fixed; top: 0; right: -300px; width: 280px; height: 100%; background: white; z-index: 1001; transition: 0.3s; padding: 25px; }
         .settings-drawer.open { right: 0; }
-        .drawer-btn { width: 100%; padding: 14px; margin-bottom: 10px; border-radius: 12px; border: 1px solid #e2e8f0; background: white; font-weight: 700; cursor: pointer; font-size: 0.85rem; }
-
-        .footer { margin-top: auto; padding: 20px 0; text-align: center; font-size: 0.75rem; color: #94a3b8; font-weight: 600; }
     </style>
 </head>
 <body>
@@ -67,117 +43,51 @@
     </div>
 
     <div class="budget-card">
-        <div class="budget-label">Presupuesto Restante</div>
+        <div style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">Presupuesto Restante</div>
         <div class="budget-value" id="disp-fondo">USD 0.00</div>
         <div class="set-budget">
-            <input type="number" id="input-fondo" placeholder="Total USD" inputmode="decimal">
+            <input type="number" id="input-fondo" placeholder="Total USD">
             <button onclick="updateFondo()">SET</button>
         </div>
     </div>
 
     <div class="card">
-        <div class="dato-clave" onclick="nextTip()">
-            <small>🛍️ Guía de Outlets & Compras</small>
-            <div id="tip-text">Cargando consejos de compra...</div>
-        </div>
-
         <div class="tab-container">
             <button class="tab active" onclick="showSec('gastos')" id="t-gastos">GASTOS</button>
             <button class="tab" onclick="showSec('talles')" id="t-talles">TALLES</button>
         </div>
 
         <div id="sec-gastos">
-            <div class="input-group">
-                <label>Nombre del Producto</label>
-                <input type="text" id="nombre" placeholder="Ej: Zapatillas Nike">
-            </div>
-            <div class="input-group">
-                <label>Valor en USD</label>
-                <input type="number" id="valor" placeholder="0.00" inputmode="decimal">
-            </div>
+            <input type="text" id="nombre" placeholder="Producto" style="width:100%; padding:14px; margin-bottom:10px; border-radius:12px; border:2px solid #f1f5f9;">
+            <input type="number" id="valor" placeholder="Precio USD" style="width:100%; padding:14px; margin-bottom:10px; border-radius:12px; border:2px solid #f1f5f9;">
             <button class="btn-add" onclick="addGasto()">GUARDAR GASTO</button>
-            <div id="listaGastos" style="margin-top:20px;">
-                <p style="text-align:center; color:#94a3b8; font-size:0.8rem;">Cargando gastos...</p>
-            </div>
+            <div id="listaGastos" style="margin-top:20px;"></div>
         </div>
-
-        <div id="sec-talles" style="display:none;">
-            <div class="talles-lista">
-                <div class="talle-col">
-                    <small>👟 Calzado (ARG vs US)</small>
-                    <div class="talle-row"><span>35</span><span>5.0</span></div>
-                    <div class="talle-row"><span>37</span><span>6.5</span></div>
-                    <div class="talle-row"><span>40</span><span>9.0</span></div>
-                    <div class="talle-row"><span>42</span><span>10.5</span></div>
-                    <div class="talle-row"><span>44</span><span>12.0</span></div>
-                </div>
-                <div class="talle-col">
-                    <small>👕 Ropa (ARG vs US)</small>
-                    <div class="talle-row"><span>S</span><span>XS</span></div>
-                    <div class="talle-row"><span>M</span><span>S</span></div>
-                    <div class="talle-row"><span>L</span><span>M</span></div>
-                    <div class="talle-row"><span>XL</span><span>L</span></div>
-                </div>
-            </div>
+        
+        <div id="sec-talles" style="display:none; text-align:center;">
+             <p>👟 Arg 40 -> US 9 | 👕 Arg M -> US S</p>
         </div>
     </div>
 
     <div id="menuOverlay" class="menu-overlay" onclick="toggleSettings()"></div>
     <div id="settingsDrawer" class="settings-drawer">
-        <h3 style="margin-top:0; color: var(--primary);">Ajustes</h3>
-        <p id="userEmail" style="font-size:0.75rem; color:#64748b; margin-bottom:20px; font-weight:700;"></p>
-        <button class="drawer-btn" onclick="changePass()">📧 Cambiar clave</button>
-        <button class="drawer-btn" style="color: #ef4444; border-color: #fecaca;" onclick="eliminarCuenta()">🗑️ Eliminar Cuenta</button>
-        <button class="drawer-btn" style="margin-top: auto; background: #f1f5f9; border: none;" onclick="logout()">🚪 Cerrar Sesión</button>
-    </div>
-
-    <div class="footer">
-        <span>Creado por Juan Cruz Bria <img src="https://flagcdn.com/w40/ar.png" style="width:18px;"></span>
+        <h3>Ajustes</h3>
+        <p id="userEmail" style="font-size:0.8rem; color:gray;"></p>
+        <button onclick="logout()" style="width:100%; padding:10px; margin-top:20px;">Cerrar Sesión</button>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut, sendPasswordResetEmail, deleteUser } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, query, where, orderBy, onSnapshot, deleteDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyCm0Ig-CPklsjf6j-1uSAeF6I8xtyQKj7U",
-            authDomain: "viajes-db538.firebaseapp.com",
-            projectId: "viajes-db538",
-            storageBucket: "viajes-db538.firebasestorage.app",
-            messagingSenderId: "237311739178",
-            appId: "1:237311739178:web:333e468b184c0402a98a53"
-        };
-
+        const firebaseConfig = { apiKey: "AIzaSyCm0Ig-CPklsjf6j-1uSAeF6I8xtyQKj7U", authDomain: "viajes-db538.firebaseapp.com", projectId: "viajes-db538", storageBucket: "viajes-db538.firebasestorage.app", messagingSenderId: "237311739178", appId: "1:237311739178:web:333e468b184c0402a98a53" };
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+        
         let currentUser = null;
         let presupuestoBase = 0;
-
-        const shoppingTips = [
-            "Orlando: Premium Outlets Vineland es mejor para marcas de lujo.",
-            "Miami: Sawgrass Mills es gigante, calculá un día entero para recorrerlo.",
-            "NYC: Woodbury Common es el mejor outlet, pero está a 1 hora de Manhattan.",
-            "Vegas: Los North Premium Outlets son al aire libre, evitá ir al mediodía por el calor.",
-            "Tip: Bajate la App de 'Simon Premium Outlets' para cupones extra.",
-            "Ross/Marshalls: Los mejores días para encontrar tesoros son los martes y miércoles.",
-            "Talles: Un 'S' de USA suele equivaler a un 'M' de Argentina.",
-            "Tecnología: Best Buy iguala precios de Amazon si el producto es vendido por Amazon directamente.",
-            "Orlando: El Disney Character Warehouse tiene productos de los parques a mitad de precio.",
-            "Jersey Gardens (NJ): No pagás impuesto en ropa, ideal si estás en NYC."
-        ];
-
-        let currentTipIndex = 0;
-        window.nextTip = () => {
-            const el = document.getElementById('tip-text');
-            el.style.opacity = 0;
-            setTimeout(() => {
-                currentTipIndex = (currentTipIndex + 1) % shoppingTips.length;
-                el.innerText = shoppingTips[currentTipIndex];
-                el.style.opacity = 1;
-            }, 300);
-        };
 
         onAuthStateChanged(auth, (user) => {
             if (!user) window.location.replace("login.html");
@@ -187,7 +97,7 @@
                 onSnapshot(doc(db, "usuarios", user.uid), (docSnap) => {
                     presupuestoBase = docSnap.exists() ? (docSnap.data().fondo || 0) : 0;
                     listenGastos(user.uid);
-                });
+                }, (error) => { console.error("Error de permisos:", error); });
             }
         });
 
@@ -196,62 +106,37 @@
             onSnapshot(q, (snapshot) => {
                 const container = document.getElementById('listaGastos');
                 let totalGastado = 0;
-                if (snapshot.empty) {
-                    container.innerHTML = '<p style="text-align:center; color:#94a3b8; font-size:0.8rem;">No hay gastos.</p>';
-                    updateDisplay(0);
-                    return;
-                }
                 container.innerHTML = snapshot.docs.map(docSnap => {
                     const d = docSnap.data();
                     totalGastado += parseFloat(d.valor);
-                    return `<div class="history-item">
-                        <div class="h-info"><b>${d.nombre}</b><span>${new Date(d.createdAt).toLocaleDateString()}</span></div>
-                        <div style="display:flex; align-items:center; gap:12px;">
-                            <div class="h-amount">-$${d.valor.toFixed(2)}</div>
-                            <div style="color:#ef4444; font-weight:900; cursor:pointer;" onclick="deleteGasto('${docSnap.id}')">×</div>
-                        </div>
-                    </div>`;
+                    return `<div class="history-item"><b>${d.nombre}</b> <span>-$${d.valor}</span></div>`;
                 }).join('');
-                updateDisplay(totalGastado);
+                document.getElementById('disp-fondo').innerText = 'USD ' + (presupuestoBase - totalGastado).toFixed(2);
             });
-        }
-
-        function updateDisplay(gastado) {
-            const el = document.getElementById('disp-fondo');
-            const restante = presupuestoBase - gastado;
-            el.innerText = 'USD ' + restante.toLocaleString('en-US', {minimumFractionDigits: 2});
-            el.style.color = restante < 0 ? '#ef4444' : 'white';
         }
 
         window.updateFondo = async () => {
             const val = document.getElementById('input-fondo').value;
-            if(val && currentUser) await setDoc(doc(db, "usuarios", currentUser.uid), { fondo: parseFloat(val) }, { merge: true });
+            if(val) await setDoc(doc(db, "usuarios", currentUser.uid), { fondo: parseFloat(val) }, { merge: true });
         };
 
         window.addGasto = async () => {
             const n = document.getElementById('nombre').value;
             const v = document.getElementById('valor').value;
-            if(n && v) {
-                await addDoc(collection(db, "compras"), { nombre: n, valor: parseFloat(v), userId: currentUser.uid, createdAt: Date.now() });
-                document.getElementById('nombre').value = ""; document.getElementById('valor').value = "";
-            }
+            if(n && v) await addDoc(collection(db, "compras"), { nombre: n, valor: parseFloat(v), userId: currentUser.uid, createdAt: Date.now() });
         };
 
-        window.deleteGasto = (id) => confirm("¿Borrar?") && deleteDoc(doc(db, "compras", id));
         window.showSec = (s) => {
             document.getElementById('sec-gastos').style.display = s === 'gastos' ? 'block' : 'none';
             document.getElementById('sec-talles').style.display = s === 'talles' ? 'block' : 'none';
-            document.getElementById('t-gastos').classList.toggle('active', s === 'gastos');
-            document.getElementById('t-talles').classList.toggle('active', s === 'talles');
         };
+
         window.toggleSettings = () => {
             const d = document.getElementById('settingsDrawer');
             document.getElementById('menuOverlay').style.display = d.classList.toggle('open') ? 'block' : 'none';
         };
-        window.logout = () => signOut(auth).then(() => window.location.replace("login.html"));
 
-        window.onload = () => { rotateTips(); setInterval(nextTip, 8000); };
-        function rotateTips() { document.getElementById('tip-text').innerText = shoppingTips[0]; }
+        window.logout = () => signOut(auth).then(() => window.location.replace("login.html"));
     </script>
 </body>
 </html>
