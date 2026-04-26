@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Itinerario de Viaje</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <style>
+        :root { --primary: #7c3aed; --bg: #f8fafc; --white: #ffffff; --card-note: #fffbeb; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; }
+        
+        .nav-bar { width: 100%; max-width: 450px; margin-bottom: 15px; }
+        .btn-back { width: 100%; padding: 12px; background: var(--white); color: var(--primary); border: 2px solid var(--primary); border-radius: 14px; font-weight: 800; text-align: center; text-decoration: none; display: block; }
+        
+        .card { background: var(--white); padding: 1.5rem; border-radius: 24px; width: 100%; max-width: 450px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 15px; }
+        
+        h2 { color: var(--primary); margin-top: 0; text-align: center; font-size: 1.4rem; }
+        
+        textarea { width: 100%; padding: 15px; border: 2px solid #f1f5f9; border-radius: 16px; margin-bottom: 10px; font-size: 1rem; background: #f8fafc; font-family: inherit; resize: none; }
+        
+        .btn-add { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 16px; font-weight: 700; cursor: pointer; font-size: 1rem; transition: transform 0.1s; }
+        .btn-add:active { transform: scale(0.98); }
+
+        .list-container { width: 100%; max-width: 450px; margin-top: 10px; }
+        
+        .note-item { background: var(--card-note); padding: 15px; border-left: 5px solid #f59e0b; border-radius: 12px; margin-bottom: 12px; position: relative; box-shadow: 0 4px 6px rgba(0,0,0,0.02); animation: slideIn 0.3s ease-out; }
+        
+        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .note-text { font-size: 1rem; color: #451a03; font-weight: 500; white-space: pre-wrap; line-height: 1.4; }
+        
+        .note-date { font-size: 0.7rem; color: #92400e; margin-top: 8px; font-weight: 700; text-transform: uppercase; }
+
+        .btn-delete { position: absolute; top: 10px; right: 12px; color: #b45309; font-weight: 900; font-size: 1.2rem; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        
+        .empty-state { text-align: center; color: #94a3b8; margin-top: 40px; }
+    </style>
+</head>
+<body>
+
+    <div class="nav-bar">
+        <a href="index.html" class="btn-back">⬅️ VOLVER AL INICIO</a>
+    </div>
+
+    <div class="card">
+        <h2>📍 Mis Notas de Viaje</h2>
+        <textarea id="noteInput" rows="4" placeholder="Escribí acá: Vuelos, Hoteles, reservas o recordatorios de Visa..."></textarea>
+        <button class="btn-add" onclick="addNote()">GUARDAR ANOTACIÓN</button>
+    </div>
+
+    <div id="notesList" class="list-container">
+        </div>
+
+    <script>
+        let notes = JSON.parse(localStorage.getItem('trip_notes_v1')) || [];
+
+        function renderNotes() {
+            const container = document.getElementById('notesList');
+            if (notes.length === 0) {
+                container.innerHTML = '<div class="empty-state">No tenés notas guardadas todavía.</div>';
+                return;
+            }
+
+            container.innerHTML = notes.map((note, index) => `
+                <div class="note-item">
+                    <div class="btn-delete" onclick="deleteNote(${index})">×</div>
+                    <div class="note-text">${note.text}</div>
+                    <div class="note-date">${note.date}</div>
+                </div>
+            `).join('');
+        }
+
+        function addNote() {
+            const input = document.getElementById('noteInput');
+            if (input.value.trim() === '') return;
+
+            const newNote = {
+                text: input.value,
+                date: new Date().toLocaleString('es-AR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
+            };
+
+            notes.unshift(newNote);
+            localStorage.setItem('trip_notes_v1', JSON.stringify(notes));
+            input.value = '';
+            renderNotes();
+        }
+
+        function deleteNote(index) {
+            if (confirm('¿Borrar esta nota?')) {
+                notes.splice(index, 1);
+                localStorage.setItem('trip_notes_v1', JSON.stringify(notes));
+                renderNotes();
+            }
+        }
+
+        // Cargar notas al iniciar
+        renderNotes();
+    </script>
+</body>
+</html>
