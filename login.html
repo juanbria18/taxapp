@@ -3,32 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Login - Orlando Pro</title>
+    <title>Login - TaxUSA</title>
     <style>
         :root { --primary: #2563eb; --bg: #f8fafc; }
-        body { font-family: -apple-system, sans-serif; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-        .login-card { background: white; padding: 2rem; border-radius: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 90%; max-width: 400px; text-align: center; }
-        h1 { color: var(--primary); margin-bottom: 1.5rem; }
-        input { width: 100%; padding: 12px; border: 2px solid #f1f5f9; border-radius: 12px; margin-bottom: 10px; font-size: 1rem; box-sizing: border-box; }
-        button { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; font-size: 1rem; margin-top: 10px; }
-        .toggle-text { margin-top: 15px; font-size: 0.9rem; color: #64748b; cursor: pointer; }
+        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; padding: 20px; }
+        .login-card { background: white; padding: 2rem; border-radius: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 100%; max-width: 400px; text-align: center; }
+        h1 { color: var(--primary); margin: 0 0 1.5rem 0; font-weight: 800; }
+        input { width: 100%; padding: 14px; border: 2px solid #f1f5f9; border-radius: 14px; margin-bottom: 12px; font-size: 1rem; box-sizing: border-box; outline: none; transition: 0.2s; }
+        input:focus { border-color: var(--primary); }
+        button { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 14px; font-weight: 800; cursor: pointer; margin-top: 10px; font-size: 1rem; transition: 0.2s; }
+        button:active { transform: scale(0.98); }
+        .toggle-link { margin-top: 20px; display: block; color: #64748b; font-size: 0.9rem; cursor: pointer; text-decoration: underline; font-weight: 600; }
     </style>
 </head>
 <body>
 
     <div class="login-card">
         <h1 id="title">Bienvenido</h1>
-        <input type="email" id="email" placeholder="Tu Email">
-        <input type="password" id="password" placeholder="Tu Contraseña">
+        <input type="email" id="email" placeholder="Correo electrónico">
+        <input type="password" id="password" placeholder="Contraseña">
         <button id="mainBtn" onclick="handleAuth()">INGRESAR</button>
-        <div class="toggle-text" id="toggleLink" onclick="toggleMode()">¿No tienes cuenta? Regístrate aquí</div>
+        <span class="toggle-link" id="toggleLink" onclick="toggleMode()">¿No tienes cuenta? Regístrate aquí</span>
     </div>
 
     <script type="module">
+        // 1. IMPORTACIONES (Versión 12.12.1 unificada)
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
 
-        // CONFIGURACIÓN DE TU CAPTURA
+        // 2. CONFIGURACIÓN
         const firebaseConfig = {
             apiKey: "AIzaSyCm0Ig-CPklsjf6j-1uSAeF6I8xtyQKj7U",
             authDomain: "viajes-db538.firebaseapp.com",
@@ -43,24 +46,33 @@
         const auth = getAuth(app);
         let isLogin = true;
 
-        // Función para entrar o registrarse
+        // --- 3. EXPOSICIÓN GLOBAL ---
+        // Esto permite que el HTML vea las funciones desde el módulo
         window.handleAuth = async () => {
-            const email = document.getElementById('email').value;
+            const email = document.getElementById('email').value.trim();
             const pass = document.getElementById('password').value;
-            
+
+            if (!email || !pass) {
+                alert("Por favor, completa todos los campos.");
+                return;
+            }
+
             try {
                 if (isLogin) {
                     await signInWithEmailAndPassword(auth, email, pass);
                 } else {
                     await createUserWithEmailAndPassword(auth, email, pass);
                 }
-                window.location.href = "index.html"; // Al entrar, vamos al inicio
+                // El onAuthStateChanged se encargará de redirigir
             } catch (error) {
-                alert("Error: " + error.message);
+                let msg = "Ocurrió un error";
+                if (error.code === 'auth/user-not-found') msg = "Usuario no encontrado";
+                if (error.code === 'auth/wrong-password') msg = "Contraseña incorrecta";
+                if (error.code === 'auth/email-already-in-use') msg = "El correo ya está registrado";
+                alert(msg + " (" + error.code + ")");
             }
         };
 
-        // Cambiar entre modo Login y Registro
         window.toggleMode = () => {
             isLogin = !isLogin;
             document.getElementById('title').innerText = isLogin ? "Bienvenido" : "Crea tu cuenta";
@@ -68,9 +80,11 @@
             document.getElementById('toggleLink').innerText = isLogin ? "¿No tienes cuenta? Regístrate aquí" : "¿Ya tienes cuenta? Ingresa aquí";
         };
 
-        // Si ya está logueado, mandarlo al index
+        // Redirección automática si ya está logueado
         onAuthStateChanged(auth, (user) => {
-            if (user) window.location.href = "index.html";
+            if (user) {
+                window.location.href = "index.html";
+            }
         });
     </script>
 </body>
