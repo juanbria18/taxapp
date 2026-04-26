@@ -10,7 +10,6 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
         
-        /* Estilo para que los emojis de Twemoji tengan el tamaño correcto */
         img.emoji { height: 1em; width: 1em; margin: 0 .05em 0 .1em; vertical-align: -0.1em; }
 
         .nav-bar { width: 100%; max-width: 450px; margin-bottom: 15px; display: flex; gap: 10px; align-items: center; }
@@ -93,7 +92,10 @@
     <div class="budget-card">
         <div class="budget-label">Presupuesto Restante</div>
         <div class="budget-value" id="disp-fondo">USD 0,00</div>
-        <div class="set-budget"><input type="number" id="input-fondo" placeholder="TOTAL USD"><button onclick="updateFondo()">SET</button></div>
+        <div class="set-budget">
+            <input type="text" id="input-fondo" placeholder="TOTAL USD" oninput="formatVisual(this)">
+            <button onclick="updateFondo()">SET</button>
+        </div>
     </div>
 
     <div class="card">
@@ -110,15 +112,15 @@
             <div class="rates-container">
                 <div class="rate-box arg">
                     <div class="rate-label">Dólar Oficial</div>
-                    <div class="rate-row"><span>🇺🇸</span><input type="number" id="oficial-usd" value="1" oninput="convert('oficial', 'usd')"></div>
+                    <div class="rate-row"><span>🇺🇸</span><input type="text" id="oficial-usd" value="1" oninput="formatVisual(this); convert('oficial', 'usd')"></div>
                     <div class="rate-divider">⇅</div>
-                    <div class="rate-row"><span>🇦🇷</span><input type="number" id="oficial-local" oninput="convert('oficial', 'local')"></div>
+                    <div class="rate-row"><span>🇦🇷</span><input type="text" id="oficial-local" oninput="formatVisual(this); convert('oficial', 'local')"></div>
                 </div>
                 <div class="rate-box arg">
                     <div class="rate-label">Dólar Tarjeta</div>
-                    <div class="rate-row"><span>🇺🇸</span><input type="number" id="tarjeta-usd" value="1" oninput="convert('tarjeta', 'usd')"></div>
+                    <div class="rate-row"><span>🇺🇸</span><input type="text" id="tarjeta-usd" value="1" oninput="formatVisual(this); convert('tarjeta', 'usd')"></div>
                     <div class="rate-divider">⇅</div>
-                    <div class="rate-row"><span>🇦🇷</span><input type="number" id="tarjeta-local" oninput="convert('tarjeta', 'local')"></div>
+                    <div class="rate-row"><span>🇦🇷</span><input type="text" id="tarjeta-local" oninput="formatVisual(this); convert('tarjeta', 'local')"></div>
                 </div>
                 
                 <div class="rate-box multi">
@@ -127,9 +129,9 @@
                         <option value="GBP">Libra</option>
                         <option value="CHF">F. Suizo</option>
                     </select>
-                    <div class="rate-row"><span>🇺🇸</span><input type="number" id="eur-usd" value="1" oninput="convert('eur', 'usd')"></div>
+                    <div class="rate-row"><span>🇺🇸</span><input type="text" id="eur-usd" value="1" oninput="formatVisual(this); convert('eur', 'usd')"></div>
                     <div class="rate-divider">⇅</div>
-                    <div class="rate-row"><span id="flag-eur">🇪🇺</span><input type="number" id="eur-local" oninput="convert('eur', 'local')"></div>
+                    <div class="rate-row"><span id="flag-eur">🇪🇺</span><input type="text" id="eur-local" oninput="formatVisual(this); convert('eur', 'local')"></div>
                 </div>
 
                 <div class="rate-box multi">
@@ -141,14 +143,14 @@
                         <option value="PEN">Sol Peruano</option>
                         <option value="COP">P. Colombiano</option>
                     </select>
-                    <div class="rate-row"><span>🇺🇸</span><input type="number" id="brl-usd" value="1" oninput="convert('brl', 'usd')"></div>
+                    <div class="rate-row"><span>🇺🇸</span><input type="text" id="brl-usd" value="1" oninput="formatVisual(this); convert('brl', 'usd')"></div>
                     <div class="rate-divider">⇅</div>
-                    <div class="rate-row"><span id="flag-brl">🇧🇷</span><input type="number" id="brl-local" oninput="convert('brl', 'local')"></div>
+                    <div class="rate-row"><span id="flag-brl">🇧🇷</span><input type="text" id="brl-local" oninput="formatVisual(this); convert('brl', 'local')"></div>
                 </div>
             </div>
 
             <input type="text" id="nombre" placeholder="Producto" style="margin-bottom:10px;">
-            <input type="number" id="valor" placeholder="Precio USD" style="margin-bottom:10px;">
+            <input type="text" id="valor" placeholder="Precio USD" style="margin-bottom:10px;" oninput="formatVisual(this)">
             <button class="btn-add" onclick="addGasto()">GUARDAR GASTO</button>
             <div id="listaGastos" style="margin-top:20px;"><p style="text-align:center; color:#94a3b8;">Cargando...</p></div>
         </div>
@@ -234,7 +236,17 @@
         let baseRates = { oficial: 0, tarjeta: 0, eur: 0, brl: 0 };
         const flags = { EUR: "🇪🇺", GBP: "🇬🇧", CHF: "🇨🇭", BRL: "🇧🇷", CLP: "🇨🇱", UYU: "🇺🇾", MXN: "🇲🇽", PEN: "🇵🇪", COP: "🇨🇴" };
 
-        // Función para formatear con puntos de miles y comas decimales
+        // --- NUEVAS FUNCIONES DE FORMATEO ---
+        window.formatVisual = (input) => {
+            let val = input.value.replace(/\D/g, ""); 
+            if (val === "") { input.value = ""; return; }
+            input.value = new Intl.NumberFormat('es-AR').format(val);
+        };
+
+        function cleanVal(str) {
+            return parseFloat(str.toString().replace(/\./g, "").replace(/,/g, ".")) || 0;
+        }
+
         function formatNumber(num) {
             return Number(num).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
@@ -254,8 +266,8 @@
                 allRates = dataGlob.rates;
                 baseRates.eur = allRates.EUR;
                 baseRates.brl = allRates.BRL;
-                document.getElementById('oficial-local').value = baseRates.oficial;
-                document.getElementById('tarjeta-local').value = baseRates.tarjeta;
+                document.getElementById('oficial-local').value = new Intl.NumberFormat('es-AR').format(baseRates.oficial);
+                document.getElementById('tarjeta-local').value = new Intl.NumberFormat('es-AR').format(baseRates.tarjeta);
                 document.getElementById('eur-local').value = baseRates.eur;
                 document.getElementById('brl-local').value = baseRates.brl;
                 updateEmojis();
@@ -275,19 +287,21 @@
             const usdInput = document.getElementById(`${type}-usd`);
             const localInput = document.getElementById(`${type}-local`);
             const rate = baseRates[type];
-            if (direction === 'usd') localInput.value = (usdInput.value * rate).toFixed(2);
-            else usdInput.value = (localInput.value / rate).toFixed(2);
+            let vUsd = cleanVal(usdInput.value);
+            let vLoc = cleanVal(localInput.value);
+            if (direction === 'usd') localInput.value = new Intl.NumberFormat('es-AR').format((vUsd * rate).toFixed(0));
+            else usdInput.value = new Intl.NumberFormat('es-AR').format((vLoc / rate).toFixed(0));
         };
 
         window.updateFondo = async () => { 
-            const val = document.getElementById('input-fondo').value; 
-            if(val && currentUser) await setDoc(doc(db, "usuarios", currentUser.uid), { fondo: parseFloat(val) }, { merge: true }); 
+            const val = cleanVal(document.getElementById('input-fondo').value); 
+            if(val && currentUser) await setDoc(doc(db, "usuarios", currentUser.uid), { fondo: val }, { merge: true }); 
         };
         
         window.addGasto = async () => { 
             const n = document.getElementById('nombre').value; 
-            const v = document.getElementById('valor').value; 
-            if(n && v && currentUser) { await addDoc(collection(db, "compras"), { nombre: n, valor: parseFloat(v), userId: currentUser.uid, createdAt: Date.now() }); document.getElementById('nombre').value = ""; document.getElementById('valor').value = ""; } 
+            const v = cleanVal(document.getElementById('valor').value); 
+            if(n && v && currentUser) { await addDoc(collection(db, "compras"), { nombre: n, valor: v, userId: currentUser.uid, createdAt: Date.now() }); document.getElementById('nombre').value = ""; document.getElementById('valor').value = ""; } 
         };
 
         window.deleteGasto = (id) => confirm("¿Borrar?") && deleteDoc(doc(db, "compras", id));
