@@ -8,8 +8,13 @@
         :root { --primary: #2563eb; --accent: #7c3aed; --bg: #f8fafc; --white: #ffffff; --success: #10b981; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        
         .nav-bar { width: 100%; max-width: 450px; margin-bottom: 15px; display: flex; gap: 10px; position: relative; }
         .btn-nav { flex: 1; padding: 12px; background: var(--white); border-radius: 14px; font-weight: 800; text-align: center; text-decoration: none; font-size: 0.8rem; border: 2px solid var(--primary); color: var(--primary); }
+        
+        /* Tuerca arreglada: integrada en la nav-bar para evitar solapamientos */
+        .settings-trigger { background: #f1f5f9; border: none; border-radius: 14px; width: 45px; height: 45px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; border: 2px solid #e2e8f0; }
+
         .budget-card { background: linear-gradient(135deg, #2563eb, #7c3aed); color: white; padding: 20px; border-radius: 24px; width: 100%; max-width: 450px; text-align: center; box-shadow: 0 8px 20px rgba(37, 99, 235, 0.2); margin-bottom: 15px; }
         .budget-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; opacity: 0.9; letter-spacing: 1px; }
         .budget-value { font-size: 2.2rem; font-weight: 900; margin: 8px 0; }
@@ -32,7 +37,6 @@
         .history-item { background: #f8fafc; padding: 15px; border-radius: 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid var(--primary); }
         .dato-clave { background: #f0fdf4; padding: 15px; border-radius: 16px; border: 1.5px solid var(--success); margin-bottom: 15px; text-align: center; cursor: pointer; min-height: 85px; display: flex; flex-direction: column; justify-content: center; }
         
-        .settings-trigger { position: absolute; top: 5px; right: 5px; background: #f1f5f9; border: none; border-radius: 50%; width: 35px; height: 35px; cursor: pointer; z-index: 10; }
         .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; z-index: 1000; }
         .settings-drawer { position: fixed; top: 0; right: -300px; width: 280px; height: 100%; background: white; z-index: 1001; transition: 0.3s; padding: 25px; display: flex; flex-direction: column; box-shadow: -5px 0 15px rgba(0,0,0,0.1); }
         .settings-drawer.open { right: 0; }
@@ -42,7 +46,6 @@
         
         .footer { margin-top: auto; padding: 20px 0; text-align: center; font-size: 0.75rem; color: #94a3b8; font-weight: 600; }
 
-        /* Estilos Tablas Talles */
         .talles-section { text-align: left; font-size: 0.8rem; }
         .talles-title { font-weight: 900; color: var(--primary); margin: 15px 0 5px; border-bottom: 2px solid #f1f5f9; padding-bottom: 3px; display: flex; justify-content: space-between; }
         table { width: 100%; border-collapse: collapse; margin-bottom: 15px; background: #f8fafc; border-radius: 10px; overflow: hidden; }
@@ -165,7 +168,6 @@
             if (confirm("¿ESTÁS SEGURO? Se borrarán todos tus datos de forma permanente.")) {
                 try {
                     const uid = currentUser.uid;
-                    await deleteDoc(doc(db, "users", uid));
                     await deleteDoc(doc(db, "usuarios", uid));
                     await deleteUser(currentUser);
                     window.location.replace("login.html");
