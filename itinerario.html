@@ -48,8 +48,11 @@
         .note-text { font-size: 0.95rem; color: #1e293b; font-weight: 600; white-space: pre-wrap; }
         .note-date { font-size: 0.6rem; color: #94a3b8; margin-top: 6px; font-weight: 700; }
         .btn-delete-note { opacity: 0.3; padding: 5px; cursor: pointer; font-size: 1.1rem; color: #64748b; }
-        .footer { margin-top: auto; padding: 20px 0; text-align: center; font-size: 0.75rem; color: #94a3b8; font-weight: 600; }
         
+        /* FOOTER Y CREDITOS */
+        .footer { margin-top: auto; padding: 20px 0 5px 0; text-align: center; font-size: 0.75rem; color: #94a3b8; font-weight: 600; }
+        .api-credits { font-size: 0.55rem; color: #cbd5e1; letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 20px; text-align: center; font-weight: 500; }
+
         .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; z-index: 1000; }
         .settings-drawer { position: fixed; top: 0; right: -300px; width: 280px; height: 100%; background: white; z-index: 1001; transition: 0.3s; padding: 25px; display: flex; flex-direction: column; box-shadow: -5px 0 15px rgba(0,0,0,0.1); }
         .settings-drawer.open { right: 0; }
@@ -111,7 +114,12 @@
         </div>
     </div>
 
-    <div class="footer"><span>Creado por Juan Cruz Bria <img src="https://flagcdn.com/w40/ar.png" style="width:18px;"></span></div>
+    <div class="footer">
+        <span>Creado por Juan Cruz Bria <img src="https://flagcdn.com/w40/ar.png" style="width:18px;"></span>
+    </div>
+    <div class="api-credits">
+        APIs: Firebase • Queue-Times • FlagCDN • CorsProxy
+    </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
@@ -137,8 +145,6 @@
                 { name: "🦁 Animal Kingdom", id: "ak", parkId: "8" },
                 { name: "📽️ Universal Studios", id: "us", parkId: "65" },
                 { name: "🦖 Islands of Adventure", id: "ioa", parkId: "64" },
-                { name: "🐬 SeaWorld Orlando", id: "sw", parkId: "61" },
-                { name: "🎢 Busch Gardens", id: "bg", parkId: "62" },
                 { name: "✨ Epic Universe", id: "epic", parkId: null, span: true }
             ],
             nyc: [
