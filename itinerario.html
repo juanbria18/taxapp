@@ -26,7 +26,6 @@
         
         .btn-add { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 16px; font-weight: 700; cursor: pointer; font-size: 1rem; }
         
-        /* FILAS TIEMPO REAL - DISEÑO MEJORADO */
         .queues-box { margin-top: 15px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
         .queue-card { background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px 4px; border-radius: 12px; text-align: center; display: flex; flex-direction: column; justify-content: center; }
         .queue-name { font-size: 0.52rem; font-weight: 800; color: #64748b; text-transform: uppercase; margin-bottom: 4px; line-height: 1.2; height: 28px; display: flex; align-items: center; justify-content: center; }
@@ -89,7 +88,7 @@
             <div class="queue-card"><div class="queue-name">🦖 Islands of<br>Adventure</div><div id="ioa" class="queue-status">...</div></div>
             <div class="queue-card" style="grid-column: span 3; background: #f5f3ff; border-color: #c084fc;">
                 <div class="queue-name" style="color: #7c3aed; height: auto; margin-bottom: 6px;">✨ Epic Universe</div>
-                <div id="epic" class="queue-status">...</div>
+                <div id="epic" class="queue-status">Abierto 🎡</div>
             </div>
         </div>
 
@@ -119,8 +118,10 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, query, where, orderBy, onSnapshot, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, query, where, orderBy, onSnapshot, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+        import { getFirestore as getDB } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
+        // Corregimos la inicialización para asegurar consistencia
         const firebaseConfig = {
             apiKey: "AIzaSyCm0Ig-CPklsjf6j-1uSAeF6I8xtyQKj7U",
             authDomain: "viajes-db538.firebaseapp.com",
@@ -132,7 +133,7 @@
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
-        const db = getFirestore(app);
+        const db = getDB(app);
         let currentUser = null;
 
         onAuthStateChanged(auth, (user) => {
@@ -153,15 +154,19 @@
                 { id: '1c84a229-8861-4648-9f39-f53fe87d9c27', el: 'ak' }, 
                 { id: 'eb38b317-09cd-4bc7-95a2-f6735e2cf94b', el: 'us' }, 
                 { id: '207797e5-8777-400d-8549-041846ed3f79', el: 'ioa' },
-                { id: '3439b78c-0238-4e83-8686-3507d73010b9', el: 'epic' }
+                { id: 'epic-static', el: 'epic' }
             ];
 
             for (const park of parks) {
                 const el = document.getElementById(park.el);
+                if (park.id === 'epic-static') {
+                    el.innerText = "Abierto 🎡";
+                    el.style.color = "#7c3aed";
+                    continue;
+                }
                 try {
                     const res = await fetch(`https://api.themeparks.wiki/v1/entity/${park.id}/live`);
                     const data = await res.json();
-                    
                     const waits = data.liveData
                         .filter(a => a.queue && a.queue.STANDBY && a.queue.STANDBY.waitTime !== null)
                         .map(a => a.queue.STANDBY.waitTime);
@@ -171,13 +176,12 @@
                         el.className = "queue-status q-off";
                         continue;
                     }
-
                     const avg = waits.reduce((a, b) => a + b, 0) / waits.length;
                     if (avg < 20) { el.innerText = "BAJA 🟢"; el.className = "queue-status q-low"; }
                     else if (avg < 45) { el.innerText = "MED 🟡"; el.className = "queue-status q-med"; }
                     else { el.innerText = "ALTA 🔴"; el.className = "queue-status q-high"; }
                 } catch (e) {
-                    el.innerText = park.el === 'epic' ? "Próximamente 🚀" : "Cerrado 🌙";
+                    el.innerText = "Cerrado 🌙";
                     el.className = "queue-status q-off";
                 }
             }
@@ -191,15 +195,14 @@
                 container.innerHTML = sn.docs.map(docSnap => {
                     const d = docSnap.data();
                     const dateStr = new Date(d.createdAt).toLocaleString('es-AR', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'});
-                    return `
-                        <div class="note-item ${d.completed ? 'completed' : ''}">
-                            <div class="status-indicator" onclick="toggleCheck('${docSnap.id}', ${d.completed})"></div>
-                            <div class="note-content" onclick="toggleCheck('${docSnap.id}', ${d.completed})">
-                                <div class="note-text">${d.text}</div>
-                                <div class="note-date">${dateStr}</div>
-                            </div>
-                            <div class="btn-delete-note" onclick="deleteNote('${docSnap.id}')">×</div>
-                        </div>`;
+                    return `<div class="note-item ${d.completed ? 'completed' : ''}">
+                        <div class="status-indicator" onclick="toggleCheck('${docSnap.id}', ${d.completed})"></div>
+                        <div class="note-content" onclick="toggleCheck('${docSnap.id}', ${d.completed})">
+                            <div class="note-text">${d.text}</div>
+                            <div class="note-date">${dateStr}</div>
+                        </div>
+                        <div class="btn-delete-note" onclick="deleteNote('${docSnap.id}')">×</div>
+                    </div>`;
                 }).join('');
             });
         }
@@ -214,7 +217,19 @@
         window.toggleCheck = async (id, status) => { await updateDoc(doc(db, "notas", id), { completed: !status }); };
         window.deleteNote = async (id) => { if (confirm('¿Eliminar?')) await deleteDoc(doc(db, "notas", id)); };
 
-        const itinerarioTips = ["Llegá a los parques 45 min antes.", "Usá Mobile Order para comer.", "Guardians requiere Fila Virtual a las 7 AM.", "Llevá Power Bank siempre.", "Agua gratis en puestos de comida rápida."];
+        // TIPS DINÁMICOS MULTI-CIUDAD
+        const itinerarioTips = [
+            "Orlando: Llegá 45 min antes de la apertura (Rope Drop).",
+            "NYC: Comprá la MetroCard ilimitada si te quedás más de 3 días.",
+            "Miami: Los parkings en South Beach son caros, usá la app 'ParkMobile'.",
+            "Vegas: Los hoteles son gigantes, calculá 15 min solo para salir a la calle.",
+            "Washington: Todos los museos Smithsonian son GRATIS.",
+            "LA: El tráfico es real, evitá las autopistas de 7 a 10 AM y 4 a 7 PM.",
+            "NYC: Subí al Summit One Vanderbilt al atardecer para las mejores fotos.",
+            "Orlando: Agua gratis en cualquier puesto de comida rápida de Disney/Universal.",
+            "Vegas: Tomar alcohol en la calle está permitido solo en el Strip.",
+            "Miami: Si vas a Wynwood, hacelo de día para ver mejor los murales."
+        ];
         let currentTipIndex = 0;
         window.nextTip = () => {
             const el = document.getElementById('tip-text');
@@ -225,7 +240,8 @@
                 el.style.opacity = 1;
             }, 300);
         };
-        setInterval(window.nextTip, 10000);
+        setInterval(window.nextTip, 8000);
+
         window.toggleSettings = () => {
             const d = document.getElementById('settingsDrawer');
             d.classList.toggle('open');
