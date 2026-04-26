@@ -11,8 +11,6 @@
         
         .nav-bar { width: 100%; max-width: 450px; margin-bottom: 15px; display: flex; gap: 10px; align-items: center; }
         .btn-nav { flex: 1; padding: 12px; background: var(--white); border-radius: 14px; font-weight: 800; text-align: center; text-decoration: none; font-size: 0.8rem; border: 2px solid var(--primary); color: var(--primary); }
-        
-        /* Estilo para el botón de unidades */
         .btn-nav-cyan { border-color: #0ea5e9; color: #0ea5e9; }
 
         .settings-trigger { 
@@ -58,13 +56,30 @@
         
         .footer { margin-top: auto; padding: 20px 0; text-align: center; font-size: 0.75rem; color: #94a3b8; font-weight: 600; }
 
+        /* ARREGLO DE TALLES PARA CELULAR */
         .talles-section { text-align: left; font-size: 0.85rem; }
         .talles-title { font-weight: 900; color: var(--primary); margin: 15px 0 8px; border-bottom: 2px solid #f1f5f9; padding-bottom: 3px; display: flex; justify-content: space-between; text-transform: uppercase; letter-spacing: 0.5px; }
         
-        .talles-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; }
-        .talles-table { width: 100%; border-collapse: collapse; background: #f8fafc; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0; margin-bottom: 15px; }
-        .talles-table th, .talles-table td { padding: 10px; text-align: center; border: 1px solid #e2e8f0; }
-        .talles-table th { background: #e2e8f0; font-weight: 800; color: #475569; font-size: 0.7rem; }
+        .talles-grid { display: flex; gap: 8px; margin-bottom: 20px; }
+        .talles-table { 
+            flex: 1;
+            width: 100%; 
+            border-collapse: collapse; 
+            background: #f8fafc; 
+            border-radius: 12px; 
+            overflow: hidden; 
+            border: 1px solid #e2e8f0; 
+            margin-bottom: 15px;
+            table-layout: fixed; /* Esto evita que se ensanchen de más */
+        }
+        .talles-table th, .talles-table td { 
+            padding: 8px 2px; 
+            text-align: center; 
+            border: 1px solid #e2e8f0; 
+            font-size: 0.65rem; /* Letra un poco más chica para que entre todo */
+            word-break: break-word;
+        }
+        .talles-table th { background: #e2e8f0; font-weight: 800; color: #475569; }
         .talles-table td { font-weight: 700; color: #1e293b; }
     </style>
 </head>
@@ -103,7 +118,7 @@
             <div class="talles-title">👟 Calzado (ARG → US)</div>
             <div class="talles-grid">
                 <table class="talles-table">
-                    <thead><tr><th>ARG</th><th>HOMBRE</th><th>MUJER</th></tr></thead>
+                    <thead><tr><th>ARG</th><th>H</th><th>M</th></tr></thead>
                     <tbody>
                         <tr><td>35</td><td>-</td><td>5</td></tr>
                         <tr><td>36</td><td>-</td><td>6</td></tr>
@@ -114,7 +129,7 @@
                     </tbody>
                 </table>
                 <table class="talles-table">
-                    <thead><tr><th>ARG</th><th>HOMBRE</th><th>MUJER</th></tr></thead>
+                    <thead><tr><th>ARG</th><th>H</th><th>M</th></tr></thead>
                     <tbody>
                         <tr><td>41</td><td>9</td><td>11</td></tr>
                         <tr><td>42</td><td>10</td><td>12</td></tr>
@@ -127,8 +142,8 @@
             </div>
 
             <div class="talles-title">👕 Remeras / Tops</div>
-            <table class="talles-table">
-                <thead><tr><th>ARG/ESTÁNDAR</th><th>EQUIV. US</th></tr></thead>
+            <table class="talles-table" style="table-layout: auto;">
+                <thead><tr><th>ARG</th><th>EQUIV. US</th></tr></thead>
                 <tbody>
                     <tr><td>XS</td><td>S</td></tr>
                     <tr><td>S</td><td>M</td></tr>
@@ -140,7 +155,7 @@
             </table>
 
             <div class="talles-title">🧥 Buzos / Camperas</div>
-            <table class="talles-table">
+            <table class="talles-table" style="table-layout: auto;">
                 <thead><tr><th>ARG</th><th>US SIZE</th></tr></thead>
                 <tbody>
                     <tr><td>S</td><td>XS/S</td></tr>
