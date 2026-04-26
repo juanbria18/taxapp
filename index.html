@@ -161,26 +161,26 @@
             }
         });
 
-        // FUNCIÓN GUARDAR RE-CORREGIDA
+        // FUNCIÓN GUARDAR ACELERADA (OPTIMISTIC UPDATE)
         window.saveTripSettings = async () => {
             const dest = document.getElementById('input-destination').value || "Orlando";
             const date = document.getElementById('input-date').value || "2027-01-01";
             
             if (!currentUser) return;
             
+            // Paso 1: Actualizar UI al instante
             tripData = { destination: dest, date: date };
+            updateTripUI();
+            closeTripModal();
             
             try {
-                // Forzamos el guardado usando la referencia directa del UID
+                // Paso 2: Guardar en Firebase en segundo plano
                 const userRef = doc(db, "users", currentUser.uid);
                 await setDoc(userRef, { trip: tripData }, { merge: true });
-                
-                updateTripUI();
-                closeTripModal();
-                alert("¡Configuración guardada!");
+                console.log("Sincronizado");
             } catch (e) {
                 console.error("Error al guardar:", e);
-                alert("Error al guardar: " + e.message + ". Recordá actualizar las Rules en la consola de Firebase.");
+                alert("Error al sincronizar con la nube.");
             }
         };
 
