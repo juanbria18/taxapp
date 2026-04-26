@@ -82,14 +82,28 @@
         .talles-table th { background: #e2e8f0; font-weight: 800; color: #475569; }
         .talles-table td { font-weight: 700; color: #1e293b; }
 
-        /* NUEVOS ESTILOS COTIZADOR */
-        .converter-box { background: #f1f5f9; border-radius: 16px; padding: 12px; margin-bottom: 15px; border: 1px solid #e2e8f0; }
-        .converter-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-        .converter-row select { flex: 1; padding: 8px; border-radius: 10px; border: 1px solid #cbd5e1; font-weight: 700; font-size: 0.75rem; }
-        .converter-row span { font-weight: 800; color: var(--primary); font-size: 0.9rem; min-width: 80px; text-align: right; }
-        .arg-box { background: #eff6ff; border: 1.5px solid #3b82f6; border-radius: 16px; padding: 12px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
-        .arg-label { font-size: 0.65rem; font-weight: 800; color: #1e40af; text-transform: uppercase; }
-        .arg-value { font-size: 1rem; font-weight: 900; color: #1e3a8a; }
+        /* SECCIÓN COTIZADORES */
+        .converter-box { background: #f1f5f9; border-radius: 18px; padding: 15px; margin-bottom: 15px; border: 1px solid #e2e8f0; }
+        .converter-row { display: flex; flex-direction: column; gap: 10px; }
+        .converter-row select { width: 100%; padding: 12px; border-radius: 12px; border: 2px solid #cbd5e1; font-weight: 700; font-size: 0.85rem; color: #1e293b; background: white; outline: none; }
+        
+        .currency-display { 
+            background: white; 
+            padding: 10px; 
+            border-radius: 12px; 
+            text-align: center; 
+            border: 1px dashed #2563eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .cur-text { font-weight: 800; font-size: 1rem; color: #1e293b; }
+        .cur-val { font-weight: 900; font-size: 1.1rem; color: #2563eb; }
+
+        .arg-box { background: #eff6ff; border: 2px solid #3b82f6; border-radius: 18px; padding: 15px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .arg-label { font-size: 0.7rem; font-weight: 800; color: #1e40af; text-transform: uppercase; margin-bottom: 2px; }
+        .arg-value { font-size: 1.2rem; font-weight: 900; color: #1e3a8a; }
     </style>
 </head>
 <body>
@@ -119,27 +133,30 @@
         <div id="sec-gastos">
             <div class="arg-box">
                 <div>
-                    <div class="arg-label">Dólar Tarjeta (ARG)</div>
-                    <div style="font-size: 0.5rem; color: #60a5fa; font-weight: 700;">OFICIAL BNA + IMPUESTOS</div>
+                    <div class="arg-label">🇦🇷 Dólar Tarjeta</div>
+                    <div style="font-size: 0.55rem; color: #60a5fa; font-weight: 700; letter-spacing: 0.5px;">OFICIAL + 60% IMP.</div>
                 </div>
                 <div class="arg-value" id="dolar-tarjeta">...</div>
             </div>
 
             <div class="converter-box">
-                <div style="font-size: 0.6rem; font-weight: 800; color: #64748b; margin-bottom: 8px; text-transform: uppercase;">Cotizador de Monedas a USD</div>
+                <div style="font-size: 0.65rem; font-weight: 800; color: #64748b; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; text-align: center;">Comparativa de Moneda</div>
                 <div class="converter-row">
                     <select id="currency-select" onchange="convertCurrency()">
+                        <option value="EUR">🇪🇺 Euro (EUR)</option>
+                        <option value="GBP">🇬🇧 Libra Esterlina (GBP)</option>
+                        <option value="BRL">🇧🇷 Real Brasileño (BRL)</option>
+                        <option value="CLP">🇨🇱 Peso Chileno (CLP)</option>
+                        <option value="UYU">🇺🇾 Peso Uruguayo (UYU)</option>
+                        <option value="COP">🇨🇴 Peso Colombiano (COP)</option>
+                        <option value="MXN">🇲🇽 Peso Mexicano (MXN)</option>
+                        <option value="PEN">🇵🇪 Sol Peruano (PEN)</option>
                         <option value="ARS">🇦🇷 Peso Argentino (Oficial)</option>
-                        <option value="EUR">🇪🇺 Euro</option>
-                        <option value="GBP">🇬🇧 Libra Esterlina</option>
-                        <option value="BRL">🇧🇷 Real Brasileño</option>
-                        <option value="CLP">🇨🇱 Peso Chileno</option>
-                        <option value="UYU">🇺🇾 Peso Uruguayo</option>
-                        <option value="COP">🇨🇴 Peso Colombiano</option>
-                        <option value="MXN">🇲🇽 Peso Mexicano</option>
-                        <option value="PEN">🇵🇪 Sol Peruano</option>
                     </select>
-                    <span id="currency-result">...</span>
+                    <div class="currency-display">
+                        <span class="cur-text" id="cur-base">1 EUR =</span>
+                        <span class="cur-val" id="cur-result">... USD</span>
+                    </div>
                 </div>
             </div>
 
@@ -229,31 +246,49 @@
         let presupuestoBase = 0;
         let rates = {};
 
-        // LOGICA DE COTIZADORES
+        // LÓGICA DE DOLARAPI Y GLOBAL
         async function fetchRates() {
             try {
-                // 1. Dolar Blue/Oficial ARG (API Bluelytics)
-                const resArg = await fetch('https://api.bluelytics.com.ar/v2/latest');
-                const dataArg = await resArg.json();
-                const oficial = dataArg.oficial.value_sell;
-                const tarjeta = oficial * 1.60; // 60% Impuestos actuales aproximados
-                document.getElementById('dolar-tarjeta').innerText = `$${tarjeta.toFixed(2)}`;
-                rates['ARS'] = oficial;
+                // Argentina (Oficial para tarjeta)
+                const resAr = await fetch('https://dolarapi.com/v1/dolares/oficial');
+                const dataAr = await resAr.json();
+                rates['ARS'] = dataAr.venta;
+                document.getElementById('dolar-tarjeta').innerText = `$${(dataAr.venta * 1.60).toFixed(2)}`;
 
-                // 2. Otras monedas (Exchangerate-api - USD Base)
+                // Chile
+                const resCl = await fetch('https://dolarapi.com/v1/cotizaciones/clp');
+                const dataCl = await resCl.json();
+                rates['CLP'] = dataCl.compra;
+
+                // Uruguay
+                const resUy = await fetch('https://dolarapi.com/v1/cotizaciones/uyu');
+                const dataUy = await resUy.json();
+                rates['UYU'] = dataUy.compra;
+
+                // Global (Para el resto)
                 const resGlobal = await fetch('https://open.er-api.com/v6/latest/USD');
                 const dataGlobal = await resGlobal.json();
-                rates = { ...rates, ...dataGlobal.rates };
+                rates = { ...dataGlobal.rates, ...rates }; // Prioriza los de DolarApi
+                
                 convertCurrency();
-            } catch (e) { console.error("Error al obtener cotizaciones"); }
+            } catch (e) { console.error("Error en APIs", e); }
         }
 
         window.convertCurrency = () => {
             const code = document.getElementById('currency-select').value;
-            const resEl = document.getElementById('currency-result');
+            const resVal = document.getElementById('cur-result');
+            const resBase = document.getElementById('cur-base');
+            
             if (rates[code]) {
-                const val = code === 'ARS' ? rates[code] : (1 / rates[code]);
-                resEl.innerText = code === 'ARS' ? `$${val.toFixed(2)}` : `$${val.toFixed(2)} USD`;
+                const flags = { EUR:'🇪🇺', GBP:'🇬🇧', BRL:'🇧🇷', CLP:'🇨🇱', UYU:'🇺🇾', COP:'🇨🇴', MXN:'🇲🇽', PEN:'🇵🇪', ARS:'🇦🇷' };
+                if(code === 'ARS') {
+                    resBase.innerText = `1 USD =`;
+                    resVal.innerText = `$${rates[code].toFixed(2)} ARS`;
+                } else {
+                    const valInUsd = 1 / rates[code];
+                    resBase.innerText = `1 ${code} =`;
+                    resVal.innerText = `$${valInUsd.toFixed(2)} USD`;
+                }
             }
         };
 
@@ -334,7 +369,7 @@
         window.onload = () => { 
             document.getElementById('tip-text').innerText = shoppingTips[0]; 
             setInterval(window.nextTip, 8000); 
-            fetchRates(); // Iniciar carga de monedas
+            fetchRates();
         };
     </script>
 </body>
