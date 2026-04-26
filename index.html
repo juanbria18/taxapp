@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>TaxUSA</title>
-    <script src="https://www.google.com/recaptcha/api.js?render=6Lda_90qAAAAALl8q8L0D7Y-0O8kO_ySve_3MskM"></script>
+    <script src="https://www.google.com/recaptcha/api.js?render=6LeK6cssAAAAALxcJy-95R2nhVMmnuIyB78AQgvw"></script>
     <style>
         :root { --primary: #2563eb; --bg: #f8fafc; --card: #ffffff; --accent: #7c3aed; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -215,6 +215,17 @@
         let tripData = { destination: "Orlando", date: "2027-01-01" };
         let currentTipPercentage = 15;
 
+        // Función para obtener token reCAPTCHA v3
+        async function getRecaptchaToken(actionName) {
+            return new Promise((resolve) => {
+                grecaptcha.ready(() => {
+                    grecaptcha.execute('6LeK6cssAAAAALxcJy-95R2nhVMmnuIyB78AQgvw', {action: actionName}).then((token) => {
+                        resolve(token);
+                    });
+                });
+            });
+        }
+
         const taxData = {
             "Alabama": [{n:"Promedio", t:9.29}], "Alaska": [{n:"Sin Tax", t:0}], "Arizona": [{n:"Phoenix", t:8.6}], "Arkansas": [{n:"Little Rock", t:9.51}],
             "California": [{n:"Los Angeles", t:9.5}, {n:"San Francisco", t:8.63}, {n:"San Diego", t:7.75}], "Colorado": [{n:"Denver", t:8.81}],
@@ -253,27 +264,14 @@
             }
         });
 
-        // FUNCION PARA VALIDAR RECAPTCHA V3
-        async function validateCaptcha(actionName) {
-            return new Promise((resolve) => {
-                grecaptcha.ready(() => {
-                    grecaptcha.execute('6Lda_90qAAAAALl8q8L0D7Y-0O8kO_ySve_3MskM', {action: actionName}).then((token) => {
-                        resolve(token);
-                    });
-                });
-            });
-        }
-
         // Lógica de Ajustes
         window.updateEmail = async () => {
-            const token = await validateCaptcha('update_email');
-            if (!token) return;
-
+            const token = await getRecaptchaToken('update_email');
             const newEmail = prompt("Ingresa el nuevo correo electrónico para verificar:");
             if (newEmail && newEmail !== currentUser.email && newEmail.includes("@")) {
                 try {
                     await verifyBeforeUpdateEmail(currentUser, newEmail);
-                    alert("Se ha enviado un correo de verificación a " + newEmail + ". El cambio se aplicará automáticamente una vez que confirmes el enlace.");
+                    alert("Se ha enviado un correo de verificación. Token verificado.");
                     toggleSettings();
                 } catch (e) { 
                     alert("Error: Por seguridad, debes haber iniciado sesión recientemente."); 
@@ -282,8 +280,7 @@
         };
 
         window.changePassword = async () => {
-            const token = await validateCaptcha('reset_password');
-            if (!token) return;
+            await getRecaptchaToken('change_password');
             try {
                 await sendPasswordResetEmail(auth, currentUser.email);
                 alert("Correo de restablecimiento enviado a " + currentUser.email);
@@ -291,8 +288,7 @@
         };
 
         window.deleteAccount = async () => {
-            const token = await validateCaptcha('delete_account');
-            if (!token) return;
+            await getRecaptchaToken('delete_account');
             if (confirm("¿ESTÁS SEGURO? Esta acción eliminará todos tus datos.")) {
                 try {
                     await deleteDoc(doc(db, "users", currentUser.uid));
@@ -368,9 +364,7 @@
 
         // Lógica de Viaje
         window.saveTripSettings = async () => {
-            const token = await validateCaptcha('save_trip');
-            if (!token) return;
-            
+            await getRecaptchaToken('save_trip');
             tripData = { 
                 destination: document.getElementById('input-destination').value || "Orlando", 
                 date: document.getElementById('input-date').value || "2027-01-01" 
