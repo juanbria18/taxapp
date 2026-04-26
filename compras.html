@@ -249,9 +249,42 @@
             }
         });
 
-        const shoppingTips = ["Orlando: Premium Outlets Vineland es mejor para lujo.", "Miami: Sawgrass Mills requiere un día entero.", "Jersey Gardens (NJ): No pagás impuesto en ropa.", "Ross/Marshalls: Los mejores días son los martes."];
+        const shoppingTips = [
+            "Orlando: Premium Outlets Vineland es mejor para lujo y marcas europeas.",
+            "Miami: Sawgrass Mills requiere un día entero. Llevá una valija vacía para las compras.",
+            "Jersey Gardens (NJ): ¡Aprovechá! No pagás impuesto (Tax Free) en ropa y calzado.",
+            "Ross/Marshalls: Los mejores días son los martes, cuando renuevan el stock más barato.",
+            "NYC: Woodbury Common es el mejor outlet, pero está a 1 hora de Manhattan.",
+            "NYC: En Manhattan, las tiendas de la 5ta Ave abren a las 10 AM. Andá temprano para evitar filas.",
+            "Las Vegas: North Premium Outlets es al aire libre. Evitá ir al mediodía por el calor extremo.",
+            "Las Vegas: Registrate en 'VIP Club' online para cupones extra en los Outlets de Simon.",
+            "Chicago: Fashion Outlets of Chicago está cerca del aeropuerto O'Hare y es techado.",
+            "Los Ángeles: Citadel Outlets es el más cercano al centro y tiene muy buenos precios en Nike.",
+            "San Francisco: San Francisco Premium Outlets en Livermore tiene las mejores marcas de diseño.",
+            "Washington DC: Potomac Mills es uno de los outlets más grandes de la costa este.",
+            "Tax: El impuesto en Miami es 7%, en Orlando 6.5% y en NYC 8.875% (excepto ropa < $110).",
+            "Apple: Los precios que ves online NO incluyen impuestos. Sumale el tax local al final.",
+            "Best Buy: Podés pedir 'Price Match' si encontrás el mismo producto más barato en Amazon.",
+            "Walmart/Target: Ideales para comprar snacks y valijas baratas si te falta espacio.",
+            "T.J. Maxx: Buscá las etiquetas amarillas (Yellow Tag), son las liquidaciones finales.",
+            "Cuponeras: En la mayoría de los Simon Outlets, si mostrás el pasaporte te dan una cuponera.",
+            "Philadelphia: Al igual que en New Jersey, no hay impuesto a las ventas en ropa.",
+            "Atlanta: North Georgia Premium Outlets es el lugar ideal para marcas deportivas.",
+            "Boston: Wrentham Village es el outlet de referencia en Massachusetts.",
+            "Houston: The Galleria es masivo, ideal si buscás marcas como Zara, H&M o Apple.",
+            "Seattle: Seattle Premium Outlets en Tulalip tiene muy buenos precios en marcas outdoor."
+        ];
+
         let currentTipIndex = 0;
-        window.nextTip = () => { currentTipIndex = (currentTipIndex + 1) % shoppingTips.length; document.getElementById('tip-text').innerText = shoppingTips[currentTipIndex]; };
+        window.nextTip = () => { 
+            currentTipIndex = (currentTipIndex + 1) % shoppingTips.length; 
+            const el = document.getElementById('tip-text');
+            el.style.opacity = 0;
+            setTimeout(() => {
+                el.innerText = shoppingTips[currentTipIndex];
+                el.style.opacity = 1;
+            }, 300);
+        };
 
         function listenGastos(uid) {
             const q = query(collection(db, "compras"), where("userId", "==", uid), orderBy("createdAt", "desc"));
@@ -267,7 +300,11 @@
             });
         }
         function updateDisplay(gastado) { document.getElementById('disp-fondo').innerText = 'USD ' + (presupuestoBase - gastado).toFixed(2); }
-        window.onload = () => { document.getElementById('tip-text').innerText = shoppingTips[0]; setInterval(window.nextTip, 8000); };
+        
+        window.onload = () => { 
+            document.getElementById('tip-text').innerText = shoppingTips[0]; 
+            setInterval(window.nextTip, 8000); 
+        };
     </script>
 </body>
 </html>
