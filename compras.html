@@ -9,7 +9,7 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
         
-        .nav-bar { width: 100%; max-width: 450px; margin-bottom: 15px; display: flex; gap: 10px; }
+        .nav-bar { width: 100%; max-width: 450px; margin-bottom: 15px; display: flex; gap: 10px; padding-right: 50px; }
         .btn-nav { flex: 1; padding: 12px; background: var(--white); border-radius: 14px; font-weight: 800; text-align: center; text-decoration: none; font-size: 0.8rem; border: 2px solid var(--primary); color: var(--primary); }
         
         .budget-card { background: linear-gradient(135deg, #2563eb, #7c3aed); color: white; padding: 20px; border-radius: 24px; width: 100%; max-width: 450px; text-align: center; box-shadow: 0 8px 20px rgba(37, 99, 235, 0.2); margin-bottom: 15px; }
@@ -20,13 +20,12 @@
         .set-budget input::placeholder { color: rgba(255,255,255,0.6); }
         .set-budget button { background: white; color: var(--primary); border: none; padding: 8px 15px; border-radius: 10px; font-weight: 800; font-size: 0.7rem; cursor: pointer; }
 
-        .card { background: var(--white); padding: 1.5rem; border-radius: 24px; width: 100%; max-width: 450px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .card { background: var(--white); padding: 1.5rem; border-radius: 24px; width: 100%; max-width: 450px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 20px; position: relative; }
         
         .tab-container { display: flex; background: #f1f5f9; padding: 5px; border-radius: 16px; margin-bottom: 20px; }
         .tab { flex: 1; padding: 12px; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; background: transparent; color: #64748b; font-size: 0.8rem; }
         .tab.active { background: var(--white); color: var(--primary); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
 
-        /* TALLES CONFIGURADOS UNO ABAJO DEL OTRO */
         .talles-lista { display: flex; flex-direction: column; gap: 15px; }
         .talle-col { width: 100%; background: #f8fafc; padding: 15px; border-radius: 18px; border: 1px solid #e2e8f0; text-align: center; }
         .talle-col small { color: var(--accent); font-weight: 800; font-size: 0.7rem; display: block; text-transform: uppercase; margin-bottom: 12px; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px; }
@@ -48,6 +47,15 @@
         .dato-clave { background: #f5f3ff; padding: 15px; border-radius: 16px; border: 1.5px solid var(--accent); margin-top: 15px; text-align: center; cursor: pointer; transition: all 0.2s ease; min-height: 85px; display: flex; flex-direction: column; justify-content: center; }
         .dato-clave:active { transform: scale(0.98); }
 
+        /* ESTILOS DEL DRAWER */
+        .settings-trigger { position: absolute; top: 0; right: 0; background: #f1f5f9; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; }
+        .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; z-index: 1000; }
+        .settings-drawer { position: fixed; top: 0; right: -300px; width: 280px; height: 100%; background: white; z-index: 1001; transition: 0.3s; padding: 25px; display: flex; flex-direction: column; }
+        .settings-drawer.open { right: 0; }
+        .drawer-btn { width: 100%; padding: 14px; margin-bottom: 10px; border-radius: 12px; border: 1px solid #e2e8f0; background: white; font-weight: 700; text-align: left; cursor: pointer; font-size: 0.85rem; }
+        .btn-delete-acc { color: #ef4444; border-color: #fecaca; }
+        .btn-logout { margin-top: auto; color: #64748b; border: none; background: #f1f5f9; text-align: center; }
+
         .footer { margin-top: auto; padding: 20px 0; text-align: center; font-size: 0.75rem; color: #94a3b8; font-weight: 600; }
         .footer span { display: flex; align-items: center; justify-content: center; gap: 8px; }
         .flag-icon { width: 18px; height: auto; border-radius: 2px; }
@@ -55,16 +63,17 @@
 </head>
 <body>
 
-    <div class="nav-bar">
+    <div class="nav-bar" style="position: relative;">
         <a href="index.html" class="btn-nav">🏠 INICIO</a>
         <a href="itinerario.html" class="btn-nav">📍 ITINERARIO</a>
+        <button class="settings-trigger" onclick="toggleSettings()">⚙️</button>
     </div>
 
     <div class="budget-card">
         <div class="budget-label">Presupuesto Restante</div>
         <div class="budget-value" id="disp-fondo">USD 0.00</div>
         <div class="set-budget">
-            <input type="number" id="input-fondo" placeholder="Presupuesto (USD)" inputmode="decimal">
+            <input type="number" id="input-fondo" placeholder="Set Presupuesto (USD)" inputmode="decimal">
             <button onclick="updateFondo()">SET</button>
         </div>
     </div>
@@ -135,6 +144,15 @@
         </div>
     </div>
 
+    <div id="menuOverlay" class="menu-overlay" onclick="toggleSettings()"></div>
+    <div id="settingsDrawer" class="settings-drawer">
+        <h3 style="margin-top:0; color: var(--primary);">Ajustes</h3>
+        <p id="userEmail" style="font-size:0.75rem; color:#64748b; margin-bottom:20px; font-weight:700;"></p>
+        <button class="drawer-btn" onclick="changePass()">📧 Cambiar clave</button>
+        <button class="drawer-btn btn-delete-acc" onclick="eliminarCuenta()">🗑️ Eliminar Cuenta</button>
+        <button class="drawer-btn btn-logout" onclick="logout()">🚪 Cerrar Sesión</button>
+    </div>
+
     <div class="footer">
         <span>Creado por Juan Cruz Bria <img src="https://flagcdn.com/w40/ar.png" class="flag-icon"></span>
         <div style="margin-top: 4px; opacity: 0.7;">© 2026 Todos los derechos reservados</div>
@@ -142,7 +160,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+        import { getAuth, onAuthStateChanged, signOut, sendPasswordResetEmail, deleteUser } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
         import { 
             getFirestore, collection, addDoc, query, where, orderBy, onSnapshot, deleteDoc, doc, setDoc 
         } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
@@ -167,6 +185,7 @@
             if (!user) window.location.replace("login.html");
             else {
                 currentUser = user;
+                document.getElementById('userEmail').innerText = user.email;
                 onSnapshot(doc(db, "usuarios", user.uid), (docSnap) => {
                     presupuestoBase = docSnap.exists() ? (docSnap.data().fondo || 0) : 0;
                     listenGastos(user.uid);
@@ -174,6 +193,21 @@
             }
         });
 
+        // FUNCIONES DE AJUSTES
+        window.toggleSettings = () => {
+            const d = document.getElementById('settingsDrawer');
+            const o = document.getElementById('menuOverlay');
+            d.classList.toggle('open');
+            o.style.display = d.classList.contains('open') ? 'block' : 'none';
+        };
+        window.logout = () => signOut(auth).then(() => window.location.replace("login.html"));
+        window.changePass = () => sendPasswordResetEmail(auth, currentUser.email).then(() => alert("Mail enviado")).catch(e => alert(e.message));
+        window.eliminarCuenta = async () => {
+            if(!confirm("⚠️ ¿BORRAR CUENTA?")) return;
+            try { await deleteUser(currentUser); window.location.replace("login.html"); } catch (e) { alert("Re-login necesario"); }
+        };
+
+        // LÓGICA DE GASTOS (Se mantiene igual)
         function listenGastos(uid) {
             const q = query(collection(db, "compras"), where("userId", "==", uid), orderBy("createdAt", "desc"));
             onSnapshot(q, (snapshot) => {
@@ -215,7 +249,11 @@
         window.addGasto = async () => {
             const n = document.getElementById('nombre').value;
             const v = document.getElementById('valor').value;
-            if(n && v) await addDoc(collection(db, "compras"), { nombre: n, valor: parseFloat(v), userId: currentUser.uid, createdAt: Date.now() });
+            if(n && v) {
+                await addDoc(collection(db, "compras"), { nombre: n, valor: parseFloat(v), userId: currentUser.uid, createdAt: Date.now() });
+                document.getElementById('nombre').value = "";
+                document.getElementById('valor').value = "";
+            }
         };
 
         window.deleteGasto = (id) => confirm("¿Borrar?") && deleteDoc(doc(db, "compras", id));
@@ -227,28 +265,7 @@
             document.getElementById('t-talles').classList.toggle('active', s === 'talles');
         };
 
-        const tips = [
-            "Talles 'S' en USA suelen ser 'M' en Argentina.",
-            "En Nike y Adidas, el talle USA suele ser un número menos que el ARG.",
-            "En Apple Store, el tax (6.5% en FL) no está en el precio de lista.",
-            "Levi's: el número 'W' es la cintura. 32W equivale a un 42 ARG aprox.",
-            "Talles 'Big & Tall' son para personas muy altas o corpulentas.",
-            "Los talles de niños (7Y) llegan hasta el 40 ARG y son más baratos.",
-            "En Marshalls y TJ Maxx, las mejores ofertas están al fondo (Clearance).",
-            "Bajate la App de Simon Outlets para cupones extra en Orlando.",
-            "Los Outlets Premium (International Dr y Vineland) abren hasta las 21:00.",
-            "Si comprás en Best Buy, podés pedir 'Price Match' con precios de Amazon.",
-            "En los parques de Disney, el talle de las remeras es bastante amplio.",
-            "Calzado: 9.5 US Hombre suele ser 42.5 ARG. 8 US Mujer es 38 ARG.",
-            "Muchos locales dan descuento si te anotás al newsletter en el momento.",
-            "Ross Dress for Less recibe mercadería nueva los lunes y martes.",
-            "Walmart es el mejor lugar para comprar valijas baratas si te falta espacio.",
-            "Florida Mall, el Apple Store suele tener más stock que el de los Outlets.",
-            "Si vas a comprar mucho, llevá una valija vacía con rueditas al Outlet.",
-            "GAP suele tener '40% off everything' casi todos los fines de semana.",
-            "Carter's es el lugar N°1 para ropa de niños por precio y calidad.",
-            "¡Guardá todos los tickets físicos por si tenés que cambiar algo!"
-        ];
+        const tips = ["Talles 'S' en USA suelen ser 'M' en Argentina.", "En Nike y Adidas, el talle USA es un número menos.", "Bajate la App de Simon Outlets para cupones."];
         let currentTipIndex = 0;
         window.nextTip = () => {
             const el = document.getElementById('tip-text');
