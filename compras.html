@@ -142,36 +142,24 @@
             flex: 0 0 auto; /* Que no crezca como los otros */
             width: 40px;
         }
-    </style>
-</head>
-
-<body>
-    <div class="nav-bar">
-        <a href="index.html" class="btn-nav">🏠 INICIO</a>
-        <a href="itinerario.html" class="btn-nav">📍 ITINERARIO</a>
-        <a href="javascript:void(0)" class="btn-nav" onclick="avisoProximamente(event)">🔍 COMPARADOR</a>
-        <a href="unidades.html" class="btn-nav">⚖️ UNIDADES</a>
-        <button class="settings-trigger" onclick="toggleSettings()">⚙️</button>
+    <div class="nav-bar" style="display: flex; align-items: center; justify-content: space-around; width: 100%; box-sizing: border-box;">
+        <a href="index.html" class="btn-nav" style="flex: 1; text-align: center; text-decoration: none; box-sizing: border-box;">🏠 INICIO</a>
+        <a href="itinerario.html" class="btn-nav" style="flex: 1; text-align: center; text-decoration: none; box-sizing: border-box;">📍 ITINERARIO</a>
+        
+        <a href="javascript:void(0)" class="btn-nav" onclick="avisoProximamente(event)" style="flex: 1; text-align: center; text-decoration: none; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">🔍 COMPARADOR</a>
+        
+        <a href="unidades.html" class="btn-nav" style="flex: 1; text-align: center; text-decoration: none; box-sizing: border-box;">⚖️ UNIDADES</a>
+        <button class="settings-trigger" onclick="toggleSettings()" style="width: 40px; flex-shrink: 0;">⚙️</button>
     </div>
-    
+
     <script>
-        function avisoProximamente(e) {
-            if(e) e.preventDefault();
-            alert("🚀 ¡El Comparador de Precios estará disponible próximamente!");
-        }
+        window.avisoProximamente = (event) => {
+            if (event) event.preventDefault();
+            alert("🚀 El Comparador de Precios estará disponible próximamente.");
+        };
     </script>
 </body>
-</head>
-<body>
-    <div class="nav-bar" style="display: flex; align-items: center; justify-content: space-around;">
-    <a href="index.html" class="btn-nav" style="box-sizing: border-box; text-decoration: none;">🏠 INICIO</a>
-    <a href="itinerario.html" class="btn-nav" style="box-sizing: border-box; text-decoration: none;">📍 ITINERARIO</a>
-    
-    <a href="javascript:void(0)" class="btn-nav" onclick="avisoProximamente(event)" style="box-sizing: border-box; text-decoration: none; display: flex; align-items: center; justify-content: center;">🔍 COMPARADOR</a>
-    
-    <a href="unidades.html" class="btn-nav" style="box-sizing: border-box; text-decoration: none;">⚖️ UNIDADES</a>
-    <button class="settings-trigger" onclick="toggleSettings()" style="box-sizing: border-box;">⚙️</button>
-</div>
+</html>
 
    <div class="budget-card">
     <div class="budget-label">Presupuesto Restante</div>
