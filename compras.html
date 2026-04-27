@@ -388,29 +388,37 @@ img.emoji {
         if (localStorage.getItem('darkMode') === 'enabled') document.body.classList.add('dark-mode');
 
         window.formatVisual = (input) => {
-    // 1. Limpiamos: solo números y un solo punto decimal
-    let val = input.value.replace(/[^\d.]/g, "");
+    // 1. Reemplazamos cualquier coma que entre por un punto momentáneamente para limpiar
+    let val = input.value.replace(/,/g, ".");
+    
+    // 2. Limpiamos: dejamos solo números y un solo punto
+    val = val.replace(/[^\d.]/g, "");
     let parts = val.split('.');
     if (parts.length > 2) val = parts[0] + '.' + parts.slice(1).join('');
 
     if (val === "") return;
 
-    // 2. Formateamos la parte entera con comas de miles
-    let integerPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    // 3. Formateamos la parte entera con punto como separador de MILES (estándar visual)
+    // Pero como vos querés coma para decimales, invertimos la lógica:
+    let integerPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, "."); // Punto para miles
     
-    // 3. Reconstruimos el string
+    // 4. Reconstruimos el string con COMA para el decimal
     if (val.includes('.')) {
-        // Mantenemos hasta 2 decimales
-        input.value = integerPart + "." + (parts[1] !== undefined ? parts[1].substring(0, 2) : "");
+        // Usamos coma para separar los decimales
+        input.value = integerPart + "," + (parts[1] !== undefined ? parts[1].substring(0, 2) : "");
     } else {
         input.value = integerPart;
     }
 };
+};
 
         function cleanVal(str) { 
-            if (!str) return 0;
-            return parseFloat(str.toString().replace(/,/g, "")) || 0; 
-        }
+    if (!str) return 0;
+    // 1. Quitamos los puntos (que ahora son miles)
+    // 2. Cambiamos la coma por un punto (para que sea un número válido)
+    let cleaned = str.toString().replace(/\./g, "").replace(",", ".");
+    return parseFloat(cleaned) || 0; 
+}
 
         function formatNumber(num) {
     // Esto asegura que el número siempre tenga 2 decimales y use punto para decimales
