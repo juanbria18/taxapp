@@ -199,7 +199,7 @@
             </div>
 
             <input type="text" id="nombre" placeholder="Producto" style="margin-bottom:10px;">
-            <input type="text" id="valor" placeholder="Precio USD (0.00)" style="margin-bottom:10px;" oninput="formatVisual(this)">
+            <input type="number" id="valor" placeholder="Precio USD" step="0.01" inputmode="decimal" style="margin-bottom:10px;">
             <button class="btn-add" onclick="addGasto()">GUARDAR GASTO</button>
             <div id="listaGastos" style="margin-top:20px;"><p style="text-align:center; color:#94a3b8;">Cargando...</p></div>
         </div>
@@ -365,13 +365,19 @@
         };
         
         window.addGasto = async () => { 
-            const n = document.getElementById('nombre').value; 
-            const v = cleanVal(document.getElementById('valor').value); 
-            if(n && v && currentUser) { 
-                await addDoc(collection(db, "compras"), { nombre: n, valor: v, userId: currentUser.uid, createdAt: Date.now() }); 
-                document.getElementById('nombre').value = ""; document.getElementById('valor').value = ""; 
-            } 
-        };
+    const n = document.getElementById('nombre').value; 
+    const v = parseFloat(document.getElementById('valor').value); 
+    if(n && v && currentUser) { 
+        await addDoc(collection(db, "compras"), { 
+            nombre: n, 
+            valor: v, 
+            userId: currentUser.uid, 
+            createdAt: Date.now() 
+        }); 
+        document.getElementById('nombre').value = ""; 
+        document.getElementById('valor').value = ""; 
+    } 
+};
 
         window.deleteGasto = (id) => confirm("¿Borrar?") && deleteDoc(doc(db, "compras", id));
         
