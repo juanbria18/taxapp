@@ -407,18 +407,44 @@ img.emoji {
     });
 }
 
+// 1. Tu función de parseo (mantiene tu lógica de compatibilidad)
 function updateEmojis(element = document.body) {
     if (typeof twemoji !== 'undefined') {
         twemoji.parse(element, { 
             folder: 'svg', 
             ext: '.svg',
             callback: function(icon, options, variant) {
-                // Esto asegura que usemos la versión más compatible
                 return ''.concat(options.base, options.size, '/', icon, options.ext);
             }
         });
     }
 }
+
+// 2. EL VIGILANTE (MutationObserver)
+// Esto detecta cuando Firebase o DolarAPI inyectan texto y lo convierte al instante
+const emojiObserver = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+        if (mutation.addedNodes.length) {
+            mutation.addedNodes.forEach((node) => {
+                // Solo procesamos elementos (nodeType 1) para evitar errores
+                // y verificamos que no sea una imagen de emoji ya procesada
+                if (node.nodeType === 1 && !node.classList.contains('emoji')) {
+                    updateEmojis(node);
+                }
+            });
+        }
+    });
+});
+
+// 3. INICIO DE VIGILANCIA Y DISPARO INICIAL
+// Observamos cambios en toda la página (subtree: true)
+emojiObserver.observe(document.body, { 
+    childList: true, 
+    subtree: true 
+});
+
+// Ejecutamos una vez al inicio para procesar lo que ya está en el HTML
+updateEmojis();
         async function fetchRates() {
             try {
                 const resArg = await fetch('https://dolarapi.com/v1/dolares');
