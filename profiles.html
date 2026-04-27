@@ -225,45 +225,35 @@
             grid.innerHTML = "";
 
             const personajes = [
-                // DISNEY & PIXAR
-                { name: "Mickey", url: "https://i.pinimg.com/originals/83/10/ab/8310ab709058763ef8bdf9ca82664ef5.jpg" },
-                { name: "Stitch", url: "https://i.pinimg.com/originals/2c/13/21/2c1321703666f9175a74e50257e8d46e.jpg" },
-                { name: "Buzz", url: "https://i.pinimg.com/736x/8d/86/e1/8d86e109d722d3e4210080806145325c.jpg" },
-                { name: "Elsa", url: "https://i.pinimg.com/originals/10/7b/25/107b2521d0a51965f3d3258525f0e34c.jpg" },
-                { name: "Simba", url: "https://i.pinimg.com/originals/4d/93/86/4d9386348d4239e07834927f8045952c.jpg" },
-                { name: "Rayo McQueen", url: "https://i.pinimg.com/originals/0d/18/69/0d18698188169994c6439e6a6442650b.jpg" },
-                { name: "Mike Wazowski", url: "https://i.pinimg.com/originals/61/8b/6e/618b6e63286395353724c9472304959a.jpg" },
+                // DISNEY / PIXAR / MARVEL
+                { name: "Mickey", url: "https://img.icons8.com/color/150/mickey-mouse.png" },
+                { name: "Stitch", url: "https://img.icons8.com/color/150/stitch.png" },
+                { name: "Buzz Lightyear", url: "https://img.icons8.com/color/150/buzz-lightyear.png" },
+                { name: "Spider-Man", url: "https://img.icons8.com/color/150/spiderman-new.png" },
+                { name: "Iron Man", url: "https://img.icons8.com/color/150/iron-man.png" },
+                { name: "Groot", url: "https://img.icons8.com/color/150/groot.png" },
+                { name: "Baby Yoda", url: "https://img.icons8.com/color/150/baby-yoda.png" },
+                { name: "Darth Vader", url: "https://img.icons8.com/color/150/darth-vader.png" },
                 
-                // UNIVERSAL & DREAMWORKS (ANIMADAS)
-                { name: "Minion", url: "https://i.pinimg.com/originals/93/38/85/933885f8f53396599b50302b1134015f.jpg" },
-                { name: "Shrek", url: "https://i.pinimg.com/originals/77/8e/7e/778e7e1723f5b72e5058428807d81232.jpg" },
-                { name: "Burro", url: "https://i.pinimg.com/originals/25/68/41/2568415709973809633e9d899539366e.jpg" },
-                { name: "Kung Fu Panda", url: "https://i.pinimg.com/originals/87/42/90/87429074006093556094a423f7734493.jpg" },
-                { name: "Mario (Illumination)", url: "https://i.pinimg.com/originals/30/9b/65/309b65319808a3f81e3a633391696001.jpg" },
-                { name: "Grinch", url: "https://i.pinimg.com/originals/03/99/91/039991823707730e2f98642252136005.jpg" },
+                // UNIVERSAL / DREAMWORKS / ILLUMINATION
+                { name: "Minion", url: "https://img.icons8.com/color/150/minion.png" },
+                { name: "Mario", url: "https://img.icons8.com/color/150/super-mario.png" },
+                { name: "Luigi", url: "https://img.icons8.com/color/150/luigi.png" },
+                { name: "Shrek", url: "https://img.icons8.com/color/150/shrek.png" },
+                { name: "Kung Fu Panda", url: "https://img.icons8.com/color/150/kung-fu-panda.png" },
+                { name: "Grinch", url: "https://img.icons8.com/color/150/the-grinch.png" },
 
-                // LIVE ACTION / PELÍCULAS FAMOSAS
-                { name: "Jack Sparrow", url: "https://i.pinimg.com/originals/05/2a/d8/052ad83f2187a4f783267597f742f891.jpg" },
-                { name: "Harry Potter", url: "https://i.pinimg.com/originals/b3/66/83/b366838a101b0b561c28c68832a831e5.jpg" },
-                { name: "Wednesday (Merlina)", url: "https://i.pinimg.com/originals/18/39/38/183938740f959c9041ef94833215579d.jpg" },
-                { name: "Batman", url: "https://i.pinimg.com/originals/81/25/3c/81253c61309d949219e2f592237d6e4f.jpg" },
-                { name: "Joker", url: "https://i.pinimg.com/originals/66/9e/8b/669e8b792e47265895781a8f90656641.jpg" },
-                { name: "Indiana Jones", url: "https://i.pinimg.com/originals/3a/02/75/3a02758169115f02905325877f98c474.jpg" },
-                { name: "Wonder Woman", url: "https://i.pinimg.com/originals/8e/31/32/8e3132e032338600d8e95079a4059080.jpg" },
-
-                // MARVEL & STAR WARS
-                { name: "Spider-Man", url: "https://i.pinimg.com/originals/a1/38/2a/a1382a859e359218d6a6230588656643.jpg" },
-                { name: "Iron Man", url: "https://i.pinimg.com/originals/24/76/01/24760100787e930f367469792e353270.jpg" },
-                { name: "Groot", url: "https://i.pinimg.com/originals/91/9f/c6/919fc6e232973167195f2a1d293f0b2f.jpg" },
-                { name: "Deadpool", url: "https://i.pinimg.com/originals/99/3a/cc/993acc23429e798786968000572d427d.jpg" },
-                { name: "Baby Yoda", url: "https://i.pinimg.com/originals/60/9a/99/609a9979727402660d03251c6a282f1b.jpg" },
-                { name: "Darth Vader", url: "https://i.pinimg.com/originals/26/5a/88/265a882e379659b20757a701980315ce.jpg" },
-                { name: "Chewbacca", url: "https://i.pinimg.com/originals/21/72/7e/21727e5025d97f516086f68e0d37e37e.jpg" },
-
-                // OTRAS
-                { name: "Sonic", url: "https://i.pinimg.com/originals/60/76/89/60768997c768990b79758552697262f2.jpg" },
-                { name: "Pikachu", url: "https://i.pinimg.com/originals/9f/30/36/9f3036a166299b90875e656360c441b8.jpg" },
-                { name: "Barbie", url: "https://i.pinimg.com/originals/09/02/76/090276067b84144577b7e28b17b6a48d.jpg" }
+                // WARNER / DC / OTROS
+                { name: "Batman", url: "https://img.icons8.com/color/150/batman_new.png" },
+                { name: "Joker", url: "https://img.icons8.com/color/150/joker-dc.png" },
+                { name: "Wonder Woman", url: "https://img.icons8.com/color/150/wonder-woman.png" },
+                { name: "Harry Potter", url: "https://img.icons8.com/color/150/harry-potter.png" },
+                { name: "Homer Simpson", url: "https://img.icons8.com/color/150/homer-simpson.png" },
+                { name: "Bart Simpson", url: "https://img.icons8.com/color/150/bart-simpson.png" },
+                { name: "Sonic", url: "https://img.icons8.com/color/150/sonic-the-hedgehog-1.png" },
+                { name: "Pikachu", url: "https://img.icons8.com/color/150/pikachu.png" },
+                { name: "Finn (Hora de Aventura)", url: "https://img.icons8.com/color/150/finn.png" },
+                { name: "Jake (Hora de Aventura)", url: "https://img.icons8.com/color/150/jake.png" }
             ];
 
             personajes.forEach(p => {
