@@ -112,14 +112,65 @@
 
         .scanner-warning { background: rgba(255, 193, 7, 0.1); border: 2px solid #ffc107; padding: 12px; border-radius: 12px; margin-bottom: 15px; text-align: center; color: #f59e0b; font-weight: 700; font-size: 0.85rem; }
     </style>
+    <head>
+    <style>
+        /* ESTO ES LO QUE NIVELA LOS BOTONES */
+        .nav-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between; /* Reparte el espacio */
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        .nav-bar .btn-nav {
+            flex: 1; /* Obliga a todos a medir lo mismo */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            font-size: 11px; /* Un poco más chico para que entre "COMPARADOR" */
+            padding: 8px 4px;
+            margin: 0 2px;
+            box-sizing: border-box; /* Evita que crezcan de más */
+            text-align: center;
+        }
+
+        /* Si el engranaje de ajustes queda mal, lo fijamos */
+        .settings-trigger {
+            flex: 0 0 auto; /* Que no crezca como los otros */
+            width: 40px;
+        }
+    </style>
 </head>
+
 <body>
     <div class="nav-bar">
-    <a href="index.html" class="btn-nav">🏠 INICIO</a>
-    <a href="itinerario.html" class="btn-nav">📍 ITINERARIO</a>
-    <a href="javascript:void(0)" class="btn-nav" onclick="avisoProximamente(event)">🔍 COMPARADOR</a>
-    <a href="unidades.html" class="btn-nav">⚖️ UNIDADES</a>
-    <button class="settings-trigger" onclick="toggleSettings()">⚙️</button>
+        <a href="index.html" class="btn-nav">🏠 INICIO</a>
+        <a href="itinerario.html" class="btn-nav">📍 ITINERARIO</a>
+        <a href="javascript:void(0)" class="btn-nav" onclick="avisoProximamente(event)">🔍 COMPARADOR</a>
+        <a href="unidades.html" class="btn-nav">⚖️ UNIDADES</a>
+        <button class="settings-trigger" onclick="toggleSettings()">⚙️</button>
+    </div>
+    
+    <script>
+        function avisoProximamente(e) {
+            if(e) e.preventDefault();
+            alert("🚀 ¡El Comparador de Precios estará disponible próximamente!");
+        }
+    </script>
+</body>
+</head>
+<body>
+    <div class="nav-bar" style="display: flex; align-items: center; justify-content: space-around;">
+    <a href="index.html" class="btn-nav" style="box-sizing: border-box; text-decoration: none;">🏠 INICIO</a>
+    <a href="itinerario.html" class="btn-nav" style="box-sizing: border-box; text-decoration: none;">📍 ITINERARIO</a>
+    
+    <a href="javascript:void(0)" class="btn-nav" onclick="avisoProximamente(event)" style="box-sizing: border-box; text-decoration: none; display: flex; align-items: center; justify-content: center;">🔍 COMPARADOR</a>
+    
+    <a href="unidades.html" class="btn-nav" style="box-sizing: border-box; text-decoration: none;">⚖️ UNIDADES</a>
+    <button class="settings-trigger" onclick="toggleSettings()" style="box-sizing: border-box;">⚙️</button>
 </div>
 
    <div class="budget-card">
