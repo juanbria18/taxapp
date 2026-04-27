@@ -439,52 +439,45 @@
         };
 
         function parseTicketText(text) {
-            // Normalizar texto: eliminar comas de miles para que no confundan al parser decimal
             const cleanText = text.toUpperCase().replace(/(\d),(\d{3})/g, '$1$2'); 
-            const lines = cleanText.split('\n').map(l => l.trim());
+            const lines = cleanText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
 
-            let detectedStore = "Compra Detectada";
+            let detectedStore = "Compra";
             let detectedPrice = null;
 
-            // 1. Identificar Tienda
             for (let store of knownStores) {
                 if (cleanText.includes(store)) { detectedStore = store; break; }
             }
 
-            // 2. Lógica Inteligente para el Total
-            // Buscamos líneas que contengan palabras clave de pago/total
-            const keywords = ["TOTAL", "AMOUNT", "PAID", "DUE", "BALANCE", "USD", "FINAL"];
-            let candidatePrices = [];
-
-            lines.forEach(line => {
-                const hasKeyword = keywords.some(k => line.includes(k));
-                // Extraer cualquier número que parezca precio (ej: 55.57, 120,00, etc)
-                // Buscamos patrones de dígitos con punto o coma decimal
+            const totalKeywords = ["TOTAL", "TOTAL DUE", "BALANCE", "AMOUNT", "PAID", "USD", "FINAL"];
+            
+            for (let i = lines.length - 1; i >= 0; i--) {
+                const line = lines[i];
+                const hasTotalWord = totalKeywords.some(k => line.includes(k));
                 const priceMatch = line.match(/(\d+[\.\,]\d{2})/g);
                 
                 if (priceMatch) {
-                    priceMatch.forEach(match => {
-                        let val = parseFloat(match.replace(',', '.'));
-                        // Si la línea tiene una keyword, le damos prioridad
-                        candidatePrices.push({ val, priority: hasKeyword ? 2 : 1 });
-                    });
+                    if (hasTotalWord) {
+                        detectedPrice = parseFloat(priceMatch[0].replace(',', '.'));
+                        break;
+                    } 
+                    if (!detectedPrice) {
+                        detectedPrice = parseFloat(priceMatch[0].replace(',', '.'));
+                    }
                 }
-            });
-
-            if (candidatePrices.length > 0) {
-                // Ordenar: primero los que tienen prioridad (keywords) y de esos el más alto
-                candidatePrices.sort((a, b) => b.priority - a.priority || b.val - a.val);
-                detectedPrice = candidatePrices[0].val;
             }
 
-            // Asignar resultados
             document.getElementById('nombre').value = detectedStore;
             if (detectedPrice) {
-                // Lo ponemos en formato visual para el usuario (usando coma para decimales según tu formatVisual)
-                document.getElementById('valor').value = detectedPrice.toFixed(2).replace('.', ',');
-                formatVisual(document.getElementById('valor'));
+                // SOLUCIÓN: Limpiamos el input y ponemos el número formateado con 2 decimales fijos
+                const inputValor = document.getElementById('valor');
+                inputValor.value = detectedPrice.toFixed(2).replace('.', ',');
+                
+                // Forzamos que formatVisual no lo rompa (le pasamos el valor ya limpio)
+                let rawVal = inputValor.value.replace(/\D/g, "");
+                inputValor.value = new Intl.NumberFormat('es-AR').format(rawVal);
             } else {
-                alert("Se leyó el texto pero no se encontró un precio claro. Ingresalo manualmente.");
+                alert("Ticket leído, pero el Total no es claro. Porfa, revisalo.");
             }
         }
 
@@ -499,7 +492,18 @@
             "Impuestos: El precio de etiqueta NO incluye el Tax (aprox. 6-9%).",
             "Best Buy: Mirá la sección 'Open Box' para precios ridículos.",
             "Amazon Hub: Usá los 'Lockers' en Whole Foods para retirar tus paquetes.",
-            "Apple: Comprá 'Refurbished' en su web oficial para ahorrar un 15-20%."
+            "Apple: Comprá 'Refurbished' en su web oficial para ahorrar un 15-20%.",
+            "Cupones: Bajate la app de RetailMeNot para cupones de último minuto en el mall",
+            "Marshalls/TJ Maxx: Las etiquetas amarillas son el precio final de liquidación",
+            "Ropa: Si vas a Gap o Banana Republic, siempre hay un código de 40% de descuento online que podés pedir en caja",
+            "Cosméticos: En Ulta o Sephora, siempre pedí muestras gratis ('samples') al pagar",
+            "Electrónica: En B&H Photo Video (NYC), los precios suelen ser mejores que en Best Buy y tienen usados certificados",
+            "Supermercados: Target tiene una sección de 'Dollar Spot' a la entrada con cosas útiles por 1 a 5 USD",
+            "Devoluciones: Guardá siempre el ticket físico; en EE. UU. podés devolver casi todo si no te gustó",
+            "Wi-Fi: Los Apple Store tienen el mejor Wi-Fi gratis y rápido si te quedás sin datos en la calle",
+            "Talles: Las marcas de lujo (ej. Armani) son más entalladas que las marcas comunes (ej. Old Navy)"
+            
+            
         ];
 
         let currentTipIndex = 0;
