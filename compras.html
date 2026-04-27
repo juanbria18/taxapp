@@ -58,7 +58,6 @@
         
         .set-budget { display: flex; gap: 8px; margin-top: 12px; background: rgba(255,255,255,0.15); padding: 8px; border-radius: 15px; }
         .set-budget input { flex: 1; background: transparent; border: none; color: white; padding: 5px 10px; font-weight: 700; outline: none; width: 50px; }
-        .set-budget input::placeholder { color: white; opacity: 0.8; }
         .set-budget button { background: white; color: var(--primary); border: none; padding: 8px 15px; border-radius: 10px; font-weight: 800; font-size: 0.7rem; cursor: pointer; }
 
         .card { background: var(--white); padding: 1.5rem; border-radius: 24px; width: 100%; max-width: 450px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 20px; position: relative; border: 1px solid var(--card-border); }
@@ -67,7 +66,6 @@
         .tab.active { background: var(--white); color: var(--primary); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
         
         input, select { width: 100%; padding: 14px; border: 2px solid var(--card-border); border-radius: 14px; font-size: 1rem; font-weight: 600; outline: none; transition: 0.2s; background: var(--white); color: var(--text-main); }
-        input:focus { border-color: var(--primary); }
         .btn-add { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 16px; font-weight: 800; cursor: pointer; font-size: 0.9rem; }
         
         .btn-scan { background: #0ea5e9; margin-bottom: 10px; border: none; width: 100%; padding: 12px; border-radius: 14px; color: white; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
@@ -102,15 +100,13 @@
         .footer { margin-top: auto; padding: 20px 0; text-align: center; display: flex; flex-direction: column; gap: 5px; }
         .footer-name { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; }
         .footer-apis { font-size: 0.6rem; color: #cbd5e1; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
-        .footer-apis span { color: var(--primary); opacity: 0.8; }
 
         .talles-section { text-align: left; font-size: 0.85rem; }
         .talles-title { font-weight: 900; color: var(--primary); margin: 15px 0 8px; border-bottom: 2px solid var(--input-bg); padding-bottom: 3px; display: flex; justify-content: space-between; text-transform: uppercase; letter-spacing: 0.5px; }
         .talles-grid { display: flex; gap: 8px; margin-bottom: 20px; }
         .talles-table { flex: 1; width: 100%; border-collapse: collapse; background: var(--bg); border-radius: 12px; overflow: hidden; border: 1px solid var(--card-border); margin-bottom: 15px; table-layout: fixed; }
-        .talles-table th, .talles-table td { padding: 8px 2px; text-align: center; border: 1px solid var(--card-border); font-size: 0.65rem; word-break: break-word; color: var(--text-main); }
+        .talles-table th, .talles-table td { padding: 8px 2px; text-align: center; border: 1px solid var(--card-border); font-size: 0.65rem; color: var(--text-main); }
         .talles-table th { background: var(--input-bg); font-weight: 800; color: var(--text-muted); }
-        .talles-table td { font-weight: 700; }
     </style>
 </head>
 <body>
@@ -134,7 +130,7 @@
         <div class="close-scanner" onclick="stopScanner()">✕</div>
         <div id="ocr-loader" class="ocr-loading">
             <span id="ocr-status-text">Analizando ticket... 🧐</span>
-            <small style="margin-top:10px; font-weight:400; opacity:0.8;">Modo USA: Punto para decimales</small>
+            <small style="margin-top:10px; font-weight:400; opacity:0.8;">Detectando Totales y Vouchers</small>
         </div>
         <video id="video-preview" autoplay playsinline></video>
         <button onclick="captureTicket()" style="position:absolute; bottom:15px; left:50%; transform:translateX(-50%); width:60px; height:60px; border-radius:50%; border:4px solid white; background:rgba(255,255,255,0.3); z-index:5;"></button>
@@ -152,7 +148,7 @@
         </div>
         
         <div id="sec-gastos">
-            <button class="btn-scan" onclick="startScanner()">📷 ESCANEAR TICKET (OCR USA)</button>
+            <button class="btn-scan" onclick="startScanner()">📷 ESCANEAR TICKET (ROSS/USD)</button>
 
             <div class="rates-container">
                 <div class="rate-box arg">
@@ -257,7 +253,7 @@
         <h3 style="color:var(--primary); margin-top:0;">Ajustes</h3>
         <p id="userEmail" style="font-size:0.75rem; color:var(--text-muted); margin-bottom:20px; font-weight:700;"></p>
         <button class="drawer-btn" onclick="toggleDarkMode()">🌓 Cambiar Tema</button>
-        <button class="drawer-btn" onclick="changeEmail()">📧 Cambiar Correo (Verificación)</button>
+        <button class="drawer-btn" onclick="changeEmail()">📧 Cambiar Correo</button>
         <button class="drawer-btn" onclick="changePassword()">🔑 Cambiar Contraseña</button>
         <button class="drawer-btn" onclick="logout()">🚪 Cerrar Sesión</button>
         <div style="margin-top: auto; padding-top: 20px;">
@@ -267,7 +263,6 @@
 
     <div class="footer">
         <span class="footer-name">Creado por Juan Cruz Bria 🇦🇷</span>
-        <span class="footer-apis">APIs: <span>DolarApi</span> • <span>Open Exchange</span> • <span>Firebase</span></span>
     </div>
 
     <script type="module">
@@ -282,7 +277,6 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        self.FIREBASE_APPCHECK_DEBUG_TOKEN = true; 
         const appCheck = initializeAppCheck(app, {
             provider: new ReCaptchaV3Provider('6LeK6cssAAAAALxcJy-95R2nhVMmnuIyB78AQgvw'),
             isTokenAutoRefreshEnabled: true 
@@ -301,7 +295,6 @@
 
         if (localStorage.getItem('darkMode') === 'enabled') document.body.classList.add('dark-mode');
 
-        // FORMATO USA: Coma para miles, PUNTO para decimales
         window.formatVisual = (input) => {
             let val = input.value.replace(/[^\d]/g, ""); 
             if (val === "") { input.value = ""; return; }
@@ -442,27 +435,40 @@
         };
 
         function parseTicketText(text) {
-            const cleanText = text.toUpperCase().replace(/,/g, ""); 
-            const lines = cleanText.split('\n');
+            const lines = text.toUpperCase().split('\n');
             let detectedStore = "Compra";
-            let finalPrice = 0;
-            for (let store of knownStores) { if (cleanText.includes(store)) { detectedStore = store; break; } }
-            const priceRegex = /\d+\.\d{2}\b/g;
-            let allPrices = [];
+            let totalGeneral = 0;
+            let voucherRedeem = 0;
+
+            for (let store of knownStores) { if (text.toUpperCase().includes(store)) { detectedStore = store; break; } }
+
             lines.forEach(line => {
-                const matches = line.match(priceRegex);
-                if (matches) matches.forEach(m => allPrices.push(parseFloat(m)));
+                const priceMatch = line.match(/\d+\.\d{2}\b/);
+                if (priceMatch) {
+                    const price = parseFloat(priceMatch[0]);
+                    
+                    // Lógica para detectar Total real
+                    if (line.includes("TOTAL") && !line.includes("SUBTOTAL") && !line.includes("CHANGE")) {
+                        totalGeneral = price;
+                    }
+                    // Lógica para detectar Voucher/Cupón
+                    if (line.includes("VOUCHER REDEEM")) {
+                        voucherRedeem = price;
+                    }
+                }
             });
-            if (allPrices.length > 0) finalPrice = Math.max(...allPrices);
+
+            // Si hay un voucher, lo restamos del total para obtener el gasto real de bolsillo
+            const finalSpend = totalGeneral - voucherRedeem;
+
             document.getElementById('nombre').value = detectedStore;
-            if (finalPrice > 0) {
+            if (finalSpend > 0) {
                 const input = document.getElementById('valor');
-                input.value = (finalPrice * 100).toFixed(0); 
+                input.value = (finalSpend * 100).toFixed(0); 
                 window.formatVisual(input);
-            } else { alert("No se detectó precio USA (ej: 55.57)"); }
+            } else { alert("No se detectó el precio final neto."); }
         }
 
-        // LISTA EXTENDIDA DE 15 CONSEJOS RESTAURADA
         const shoppingTips = [
             "Jersey Gardens (NJ): ¡Tax Free! No pagás impuesto en ropa ni calzado.",
             "Impuestos: El precio de etiqueta NO incluye el Tax (aprox. 7-9%).",
