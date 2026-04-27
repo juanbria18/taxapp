@@ -59,7 +59,6 @@
         .set-budget { display: flex; gap: 8px; margin-top: 12px; background: rgba(255,255,255,0.15); padding: 8px; border-radius: 15px; }
         .set-budget input { flex: 1; background: transparent; border: none; color: white; padding: 5px 10px; font-weight: 700; outline: none; width: 50px; }
         
-        /* AÑADIDO PARA TOTAL USD EN BLANCO */
         .set-budget input::placeholder { color: white; opacity: 1; }
         
         .set-budget button { background: white; color: var(--primary); border: none; padding: 8px 15px; border-radius: 10px; font-weight: 800; font-size: 0.7rem; cursor: pointer; }
@@ -103,7 +102,6 @@
         
         .footer { margin-top: auto; padding: 20px 0; text-align: center; display: flex; flex-direction: column; gap: 5px; }
         .footer-name { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; }
-        .footer-apis { font-size: 0.6rem; color: #cbd5e1; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
 
         .talles-section { text-align: left; font-size: 0.85rem; }
         .talles-title { font-weight: 900; color: var(--primary); margin: 15px 0 8px; border-bottom: 2px solid var(--input-bg); padding-bottom: 3px; display: flex; justify-content: space-between; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -387,8 +385,15 @@
 
         window.changeEmail = async () => {
             if (currentUser) {
-                const nuevoEmail = prompt("Nuevo correo:", currentUser.email);
-                if (nuevoEmail) { await verifyBeforeUpdateEmail(currentUser, nuevoEmail); alert("Correo de verificación enviado."); }
+                const nuevoEmail = prompt("Ingresa el nuevo correo electrónico:", currentUser.email);
+                if (nuevoEmail && nuevoEmail !== currentUser.email) {
+                    try {
+                        await verifyBeforeUpdateEmail(currentUser, nuevoEmail);
+                        alert("Se ha enviado un correo de verificación a " + nuevoEmail + ". El cambio se aplicará tras confirmar el enlace en ese mensaje.");
+                    } catch (e) { 
+                        alert("Error: Reautenticación requerida para cambios sensibles."); 
+                    }
+                }
             }
         };
 
@@ -451,7 +456,6 @@
                 const priceMatch = line.match(/\d+\.\d{2}\b/);
                 if (priceMatch) {
                     const price = parseFloat(priceMatch[0]);
-                    
                     if (line.includes("TOTAL") && !line.includes("SUBTOTAL") && !line.includes("CHANGE")) {
                         totalGeneral = price;
                     }
