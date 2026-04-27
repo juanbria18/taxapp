@@ -553,14 +553,16 @@
             } catch (e) { alert("Error OCR."); loader.style.display = 'none'; }
         };
 
-        function parseTicketText(text) {
+       function parseTicketText(text) {
     const lines = text.toUpperCase().split('\n').map(l => l.trim()).filter(l => l);
     
     let detectedStore = "Compra";
-    let montoEntregado = 0; // Lo que pagaste (Cash/Visa)
-    let vuelto = 0;         // Change / Change Due
-    let totalDirecto = 0;   // Línea que dice "TOTAL"
-    let descuentos = 0;     // Coupons / Savings
+    let montoEntregado = 0; 
+    let vuelto = 0;         
+    let totalDirecto = 0;   
+    let subtotal = 0;       // Nueva variable
+    let taxes = 0;          // Nueva variable
+    let descuentos = 0;     
     let allPrices = [];
 
     for (let store of knownStores) {
@@ -574,7 +576,12 @@
     const keywordsVoucher = ["VOUCHER", "REDEEM", "COUPON", "SAVINGS", "DISCOUNT", "PROMO", "LESS", "OFF"];
     const keywordsPayment = ["VISA", "MASTERCARD", "DEBIT", "CASH", "AMEX", "DISCOVER"];
     const keywordsChange = ["CHANGE", "CASH BACK", "CHANGE DUE", "TENDERED CHANGE"];
-    const keywordsExcluir = ["SUBTOTAL", "TAX", "TOTAL ITEMS", "ITEMS"];
+    
+    // Separamos estas para la lógica de suma
+    const keywordsSubtotal = ["SUBTOTAL", "SUB TOTAL", "MDSE TOTAL"];
+    const keywordsTax = ["TAX", "SALES TAX", "TAX1", "TOTAL TAX"];
+    
+    const keywordsExcluir = ["TOTAL ITEMS", "ITEMS", "UNIT PRICE"];
 
     lines.forEach((line) => {
         const priceMatches = line.match(/\d{1,3}(?:,\d{3})*(?:\.\d{2})|\d+(?:\.\d{2})/g);
@@ -586,19 +593,27 @@
 
                 allPrices.push(valor);
 
-                // 1. Detectar Vuelto (Prioridad para restar)
+                // 1. Detectar Vuelto
                 if (keywordsChange.some(key => line.includes(key))) {
                     vuelto = Math.max(vuelto, valor);
                 }
-                // 2. Detectar Pago Entregado (Visa/Cash)
+                // 2. Detectar Subtotal (para suma de respaldo)
+                else if (keywordsSubtotal.some(key => line.includes(key))) {
+                    subtotal = valor;
+                }
+                // 3. Detectar Tax (para suma de respaldo)
+                else if (keywordsTax.some(key => line.includes(key))) {
+                    taxes += valor; // Se usa += porque a veces hay TAX estatal y local por separado
+                }
+                // 4. Detectar Pago Entregado (Visa/Cash)
                 else if (keywordsPayment.some(key => line.includes(key))) {
                     if (valor > montoEntregado) montoEntregado = valor;
                 }
-                // 3. Detectar Línea de Total Directo
+                // 5. Detectar Línea de Total Directo
                 else if (keywordsTotal.some(key => line.includes(key)) && !keywordsExcluir.some(ex => line.includes(ex))) {
                     if (valor > totalDirecto) totalDirecto = valor;
                 }
-                // 4. Detectar Descuentos/Cupones
+                // 6. Detectar Descuentos/Cupones
                 else if (keywordsVoucher.some(key => line.includes(key)) || line.includes("-")) {
                     descuentos += valor;
                 }
@@ -606,27 +621,32 @@
         }
     });
 
-    // LÓGICA DE DECISIÓN FINAL
+    // --- LÓGICA DE DECISIÓN FINAL (JERARQUÍA DE CONFIANZA) ---
     let totalCalculado = 0;
 
     if (totalDirecto > 0) {
-        // Si hay una línea clara de TOTAL, es la más confiable
+        // Prioridad 1: Línea que dice "TOTAL" explícitamente
         totalCalculado = totalDirecto;
-    } else if (montoEntregado > 0) {
-        // Si no hay "Total", pero dice "CASH 20.00" y "CHANGE 5.00", el total es 15.00
+    } 
+    else if (subtotal > 0) {
+        // Prioridad 2: Si no leyó el Total, sumamos Subtotal + Tax
+        // En USA el Total es siempre Subtotal + Tax - Descuentos
+        totalCalculado = (subtotal + taxes);
+    } 
+    else if (montoEntregado > 0) {
+        // Prioridad 3: Lo que se pagó menos el vuelto
         totalCalculado = montoEntregado - vuelto;
-    } else if (allPrices.length > 0) {
-        // Si no leyó ninguna palabra clave, tomamos el mayor valor razonable
+    } 
+    else if (allPrices.length > 0) {
+        // Prioridad 4: El número más alto (filtrado)
         totalCalculado = Math.max(...allPrices.filter(v => v >= 0.50 && v <= 5000));
     }
 
-    // Si detectamos cupones que no estaban restados aún
+    // Aplicar descuentos si no fueron restados (común cuando usamos la suma de subtotal)
     if (descuentos > 0 && totalCalculado > descuentos && totalDirecto === 0) {
         totalCalculado -= descuentos;
     }
 
-    // Evitar que el vuelto se reste dos veces si el Total ya era el neto
-    // Si (Monto - Vuelto) es casi igual al Total Directo, nos quedamos con el Total Directo
     let finalUSD = totalCalculado;
 
     document.getElementById('nombre').value = detectedStore;
@@ -635,7 +655,7 @@
         const input = document.getElementById('valor');
         input.value = (finalUSD * 100).toFixed(0); 
         window.formatVisual(input);
-        console.log(`Final: ${finalUSD} (Entregado: ${montoEntregado}, Vuelto: ${vuelto}, Total: ${totalDirecto})`);
+        console.log(`Final: ${finalUSD} | Subtotal: ${subtotal} | Tax: ${taxes} | Desc: ${descuentos}`);
     } else {
         alert("No se detectó el total. Cargalo manualmente.");
     }
