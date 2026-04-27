@@ -58,6 +58,10 @@
         
         .set-budget { display: flex; gap: 8px; margin-top: 12px; background: rgba(255,255,255,0.15); padding: 8px; border-radius: 15px; }
         .set-budget input { flex: 1; background: transparent; border: none; color: white; padding: 5px 10px; font-weight: 700; outline: none; width: 50px; }
+        
+        /* AÑADIDO PARA TOTAL USD EN BLANCO */
+        .set-budget input::placeholder { color: white; opacity: 1; }
+        
         .set-budget button { background: white; color: var(--primary); border: none; padding: 8px 15px; border-radius: 10px; font-weight: 800; font-size: 0.7rem; cursor: pointer; }
 
         .card { background: var(--white); padding: 1.5rem; border-radius: 24px; width: 100%; max-width: 450px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 20px; position: relative; border: 1px solid var(--card-border); }
@@ -448,18 +452,15 @@
                 if (priceMatch) {
                     const price = parseFloat(priceMatch[0]);
                     
-                    // Lógica para detectar Total real
                     if (line.includes("TOTAL") && !line.includes("SUBTOTAL") && !line.includes("CHANGE")) {
                         totalGeneral = price;
                     }
-                    // Lógica para detectar Voucher/Cupón
                     if (line.includes("VOUCHER REDEEM")) {
                         voucherRedeem = price;
                     }
                 }
             });
 
-            // Si hay un voucher, lo restamos del total para obtener el gasto real de bolsillo
             const finalSpend = totalGeneral - voucherRedeem;
 
             document.getElementById('nombre').value = detectedStore;
