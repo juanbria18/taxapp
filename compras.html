@@ -407,17 +407,50 @@ img.emoji {
     });
 }
 
+// 1. Función de parseo refinada
 function updateEmojis(element = document.body) {
     if (typeof twemoji !== 'undefined') {
         twemoji.parse(element, { 
             folder: 'svg', 
-            ext: '.svg',
-            callback: function(icon, options, variant) {
-                // Esto asegura que usemos la versión más compatible
-                return ''.concat(options.base, options.size, '/', icon, options.ext);
-            }
+            ext: '.svg' 
         });
     }
+}
+
+// 2. EL VIGILANTE (MutationObserver)
+// Detecta cualquier cambio de texto (como cuando carga Firebase) 
+// y lo convierte a emoji al instante.
+const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+        if (mutation.addedNodes.length) {
+            mutation.addedNodes.forEach((node) => {
+                // Si el nodo es un elemento, lo parseamos
+                if (node.nodeType === 1) {
+                    // Evitamos bucles infinitos no parseando imágenes de emoji ya puestas
+                    if (!node.classList.contains('emoji')) {
+                        updateEmojis(node);
+                    }
+                }
+            });
+        }
+    });
+});
+
+// Iniciamos la vigilancia en todo el documento
+observer.observe(document.body, { childList: true, subtree: true });
+
+// 3. Modificación del window.onload
+window.onload = () => { 
+    const el = document.getElementById('tip-text');
+    if(el) {
+        el.innerText = shoppingTips[0]; 
+        updateEmojis(el);
+    }
+    
+    // El setInterval se encarga del resto
+    setInterval(window.nextTip, 8000); 
+};
+
 }
         async function fetchRates() {
             try {
