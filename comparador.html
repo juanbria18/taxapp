@@ -177,7 +177,7 @@
         }
 
         .btn-search { background: var(--primary); color: white; margin-bottom: 10px; }
-        .btn-lens { background: var(--text-main); color: var(--white); opacity: 0.6; cursor: not-allowed; }
+        .btn-lens { background: var(--text-main); color: var(--white); opacity: 0.7; }
 
         #video-container {
             display: none;
@@ -282,7 +282,7 @@
         <div class="search-section">
             <input type="text" id="searchInput" placeholder="¿Qué estás buscando?">
             <button class="btn btn-search" onclick="searchProduct()">🔍 BUSCAR PRODUCTO</button>
-            <button class="btn btn-lens" id="btnStartCamera" onclick="alert('Lens estará disponible próximamente 📸')">📸 LENS (PRÓXIMAMENTE)</button>
+            <button class="btn btn-lens" id="btnStartCamera" onclick="alert('📸 Lens próximamente...')">📸 LENS (PRÓXIMAMENTE)</button>
         </div>
 
         <div id="loading" class="loading-spinner">✨ Buscando mejores precios...</div>
@@ -441,12 +441,12 @@
         }
 
         async function startCamera() {
-            // Función deshabilitada por ahora
+            // Clausurado temporalmente
             return;
         }
 
         async function takePhoto() {
-            // Función deshabilitada por ahora
+            // Clausurado temporalmente
             return;
         }
 
@@ -461,15 +461,19 @@
             const results = data[keyType];
             if (results && results.length > 0) {
                 results.slice(0, 10).forEach(item => {
-                    // CORRECCIÓN 404: Limpiar enlaces de redirección de Google
+                    
+                    // --- LÓGICA DE LIMPIEZA DE LINK PARA EVITAR 404 ---
                     let cleanLink = item.link;
                     if (cleanLink && cleanLink.includes("/url?q=")) {
                         try {
-                            const parts = cleanLink.split('?')[1];
-                            const urlParams = new URLSearchParams(parts);
-                            cleanLink = urlParams.get('q') || item.link;
-                        } catch(e) { 
-                            cleanLink = item.link; 
+                            // Extraemos solo la URL real después del parámetro 'q='
+                            const urlObj = new URL(cleanLink, window.location.origin);
+                            const realUrl = urlObj.searchParams.get('q');
+                            if (realUrl) {
+                                cleanLink = realUrl.split('&')[0]; // Quitamos parámetros extras de Google
+                            }
+                        } catch(e) {
+                            console.log("Error limpiando link, usando original");
                         }
                     }
 
