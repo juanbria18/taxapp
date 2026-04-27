@@ -554,72 +554,92 @@
         };
 
         function parseTicketText(text) {
-            const lines = text.toUpperCase().split('\n').map(l => l.trim()).filter(l => l);
-            let detectedStore = "Compra";
-            let totalAmount = 0;
+    const lines = text.toUpperCase().split('\n').map(l => l.trim()).filter(l => l);
+    
+    let detectedStore = "Compra";
+    let montoEntregado = 0; // Lo que pagaste (Cash/Visa)
+    let vuelto = 0;         // Change / Change Due
+    let totalDirecto = 0;   // Línea que dice "TOTAL"
+    let descuentos = 0;     // Coupons / Savings
+    let allPrices = [];
 
-            // Detectar tienda
-            for (let store of knownStores) { 
-                if (text.toUpperCase().includes(store)) { 
-                    detectedStore = store; 
-                    break; 
-                } 
-            }
-
-            // Patrones específicos para encontrar TOTAL
-            let totalLine = null;
-            let allPrices = [];
-
-            for (let i = 0; i < lines.length; i++) {
-                const line = lines[i];
-                
-                // Busca números con formato: 123.45 o 123,45
-                const priceMatches = line.match(/(\d+[\.,]\d{2})/g);
-                if (!priceMatches) continue;
-
-                priceMatches.forEach(match => {
-                    const price = parseFloat(match.replace(/,/g, "."));
-                    allPrices.push({ price, line, index: i });
-                });
-
-                // Patrones específicos de TOTAL (funciona bien para Costco, Foot Locker, JD Sports, etc.)
-                if (!totalLine) {
-                    // Buscar línea que contenga TOTAL sin SUBTOTAL, TOTAL TAX, etc.
-                    if (line.match(/^\*{0,4}\s*TOTAL\s*\*{0,4}/) || 
-                        (line.includes("TOTAL") && !line.includes("SUBTOTAL") && !line.includes("TOTAL TAX") && !line.includes("TOTAL #")) ||
-                        line.includes("AMOUNT PAID") ||
-                        line.includes("TOTAL TENDER")) {
-                        
-                        const match = line.match(/(\d+[\.,]\d{2})/);
-                        if (match) {
-                            totalLine = parseFloat(match[0].replace(/,/g, "."));
-                        }
-                    }
-                }
-            }
-
-            // Si no encontró TOTAL explícito, busca el número más grande que sea razonable (típicamente $1-$1000)
-            if (!totalLine && allPrices.length > 0) {
-                const validPrices = allPrices
-                    .filter(p => p.price >= 0.50 && p.price <= 5000)
-                    .sort((a, b) => b.price - a.price);
-                
-                if (validPrices.length > 0) {
-                    totalLine = validPrices[0].price;
-                }
-            }
-
-            totalAmount = totalLine || 0;
-
-            document.getElementById('nombre').value = detectedStore;
-            if (totalAmount > 0) {
-                const input = document.getElementById('valor');
-                input.value = (totalAmount * 100).toFixed(0); 
-                window.formatVisual(input);
-            } else { 
-                alert("No se detectó el total del ticket. Por favor cargalo manualmente."); 
-            }
+    for (let store of knownStores) {
+        if (text.toUpperCase().includes(store)) {
+            detectedStore = store;
+            break;
         }
+    }
+
+    const keywordsTotal = ["TOTAL", "GRAND TOTAL", "AMOUNT DUE", "TOTAL PAYABLE", "NET AMOUNT", "SALE TOTAL"];
+    const keywordsVoucher = ["VOUCHER", "REDEEM", "COUPON", "SAVINGS", "DISCOUNT", "PROMO", "LESS", "OFF"];
+    const keywordsPayment = ["VISA", "MASTERCARD", "DEBIT", "CASH", "AMEX", "DISCOVER"];
+    const keywordsChange = ["CHANGE", "CASH BACK", "CHANGE DUE", "TENDERED CHANGE"];
+    const keywordsExcluir = ["SUBTOTAL", "TAX", "TOTAL ITEMS", "ITEMS"];
+
+    lines.forEach((line) => {
+        const priceMatches = line.match(/\d{1,3}(?:,\d{3})*(?:\.\d{2})|\d+(?:\.\d{2})/g);
+        
+        if (priceMatches) {
+            priceMatches.forEach(matchStr => {
+                const valor = parseFloat(matchStr.replace(/,/g, ""));
+                if (isNaN(valor)) return;
+
+                allPrices.push(valor);
+
+                // 1. Detectar Vuelto (Prioridad para restar)
+                if (keywordsChange.some(key => line.includes(key))) {
+                    vuelto = Math.max(vuelto, valor);
+                }
+                // 2. Detectar Pago Entregado (Visa/Cash)
+                else if (keywordsPayment.some(key => line.includes(key))) {
+                    if (valor > montoEntregado) montoEntregado = valor;
+                }
+                // 3. Detectar Línea de Total Directo
+                else if (keywordsTotal.some(key => line.includes(key)) && !keywordsExcluir.some(ex => line.includes(ex))) {
+                    if (valor > totalDirecto) totalDirecto = valor;
+                }
+                // 4. Detectar Descuentos/Cupones
+                else if (keywordsVoucher.some(key => line.includes(key)) || line.includes("-")) {
+                    descuentos += valor;
+                }
+            });
+        }
+    });
+
+    // LÓGICA DE DECISIÓN FINAL
+    let totalCalculado = 0;
+
+    if (totalDirecto > 0) {
+        // Si hay una línea clara de TOTAL, es la más confiable
+        totalCalculado = totalDirecto;
+    } else if (montoEntregado > 0) {
+        // Si no hay "Total", pero dice "CASH 20.00" y "CHANGE 5.00", el total es 15.00
+        totalCalculado = montoEntregado - vuelto;
+    } else if (allPrices.length > 0) {
+        // Si no leyó ninguna palabra clave, tomamos el mayor valor razonable
+        totalCalculado = Math.max(...allPrices.filter(v => v >= 0.50 && v <= 5000));
+    }
+
+    // Si detectamos cupones que no estaban restados aún
+    if (descuentos > 0 && totalCalculado > descuentos && totalDirecto === 0) {
+        totalCalculado -= descuentos;
+    }
+
+    // Evitar que el vuelto se reste dos veces si el Total ya era el neto
+    // Si (Monto - Vuelto) es casi igual al Total Directo, nos quedamos con el Total Directo
+    let finalUSD = totalCalculado;
+
+    document.getElementById('nombre').value = detectedStore;
+    
+    if (finalUSD > 0) {
+        const input = document.getElementById('valor');
+        input.value = (finalUSD * 100).toFixed(0); 
+        window.formatVisual(input);
+        console.log(`Final: ${finalUSD} (Entregado: ${montoEntregado}, Vuelto: ${vuelto}, Total: ${totalDirecto})`);
+    } else {
+        alert("No se detectó el total. Cargalo manualmente.");
+    }
+}
 
         const shoppingTips = [
             "Jersey Gardens (NJ): ¡Tax Free! No pagás impuesto en ropa ni calzado.",
