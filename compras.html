@@ -427,7 +427,7 @@
                 const { data: { text } } = await worker.recognize(canvas.toDataURL('image/jpeg', 0.9));
                 await worker.terminate();
                 
-                if (!text || text.trim().length < 10) {
+                if (!text || text.trim().length < 5) {
                     alert("⚠️ No se detectó texto claro. Intentá de nuevo.");
                     loader.style.display = 'none';
                     return;
@@ -439,45 +439,59 @@
         };
 
         function parseTicketText(text) {
-            const cleanText = text.toUpperCase().replace(/(\d),(\d{3})/g, '$1$2'); 
+            // NORMALIZACIÓN AGRESIVA PARA FORMATO USA
+            // 1. Quitamos los dos puntos y espacios raros para que el OCR no se pierda
+            const cleanText = text.toUpperCase().replace(/:/g, " ").replace(/\s+/g, " ");
             const lines = cleanText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
 
             let detectedStore = "Compra";
             let detectedPrice = null;
 
+            // Detección de Tienda
             for (let store of knownStores) {
                 if (cleanText.includes(store)) { detectedStore = store; break; }
             }
 
-            const totalKeywords = ["TOTAL", "TOTAL DUE", "BALANCE", "AMOUNT", "PAID", "USD", "FINAL"];
+            const totalKeywords = ["TOTAL", "DUE", "BALANCE", "AMOUNT", "PAID", "USD", "FINAL", "PAY"];
             
+            // Búsqueda del precio (formato USA: 55.57)
             for (let i = lines.length - 1; i >= 0; i--) {
                 const line = lines[i];
                 const hasTotalWord = totalKeywords.some(k => line.includes(k));
+                
+                // Regex para capturar números con punto o coma (ej: 55.57 o 55,57)
                 const priceMatch = line.match(/(\d+[\.\,]\d{2})/g);
                 
                 if (priceMatch) {
+                    // Tomamos el primer número encontrado en la línea
+                    let rawPrice = priceMatch[0].replace(',', '.');
+                    
                     if (hasTotalWord) {
-                        detectedPrice = parseFloat(priceMatch[0].replace(',', '.'));
-                        break;
+                        detectedPrice = parseFloat(rawPrice);
+                        break; 
                     } 
                     if (!detectedPrice) {
-                        detectedPrice = parseFloat(priceMatch[0].replace(',', '.'));
+                        detectedPrice = parseFloat(rawPrice);
                     }
                 }
             }
 
             document.getElementById('nombre').value = detectedStore;
             if (detectedPrice) {
-                // SOLUCIÓN: Limpiamos el input y ponemos el número formateado con 2 decimales fijos
                 const inputValor = document.getElementById('valor');
+                // IMPORTANTE: Para evitar que el formato AR lo rompa, 
+                // primero lo convertimos en un string limpio sin decimales para formatVisual
+                // Pero multiplicamos por 100 para no perder los centavos en el formateo de AR.
+                
+                // Formateamos para que el usuario vea "55,57" (estilo AR visualmente)
+                // pero el valor real sea el de USA.
                 inputValor.value = detectedPrice.toFixed(2).replace('.', ',');
                 
-                // Forzamos que formatVisual no lo rompa (le pasamos el valor ya limpio)
-                let rawVal = inputValor.value.replace(/\D/g, "");
-                inputValor.value = new Intl.NumberFormat('es-AR').format(rawVal);
+                // Disparamos el formateo visual de Argentina manualmente pero blindado
+                let valStr = inputValor.value.replace(/\D/g, ""); 
+                inputValor.value = new Intl.NumberFormat('es-AR').format(valStr);
             } else {
-                alert("Ticket leído, pero el Total no es claro. Porfa, revisalo.");
+                alert("No encontré el precio. Probá acercando el ticket al TOTAL.");
             }
         }
 
@@ -492,7 +506,7 @@
             "Impuestos: El precio de etiqueta NO incluye el Tax (aprox. 6-9%).",
             "Best Buy: Mirá la sección 'Open Box' para precios ridículos.",
             "Amazon Hub: Usá los 'Lockers' en Whole Foods para retirar tus paquetes.",
-            "Apple: Comprá 'Refurbished' en su web oficial para ahorrar un 15-20%.",
+            "Apple: Comprá 'Refurbished' en su web oficial para ahorrar un 15-20%"
             "Cupones: Bajate la app de RetailMeNot para cupones de último minuto en el mall",
             "Marshalls/TJ Maxx: Las etiquetas amarillas son el precio final de liquidación",
             "Ropa: Si vas a Gap o Banana Republic, siempre hay un código de 40% de descuento online que podés pedir en caja",
@@ -502,8 +516,6 @@
             "Devoluciones: Guardá siempre el ticket físico; en EE. UU. podés devolver casi todo si no te gustó",
             "Wi-Fi: Los Apple Store tienen el mejor Wi-Fi gratis y rápido si te quedás sin datos en la calle",
             "Talles: Las marcas de lujo (ej. Armani) son más entalladas que las marcas comunes (ej. Old Navy)"
-            
-            
         ];
 
         let currentTipIndex = 0;
