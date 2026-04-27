@@ -17,6 +17,7 @@
         --card-bg: #ffffff;
         --input-bg: #f8fafc;
         --border: #f1f5f9;
+        --header-color: #3C3B6E; /* Azul USA modo claro */
     }
 
     body.dark-mode {
@@ -26,7 +27,19 @@
         --card-bg: #1e293b;
         --input-bg: #334155;
         --border: #334155;
+        --header-color: #ffffff; /* Blanco modo oscuro */
     }
+        h1 {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 10px;
+            font-size: 1.6rem;
+            font-weight: 800;
+            margin: 0 0 1rem 0;
+            color: var(--header-color); 
+            transition: color 0.3s ease;
+        }
         .settings-drawer { 
     position: fixed; top: 0; right: -300px; width: 280px; height: 100%; 
     background: var(--card-bg); z-index: 2001; transition: 0.3s; 
