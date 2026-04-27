@@ -6,6 +6,50 @@
     <title>Conversor USA</title>
     <script src="https://www.google.com/recaptcha/api.js?render=6LeK6cssAAAAALxcJy-95R2nhVMmnuIyB78AQgvw"></script>
     <style>
+        /* NAV BAR INTEGRADA ARRIBA (ESTILO INDEX) */
+.nav-bar {
+    display: flex !important;
+    align-items: center;
+    justify-content: space-around;
+    width: 100%;
+    background: var(--input-bg);
+    border-radius: 18px;
+    padding: 8px 4px;
+    margin-bottom: 20px;
+    position: relative;
+    box-sizing: border-box;
+    border: 1px solid var(--border);
+    grid-template-columns: none; /* Quitamos el grid anterior */
+}
+
+.btn-nav {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: var(--text);
+    font-size: 9px; 
+    font-weight: 800;
+    gap: 3px;
+    transition: opacity 0.2s;
+    background: none !important;
+    border: none !important;
+    padding: 5px 0;
+}
+
+.btn-nav span:first-child { font-size: 18px; }
+.btn-nav.active { color: var(--primary); }
+
+.settings-trigger-nav {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 0 10px;
+    color: var(--text);
+}
         :root { 
             --primary: #0ea5e9; 
             --bg: #f8fafc; 
@@ -97,12 +141,26 @@
     </style>
 </head>
 <body>
-    <div class="nav-bar">
-        <a href="index.html" class="btn-nav btn-blue">🏠 INICIO</a>
-        <a href="itinerario.html" class="btn-nav btn-purple">📍ITINERARIO</a>
-        <a href="compras.html" class="btn-nav btn-cyan">🛍️GASTOS</a>
-        <a href="#" class="btn-nav btn-emerald" onclick="avisoProximamente(event)">🔍 COMPARADOR</a>
-    </div>
+    <div class="card">
+        <div class="nav-bar">
+            <a href="index.html" class="btn-nav">
+                <span>🏠</span>
+                <span>INICIO</span>
+            </a>
+            <a href="compras.html" class="btn-nav">
+                <span>🛍️</span>
+                <span>GASTOS</span>
+            </a>
+            <a href="javascript:void(0)" class="btn-nav" onclick="avisoProximamente(event)">
+                <span>🔍</span>
+                <span>ITINERARIO</span>
+            </a>
+            <a href="unidades.html" class="btn-nav active">
+                <span>🔍</span>
+                <span>COMPARAR</span>
+            </a>
+            <button class="settings-trigger-nav" onclick="toggleSettings()">⚙️</button>
+        </div>
 
     <div class="card">
         <button class="settings-trigger" onclick="toggleSettings()">⚙️</button>
