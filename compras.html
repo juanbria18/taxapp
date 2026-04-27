@@ -87,11 +87,11 @@
         }
         /* Esto hace que el emoji se comporte como un texto y no como una imagen gigante */
 img.emoji {
-    height: 1.2em;
-    width: 1.2em;
-    margin: 0 .05em 0 .1em;
-    vertical-align: -0.1em;
-    display: inline-block;
+    height: 1.2em !important;
+    width: 1.2em !important;
+    margin: 0 .05em 0 .1em !important;
+    vertical-align: -0.1em !important;
+    display: inline-block !important;
 }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -726,12 +726,17 @@ img.emoji {
 
         function updateDisplay(gastado) { document.getElementById('disp-fondo').innerText = 'USD ' + formatNumber(presupuestoBase - gastado); }
         
-        window.onload = () => { 
-            const el = document.getElementById('tip-text');
-            if(el) el.innerText = shoppingTips[0]; 
-            updateEmojis(); setInterval(window.nextTip, 8000); 
-            twemoji.parse(document.body)
-        };
+       window.onload = () => { 
+    const el = document.getElementById('tip-text');
+    if(el) el.innerText = shoppingTips[0]; 
+    
+    // Esto fuerza a que se aplique el diseño después de que todo cargó
+    setTimeout(() => {
+        twemoji.parse(document.body, { folder: 'svg', ext: '.svg' });
+    }, 500);
+
+    setInterval(window.nextTip, 8000); 
+};
     </script>
     <script>
     function avisoProximamente(event) {
