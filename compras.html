@@ -33,10 +33,44 @@
         body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; color: var(--text-main); }
         
         img.emoji { height: 1em; width: 1em; margin: 0 .05em 0 .1em; vertical-align: -0.1em; }
+        /* NAV BAR INTEGRADA ARRIBA */
+.nav-bar {
+    display: flex !important;
+    align-items: center;
+    justify-content: space-around;
+    width: 100%;
+    background: var(--input-bg);
+    border-radius: 18px;
+    padding: 8px 4px;
+    margin-bottom: 20px;
+    position: relative; /* Clave: ya no es fixed */
+}
 
-        .nav-bar { width: 100%; max-width: 450px; margin-bottom: 15px; display: flex; gap: 5px; align-items: center; }
-        .btn-nav { flex: 1; padding: 10px 4px; background: var(--white); border-radius: 14px; font-weight: 800; text-align: center; text-decoration: none; font-size: 0.65rem; border: 2px solid var(--card-border); color: var(--text-muted); transition: 0.2s; }
-        .btn-nav-cyan { border-color: #0ea5e9; color: #0ea5e9; }
+.btn-nav {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: var(--text-main);
+    font-size: 9px; /* Tamaño pequeño como la imagen */
+    font-weight: 800;
+    gap: 3px;
+    transition: opacity 0.2s;
+}
+
+.btn-nav span:first-child { font-size: 18px; }
+.btn-nav.active { color: var(--primary); }
+
+.settings-trigger-nav {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 0 10px;
+    color: var(--text-main);
+}
 
         .settings-trigger { 
             width: 45px; 
@@ -114,21 +148,6 @@
     </style>
 </head>
 <body>
-    <div class="nav-bar" style="display: flex; align-items: center; justify-content: space-between; width: 100%; gap: 5px; padding: 10px; box-sizing: border-box;">
-        <a href="index.html" class="btn-nav" style="flex: 1; text-align: center; text-decoration: none; font-size: 10px; white-space: nowrap; display: flex; flex-direction: column; align-items: center;">
-            <span>🏠</span><span>INICIO</span>
-        </a>
-        <a href="itinerario.html" class="btn-nav" style="flex: 1; text-align: center; text-decoration: none; font-size: 10px; white-space: nowrap; display: flex; flex-direction: column; align-items: center;">
-            <span>📍</span><span>ITINERARIO</span>
-        </a>
-        <a href="javascript:void(0)" class="btn-nav" onclick="avisoProximamente(event)" style="flex: 1; text-align: center; text-decoration: none; font-size: 10px; white-space: nowrap; display: flex; flex-direction: column; align-items: center;">
-            <span>🔍</span><span>COMPARADOR</span>
-        </a>
-        <a href="unidades.html" class="btn-nav" style="flex: 1; text-align: center; text-decoration: none; font-size: 10px; white-space: nowrap; display: flex; flex-direction: column; align-items: center;">
-            <span>⚖️</span><span>UNIDADES</span>
-        </a>
-        <button class="settings-trigger" onclick="toggleSettings()" style="flex: 0 0 auto; width: 40px; border: none; background: none;">⚙️</button>
-    </div>
 
    <div class="budget-card">
     <div class="budget-label">Presupuesto Restante</div>
@@ -151,6 +170,40 @@
     <canvas id="ocr-canvas" style="display:none;"></canvas>
 
     <div class="card">
+        <div class="card">
+    <h1>TaxUSA <img src="https://flagcdn.com/w40/us.png" style="width: 28px; border-radius: 3px;" alt="USA"></h1>
+
+    <div class="nav-bar">
+        <a href="compras.html" class="btn-nav active">
+            <span>🏠</span>
+            <span>GASTOS</span>
+        </a>
+        <a href="itinerario.html" class="btn-nav">
+            <span>📍</span>
+            <span>ITINERARIO</span>
+        </a>
+        <a href="javascript:void(0)" class="btn-nav" onclick="avisoProximamente(event)">
+            <span>🔍</span>
+            <span>COMPARAR</span>
+        </a>
+        <a href="unidades.html" class="btn-nav">
+            <span>⚖️</span>
+            <span>UNIDADES</span>
+        </a>
+        <button class="settings-trigger-nav" onclick="toggleSettings()">⚙️</button>
+    </div>
+
+    <div class="dato-clave" onclick="nextTip()">
+        <small style="color:var(--success); font-weight:800; font-size:0.6rem;">🛍️ GUÍA DE COMPRAS</small>
+        <div id="tip-text">Cargando consejos...</div>
+    </div>
+
+    <div class="tab-container">
+        <button class="tab active" onclick="showSec('gastos')" id="t-gastos">GASTOS</button>
+        <button class="tab" onclick="showSec('talles')" id="t-talles">TALLES</button>
+    </div>
+    
+    </div>
         <div class="dato-clave" onclick="nextTip()">
             <small style="color:var(--success); font-weight:800; font-size:0.6rem;">🛍️ GUÍA DE COMPRAS</small>
             <div id="tip-text">Cargando consejos...</div>
