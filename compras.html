@@ -237,7 +237,7 @@
                     <tr><td>2XL</td><td>3XL</td></tr>
                 </tbody>
             </table>
-            <div class="talles-title">👕 Buzos / Camperas</div>
+            <div class="talles-title">🧥 Buzos / Camperas</div>
             <table class="talles-table" style="table-layout: auto;">
                 <thead><tr><th>ARG</th><th>US SIZE</th></tr></thead>
                 <tbody>
@@ -416,7 +416,6 @@
         const knownStores = ["ROSS", "MARSHALLS", "WALMART", "APPLE", "BEST BUY", "TARGET", "TJ MAXX", "MACY'S", "ZARA", "H&M", "NIKE", "ADIDAS", "AMAZON", "COSTCO"];
 
         window.startScanner = async () => {
-            alert("⚠️ Escáner en desarrollo: Esta función puede tener errores de lectura o no funcionar como se espera.");
             document.getElementById('scanner-ui').style.display = 'block';
             try {
                 stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
@@ -459,6 +458,8 @@
                 if (priceMatch) {
                     const price = parseFloat(priceMatch[0]);
                     
+                    // Lógica inteligente: Agarra el monto mayor que diga "TOTAL" 
+                    // pero ignora los que digan "TAX", "SUBTOTAL" o "CHANGE"
                     if (line.includes("TOTAL") && !line.includes("TAX") && !line.includes("SUBTOTAL") && !line.includes("CHANGE")) {
                         candidatosTotal.push(price);
                     }
@@ -468,6 +469,7 @@
                 }
             });
 
+            // Si encontró candidatos a total, se queda con el monto más grande (el final del ticket)
             let totalGeneral = candidatosTotal.length > 0 ? Math.max(...candidatosTotal) : 0;
             const finalSpend = totalGeneral - voucherRedeem;
 
@@ -505,14 +507,14 @@
         };
 
         function listenGastos(uid) {
-            const q = query(collection(db, \"compras\"), where(\"userId\", \"==\", uid), orderBy(\"createdAt\", \"desc\"));
+            const q = query(collection(db, "compras"), where("userId", "==", uid), orderBy("createdAt", "desc"));
             onSnapshot(q, (snapshot) => {
                 const container = document.getElementById('listaGastos');
                 let totalGastado = 0;
-                if (snapshot.empty) { container.innerHTML = '<p style=\"text-align:center;\">No hay gastos.</p>'; updateDisplay(0); return; }
+                if (snapshot.empty) { container.innerHTML = '<p style="text-align:center;">No hay gastos.</p>'; updateDisplay(0); return; }
                 container.innerHTML = snapshot.docs.map(docSnap => {
                     const d = docSnap.data(); totalGastado += parseFloat(d.valor);
-                    return `<div class=\"history-item\"><div><b>${d.nombre}</b></div><div style=\"display:flex; align-items:center; gap:12px;\"><div class=\"h-amount\">-$${formatNumber(d.valor)}</div><div onclick=\"deleteGasto('${docSnap.id}')\" style=\"cursor:pointer; color:#ef4444; font-weight:bold;\">×</div></div></div>`;
+                    return `<div class="history-item"><div><b>${d.nombre}</b></div><div style="display:flex; align-items:center; gap:12px;"><div class="h-amount">-$${formatNumber(d.valor)}</div><div onclick="deleteGasto('${docSnap.id}')" style="cursor:pointer; color:#ef4444; font-weight:bold;">×</div></div></div>`;
                 }).join('');
                 updateDisplay(totalGastado); updateEmojis();
             });
