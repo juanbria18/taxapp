@@ -6,9 +6,33 @@
     <title>Itinerario - TaxUSA</title>
     <script src="https://www.google.com/recaptcha/api.js?render=6LeK6cssAAAAALxcJy-95R2nhVMmnuIyB78AQgvw"></script>
     <style>
-        :root { --primary: #7c3aed; --bg: #f8fafc; --white: #ffffff; --card-note: #fffbeb; --blue: #2563eb; --accent: #f59e0b; --success: #10b981; }
+        :root { 
+            --primary: #7c3aed; 
+            --bg: #f8fafc; 
+            --white: #ffffff; 
+            --card-note: #fffbeb; 
+            --blue: #2563eb; 
+            --accent: #f59e0b; 
+            --success: #10b981;
+            /* Variables Modo Oscuro */
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #f1f5f9;
+            --card-bg: #ffffff;
+        }
+
+        /* Clase Dark Mode */
+        body.dark-mode {
+            --bg: #0f172a;
+            --white: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+            --card-bg: #1e293b;
+        }
+
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; color: var(--text-main); transition: background 0.3s, color 0.3s; }
         
         .nav-bar { width: 100%; max-width: 450px; margin-bottom: 15px; display: flex; gap: 10px; }
         .btn-nav { flex: 1; padding: 12px; background: var(--white); border-radius: 14px; font-weight: 800; text-align: center; text-decoration: none; font-size: 0.8rem; border: 2px solid var(--blue); color: var(--blue); }
@@ -17,17 +41,17 @@
         .card { background: var(--white); padding: 1.5rem; border-radius: 24px; width: 100%; max-width: 450px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 15px; position: relative; }
         h2 { color: var(--primary); margin-top: 0; text-align: center; font-size: 1.4rem; margin-bottom: 10px; }
         
-        .city-picker { width: 100%; padding: 10px; border-radius: 12px; border: 2px solid #f1f5f9; font-weight: 800; color: #475569; margin-bottom: 15px; outline: none; background: #fff; cursor: pointer; }
+        .city-picker { width: 100%; padding: 10px; border-radius: 12px; border: 2px solid var(--border-color); font-weight: 800; color: var(--text-muted); margin-bottom: 15px; outline: none; background: var(--white); cursor: pointer; }
 
-        .settings-trigger { position: absolute; top: 15px; right: 15px; background: #f1f5f9; border: none; border-radius: 50%; width: 35px; height: 35px; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; }
-        textarea { width: 100%; padding: 15px; border: 2px solid #f1f5f9; border-radius: 16px; margin-bottom: 10px; font-size: 1rem; background: #f8fafc; font-family: inherit; resize: none; outline: none; transition: 0.3s; }
-        textarea:focus { border-color: var(--primary); background: white; }
+        .settings-trigger { position: absolute; top: 15px; right: 15px; background: var(--border-color); border: none; border-radius: 50%; width: 35px; height: 35px; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; }
+        textarea { width: 100%; padding: 15px; border: 2px solid var(--border-color); border-radius: 16px; margin-bottom: 10px; font-size: 1rem; background: var(--bg); color: var(--text-main); font-family: inherit; resize: none; outline: none; transition: 0.3s; }
+        textarea:focus { border-color: var(--primary); background: var(--white); }
 
         .btn-add { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 16px; font-weight: 700; cursor: pointer; font-size: 1rem; }
         
         .queues-box { margin-top: 15px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-        .queue-card { background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px 4px; border-radius: 12px; text-align: center; display: flex; flex-direction: column; justify-content: center; min-height: 70px; }
-        .queue-name { font-size: 0.52rem; font-weight: 800; color: #64748b; text-transform: uppercase; margin-bottom: 4px; line-height: 1.2; height: 28px; display: flex; align-items: center; justify-content: center; }
+        .queue-card { background: var(--bg); border: 1px solid var(--border-color); padding: 10px 4px; border-radius: 12px; text-align: center; display: flex; flex-direction: column; justify-content: center; min-height: 70px; }
+        .queue-name { font-size: 0.52rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; line-height: 1.2; height: 28px; display: flex; align-items: center; justify-content: center; }
         .queue-status { font-size: 0.72rem; font-weight: 900; }
         .q-low { color: #10b981; }
         .q-med { color: #f59e0b; }
@@ -37,28 +61,34 @@
         .api-attribution { grid-column: span 3; text-align: center; margin-top: 5px; margin-bottom: 5px; }
         .api-attribution a { font-size: 0.6rem; color: #94a3b8; text-decoration: none; font-weight: 600; }
 
-        .dato-itinerario { background: #f0f9ff; padding: 15px; border-radius: 16px; border: 1.5px solid var(--blue); margin-top: 15px; text-align: center; cursor: pointer; min-height: 80px; display: flex; flex-direction: column; justify-content: center; }
+        .dato-itinerario { background: rgba(37, 99, 235, 0.1); padding: 15px; border-radius: 16px; border: 1.5px solid var(--blue); margin-top: 15px; text-align: center; cursor: pointer; min-height: 80px; display: flex; flex-direction: column; justify-content: center; }
         .list-container { width: 100%; max-width: 450px; margin-top: 10px; }
-        .note-item { background: var(--white); padding: 18px; border-radius: 20px; margin-bottom: 12px; position: relative; display: flex; gap: 15px; align-items: flex-start; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.02); }
-        .status-indicator { min-width: 22px; height: 22px; border-radius: 50%; border: 2px solid #e2e8f0; transition: 0.3s; display: flex; align-items: center; justify-content: center; }
-        .note-item.completed { background: #f1f5f9; opacity: 0.7; }
+        .note-item { background: var(--white); padding: 18px; border-radius: 20px; margin-bottom: 12px; position: relative; display: flex; gap: 15px; align-items: flex-start; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid var(--border-color); }
+        .status-indicator { min-width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--border-color); transition: 0.3s; display: flex; align-items: center; justify-content: center; }
+        .note-item.completed { background: var(--bg); opacity: 0.7; }
         .note-item.completed .status-indicator { background: var(--success); border-color: var(--success); }
         .note-item.completed .status-indicator::after { content: '✓'; color: white; font-size: 0.7rem; font-weight: 900; }
-        .note-item.completed .note-text { text-decoration: line-through; color: #64748b; }
+        .note-item.completed .note-text { text-decoration: line-through; color: var(--text-muted); }
         .note-content { flex: 1; cursor: pointer; }
-        .note-text { font-size: 0.95rem; color: #1e293b; font-weight: 600; white-space: pre-wrap; }
-        .note-date { font-size: 0.6rem; color: #94a3b8; margin-top: 6px; font-weight: 700; }
-        .btn-delete-note { opacity: 0.3; padding: 5px; cursor: pointer; font-size: 1.1rem; color: #64748b; }
+        .note-text { font-size: 0.95rem; color: var(--text-main); font-weight: 600; white-space: pre-wrap; }
+        .note-date { font-size: 0.6rem; color: var(--text-muted); margin-top: 6px; font-weight: 700; }
+        .btn-delete-note { opacity: 0.3; padding: 5px; cursor: pointer; font-size: 1.1rem; color: var(--text-muted); }
         
         .footer { margin-top: auto; padding: 20px 0 5px 0; text-align: center; font-size: 0.75rem; color: #94a3b8; font-weight: 600; }
         .api-credits { font-size: 0.55rem; color: #cbd5e1; letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 20px; text-align: center; font-weight: 500; }
 
         .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; z-index: 1000; }
-        .settings-drawer { position: fixed; top: 0; right: -300px; width: 280px; height: 100%; background: white; z-index: 1001; transition: 0.3s; padding: 25px; display: flex; flex-direction: column; box-shadow: -5px 0 15px rgba(0,0,0,0.1); }
+        .settings-drawer { position: fixed; top: 0; right: -300px; width: 280px; height: 100%; background: var(--white); z-index: 1001; transition: 0.3s; padding: 25px; display: flex; flex-direction: column; box-shadow: -5px 0 15px rgba(0,0,0,0.1); color: var(--text-main); }
         .settings-drawer.open { right: 0; }
         
-        .drawer-btn { width: 100%; padding: 14px; margin-bottom: 10px; border-radius: 12px; border: 1px solid #e2e8f0; background: white; font-weight: 700; cursor: pointer; font-size: 0.85rem; text-align: left; }
+        .drawer-btn { width: 100%; padding: 14px; margin-bottom: 10px; border-radius: 12px; border: 1px solid var(--border-color); background: var(--white); color: var(--text-main); font-weight: 700; cursor: pointer; font-size: 0.85rem; text-align: left; }
         .btn-danger { color: #ef4444; border-color: #fecaca; }
+
+        /* Ajustes específicos para tarjetas en modo oscuro */
+        body.dark-mode .queue-card[style*="background: #f5f3ff"] {
+            background: #2e1065 !important;
+            border-color: #7c3aed !important;
+        }
     </style>
 </head>
 <body>
@@ -97,7 +127,7 @@
 
         <div class="dato-itinerario" onclick="nextTip()">
             <small style="color: var(--blue); font-weight: 800; font-size: 0.6rem; text-transform: uppercase;">✨ Tip de Viaje</small>
-            <div id="tip-text" style="font-weight: 700; font-size: 0.85rem; color: #1e293b; margin-top: 4px; transition: opacity 0.3s ease;">Cargando tips...</div>
+            <div id="tip-text" style="font-weight: 700; font-size: 0.85rem; color: var(--text-main); margin-top: 4px; transition: opacity 0.3s ease;">Cargando tips...</div>
         </div>
     </div>
 
@@ -106,7 +136,7 @@
     <div id="menuOverlay" class="menu-overlay" onclick="toggleSettings()"></div>
     <div id="settingsDrawer" class="settings-drawer">
         <h3 style="margin-top:0; color: var(--primary);">Ajustes</h3>
-        <p id="userEmail" style="font-size:0.75rem; color:#64748b; margin-bottom:20px; font-weight:700;"></p>
+        <p id="userEmail" style="font-size:0.75rem; color:var(--text-muted); margin-bottom:20px; font-weight:700;"></p>
         
         <button class="drawer-btn" onclick="changeEmail()">📧 Cambiar Correo (Verificación)</button>
         <button class="drawer-btn" onclick="changePassword()">🔑 Cambiar Contraseña</button>
@@ -133,6 +163,11 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
         let currentUser = null;
+
+        // Cargar Modo Oscuro desde LocalStorage
+        if (localStorage.getItem('dark-mode') === 'true') {
+            document.body.classList.add('dark-mode');
+        }
 
         onAuthStateChanged(auth, (user) => {
             if (!user) { window.location.replace("login.html"); } 
@@ -202,7 +237,7 @@
             ],
             philly: [
                 { name: "🔔 Liberty Bell", id: "lib" }, { name: "🏛️ Art Museum", id: "philart" },
-                { name: "🥪 Reading Market", id: "read" }, { name: "⚖️ Indep. Hall", id: "ihall" },
+                { name: "sandwich Reading Market", id: "read" }, { name: "⚖️ Indep. Hall", id: "ihall" },
                 { name: "🥊 Rocky Steps", id: "rocky" }, { name: "🏘️ Elfreth's Alley", id: "elf" }
             ],
             nola: [
