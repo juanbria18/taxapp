@@ -5,6 +5,7 @@ const ASSETS = [
   '/compras.html',
   '/itinerario.html',
   '/unidades.html', // Agregamos unidades.html que estaba en tu menú
+  '/comparador.html', // Agregamos unidades.html que estaba en tu menú
   '/manifest.json',
   '/sw.js',
   '/icon-512.png' // Agregamos el nuevo icono para soporte offline
