@@ -238,6 +238,17 @@
             background: var(--bg); color: var(--text-main); font-weight: 600; cursor: pointer; text-align: left;
         }
         .btn-danger { color: #ef4444; border-color: #fecaca; }
+
+        /* Estilo para el link de ayuda */
+        .api-helper-link {
+            display: block;
+            text-align: center;
+            font-size: 0.7rem;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 700;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -256,6 +267,8 @@
         <div class="key-box">
             <label>API CONFIGURATION</label>
             <input type="password" id="serpKey" placeholder="Pega tu API Key aquí..." onchange="saveKey()">
+            <a href="https://serpapi.com/manage-api-key" target="_blank" class="api-helper-link">¿No sabes dónde conseguir la API? Hace click acá</a>
+            
             <div class="status-bar">
                 <span id="apiStatus">● DESCONECTADO</span>
                 <span id="creditsLabel">CRÉDITOS: --</span>
@@ -315,7 +328,6 @@
             }
         });
 
-        // Funciones de Usuario
         window.changeEmail = async () => {
             if (currentUser) {
                 const nuevoEmail = prompt("Ingresa el nuevo correo electrónico:", currentUser.email);
@@ -443,9 +455,6 @@
             canvas.height = video.videoHeight;
             canvas.getContext('2d').drawImage(video, 0, 0);
             
-            if(stream) stream.getTracks().forEach(t => t.stop());
-            document.getElementById('video-container').style.display = 'none';
-            document.getElementById('btnStartCamera').style.display = 'flex';
             document.getElementById('loading').style.display = "block";
 
             canvas.toBlob(async (blob) => {
@@ -461,6 +470,11 @@
                         body: formData 
                     });
                     const data = await response.json();
+                    
+                    if(stream) stream.getTracks().forEach(t => t.stop());
+                    document.getElementById('video-container').style.display = 'none';
+                    document.getElementById('btnStartCamera').style.display = 'flex';
+                    
                     renderResults(data, "visual_matches");
                 } catch (e) { 
                     alert("Error en Lens. Intenta buscar por texto.");
@@ -480,16 +494,23 @@
             const results = data[keyType];
             if (results && results.length > 0) {
                 results.slice(0, 10).forEach(item => {
+                    
+                    // CORRECCIÓN 404: Limpiar enlaces de redirección de Google
+                    let cleanLink = item.link;
+                    if (cleanLink.includes("/url?q=")) {
+                        cleanLink = new URLSearchParams(cleanLink.split('?')[1]).get('q');
+                    }
+
                     const card = document.createElement('div');
                     card.className = 'result-card';
                     card.innerHTML = `
-                        <img src="${item.thumbnail}" class="result-img">
+                        <img src="${item.thumbnail}" class="result-img" onerror="this.src='https://via.placeholder.com/75'">
                         <div class="result-info">
                             <div class="result-source">${item.source || 'Tienda USA'}</div>
                             <div style="font-size:0.85rem; font-weight:700; margin-bottom:4px;">${item.title}</div>
                             <div class="result-price">${item.price || 'Ver precio'}</div>
                         </div>
-                        <a href="${item.link}" target="_blank" style="text-decoration:none; font-size:1.2rem;">🚀</a>
+                        <a href="${cleanLink}" target="_blank" style="text-decoration:none; font-size:1.2rem;">🚀</a>
                     `;
                     resultsArea.appendChild(card);
                 });
