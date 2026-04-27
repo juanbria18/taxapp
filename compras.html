@@ -399,7 +399,7 @@
 
         const video = document.getElementById('video-preview'), canvas = document.getElementById('ocr-canvas');
         let stream = null;
-        const knownStores = ["ROSS", "MARSHALLS", "WALMART", "APPLE", "BEST BUY", "TARGET", "TJ MAXX", "MACY'S", "ZARA", "H&M", "NIKE", "ADIDAS"];
+        const knownStores = ["ROSS", "MARSHALLS", "WALMART", "APPLE", "BEST BUY", "TARGET", "TJ MAXX", "MACY'S", "ZARA", "H&M", "NIKE", "ADIDAS", "UNITED", "DELTA", "AMERICAN AIRLINES", "AMAZON"];
 
         window.startScanner = async () => {
             document.getElementById('scanner-ui').style.display = 'block';
@@ -428,7 +428,7 @@
                 await worker.terminate();
                 
                 if (!text || text.trim().length < 10) {
-                    alert("⚠️ No se detectó texto claro. Sacá una foto nueva más cerca y con luz.");
+                    alert("⚠️ No se detectó texto claro. Intentá de nuevo.");
                     loader.style.display = 'none';
                     return;
                 }
@@ -439,59 +439,67 @@
         };
 
         function parseTicketText(text) {
-            const lines = text.split('\n').map(l => l.trim().toUpperCase());
-            let detectedPrice = null, detectedStore = "";
-            for (let store of knownStores) { if (text.toUpperCase().includes(store)) { detectedStore = store; break; } }
-            if (!detectedStore) { const firstRealLine = lines.find(l => l.length > 3 && !l.match(/[0-9]/)); detectedStore = firstRealLine ? firstRealLine.substring(0, 20) : "Ticket Ross/Compra"; }
-            let totalFound = false;
-            for (let i = lines.length - 1; i >= 0; i--) {
-                const line = lines[i];
-                if (line.includes('TOTAL') || line.includes('AMOUNT') || line.includes('SUBTOTAL') || line.includes('PAYMENT')) {
-                    const match = line.match(/(\d+[\.,]\d{2})/);
-                    if (match) { detectedPrice = match[1]; totalFound = true; break; }
+            // Normalizar texto: eliminar comas de miles para que no confundan al parser decimal
+            const cleanText = text.toUpperCase().replace(/(\d),(\d{3})/g, '$1$2'); 
+            const lines = cleanText.split('\n').map(l => l.trim());
+
+            let detectedStore = "Compra Detectada";
+            let detectedPrice = null;
+
+            // 1. Identificar Tienda
+            for (let store of knownStores) {
+                if (cleanText.includes(store)) { detectedStore = store; break; }
+            }
+
+            // 2. Lógica Inteligente para el Total
+            // Buscamos líneas que contengan palabras clave de pago/total
+            const keywords = ["TOTAL", "AMOUNT", "PAID", "DUE", "BALANCE", "USD", "FINAL"];
+            let candidatePrices = [];
+
+            lines.forEach(line => {
+                const hasKeyword = keywords.some(k => line.includes(k));
+                // Extraer cualquier número que parezca precio (ej: 55.57, 120,00, etc)
+                // Buscamos patrones de dígitos con punto o coma decimal
+                const priceMatch = line.match(/(\d+[\.\,]\d{2})/g);
+                
+                if (priceMatch) {
+                    priceMatch.forEach(match => {
+                        let val = parseFloat(match.replace(',', '.'));
+                        // Si la línea tiene una keyword, le damos prioridad
+                        candidatePrices.push({ val, priority: hasKeyword ? 2 : 1 });
+                    });
                 }
+            });
+
+            if (candidatePrices.length > 0) {
+                // Ordenar: primero los que tienen prioridad (keywords) y de esos el más alto
+                candidatePrices.sort((a, b) => b.priority - a.priority || b.val - a.val);
+                detectedPrice = candidatePrices[0].val;
             }
-            if (!totalFound) {
-                const matches = text.match(/(\d+[\.,]\d{2})/g);
-                if (matches) { const nums = matches.map(m => parseFloat(m.replace(',', '.'))); detectedPrice = Math.max(...nums).toFixed(2); }
-            }
+
+            // Asignar resultados
             document.getElementById('nombre').value = detectedStore;
-            if (detectedPrice) { document.getElementById('valor').value = detectedPrice.toString().replace('.', ','); formatVisual(document.getElementById('valor')); }
-            else { alert("Se leyó el ticket pero no se encontró el precio. Por favor cargalo a mano."); }
+            if (detectedPrice) {
+                // Lo ponemos en formato visual para el usuario (usando coma para decimales según tu formatVisual)
+                document.getElementById('valor').value = detectedPrice.toFixed(2).replace('.', ',');
+                formatVisual(document.getElementById('valor'));
+            } else {
+                alert("Se leyó el texto pero no se encontró un precio claro. Ingresalo manualmente.");
+            }
         }
 
-        // ==========================================
-        // BASE DE DATOS DE CONSEJOS EXPANDIDA
-        // ==========================================
         const shoppingTips = [
             "Orlando: Premium Outlets Vineland es mejor para lujo (Prada, Gucci).",
             "Orlando: International Premium Outlets es el más grande y tiene Disney Character Warehouse.",
             "Miami: Sawgrass Mills es inmenso. El área 'The Colonnade' tiene las marcas de lujo.",
-            "Miami: Dolphin Mall es ideal si estás cerca del aeropuerto y buscás marcas deportivas.",
-            "Jersey Gardens (NJ): ¡Tax Free! No pagás impuesto en ropa y calzado. Ideal cerca de NYC.",
-            "NYC: Woodbury Common es el mejor outlet, pero está a 1 hora. Considerá el bus.",
-            "Texas: San Marcos Premium Outlets es de los mejores del centro de USA.",
-            "Estrategia Ross: Los mejores hallazgos están al fondo, en los racks de 'Clearance'.",
-            "Estrategia Marshalls: Suelen tener mejor selección de calzado de marca que Ross.",
-            "Cupones: Descargá la App 'Simon' para obtener cupones digitales en la mayoría de los Outlets.",
-            "VIP Club: Registrate en la web de Premium Outlets para recibir un libro de cupones digital gratis.",
-            "Impuestos: Recordá que en USA el precio de etiqueta NO incluye el Tax (aprox. 6-9%).",
-            "Orlando Tax: 6.5%. Miami Tax: 7%. Houston Tax: 8.25%.",
-            "Clearance: Buscá etiquetas rojas o amarillas. En Walmart suelen estar en pasillos específicos.",
-            "Apple: Los precios son fijos. No esperes descuentos en Outlets, solo en productos 'Refurbished' online.",
-            "Best Buy: Tienen una sección de 'Open Box' con productos devueltos casi nuevos y mucho más baratos.",
-            "Target: Sus colaboraciones con diseñadores son geniales y baratas. Mirá la sección 'Dollar Spot'.",
-            "Cosméticos: Sephora y Ulta son los reyes. En Marshalls/TJ Maxx podés encontrar marcas de lujo a mitad de precio.",
-            "Equipaje: Comprá valijas en Ross o TJ Maxx. Suelen costar un 60% menos que en tiendas oficiales.",
-            "Amazon Hub: Si comprás por Amazon, usá los 'Lockers' en Whole Foods o 7-Eleven para retirar seguro.",
-            "Días de reposición: Muchas tiendas reponen stock los lunes o martes a la mañana.",
-            "Zapatillas: Nike Clearance Store (no confundir con Factory) tiene los precios más bajos del país.",
-            "Walmart: La marca 'Great Value' es excelente y cuesta la mitad que las marcas líderes.",
-            "Orlando: El Florida Mall tiene la tienda oficial de M&M's y Nintendo.",
-            "Miami: Lincoln Road es genial para pasear, pero los precios son más altos que en el Mall.",
-            "Ropa interior: Victoria's Secret suele tener el 'Semi-Annual Sale' en junio y diciembre.",
-            "Electrónica: No compres en tiendas de 'Electronics' pequeñas en zonas turísticas; suelen ser estafas.",
-            "Nike App: Escaneá el código de barras en la tienda para ver si hay stock de otros talles u ofertas."
+            "Miami: Dolphin Mall es ideal si estás cerca del aeropuerto.",
+            "Jersey Gardens (NJ): ¡Tax Free! No pagás impuesto en ropa y calzado.",
+            "NYC: Woodbury Common es el mejor outlet, pero está a 1 hora.",
+            "Estrategia Ross: Los mejores hallazgos están al fondo, en 'Clearance'.",
+            "Impuestos: El precio de etiqueta NO incluye el Tax (aprox. 6-9%).",
+            "Best Buy: Mirá la sección 'Open Box' para precios ridículos.",
+            "Amazon Hub: Usá los 'Lockers' en Whole Foods para retirar tus paquetes.",
+            "Apple: Comprá 'Refurbished' en su web oficial para ahorrar un 15-20%."
         ];
 
         let currentTipIndex = 0;
