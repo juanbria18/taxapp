@@ -76,7 +76,7 @@
         .btn-install-now { background: var(--primary); color: white; border: none; padding: 8px 15px; border-radius: 10px; font-weight: 800; font-size: 0.75rem; cursor: pointer; flex: 1; }
         .btn-later { background: var(--box-bg); color: var(--text-sub); border: none; padding: 8px 15px; border-radius: 10px; font-weight: 700; font-size: 0.75rem; cursor: pointer; }
 
-        .card { background: var(--card); padding: 1.5rem; border-radius: 24px; width: 100%; max-width: 420px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); text-align: center; position: relative; transition: background 0.3s ease; }
+        .card { background: var(--card); padding: 1.5rem; border-radius: 24px; width: 100%; max-width: 420px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); text-align: center; position: relative; transition: background 0.3s ease; margin-bottom: 80px; }
         h1 { margin: 0 0 0.5rem 0; font-size: 1.6rem; font-weight: 800; color: var(--primary); display: flex; align-items: center; justify-content: center; gap: 10px; }
         
         .countdown-box { background: var(--box-bg); padding: 12px; border-radius: 16px; margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 2px; cursor: pointer; position: relative; border: 2px solid transparent; transition: 0.2s; }
@@ -116,12 +116,52 @@
         .final-box { background: var(--primary); padding: 1.2rem; border-radius: 20px; color: white; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(37,99,235,0.2); }
         .final-value { font-size: 2.2rem; font-weight: 900; margin: 4px 0; }
 
-        .nav-buttons { margin-top: 25px; display: flex; flex-direction: column; gap: 10px; }
-        .nav-btn { text-decoration: none; padding: 16px; border-radius: 14px; font-weight: 800; text-align: center; font-size: 0.9rem; transition: 0.2s; border: none; cursor: pointer; }
-        .btn-blue { background: #2563eb; color: white; width: 100%; }
-        .btn-purple { background: #7c3aed; color: white; }
-        .btn-cyan { background: #0ea5e9; color: white; }
-        .btn-emerald {background: #10b981; color: white; }
+        /* ESTILOS BARRA DE NAVEGACIÓN NIVELADA */
+        .nav-bar {
+            display: flex !important;
+            align-items: center;
+            justify-content: space-around;
+            width: 100%;
+            max-width: 420px;
+            background: var(--card);
+            border-top: 1px solid var(--input-border);
+            padding: 10px 5px;
+            position: fixed;
+            bottom: 0;
+            z-index: 1000;
+        }
+
+        .btn-nav {
+            flex: 1 !important;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: var(--text-main);
+            font-size: 10px;
+            font-weight: 800;
+            gap: 4px;
+            transition: opacity 0.2s;
+        }
+
+        .btn-nav span:first-child {
+            font-size: 20px;
+        }
+
+        .btn-nav:active {
+            opacity: 0.6;
+        }
+
+        .settings-trigger-bar {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            flex: 0 0 auto;
+            padding: 0 10px;
+            color: var(--text-main);
+        }
 
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(4px); }
         .modal-content { background: var(--card); padding: 25px; border-radius: 24px; width: 100%; max-width: 350px; color: var(--text-main); }
@@ -222,13 +262,26 @@
         <div id="dynamic-tip">
             💡 <span id="tip-content" style="transition: opacity 0.4s ease;">Cargando tip económico...</span>
         </div>
+    </div>
 
-        <div class="nav-buttons">
-            <a href="compras.html" class="nav-btn btn-blue">🛒 GASTOS Y TALLES</a>
-            <a href="itinerario.html" class="nav-btn btn-purple">📍 ITINERARIO</a>
-            <a href="unidades.html" class="nav-btn btn-cyan">⚖️ CONVERSOR UNIDADES</a>
-            <a href="#" class="nav-btn btn-emerald" onclick="avisoProximamente(event)">🔍 COMPARADOR</a>
-        </div>
+    <div class="nav-bar">
+        <a href="index.html" class="btn-nav">
+            <span>🏠</span>
+            <span>INICIO</span>
+        </a>
+        <a href="itinerario.html" class="btn-nav">
+            <span>📍</span>
+            <span>ITINERARIO</span>
+        </a>
+        <a href="javascript:void(0)" class="btn-nav" onclick="avisoProximamente(event)">
+            <span>🔍</span>
+            <span>COMPARADOR</span>
+        </a>
+        <a href="unidades.html" class="btn-nav">
+            <span>⚖️</span>
+            <span>UNIDADES</span>
+        </a>
+        <button class="settings-trigger-bar" onclick="toggleSettings()">⚙️</button>
     </div>
 
     <div class="footer">
@@ -249,7 +302,7 @@
                 <label>Fecha del viaje</label>
                 <input type="date" id="input-date">
             </div>
-            <button class="nav-btn btn-blue" onclick="saveTripSettings()">GUARDAR</button>
+            <button class="drawer-btn" style="background: var(--primary); color: white; border: none;" onclick="saveTripSettings()">GUARDAR</button>
             <button onclick="closeTripModal()" style="width:100%; background:none; border:none; margin-top:15px; color:var(--text-sub); font-weight:700; cursor:pointer;">Cerrar</button>
         </div>
     </div>
@@ -291,7 +344,7 @@
         let tripData = { destination: "Orlando", date: "2027-01-01" };
         let currentTipPercentage = 15;
 
-        // --- LÓGICA DARK MODE (NUEVO) ---
+        // --- LÓGICA DARK MODE ---
         window.toggleDarkMode = () => {
             const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
             const newTheme = isDark ? 'light' : 'dark';
@@ -448,7 +501,8 @@
             
             [0, 10, 15, 20].forEach(p => {
                 const amount = subtotal * (p / 100);
-                document.getElementById(`val-tip-${p}`).innerText = `$${amount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+                const el = document.getElementById(`val-tip-${p}`);
+                if(el) el.innerText = `$${amount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
             });
 
             const customVal = parseFloat(document.getElementById('custom-tip-input').value) || 0;
@@ -542,10 +596,7 @@
     </script>
     <script>
     function avisoProximamente(event) {
-        // Evita que la página intente recargarse al tocar el link
         event.preventDefault();
-        
-        // Muestra el mensaje
         alert("🚀 ¡El Comparador de Precios estará disponible próximamente!");
     }
 </script>
