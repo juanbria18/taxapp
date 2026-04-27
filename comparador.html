@@ -3,293 +3,273 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Comparador de Precios - Shopping USA</title>
+    <title>Compras y Talles</title>
+    <script src="https://www.google.com/recaptcha/api.js?render=6LeK6cssAAAAALxcJy-95R2nhVMmnuIyB78AQgvw"></script>
     <script src="https://unpkg.com/twemoji@latest/dist/twemoji.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <style>
-        :root {
-            --primary: #6366f1;
-            --primary-dark: #4f46e5;
-            --bg: #f1f5f9;
-            --white: #ffffff;
-            --text-main: #0f172a;
+        :root { 
+            --primary: #2563eb; 
+            --accent: #7c3aed; 
+            --bg: #f8fafc; 
+            --white: #ffffff; 
+            --success: #10b981; 
+            --text-main: #1e293b;
             --text-muted: #64748b;
-            --border-color: #e2e8f0;
-            --accent: #10b981;
-            --danger: #ef4444;
-            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            --card-border: #e2e8f0;
+            --input-bg: #f1f5f9;
         }
 
         body.dark-mode {
-            --bg: #020617;
+            --bg: #0f172a;
             --white: #1e293b;
-            --text-main: #f1f5f9;
+            --text-main: #f8fafc;
             --text-muted: #94a3b8;
-            --border-color: #334155;
-            --shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+            --card-border: #334155;
+            --input-bg: #334155;
         }
 
-        img.emoji {
-            height: 1em;
-            width: 1em;
-            margin: 0 .05em 0 .1em;
-            vertical-align: -0.1em;
-            display: inline-block;
-        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; color: var(--text-main); }
+        
+        img.emoji { height: 1em; width: 1em; margin: 0 .05em 0 .1em; vertical-align: -0.1em; }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+        .nav-bar { width: 100%; max-width: 450px; margin-bottom: 15px; display: flex; gap: 5px; align-items: center; }
+        .btn-nav { flex: 1; padding: 10px 4px; background: var(--white); border-radius: 14px; font-weight: 800; text-align: center; text-decoration: none; font-size: 0.65rem; border: 2px solid var(--card-border); color: var(--text-muted); transition: 0.2s; }
+        .btn-nav-cyan { border-color: #0ea5e9; color: #0ea5e9; }
 
-        body {
-            font-family: 'Inter', -apple-system, system-ui, sans-serif;
-            background-color: var(--bg);
-            color: var(--text-main);
-            margin: 0;
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            transition: background 0.4s ease;
-        }
-
-        .nav-bar {
-            width: 100%;
-            max-width: 450px;
-            margin-bottom: 20px;
-            display: flex;
-            gap: 8px;
-            justify-content: space-between;
-        }
-
-        .btn-nav {
-            flex: 1;
-            padding: 12px 2px;
-            background: var(--white);
-            border-radius: 14px;
-            font-weight: 700;
-            text-align: center;
-            text-decoration: none;
-            font-size: 0.65rem;
-            border: 1px solid var(--border-color);
-            color: var(--text-muted);
-            transition: 0.2s;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            line-height: 1.2;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 450px;
-            background: var(--white);
-            padding: 25px;
-            border-radius: 30px;
-            box-shadow: var(--shadow);
-            border: 1px solid var(--border-color);
-            position: relative;
-        }
-
-        .settings-trigger {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: var(--bg);
-            border: none;
-            width: 35px;
-            height: 35px;
-            border-radius: 10px;
+        .settings-trigger { 
+            width: 45px; 
+            height: 45px; 
+            background: var(--white); 
+            border: 2px solid var(--card-border); 
+            border-radius: 14px; 
+            cursor: pointer; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
             font-size: 1.1rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            flex-shrink: 0;
         }
 
-        h2 { 
-            margin: 0 0 25px 0; 
-            font-size: 1.6rem; 
-            font-weight: 800; 
-            background: linear-gradient(to right, var(--primary), #a855f7);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .key-box {
-            background: var(--bg);
-            padding: 15px;
-            border-radius: 20px;
-            margin-bottom: 25px;
-            border: 1px solid var(--border-color);
-        }
-
-        .key-box label {
-            display: block;
-            font-size: 0.65rem;
-            font-weight: 800;
-            color: var(--text-muted);
-            margin-bottom: 8px;
-        }
-
-        .key-box input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            background: var(--white);
-            color: var(--text-main);
-            font-size: 0.8rem;
-        }
-
-        .status-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.65rem;
-            margin-top: 12px;
-            font-weight: 800;
-            color: var(--text-muted);
-        }
-
-        .search-section input {
-            width: 100%;
-            padding: 18px;
-            border: 1px solid var(--border-color);
-            border-radius: 18px;
-            background: var(--bg);
-            color: var(--text-main);
-            font-size: 1rem;
-            margin-bottom: 15px;
-        }
-
-        .btn {
-            width: 100%;
-            padding: 16px;
-            border: none;
-            border-radius: 18px;
-            font-weight: 700;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            transition: 0.3s;
-        }
-
-        .btn-search { background: var(--primary); color: white; margin-bottom: 10px; }
-        .btn-lens { background: var(--text-main); color: var(--white); opacity: 0.7; }
-
-        #video-container {
-            display: none;
-            width: 100%;
-            border-radius: 24px;
-            overflow: hidden;
-            margin-bottom: 15px;
-            background: #000;
-            position: relative;
-        }
-
-        video { width: 100%; display: block; }
+        .budget-card { background: linear-gradient(135deg, #2563eb, #7c3aed); color: white; padding: 20px; border-radius: 24px; width: 100%; max-width: 450px; text-align: center; box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+        .budget-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; opacity: 0.9; letter-spacing: 1px; }
+        .budget-value { font-size: 2.2rem; font-weight: 900; margin: 8px 0; }
         
-        .capture-overlay {
-            position: absolute;
-            bottom: 20px; left: 50%;
-            transform: translateX(-50%);
-            width: 65px; height: 65px;
-            border-radius: 50%;
-            border: 4px solid white;
-            background: rgba(255,255,255,0.3);
-        }
-
-        .result-card {
-            background: var(--white);
-            border: 1px solid var(--border-color);
-            border-radius: 20px;
-            padding: 12px;
-            margin-bottom: 12px;
-            display: flex;
-            gap: 15px;
-            align-items: center;
-        }
-
-        .result-img { width: 75px; height: 75px; border-radius: 12px; object-fit: cover; }
-        .result-info { flex: 1; }
-        .result-price { color: var(--accent); font-weight: 800; font-size: 1rem; margin-top: 4px; }
-        .result-source { font-size: 0.6rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; }
-
-        .loading-spinner { text-align: center; padding: 25px; font-weight: 700; color: var(--primary); display: none; }
+        .set-budget { display: flex; gap: 8px; margin-top: 12px; background: rgba(255,255,255,0.15); padding: 8px; border-radius: 15px; }
+        .set-budget input { flex: 1; background: transparent; border: none; color: white; padding: 5px 10px; font-weight: 700; outline: none; width: 50px; }
         
-        .menu-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.4); display: none; z-index: 1000;
-        }
+        .set-budget input::placeholder { color: white; opacity: 1; }
+        
+        .set-budget button { background: white; color: var(--primary); border: none; padding: 8px 15px; border-radius: 10px; font-weight: 800; font-size: 0.7rem; cursor: pointer; }
 
-        .settings-drawer {
-            position: fixed; top: 0; right: -320px;
-            width: 300px; height: 100%;
-            background: var(--white); z-index: 1001;
-            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); padding: 30px;
-            display: flex; flex-direction: column;
-        }
+        .card { background: var(--white); padding: 1.5rem; border-radius: 24px; width: 100%; max-width: 450px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 20px; position: relative; border: 1px solid var(--card-border); }
+        .tab-container { display: flex; background: var(--input-bg); padding: 5px; border-radius: 16px; margin-bottom: 20px; }
+        .tab { flex: 1; padding: 12px; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; background: transparent; color: var(--text-muted); font-size: 0.8rem; }
+        .tab.active { background: var(--white); color: var(--primary); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        
+        input, select { width: 100%; padding: 14px; border: 2px solid var(--card-border); border-radius: 14px; font-size: 1rem; font-weight: 600; outline: none; transition: 0.2s; background: var(--white); color: var(--text-main); }
+        .btn-add { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 16px; font-weight: 800; cursor: pointer; font-size: 0.9rem; }
+        
+        .btn-scan { background: #0ea5e9; margin-bottom: 10px; border: none; width: 100%; padding: 12px; border-radius: 14px; color: white; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        #scanner-ui { display: none; margin-bottom: 15px; border-radius: 20px; overflow: hidden; background: #000; position: relative; width: 100%; max-width: 450px; }
+        #video-preview { width: 100%; display: block; }
+        .ocr-loading { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); color: white; display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 10; border-radius: 20px; }
+        .close-scanner { position: absolute; top: 15px; right: 15px; width: 35px; height: 35px; background: rgba(255,255,255,0.2); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: 800; z-index: 20; }
+
+        .history-item { background: var(--bg); padding: 15px; border-radius: 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid var(--primary); }
+        .dato-clave { background: rgba(16, 185, 129, 0.1); padding: 15px; border-radius: 16px; border: 1.5px solid var(--success); margin-bottom: 15px; text-align: center; cursor: pointer; min-height: 60px; display: flex; flex-direction: column; justify-content: center; }
+
+        .rates-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
+        .rate-box { background: var(--white); padding: 12px; border-radius: 20px; text-align: center; border: 1px solid var(--card-border); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); display: flex; flex-direction: column; gap: 8px; }
+        .rate-box.arg { border-top: 4px solid #7dd3fc; }
+        .rate-box.multi { border-top: 4px solid var(--accent); }
+
+        .rate-label { font-size: 0.6rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+        .currency-select { padding: 6px; font-size: 0.85rem; border: none; background: var(--input-bg); border-radius: 10px; font-weight: 800; color: var(--primary); cursor: pointer; margin-bottom: 4px; }
+        
+        .rate-row { display: flex; align-items: center; gap: 6px; justify-content: center; }
+        .rate-row span { font-size: 0.95rem; font-weight: bold; }
+        .rate-row input { padding: 6px; font-size: 0.85rem; text-align: center; border: 1px solid var(--card-border); border-radius: 10px; background: var(--bg); width: 100%; font-weight: 700; }
+
+        .rate-divider { font-size: 0.7rem; color: var(--text-muted); font-weight: 800; margin: -2px 0; }
+        
+        .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; z-index: 1000; }
+        .settings-drawer { position: fixed; top: 0; right: -300px; width: 280px; height: 100%; background: var(--white); z-index: 1001; transition: 0.3s; padding: 25px; display: flex; flex-direction: column; }
         .settings-drawer.open { right: 0; }
-        .drawer-btn {
-            width: 100%; padding: 14px; margin-bottom: 10px;
-            border-radius: 12px; border: 1px solid var(--border-color);
-            background: var(--bg); color: var(--text-main); font-weight: 600; cursor: pointer; text-align: left;
-        }
+        .drawer-btn { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid var(--card-border); background: var(--white); color: var(--text-main); cursor: pointer; font-weight: 700; margin-bottom: 10px; }
         .btn-danger { color: #ef4444; border-color: #fecaca; }
+        
+        .footer { margin-top: auto; padding: 20px 0; text-align: center; display: flex; flex-direction: column; gap: 5px; }
+        .footer-name { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; }
 
-        .api-helper-link {
-            display: block;
-            text-align: center;
-            font-size: 0.7rem;
-            color: var(--primary);
-            text-decoration: none;
-            font-weight: 700;
-            margin-top: 10px;
-        }
+        .talles-section { text-align: left; font-size: 0.85rem; }
+        .talles-title { font-weight: 900; color: var(--primary); margin: 15px 0 8px; border-bottom: 2px solid var(--input-bg); padding-bottom: 3px; display: flex; justify-content: space-between; text-transform: uppercase; }
+        .talles-grid { display: flex; gap: 8px; margin-bottom: 20px; }
+        .talles-table { flex: 1; width: 100%; border-collapse: collapse; background: var(--bg); border-radius: 12px; overflow: hidden; border: 1px solid var(--card-border); margin-bottom: 15px; table-layout: fixed; }
+        .talles-table th, .talles-table td { padding: 8px 2px; text-align: center; border: 1px solid var(--card-border); font-size: 0.65rem; color: var(--text-main); }
+        .talles-table th { background: var(--input-bg); font-weight: 800; color: var(--text-muted); }
+
+        .scanner-warning { background: rgba(255, 193, 7, 0.1); border: 2px solid #ffc107; padding: 12px; border-radius: 12px; margin-bottom: 15px; text-align: center; color: #f59e0b; font-weight: 700; font-size: 0.85rem; }
     </style>
 </head>
 <body>
+    </style> </head>
 
-    <nav class="nav-bar">
-        <a href="index.html" class="btn-nav">🏠INICIO</a>
-        <a href="gastos.html" class="btn-nav">🛍️GASTOS</a>
-        <a href="itinerario.html" class="btn-nav">📍ITINERARIO</a>
-        <a href="unidades.html" class="btn-nav">⚖️ CONVERSOR</a>
-    </nav>
-
-    <div class="container">
-        <button class="settings-trigger" onclick="toggleMenu()">⚙️</button>
-        <h2>🛍️ Comparador</h2>
-
-        <div class="key-box">
-            <label>API CONFIGURATION</label>
-            <input type="password" id="serpKey" placeholder="Pega tu API Key aquí..." onchange="saveKey()">
-            <a href="https://serpapi.com/manage-api-key" target="_blank" class="api-helper-link">¿No sabes dónde conseguir la API? Hace click acá</a>
-            
-            <div class="status-bar">
-                <span id="apiStatus">● DESCONECTADO</span>
-                <span id="creditsLabel">CRÉDITOS: --</span>
-            </div>
-        </div>
-
-        <div id="video-container">
-            <video id="webcam" autoplay playsinline></video>
-            <div class="capture-overlay" onclick="takePhoto()"></div>
-        </div>
-
-        <div class="search-section">
-            <input type="text" id="searchInput" placeholder="¿Qué estás buscando?">
-            <button class="btn btn-search" onclick="searchProduct()">🔍 BUSCAR PRODUCTO</button>
-            <button class="btn btn-lens" id="btnStartCamera" onclick="alert('📸 Lens próximamente...')">📸 LENS (PRÓXIMAMENTE)</button>
-        </div>
-
-        <div id="loading" class="loading-spinner">✨ Buscando mejores precios...</div>
-        <div id="resultsArea"></div>
+<body>
+    <div class="nav-bar" style="display: flex; align-items: center; justify-content: space-around;">
+        <a href="index.html" class="btn-nav" style="flex: 1; text-align: center; text-decoration: none; box-sizing: border-box;">🏠 INICIO</a>
+        <a href="itinerario.html" class="btn-nav" style="flex: 1; text-align: center; text-decoration: none; box-sizing: border-box;">📍 ITINERARIO</a>
+        
+        <a href="javascript:void(0)" class="btn-nav" onclick="avisoProximamente(event)" style="flex: 1; text-align: center; text-decoration: none; box-sizing: border-box; display: flex; align-items: center; justify-content: center;">🔍 COMPARADOR</a>
+        
+        <a href="unidades.html" class="btn-nav" style="flex: 1; text-align: center; text-decoration: none; box-sizing: border-box;">⚖️ UNIDADES</a>
+        <button class="settings-trigger" onclick="toggleSettings()" style="width: 40px;">⚙️</button>
     </div>
 
-    <div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()"></div>
+    <script>
+        function avisoProximamente(e) {
+            if(e) e.preventDefault();
+            alert("🚀 ¡El Comparador de Precios estará disponible próximamente!");
+        }
+    </script>
+
+    ```
+
+### ¿Qué corregimos aquí?
+1. **Borramos la duplicación:** Ahora solo hay un `<body>` y una `nav-bar`.
+2. **Igualamos tamaños:** Agregué `flex: 1` a todos los enlaces directamente en el código (`style="..."`). Esto obliga a que el "COMPARADOR" ocupe el mismo espacio que "INICIO", haciendo que todos se vean del mismo tamaño.
+3. **Texto azul:** Agregué `text-decoration: none` para que no te aparezca el subrayado azul típico de los links.
+
+**Importante:** Asegurante de que después de este código no haya otro `<body>` o más botones repetidos hacia abajo. Si ves que aparecen dos barras, es porque más abajo en el archivo todavía quedó algún resto del código viejo.
+</div>
+
+    <div id="scanner-ui">
+        <div class="close-scanner" onclick="stopScanner()">✕</div>
+        <div id="ocr-loader" class="ocr-loading">
+            <span id="ocr-status-text">Analizando ticket... 🧐</span>
+            <small style="margin-top:10px; font-weight:400; opacity:0.8;">Detectando Totales y Taxes</small>
+        </div>
+        <video id="video-preview" autoplay playsinline></video>
+        <button onclick="captureTicket()" style="position:absolute; bottom:15px; left:50%; transform:translateX(-50%); width:60px; height:60px; border-radius:50%; border:4px solid white; background:rgba(255,255,255,0.3); color:white; font-size:1.5rem; display:flex; align-items:center; justify-content:center; cursor:pointer; z-index:5;">📸</button>
+    </div>
+    <canvas id="ocr-canvas" style="display:none;"></canvas>
+
+    <div class="card">
+        <div class="dato-clave" onclick="nextTip()">
+            <small style="color:var(--success); font-weight:800; font-size:0.6rem;">🛍️ GUÍA DE COMPRAS</small>
+            <div id="tip-text">Cargando consejos...</div>
+        </div>
+        <div class="tab-container">
+            <button class="tab active" onclick="showSec('gastos')" id="t-gastos">GASTOS</button>
+            <button class="tab" onclick="showSec('talles')" id="t-talles">TALLES</button>
+        </div>
+        
+        <div id="sec-gastos">
+            <div id="scanner-warning" class="scanner-warning" style="display:none;">
+                ⚠️ El escáner está en desarrollo y puede cometer errores. Verifica siempre el monto detectado.
+            </div>
+            <button class="btn-scan" onclick="startScanner()">📷 ESCANEAR TICKET</button>
+
+            <div class="rates-container">
+                <div class="rate-box arg">
+                    <div class="rate-label">Dólar Oficial</div>
+                    <div class="rate-row"><span>🇺🇸</span><input type="text" id="oficial-usd" value="1" oninput="formatVisual(this); convert('oficial', 'usd')"></div>
+                    <div class="rate-divider">⇅</div>
+                    <div class="rate-row"><span>🇦🇷</span><input type="text" id="oficial-local" oninput="formatVisual(this); convert('oficial', 'local')"></div>
+                </div>
+                <div class="rate-box arg">
+                    <div class="rate-label">Dólar Tarjeta</div>
+                    <div class="rate-row"><span>🇺🇸</span><input type="text" id="tarjeta-usd" value="1" oninput="formatVisual(this); convert('tarjeta', 'usd')"></div>
+                    <div class="rate-divider">⇅</div>
+                    <div class="rate-row"><span>🇦🇷</span><input type="text" id="tarjeta-local" oninput="formatVisual(this); convert('tarjeta', 'local')"></div>
+                </div>
+                
+                <div class="rate-box multi">
+                    <select id="select-eur" class="currency-select" onchange="updateMulti('eur')">
+                        <option value="EUR">Euro</option>
+                        <option value="GBP">Libra</option>
+                        <option value="CHF">F. Suizo</option>
+                    </select>
+                    <div class="rate-row"><span>🇺🇸</span><input type="text" id="eur-usd" value="1" oninput="formatVisual(this); convert('eur', 'usd')"></div>
+                    <div class="rate-divider">⇅</div>
+                    <div class="rate-row"><span id="flag-eur">🇪🇺</span><input type="text" id="eur-local" oninput="formatVisual(this); convert('eur', 'local')"></div>
+                </div>
+
+                <div class="rate-box multi">
+                    <select id="select-brl" class="currency-select" onchange="updateMulti('brl')">
+                        <option value="BRL">Real</option>
+                        <option value="CLP">P. Chileno</option>
+                        <option value="UYU">P. Uruguayo</option>
+                        <option value="MXN">P. Mexicano</option>
+                        <option value="PEN">Sol Peruano</option>
+                        <option value="COP">P. Colombiano</option>
+                    </select>
+                    <div class="rate-row"><span>🇺🇸</span><input type="text" id="brl-usd" value="1" oninput="formatVisual(this); convert('brl', 'usd')"></div>
+                    <div class="rate-divider">⇅</div>
+                    <div class="rate-row"><span id="flag-brl">🇧🇷</span><input type="text" id="brl-local" oninput="formatVisual(this); convert('brl', 'local')"></div>
+                </div>
+            </div>
+
+            <input type="text" id="nombre" placeholder="Producto" style="margin-bottom:10px;">
+            <input type="number" id="valor" placeholder="Precio USD" step="0.01" inputmode="decimal" style="margin-bottom:10px;">
+            <button class="btn-add" onclick="addGasto()">GUARDAR GASTO</button>
+            <div id="listaGastos" style="margin-top:20px;"><p style="text-align:center; color:#94a3b8;">Cargando...</p></div>
+        </div>
+
+        <div id="sec-talles" style="display:none;" class="talles-section">
+            <div class="talles-title">👟 Calzado (ARG → US)</div>
+            <div class="talles-grid">
+                <table class="talles-table">
+                    <thead><tr><th>ARG</th><th>H</th><th>M</th></tr></thead>
+                    <tbody>
+                        <tr><td>35</td><td>-</td><td>5</td></tr>
+                        <tr><td>36</td><td>-</td><td>6</td></tr>
+                        <tr><td>37</td><td>-</td><td>7</td></tr>
+                        <tr><td>38</td><td>6</td><td>8</td></tr>
+                        <tr><td>39</td><td>7</td><td>9</td></tr>
+                        <tr><td>40</td><td>8</td><td>10</td></tr>
+                    </tbody>
+                </table>
+                <table class="talles-table">
+                    <thead><tr><th>ARG</th><th>H</th><th>M</th></tr></thead>
+                    <tbody>
+                        <tr><td>41</td><td>9</td><td>11</td></tr>
+                        <tr><td>42</td><td>10</td><td>12</td></tr>
+                        <tr><td>43</td><td>11</td><td>-</td></tr>
+                        <tr><td>44</td><td>12</td><td>-</td></tr>
+                        <tr><td>45</td><td>13</td><td>-</td></tr>
+                        <tr><td>46</td><td>14</td><td>-</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="talles-title">👕 Remeras / Tops</div>
+            <table class="talles-table" style="table-layout: auto;">
+                <thead><tr><th>ARG</th><th>EQUIV. US</th></tr></thead>
+                <tbody>
+                    <tr><td>XS</td><td>S</td></tr>
+                    <tr><td>S</td><td>M</td></tr>
+                    <tr><td>M</td><td>L</td></tr>
+                    <tr><td>L</td><td>XL</td></tr>
+                    <tr><td>XL</td><td>2XL</td></tr>
+                    <tr><td>2XL</td><td>3XL</td></tr>
+                </tbody>
+            </table>
+            <div class="talles-title">🧥 Buzos / Camperas</div>
+            <table class="talles-table" style="table-layout: auto;">
+                <thead><tr><th>ARG</th><th>US SIZE</th></tr></thead>
+                <tbody>
+                    <tr><td>S</td><td>XS/S</td></tr>
+                    <tr><td>M</td><td>S/M</td></tr>
+                    <tr><td>L</td><td>M/L</td></tr>
+                    <tr><td>XL</td><td>L/XL</td></tr>
+                    <tr><td>XXL</td><td>XL/XXL</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="menuOverlay" class="menu-overlay" onclick="toggleSettings()"></div>
     <div id="settingsDrawer" class="settings-drawer">
         <h3 style="color:var(--primary); margin-top:0;">Ajustes</h3>
         <p id="userEmail" style="font-size:0.75rem; color:var(--text-muted); margin-bottom:20px; font-weight:700;"></p>
@@ -303,12 +283,15 @@
         </div>
     </div>
 
-    <canvas id="photoCanvas" style="display:none;"></canvas>
+    <div class="footer">
+        <span class="footer-name">Creado por Juan Cruz Bria 🇦🇷</span>
+    </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut, sendPasswordResetEmail, deleteUser, verifyBeforeUpdateEmail } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
-        import { getFirestore, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, query, where, orderBy, onSnapshot, deleteDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+        import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app-check.js";
 
         const firebaseConfig = { apiKey: "AIzaSyCm0Ig-CPklsjf6j-1uSAeF6I8xtyQKj7U", authDomain: "viajes-db538.firebaseapp.com", projectId: "viajes-db538", storageBucket: "viajes-db538.firebasestorage.googleapis.com", messagingSenderId: "1053003173098", appId: "1:1053003173098:web:ecf5cdc31b9cca17e2151f" };
         
@@ -316,16 +299,147 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        let currentUser = null;
-
-        onAuthStateChanged(auth, (user) => {
-            if (!user) {
-                window.location.replace("login.html");
-            } else {
-                currentUser = user;
-                document.getElementById('userEmail').innerText = user.email;
-            }
+        const appCheck = initializeAppCheck(app, {
+            provider: new ReCaptchaV3Provider('6LeK6cssAAAAALxcJy-95R2nhVMmnuIyB78AQgvw'),
+            isTokenAutoRefreshEnabled: true 
         });
+
+        let currentUser = null;
+        let presupuestoBase = 0;
+        let allRates = {};
+        let baseRates = { oficial: 0, tarjeta: 0, eur: 0, brl: 0 };
+        const flags = { EUR: "🇪🇺", GBP: "🇬🇧", CHF: "🇨🇭", BRL: "🇧🇷", CLP: "🇨🇱", UYU: "🇺🇾", MXN: "🇲🇽", PEN: "🇵🇪", COP: "🇨🇴" };
+
+        window.toggleDarkMode = () => {
+            const isDark = document.body.classList.toggle('dark-mode');
+            localStorage.setItem('darkMode', isDark ? 'enabled' : 'disabled');
+        };
+
+        if (localStorage.getItem('darkMode') === 'enabled') document.body.classList.add('dark-mode');
+
+        window.formatVisual = (input) => {
+            let val = input.value.replace(/[^\d]/g, ""); 
+            if (val === "") { input.value = ""; return; }
+            let n = parseFloat(val) / 100;
+            input.value = n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        };
+
+        function cleanVal(str) { 
+            if (!str) return 0;
+            return parseFloat(str.toString().replace(/,/g, "")) || 0; 
+        }
+
+        function formatNumber(num) {
+    // Esto asegura que el número siempre tenga 2 decimales y use punto para decimales
+    return parseFloat(num).toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+}
+
+        function updateEmojis() { twemoji.parse(document.body, { folder: 'svg', ext: '.svg' }); }
+
+        async function fetchRates() {
+            try {
+                const resArg = await fetch('https://dolarapi.com/v1/dolares');
+                const dataArg = await resArg.json();
+                baseRates.oficial = dataArg.find(d => d.casa === 'oficial')?.venta || 0;
+                baseRates.tarjeta = dataArg.find(d => d.casa === 'tarjeta')?.venta || 0;
+                const resGlob = await fetch('https://open.er-api.com/v6/latest/USD');
+                const dataGlob = await resGlob.json();
+                allRates = dataGlob.rates;
+                baseRates.eur = allRates.EUR; baseRates.brl = allRates.BRL;
+                
+                document.getElementById('oficial-local').value = formatNumber(baseRates.oficial);
+                document.getElementById('tarjeta-local').value = formatNumber(baseRates.tarjeta);
+                document.getElementById('eur-local').value = formatNumber(baseRates.eur);
+                document.getElementById('brl-local').value = formatNumber(baseRates.brl);
+                updateEmojis();
+            } catch (e) { console.error(e); }
+        }
+
+        window.updateMulti = (type) => {
+            const code = document.getElementById(`select-${type}`).value;
+            baseRates[type] = allRates[code];
+            document.getElementById(`flag-${type}`).innerText = flags[code];
+            document.getElementById(`${type}-usd`).value = "1.00";
+            document.getElementById(`${type}-local`).value = formatNumber(baseRates[type]);
+            updateEmojis();
+        };
+
+        window.convert = (type, direction) => {
+            const usdInput = document.getElementById(`${type}-usd`);
+            const localInput = document.getElementById(`${type}-local`);
+            const rate = baseRates[type];
+            let vUsd = cleanVal(usdInput.value), vLoc = cleanVal(localInput.value);
+            if (direction === 'usd') localInput.value = formatNumber(vUsd * rate);
+            else usdInput.value = formatNumber(vLoc / rate);
+        };
+
+        window.updateFondo = () => {
+    const input = document.getElementById('input-fondo');
+    // Leemos el valor como un número decimal directamente
+    const nuevoPresupuesto = parseFloat(input.value);
+    
+    if (!isNaN(nuevoPresupuesto) && nuevoPresupuesto >= 0) {
+        presupuestoBase = nuevoPresupuesto;
+        // Guardamos en localStorage para que no se pierda al recargar
+        localStorage.setItem('presupuesto', presupuestoBase);
+        
+        // Refrescar la pantalla (suponiendo que tenés estas funciones)
+        if(typeof listenGastos === 'function' && currentUser) {
+            listenGastos(currentUser.uid); 
+        } else {
+            updateDisplay(0);
+        }
+        
+        input.value = ""; // Limpia el cuadrito después de darle a SET
+    } else {
+        alert("Por favor, ingresa un número válido");
+    }
+};
+        
+        window.addGasto = async () => {
+    const nombreEl = document.getElementById('nombre');
+    const valorEl = document.getElementById('valor');
+    
+    const n = nombreEl.value;
+    // IMPORTANTE: Leemos el valor directamente como número
+    const v = parseFloat(valorEl.value);
+
+    if (n && !isNaN(v) && v > 0 && currentUser) {
+        try {
+            await addDoc(collection(db, "compras"), {
+                nombre: n,
+                valor: v, // Guardamos el número puro
+                userId: currentUser.uid,
+                createdAt: Date.now()
+            });
+            nombreEl.value = "";
+            valorEl.value = "";
+        } catch (e) {
+            console.error("Error al añadir: ", e);
+        }
+    } else {
+        alert("Por favor, ingresá un nombre y un precio válido.");
+    }
+};
+
+        window.deleteGasto = (id) => confirm("¿Borrar?") && deleteDoc(doc(db, "compras", id));
+        
+        window.showSec = (s) => { 
+            document.getElementById('sec-gastos').style.display = s === 'gastos' ? 'block' : 'none'; 
+            document.getElementById('sec-talles').style.display = s === 'talles' ? 'block' : 'none'; 
+            document.getElementById('t-gastos').className = s === 'gastos' ? 'tab active' : 'tab';
+            document.getElementById('t-talles').className = s === 'talles' ? 'tab active' : 'tab';
+            updateEmojis();
+        };
+
+        window.toggleSettings = () => { 
+            const d = document.getElementById('settingsDrawer'), o = document.getElementById('menuOverlay');
+            d.classList.toggle('open'); o.style.display = d.classList.contains('open') ? 'block' : 'none'; 
+            updateEmojis();
+        };
 
         window.changeEmail = async () => {
             if (currentUser) {
@@ -333,7 +447,7 @@
                 if (nuevoEmail && nuevoEmail !== currentUser.email) {
                     try {
                         await verifyBeforeUpdateEmail(currentUser, nuevoEmail);
-                        alert("Se ha enviado un correo de verificación a " + nuevoEmail + ". El cambio se aplicará tras confirmar el enlace.");
+                        alert("Se ha enviado un correo de verificación a " + nuevoEmail + ". El cambio se aplicará tras confirmar el enlace en ese mensaje.");
                     } catch (e) { 
                         alert("Error: Reautenticación requerida para cambios sensibles."); 
                     }
@@ -341,167 +455,183 @@
             }
         };
 
-        window.changePassword = () => { 
-            if (currentUser) {
-                sendPasswordResetEmail(auth, currentUser.email)
-                    .then(() => alert("Se ha enviado un correo para restablecer tu contraseña."))
-                    .catch(() => alert("Error al enviar el correo."));
-            } 
-        };
-
-        window.deleteAccount = async () => { 
-            if (confirm("¿Estás seguro de que deseas eliminar tu cuenta? Esta acción no se puede deshacer.")) { 
-                try {
-                    await deleteDoc(doc(db, "usuarios", currentUser.uid)); 
-                    await deleteUser(currentUser); 
-                    window.location.replace("login.html"); 
-                } catch (e) {
-                    alert("Reautenticación requerida para eliminar la cuenta.");
-                }
-            } 
-        };
-
+        window.changePassword = () => { if (currentUser) sendPasswordResetEmail(auth, currentUser.email).then(() => alert("Correo enviado.")); };
+        window.deleteAccount = async () => { if (confirm("¿Borrar cuenta?")) { await deleteDoc(doc(db, "usuarios", currentUser.uid)); await deleteUser(currentUser); window.location.replace("login.html"); } };
         window.logout = () => signOut(auth).then(() => window.location.replace("login.html"));
-    </script>
 
-    <script>
-        const video = document.getElementById('webcam');
-        const canvas = document.getElementById('photoCanvas');
-        let stream = null;
-
-        window.onload = () => {
-            if (localStorage.getItem('darkMode') === 'enabled') document.body.classList.add('dark-mode');
-            const savedKey = localStorage.getItem('serp_key_viaje');
-            if (savedKey) {
-                document.getElementById('serpKey').value = savedKey;
-                updateStatus("CONECTADO", "#10b981");
-                checkCredits(savedKey);
+        onAuthStateChanged(auth, (user) => {
+            if (!user) window.location.replace("login.html");
+            else { 
+                currentUser = user; document.getElementById('userEmail').innerText = user.email; 
+                onSnapshot(doc(db, "usuarios", user.uid), (docSnap) => { presupuestoBase = docSnap.exists() ? (docSnap.data().fondo || 0) : 0; listenGastos(user.uid); }); 
+                fetchRates();
             }
-            twemoji.parse(document.body);
+        });
+
+        const video = document.getElementById('video-preview'), canvas = document.getElementById('ocr-canvas');
+        let stream = null;
+        let scannerStarted = false;
+        const knownStores = ["ROSS", "MARSHALLS", "WALMART", "APPLE", "BEST BUY", "TARGET", "TJ MAXX", "MACY'S", "ZARA", "H&M", "NIKE", "ADIDAS", "AMAZON", "COSTCO", "FOOT LOCKER", "JD SPORTS", "BATH & BODY WORKS"];
+
+        window.startScanner = async () => {
+            document.getElementById('scanner-ui').style.display = 'block';
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+                video.srcObject = stream;
+                
+                // Mostrar aviso después de que la cámara se abre
+                if (!scannerStarted) {
+                    scannerStarted = true;
+                    document.getElementById('scanner-warning').style.display = 'block';
+                }
+            } catch (err) { alert("Cámara no disponible."); stopScanner(); }
         };
 
-        function updateStatus(text, color) {
-            const status = document.getElementById('apiStatus');
-            status.innerText = "● " + text;
-            status.style.color = color;
-        }
+        window.stopScanner = () => {
+            if (stream) stream.getTracks().forEach(t => t.stop());
+            document.getElementById('scanner-ui').style.display = 'none';
+            document.getElementById('ocr-loader').style.display = 'none';
+        };
 
-        function toggleMenu() {
-            const drawer = document.getElementById('settingsDrawer');
-            const overlay = document.getElementById('menuOverlay');
-            drawer.classList.toggle('open');
-            overlay.style.display = drawer.classList.contains('open') ? 'block' : 'none';
-            twemoji.parse(document.body);
-        }
+        window.captureTicket = async () => {
+            const loader = document.getElementById('ocr-loader');
+            loader.style.display = 'flex';
+            const ctx = canvas.getContext('2d');
+            canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+            ctx.drawImage(video, 0, 0);
 
-        function toggleDarkMode() {
-            document.body.classList.toggle('dark-mode');
-            localStorage.setItem('darkMode', document.body.classList.contains('dark-mode') ? 'enabled' : 'disabled');
-        }
-
-        function saveKey() {
-            const key = document.getElementById('serpKey').value;
-            localStorage.setItem('serp_key_viaje', key);
-            updateStatus("CONECTADO", "#10b981");
-            checkCredits(key);
-        }
-
-        async function checkCredits(key) {
-            if(!key) return;
             try {
-                const proxy = "https://corsproxy.io/?";
-                const url = encodeURIComponent(`https://serpapi.com/account?api_key=${key}`);
-                const response = await fetch(proxy + url);
-                const data = await response.json();
-                if (data.total_searches_left !== undefined) {
-                    document.getElementById('creditsLabel').innerText = `CRÉDITOS: ${data.total_searches_left}`;
-                }
-            } catch (e) { console.log("Error al obtener créditos"); }
-        }
+                const worker = await Tesseract.createWorker('eng');
+                const { data: { text } } = await worker.recognize(canvas.toDataURL('image/jpeg', 0.9));
+                await worker.terminate();
+                parseTicketText(text);
+                stopScanner();
+            } catch (e) { alert("Error OCR."); loader.style.display = 'none'; }
+        };
 
-        async function searchProduct() {
-            const query = document.getElementById('searchInput').value;
-            const key = document.getElementById('serpKey').value;
-            if (!key || !query) return alert("Ingresa un producto y tu Key.");
-            
-            document.getElementById('loading').style.display = "block";
-            document.getElementById('resultsArea').innerHTML = "";
+        function parseTicketText(text) {
+            const lines = text.toUpperCase().split('\n').map(l => l.trim()).filter(l => l);
+            let detectedStore = "Compra";
+            let totalAmount = 0;
 
-            const proxy = "https://corsproxy.io/?url=";
-            const apiUrl = `https://serpapi.com/search.json?engine=google_shopping&q=${encodeURIComponent(query)}&google_domain=google.com&hl=en&gl=us&api_key=${key}`;
-            
-            try {
-                const response = await fetch(proxy + encodeURIComponent(apiUrl));
-                const data = await response.json();
-                renderResults(data, "shopping_results");
-            } catch (e) { 
-                alert("Error al conectar con la API. Verifica tu conexión.");
-                document.getElementById('loading').style.display = "none";
-            }
-        }
-
-        async function startCamera() {
-            return;
-        }
-
-        async function takePhoto() {
-            return;
-        }
-
-        function openProduct(url) {
-            if (!url || url === '#' || url.includes('google.com/url?q=')) {
-                alert('⚠️ Enlace no disponible para este producto');
-                return;
-            }
-            window.open(url, '_blank', 'noopener,noreferrer');
-        }
-
-        function renderResults(data, keyType) {
-            const resultsArea = document.getElementById('resultsArea');
-            document.getElementById('loading').style.display = "none";
-            
-            if (data.search_metadata && data.search_metadata.serpapi_credits !== undefined) {
-                document.getElementById('creditsLabel').innerText = `CRÉDITOS: ${data.search_metadata.serpapi_credits}`;
+            // Detectar tienda
+            for (let store of knownStores) { 
+                if (text.toUpperCase().includes(store)) { 
+                    detectedStore = store; 
+                    break; 
+                } 
             }
 
-            const results = data[keyType];
-            if (results && results.length > 0) {
-                results.slice(0, 10).forEach(item => {
-                    
-                    // Limpieza de URL para evitar el error de redirección de Google
-                    let rawUrl = item.link;
-                    let cleanLink = rawUrl;
+            // Patrones específicos para encontrar TOTAL
+            let totalLine = null;
+            let allPrices = [];
 
-                    if (rawUrl && rawUrl.includes("url?q=")) {
-                        try {
-                            const urlParams = new URLSearchParams(rawUrl.split('?')[1]);
-                            cleanLink = decodeURIComponent(urlParams.get('q') || rawUrl);
-                        } catch(e) {
-                            cleanLink = rawUrl;
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i];
+                
+                // Busca números con formato: 123.45 o 123,45
+                const priceMatches = line.match(/(\d+[\.,]\d{2})/g);
+                if (!priceMatches) continue;
+
+                priceMatches.forEach(match => {
+                    const price = parseFloat(match.replace(/,/g, "."));
+                    allPrices.push({ price, line, index: i });
+                });
+
+                // Patrones específicos de TOTAL (funciona bien para Costco, Foot Locker, JD Sports, etc.)
+                if (!totalLine) {
+                    // Buscar línea que contenga TOTAL sin SUBTOTAL, TOTAL TAX, etc.
+                    if (line.match(/^\*{0,4}\s*TOTAL\s*\*{0,4}/) || 
+                        (line.includes("TOTAL") && !line.includes("SUBTOTAL") && !line.includes("TOTAL TAX") && !line.includes("TOTAL #")) ||
+                        line.includes("AMOUNT PAID") ||
+                        line.includes("TOTAL TENDER")) {
+                        
+                        const match = line.match(/(\d+[\.,]\d{2})/);
+                        if (match) {
+                            totalLine = parseFloat(match[0].replace(/,/g, "."));
                         }
                     }
-
-                    const card = document.createElement('div');
-                    card.className = 'result-card';
-                    card.innerHTML = `
-                        <img src="${item.thumbnail}" class="result-img" onerror="this.src='https://via.placeholder.com/75'">
-                        <div class="result-info">
-                            <div class="result-source">${item.source || 'Tienda USA'}</div>
-                            <div style="font-size:0.85rem; font-weight:700; margin-bottom:4px;">${item.title}</div>
-                            <div class="result-price">${item.price || 'Ver precio'}</div>
-                        </div>
-                        <button onclick="openProduct('${cleanLink}')" 
-                                style="background:none; border:none; cursor:pointer; font-size:1.2rem; padding:10px;">
-                            🚀
-                        </button>
-                    `;
-                    resultsArea.appendChild(card);
-                });
-            } else {
-                resultsArea.innerHTML = "<p style='text-align:center; padding:20px; color:var(--text-muted);'>No se encontraron resultados.</p>";
+                }
             }
-            twemoji.parse(resultsArea);
+
+            // Si no encontró TOTAL explícito, busca el número más grande que sea razonable (típicamente $1-$1000)
+            if (!totalLine && allPrices.length > 0) {
+                const validPrices = allPrices
+                    .filter(p => p.price >= 0.50 && p.price <= 5000)
+                    .sort((a, b) => b.price - a.price);
+                
+                if (validPrices.length > 0) {
+                    totalLine = validPrices[0].price;
+                }
+            }
+
+            totalAmount = totalLine || 0;
+
+            document.getElementById('nombre').value = detectedStore;
+            if (totalAmount > 0) {
+                const input = document.getElementById('valor');
+                input.value = (totalAmount * 100).toFixed(0); 
+                window.formatVisual(input);
+            } else { 
+                alert("No se detectó el total del ticket. Por favor cargalo manualmente."); 
+            }
         }
+
+        const shoppingTips = [
+            "Jersey Gardens (NJ): ¡Tax Free! No pagás impuesto en ropa ni calzado.",
+            "Impuestos: El precio de etiqueta NO incluye el Tax (aprox. 7-9%).",
+            "Ross/Marshalls: Los mejores precios están en los racks de 'Clearance'.",
+            "Apple: Comprá 'Refurbished' en su web oficial para ahorrar un 15%.",
+            "Best Buy: Tienen una sección de 'Open Box' con productos casi nuevos rebajados.",
+            "Cupones: Descargá la app 'RetailMeNot' para descuentos en el momento.",
+            "Seguridad: Nunca dejes bolsas visibles dentro del auto estacionado.",
+            "Documentos: Llevá siempre una foto del pasaporte en el celular.",
+            "Walmart: Ideal para snacks, tecnología básica y valijas baratas.",
+            "Talles: Un 'M' en USA suele ser un 'L' en Argentina. ¡Probate siempre!",
+            "Efectivo: Siempre tené billetes de 1 y 5 USD para propinas rápidas.",
+            "Premium Outlets: Registrate en su web para recibir cuponeras VIP gratis.",
+            "Equipaje: Pesá tu valija antes de ir al aeropuerto; el límite suele ser 23kg.",
+            "Amazon Hub: Podés pedir por Amazon y retirar en lockers de 7-Eleven.",
+            "Bancos: Avisá en tu homebanking que vas a usar la tarjeta en el exterior."
+        ];
+
+        let currentTipIndex = 0;
+        window.nextTip = () => { 
+            currentTipIndex = (currentTipIndex + 1) % shoppingTips.length; 
+            const el = document.getElementById('tip-text');
+            if(el) { el.style.opacity = 0; setTimeout(() => { el.innerText = shoppingTips[currentTipIndex]; el.style.opacity = 1; updateEmojis(); }, 300); }
+        };
+
+        function listenGastos(uid) {
+            const q = query(collection(db, "compras"), where("userId", "==", uid), orderBy("createdAt", "desc"));
+            onSnapshot(q, (snapshot) => {
+                const container = document.getElementById('listaGastos');
+                let totalGastado = 0;
+                if (snapshot.empty) { container.innerHTML = '<p style="text-align:center;">No hay gastos.</p>'; updateDisplay(0); return; }
+                container.innerHTML = snapshot.docs.map(docSnap => {
+                    const d = docSnap.data(); totalGastado += parseFloat(d.valor);
+                    return `<div class="history-item"><div><b>${d.nombre}</b></div><div style="display:flex; align-items:center; gap:12px;"><div class="h-amount">-$${formatNumber(d.valor)}</div><button onclick="deleteGasto('${docSnap.id}')" style="background:none; border:none; color:#ef4444; cursor:pointer; font-weight:800;">✕</button></div></div>`;
+                }).join('');
+                updateDisplay(totalGastado); updateEmojis();
+            });
+        }
+
+        function updateDisplay(gastado) { document.getElementById('disp-fondo').innerText = 'USD ' + formatNumber(presupuestoBase - gastado); }
+        
+        window.onload = () => { 
+            const el = document.getElementById('tip-text');
+            if(el) el.innerText = shoppingTips[0]; 
+            updateEmojis(); setInterval(window.nextTip, 8000); 
+        };
     </script>
+    <script>
+    function avisoProximamente(event) {
+        // Evita que la página intente recargarse al tocar el link
+        event.preventDefault();
+        
+        // Muestra el mensaje
+        alert("🚀 ¡El Comparador de Precios estará disponible próximamente!");
+    }
+</script>
 </body>
 </html>
