@@ -211,7 +211,7 @@
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 if (user.emailVerified) {
-                    window.location.replace("index.html");
+                    window.location.replace("profiles.html");
                 } else {
                     alert("Tu cuenta aún no ha sido verificada.");
                     await signOut(auth);
