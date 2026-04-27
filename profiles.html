@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¿Quién está gastando? - TaxUSA</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --primary: #3b82f6;
+            --text-main: #f1f5f9;
+            --text-sec: #94a3b8;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text-main);
+            font-family: -apple-system, system-ui, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 40px;
+            font-weight: 300;
+            letter-spacing: 1px;
+            text-align: center;
+        }
+
+        .profiles-container {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 20px;
+            max-width: 800px;
+        }
+
+        .profile {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 130px;
+        }
+
+        .profile:hover { transform: scale(1.1); }
+
+        .avatar {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            background: var(--card-bg);
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            border: 4px solid transparent;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .profile:hover .avatar {
+            border-color: var(--primary);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+        }
+
+        .name {
+            color: var(--text-sec);
+            font-size: 1.1rem;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .profile:hover .name { color: var(--text-main); }
+
+        .add-profile {
+            border: 2px dashed #475569;
+            background: none;
+            color: #475569;
+        }
+
+        /* MODAL DE GALERÍA */
+        .modal-galeria {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.95);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+            z-index: 100;
+            overflow-y: auto;
+        }
+
+        .grid-fotos {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 20px;
+            max-width: 600px;
+            width: 100%;
+            margin-top: 30px;
+        }
+
+        .img-option {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: 0.3s;
+            object-fit: cover;
+            border: 3px solid transparent;
+        }
+
+        .img-option:hover {
+            transform: scale(1.1);
+            border-color: var(--primary);
+        }
+
+        .btn-cancelar {
+            margin-top: 30px;
+            padding: 10px 25px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .show { display: flex !important; animation: fadeIn 0.3s; }
+    </style>
+</head>
+<body>
+
+    <h1>¿Quién está gastando?</h1>
+    
+    <div class="profiles-container" id="profilesContainer">
+        </div>
+
+    <div id="galeria" class="modal-galeria">
+        <h2>Elige tu imagen de perfil</h2>
+        <div class="grid-fotos" id="gridFotos"></div>
+        <button class="btn-cancelar" onclick="cerrarGaleria()">Cancelar</button>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCm0Ig-CPklsjf6j-1uSAeF6I8xtyQKj7U",
+            authDomain: "viajes-db538.firebaseapp.com",
+            projectId: "viajes-db538",
+            storageBucket: "viajes-db538.firebasestorage.app",
+            messagingSenderId: "237311739178",
+            appId: "1:237311739178:web:333e468b184c0402a98a53"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let currentUID = null;
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.replace("login.html");
+                return;
+            }
+            currentUID = user.uid;
+            
+            const userRef = doc(db, "usuarios", user.uid);
+            const userSnap = await getDoc(userRef);
+            
+            let perfiles = [];
+            if (!userSnap.exists()) {
+                // Primer ingreso: Creamos perfil inicial
+                perfiles = [{ 
+                    id: "p1", 
+                    nombre: "Usuario Principal", 
+                    foto: "https://i.pravatar.cc/150?u=principal" 
+                }];
+                await setDoc(userRef, { perfiles: perfiles });
+            } else {
+                perfiles = userSnap.data().perfiles || [];
+            }
+            renderPerfiles(perfiles);
+        });
+
+        function renderPerfiles(perfiles) {
+            const container = document.getElementById('profilesContainer');
+            container.innerHTML = perfiles.map(p => `
+                <div class="profile" onclick="selectProfile('${p.id}', '${p.nombre}', '${p.foto}')">
+                    <div class="avatar" style="background-image: url('${p.foto}')"></div>
+                    <div class="name">${p.nombre}</div>
+                </div>
+            `).join('');
+
+            if (perfiles.length < 5) {
+                const addBtn = document.createElement('div');
+                addBtn.className = 'profile';
+                addBtn.innerHTML = `
+                    <div class="avatar add-profile">+</div>
+                    <div class="name">Agregar</div>
+                `;
+                addBtn.onclick = abrirGaleria;
+                container.appendChild(addBtn);
+            }
+        }
+
+        window.abrirGaleria = () => {
+            const grid = document.getElementById('gridFotos');
+            grid.innerHTML = "";
+            // Generamos 16 opciones de fotos reales aleatorias
+            for(let i=0; i<16; i++) {
+                const url = `https://i.pravatar.cc/150?u=${Math.random()}`;
+                const img = document.createElement('img');
+                img.src = url;
+                img.className = 'img-option';
+                img.onclick = () => crearNuevoPerfil(url);
+                grid.appendChild(img);
+            }
+            document.getElementById('galeria').classList.add('show');
+        };
+
+        window.cerrarGaleria = () => {
+            document.getElementById('galeria').classList.remove('show');
+        };
+
+        async function crearNuevoPerfil(fotoUrl) {
+            const nombre = prompt("¿Cómo se llama este perfil?");
+            if (!nombre) return;
+
+            const nuevoPerfil = {
+                id: "p" + Date.now(),
+                nombre: nombre,
+                foto: fotoUrl
+            };
+
+            try {
+                await updateDoc(doc(db, "usuarios", currentUID), {
+                    perfiles: arrayUnion(nuevoPerfil)
+                });
+                cerrarGaleria();
+                location.reload();
+            } catch (e) {
+                alert("Error al crear perfil: " + e.message);
+            }
+        }
+
+        window.selectProfile = (id, nombre, foto) => {
+            // Guardamos los datos del perfil activo
+            localStorage.setItem('perfilActivoId', id);
+            localStorage.setItem('perfilActivoNombre', nombre);
+            localStorage.setItem('perfilActivoFoto', foto);
+            
+            // Vamos a la app principal
+            window.location.replace("index.html");
+        };
+    </script>
+</body>
+</html>
