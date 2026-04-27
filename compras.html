@@ -363,10 +363,28 @@
             else usdInput.value = formatNumber(vLoc / rate);
         };
 
-        window.updateFondo = async () => { 
-            const val = cleanVal(document.getElementById('input-fondo').value); 
-            if(currentUser) await setDoc(doc(db, "usuarios", currentUser.uid), { fondo: val }, { merge: true }); 
-        };
+        window.updateFondo = () => {
+    const input = document.getElementById('input-fondo');
+    // Leemos el valor como un número decimal directamente
+    const nuevoPresupuesto = parseFloat(input.value);
+    
+    if (!isNaN(nuevoPresupuesto) && nuevoPresupuesto >= 0) {
+        presupuestoBase = nuevoPresupuesto;
+        // Guardamos en localStorage para que no se pierda al recargar
+        localStorage.setItem('presupuesto', presupuestoBase);
+        
+        // Refrescar la pantalla (suponiendo que tenés estas funciones)
+        if(typeof listenGastos === 'function' && currentUser) {
+            listenGastos(currentUser.uid); 
+        } else {
+            updateDisplay(0);
+        }
+        
+        input.value = ""; // Limpia el cuadrito después de darle a SET
+    } else {
+        alert("Por favor, ingresa un número válido");
+    }
+};
         
         window.addGasto = async () => {
     const nombreEl = document.getElementById('nombre');
