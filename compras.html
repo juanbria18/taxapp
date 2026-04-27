@@ -407,7 +407,7 @@ img.emoji {
     });
 }
 
-// 1. Tu función de parseo (mantiene tu lógica de compatibilidad)
+// 1. Función de parseo
 function updateEmojis(element = document.body) {
     if (typeof twemoji !== 'undefined') {
         twemoji.parse(element, { 
@@ -420,31 +420,21 @@ function updateEmojis(element = document.body) {
     }
 }
 
-// 2. EL VIGILANTE (MutationObserver)
-// Esto detecta cuando Firebase o DolarAPI inyectan texto y lo convierte al instante
-const emojiObserver = new MutationObserver((mutations) => {
-    mutations.forEach((mutation) => {
-        if (mutation.addedNodes.length) {
-            mutation.addedNodes.forEach((node) => {
-                // Solo procesamos elementos (nodeType 1) para evitar errores
-                // y verificamos que no sea una imagen de emoji ya procesada
-                if (node.nodeType === 1 && !node.classList.contains('emoji')) {
-                    updateEmojis(node);
-                }
-            });
-        }
-    });
+// 2. Vigilante optimizado (detecta cambios de texto e hijos)
+const emojiObserver = new MutationObserver(() => {
+    updateEmojis(); // En lugar de filtrar nodos, parseamos lo nuevo que aparezca
 });
 
-// 3. INICIO DE VIGILANCIA Y DISPARO INICIAL
-// Observamos cambios en toda la página (subtree: true)
+// Iniciamos la vigilancia apenas el script corre
 emojiObserver.observe(document.body, { 
     childList: true, 
-    subtree: true 
+    subtree: true,
+    characterData: true // Esto detecta cambios de texto dentro de elementos ya creados
 });
 
-// Ejecutamos una vez al inicio para procesar lo que ya está en el HTML
-updateEmojis();
+// 3. Ejecución inmediata al cargar la ventana
+window.addEventListener('DOMContentLoaded', updateEmojis);
+window.addEventListener('load', updateEmojis);
         async function fetchRates() {
             try {
                 const resArg = await fetch('https://dolarapi.com/v1/dolares');
