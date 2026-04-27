@@ -117,36 +117,46 @@
         .final-value { font-size: 2.2rem; font-weight: 900; margin: 4px 0; }
 
         /* ESTILOS BARRA DE NAVEGACIÓN NIVELADA */
-        .nav-bar {
-            display: flex !important;
-            align-items: center;
-            justify-content: space-around;
-            width: 100%;
-            max-width: 420px;
-            background: var(--card);
-            border-top: 1px solid var(--input-border);
-            padding: 10px 5px;
-            position: fixed;
-            bottom: 0;
-            z-index: 1000;
-        }
+        /* NAV BAR INTEGRADA ARRIBA */
+.nav-bar {
+    display: flex !important;
+    align-items: center;
+    justify-content: space-around;
+    width: 100%;
+    background: var(--box-bg); /* Fondo gris suave como el de la imagen */
+    border-radius: 18px;
+    padding: 8px 4px;
+    margin-bottom: 20px;
+    position: relative; /* Cambiado de fixed a relative */
+}
 
-        .btn-nav {
-            flex: 1 !important;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-decoration: none;
-            color: var(--text-main);
-            font-size: 10px;
-            font-weight: 800;
-            gap: 4px;
-            transition: opacity 0.2s;
-        }
+.btn-nav {
+    flex: 1 !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: var(--text-main);
+    font-size: 9px; /* Tamaño más pequeño y compacto */
+    font-weight: 800;
+    gap: 3px;
+    transition: opacity 0.2s;
+}
 
-        .btn-nav span:first-child {
-            font-size: 20px;
+.btn-nav span:first-child {
+    font-size: 18px; /* Tamaño del icono */
+}
+
+.settings-trigger-bar {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    flex: 0 0 auto;
+    padding: 0 10px;
+    color: var(--text-main);
+}
         }
 
         .btn-nav:active {
@@ -156,7 +166,7 @@
         .settings-trigger-bar {
             background: none;
             border: none;
-            font-size: 20px;
+            font-size: 18px;
             cursor: pointer;
             flex: 0 0 auto;
             padding: 0 10px;
@@ -200,6 +210,25 @@
     <div class="card">
         <button class="settings-trigger" onclick="toggleSettings()">⚙️</button>
         <h1>TaxUSA <img src="https://flagcdn.com/w40/us.png" style="width: 28px; border-radius: 3px;" alt="USA"></h1>
+        <div class="nav-bar">
+        <a href="index.html" class="btn-nav">
+            <span>🏠</span>
+            <span>INICIO</span>
+        </a>
+        <a href="itinerario.html" class="btn-nav">
+            <span>📍</span>
+            <span>ITINERARIO</span>
+        </a>
+        <a href="javascript:void(0)" class="btn-nav" onclick="avisoProximamente(event)">
+            <span>🔍</span>
+            <span>COMPARADOR</span>
+        </a>
+        <a href="unidades.html" class="btn-nav">
+            <span>⚖️</span>
+            <span>UNIDADES</span>
+        </a>
+        <button class="settings-trigger-bar" onclick="toggleSettings()">⚙️</button>
+    </div>
         
         <div class="countdown-box" id="box-trip" onclick="openTripModal()">
             <span class="edit-hint">✏️</span>
@@ -262,26 +291,6 @@
         <div id="dynamic-tip">
             💡 <span id="tip-content" style="transition: opacity 0.4s ease;">Cargando tip económico...</span>
         </div>
-    </div>
-
-    <div class="nav-bar">
-        <a href="index.html" class="btn-nav">
-            <span>🏠</span>
-            <span>INICIO</span>
-        </a>
-        <a href="itinerario.html" class="btn-nav">
-            <span>📍</span>
-            <span>ITINERARIO</span>
-        </a>
-        <a href="javascript:void(0)" class="btn-nav" onclick="avisoProximamente(event)">
-            <span>🔍</span>
-            <span>COMPARADOR</span>
-        </a>
-        <a href="unidades.html" class="btn-nav">
-            <span>⚖️</span>
-            <span>UNIDADES</span>
-        </a>
-        <button class="settings-trigger-bar" onclick="toggleSettings()">⚙️</button>
     </div>
 
     <div class="footer">
