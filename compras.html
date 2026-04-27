@@ -8,6 +8,48 @@
     <script src="https://unpkg.com/twemoji@latest/dist/twemoji.min.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <style>
+        /* BARRA DE NAVEGACIÓN COMPACTA (ESTILO INDEX) */
+.nav-bar {
+    display: flex !important;
+    align-items: center;
+    justify-content: space-around;
+    width: 100%;
+    background: var(--input-bg);
+    border-radius: 18px;
+    padding: 8px 4px;
+    margin-bottom: 20px;
+    position: relative;
+    box-sizing: border-box;
+}
+
+.btn-nav {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: var(--text-main);
+    font-size: 9px; /* Tamaño pequeño como en tu imagen */
+    font-weight: 800;
+    gap: 3px;
+    transition: opacity 0.2s;
+    background: none !important; /* Quita el fondo blanco de los botones */
+    border: none !important;     /* Quita el borde de los botones */
+}
+
+.btn-nav span:first-child { font-size: 18px; }
+.btn-nav.active { color: var(--primary); }
+
+.settings-trigger-nav {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 0 10px;
+    color: var(--text-main);
+    flex: 0 0 auto;
+}
         :root { 
             --primary: #2563eb; 
             --accent: #7c3aed; 
@@ -114,21 +156,28 @@
     </style>
 </head>
 <body>
-    <div class="nav-bar" style="display: flex; align-items: center; justify-content: space-between; width: 100%; gap: 5px; padding: 10px; box-sizing: border-box;">
-        <a href="index.html" class="btn-nav" style="flex: 1; text-align: center; text-decoration: none; font-size: 10px; white-space: nowrap; display: flex; flex-direction: column; align-items: center;">
-            <span>🏠</span><span>INICIO</span>
-        </a>
-        <a href="itinerario.html" class="btn-nav" style="flex: 1; text-align: center; text-decoration: none; font-size: 10px; white-space: nowrap; display: flex; flex-direction: column; align-items: center;">
-            <span>📍</span><span>ITINERARIO</span>
-        </a>
-        <a href="javascript:void(0)" class="btn-nav" onclick="avisoProximamente(event)" style="flex: 1; text-align: center; text-decoration: none; font-size: 10px; white-space: nowrap; display: flex; flex-direction: column; align-items: center;">
-            <span>🔍</span><span>COMPARADOR</span>
-        </a>
-        <a href="unidades.html" class="btn-nav" style="flex: 1; text-align: center; text-decoration: none; font-size: 10px; white-space: nowrap; display: flex; flex-direction: column; align-items: center;">
-            <span>⚖️</span><span>UNIDADES</span>
-        </a>
-        <button class="settings-trigger" onclick="toggleSettings()" style="flex: 0 0 auto; width: 40px; border: none; background: none;">⚙️</button>
-    </div>
+    <div class="card">
+        <h1>TaxUSA <img src="https://flagcdn.com/w40/us.png" style="width: 28px; border-radius: 3px;" alt="USA"></h1>
+
+        <div class="nav-bar">
+            <a href="compras.html" class="btn-nav active">
+                <span>🏠</span>
+                <span>GASTOS</span>
+            </a>
+            <a href="itinerario.html" class="btn-nav">
+                <span>📍</span>
+                <span>ITINERARIO</span>
+            </a>
+            <a href="javascript:void(0)" class="btn-nav" onclick="avisoProximamente(event)">
+                <span>🔍</span>
+                <span>COMPARAR</span>
+            </a>
+            <a href="unidades.html" class="btn-nav">
+                <span>⚖️</span>
+                <span>UNIDADES</span>
+            </a>
+            <button class="settings-trigger-nav" onclick="toggleSettings()">⚙️</button>
+        </div>
 
    <div class="budget-card">
     <div class="budget-label">Presupuesto Restante</div>
