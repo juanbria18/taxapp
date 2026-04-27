@@ -85,6 +85,7 @@
         .btn-danger { color: #ef4444; border-color: #fecaca; }
 
         /* Ajustes específicos para tarjetas en modo oscuro */
+        body.dark-mode .queue-card[style*="background: rgb(245, 243, 255)"], 
         body.dark-mode .queue-card[style*="background: #f5f3ff"] {
             background: #2e1065 !important;
             border-color: #7c3aed !important;
@@ -138,6 +139,8 @@
         <h3 style="margin-top:0; color: var(--primary);">Ajustes</h3>
         <p id="userEmail" style="font-size:0.75rem; color:var(--text-muted); margin-bottom:20px; font-weight:700;"></p>
         
+        <button class="drawer-btn" onclick="toggleDarkMode()" id="darkModeBtn">🌙 Modo Oscuro: OFF</button>
+        
         <button class="drawer-btn" onclick="changeEmail()">📧 Cambiar Correo (Verificación)</button>
         <button class="drawer-btn" onclick="changePassword()">🔑 Cambiar Contraseña</button>
         <button class="drawer-btn" onclick="logout()">🚪 Cerrar Sesión</button>
@@ -164,17 +167,33 @@
         const db = getFirestore(app);
         let currentUser = null;
 
-        // Cargar Modo Oscuro desde LocalStorage
+        // Lógica de Modo Oscuro
+        window.toggleDarkMode = () => {
+            const isDark = document.body.classList.toggle('dark-mode');
+            localStorage.setItem('dark-mode', isDark);
+            updateDarkModeBtn();
+        };
+
+        function updateDarkModeBtn() {
+            const btn = document.getElementById('darkModeBtn');
+            if(document.body.classList.contains('dark-mode')) {
+                btn.innerText = "☀️ Modo Claro";
+            } else {
+                btn.innerText = "🌙 Modo Oscuro";
+            }
+        }
+
+        // Cargar Modo Oscuro desde LocalStorage al iniciar
         if (localStorage.getItem('dark-mode') === 'true') {
             document.body.classList.add('dark-mode');
         }
+        updateDarkModeBtn();
 
         onAuthStateChanged(auth, (user) => {
             if (!user) { window.location.replace("login.html"); } 
             else { currentUser = user; document.getElementById('userEmail').innerText = user.email; listenNotes(user.uid); renderCityData(); }
         });
 
-        // Configuración de ciudades y spots
         const citiesConfig = {
             orlando: [
                 { name: "🏰 Magic Kingdom", id: "mk", parkId: "6" },
@@ -237,7 +256,7 @@
             ],
             philly: [
                 { name: "🔔 Liberty Bell", id: "lib" }, { name: "🏛️ Art Museum", id: "philart" },
-                { name: "sandwich Reading Market", id: "read" }, { name: "⚖️ Indep. Hall", id: "ihall" },
+                { name: "🥪 Reading Market", id: "read" }, { name: "⚖️ Indep. Hall", id: "ihall" },
                 { name: "🥊 Rocky Steps", id: "rocky" }, { name: "🏘️ Elfreth's Alley", id: "elf" }
             ],
             nola: [
@@ -320,7 +339,6 @@
             }
         }
 
-        // FUNCIONES DE AJUSTES
         window.changeEmail = async () => {
             const newEmail = prompt("Ingresa el nuevo correo electrónico:");
             if (newEmail && newEmail.includes("@")) {
@@ -335,7 +353,6 @@
         window.logout = () => signOut(auth).then(() => window.location.replace("login.html"));
         window.toggleSettings = () => { const d = document.getElementById('settingsDrawer'); d.classList.toggle('open'); document.getElementById('menuOverlay').style.display = d.classList.contains('open') ? 'block' : 'none'; };
         
-        // RECAPTCHA V3 INVISIBLE EN ADDNOTE
         window.addNote = async () => { 
             const input = document.getElementById('noteInput'); 
             if (!input.value.trim()) { alert("Escribe una nota primero."); return; }
