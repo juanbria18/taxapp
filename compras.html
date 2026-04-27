@@ -316,9 +316,13 @@
             return parseFloat(str.toString().replace(/,/g, "")) || 0; 
         }
 
-        function formatNumber(num) { 
-            return Number(num).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); 
-        }
+        function formatNumber(num) {
+    // Esto asegura que el número siempre tenga 2 decimales y use punto para decimales
+    return parseFloat(num).toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+}
 
         function updateEmojis() { twemoji.parse(document.body, { folder: 'svg', ext: '.svg' }); }
 
@@ -364,19 +368,30 @@
             if(currentUser) await setDoc(doc(db, "usuarios", currentUser.uid), { fondo: val }, { merge: true }); 
         };
         
-        window.addGasto = async () => { 
-    const n = document.getElementById('nombre').value; 
-    const v = parseFloat(document.getElementById('valor').value); 
-    if(n && v && currentUser) { 
-        await addDoc(collection(db, "compras"), { 
-            nombre: n, 
-            valor: v, 
-            userId: currentUser.uid, 
-            createdAt: Date.now() 
-        }); 
-        document.getElementById('nombre').value = ""; 
-        document.getElementById('valor').value = ""; 
-    } 
+        window.addGasto = async () => {
+    const nombreEl = document.getElementById('nombre');
+    const valorEl = document.getElementById('valor');
+    
+    const n = nombreEl.value;
+    // IMPORTANTE: Leemos el valor directamente como número
+    const v = parseFloat(valorEl.value);
+
+    if (n && !isNaN(v) && v > 0 && currentUser) {
+        try {
+            await addDoc(collection(db, "compras"), {
+                nombre: n,
+                valor: v, // Guardamos el número puro
+                userId: currentUser.uid,
+                createdAt: Date.now()
+            });
+            nombreEl.value = "";
+            valorEl.value = "";
+        } catch (e) {
+            console.error("Error al añadir: ", e);
+        }
+    } else {
+        alert("Por favor, ingresá un nombre y un precio válido.");
+    }
 };
 
         window.deleteGasto = (id) => confirm("¿Borrar?") && deleteDoc(doc(db, "compras", id));
