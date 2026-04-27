@@ -34,6 +34,7 @@
             --input-bg: #ffffff;
             --box-bg: #f1f5f9;
             --timer-text: #1e3a8a;
+            --header-color: #3C3B6E; /* El azul de la bandera USA */
         }
 
         /* COLORES MODO OSCURO (AÑADIDO) */
@@ -46,6 +47,7 @@
             --input-bg: #1e293b;
             --box-bg: #334155;
             --timer-text: #60a5fa;
+            --header-color: #ffffff; /* Blanco */
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -81,13 +83,14 @@ h1 {
     margin: 0 0 1rem 0; 
     font-size: 1.6rem; 
     font-weight: 800; 
-    color: #ffffff; /* TaxUSA en blanco */
+    color: var(--header-color); /* <--- ACÁ USAMOS LA VARIABLE */
     display: flex; 
     align-items: center; 
-    justify-content: flex-start; /* Alineado a la izquierda */
+    justify-content: flex-start; 
     gap: 10px; 
     width: 100%;
-}        
+    transition: color 0.3s ease; /* Para que el cambio sea suave */
+}     
         .countdown-box { background: var(--box-bg); padding: 12px; border-radius: 16px; margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 2px; cursor: pointer; position: relative; border: 2px solid transparent; transition: 0.2s; }
         .countdown-box:active { transform: scale(0.98); border-color: var(--primary); }
         .countdown-label { font-size: 0.6rem; font-weight: 800; color: var(--text-sub); text-transform: uppercase; }
