@@ -22,25 +22,6 @@
     </script>
 
     <style>
-        .nav-bar {
-    display: flex !important;
-    width: 100% !important;
-}
-
-.btn-nav {
-    flex: 1 !important; /* Esto iguala los anchos */
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 4px; /* Espacio entre el emoji y el texto */
-    color: inherit;
-    transition: opacity 0.2s;
-}
-
-.btn-nav:active {
-    opacity: 0.6;
-}
         /* VARIABLES DINÁMICAS (NUEVO) */
         :root { 
             --primary: #2563eb; 
@@ -159,7 +140,6 @@
         #dynamic-tip { background: rgba(34, 197, 94, 0.1); padding: 10px; border-radius: 12px; font-size: 0.75rem; color: #166534; font-weight: 700; margin-bottom: 15px; border: 1px solid rgba(34, 197, 94, 0.3); }
         [data-theme="dark"] #dynamic-tip { color: #4ade80; border-color: #064e3b; }
     </style>
-    
 </head>
 <body>
 
@@ -243,25 +223,12 @@
             💡 <span id="tip-content" style="transition: opacity 0.4s ease;">Cargando tip económico...</span>
         </div>
 
-        <div class="nav-bar" style="display: flex; align-items: center; justify-content: space-around; width: 100%; box-sizing: border-box; background: var(--white); border-top: 1px solid var(--border); position: fixed; bottom: 0; left: 0; padding: 10px 5px; z-index: 1000;">
-    <a href="index.html" class="btn-nav" style="flex: 1; text-align: center; text-decoration: none; display: flex; flex-direction: column; align-items: center; font-size: 11px; color: var(--text);">
-        <span style="font-size: 20px;">🏠</span>
-        <span>INICIO</span>
-    </a>
-    <a href="itinerario.html" class="btn-nav" style="flex: 1; text-align: center; text-decoration: none; display: flex; flex-direction: column; align-items: center; font-size: 11px; color: var(--text);">
-        <span style="font-size: 20px;">📍</span>
-        <span>ITINERARIO</span>
-    </a>
-    <a href="javascript:void(0)" class="btn-nav" onclick="avisoProximamente(event)" style="flex: 1; text-align: center; text-decoration: none; display: flex; flex-direction: column; align-items: center; font-size: 11px; color: var(--text);">
-        <span style="font-size: 20px;">🔍</span>
-        <span>COMPARADOR</span>
-    </a>
-    <a href="unidades.html" class="btn-nav" style="flex: 1; text-align: center; text-decoration: none; display: flex; flex-direction: column; align-items: center; font-size: 11px; color: var(--text);">
-        <span style="font-size: 20px;">⚖️</span>
-        <span>UNIDADES</span>
-    </a>
-    <button class="settings-trigger" onclick="toggleSettings()" style="background: none; border: none; font-size: 20px; cursor: pointer; padding: 0 10px; flex-shrink: 0; color: var(--text);">⚙️</button>
-</div>
+        <div class="nav-buttons">
+            <a href="compras.html" class="nav-btn btn-blue">🛒 GASTOS Y TALLES</a>
+            <a href="itinerario.html" class="nav-btn btn-purple">📍 ITINERARIO</a>
+            <a href="unidades.html" class="nav-btn btn-cyan">⚖️ CONVERSOR UNIDADES</a>
+            <a href="#" class="nav-btn btn-emerald" onclick="avisoProximamente(event)">🔍 COMPARADOR</a>
+        </div>
     </div>
 
     <div class="footer">
