@@ -64,9 +64,12 @@
         /* ---------------------------------- */
         
         .card { background: var(--card-bg); padding: 1.5rem; border-radius: 24px; width: 100%; max-width: 450px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 15px; position: relative; }
-        h2 { color: var(--primary); margin-top: 0; text-align: center; font-size: 1.3rem; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; }
+        
+        /* Ajuste de título para que no se choque con la rueda */
+        h2 { color: var(--primary); margin: 10px 35px 20px 0; text-align: center; font-size: 1.3rem; text-transform: uppercase; letter-spacing: 1px; line-height: 1.2; }
 
-        .settings-trigger { position: absolute; top: 15px; right: 15px; background: var(--input-bg); border: none; border-radius: 50%; width: 35px; height: 35px; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; color: var(--text); }
+        /* Ajuste de la rueda de configuración */
+        .settings-trigger { position: absolute; top: 18px; right: 18px; background: var(--input-bg); border: none; border-radius: 50%; width: 35px; height: 35px; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 5; color: var(--text); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
 
         .converter-group { margin-bottom: 20px; padding: 15px; border: 1px solid var(--border); border-radius: 20px; background: var(--card-bg); }
         .group-title { font-size: 0.75rem; font-weight: 900; color: #64748b; text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; gap: 5px; }
