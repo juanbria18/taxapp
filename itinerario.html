@@ -14,14 +14,12 @@
             --blue: #2563eb; 
             --accent: #f59e0b; 
             --success: #10b981;
-            /* Variables Modo Oscuro */
             --text-main: #1e293b;
             --text-muted: #64748b;
             --border-color: #f1f5f9;
             --card-bg: #ffffff;
         }
 
-        /* Clase Dark Mode */
         body.dark-mode {
             --bg: #0f172a;
             --white: #1e293b;
@@ -36,7 +34,6 @@
         
         .nav-bar { width: 100%; max-width: 450px; margin-bottom: 15px; display: flex; gap: 5px; }
         .btn-nav { flex: 1; padding: 10px 2px; background: var(--white); border-radius: 14px; font-weight: 800; text-align: center; text-decoration: none; font-size: 0.62rem; border: 2px solid var(--blue); color: var(--blue); white-space: nowrap }
-        .btn-nav-cyan { border-color: #0ea5e9; color: #0ea5e9; }
 
         .card { background: var(--white); padding: 1.5rem; border-radius: 24px; width: 100%; max-width: 450px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 15px; position: relative; }
         h2 { color: var(--primary); margin-top: 0; text-align: center; font-size: 1.4rem; margin-bottom: 10px; }
@@ -80,16 +77,9 @@
         .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; z-index: 1000; }
         .settings-drawer { position: fixed; top: 0; right: -300px; width: 280px; height: 100%; background: var(--white); z-index: 1001; transition: 0.3s; padding: 25px; display: flex; flex-direction: column; box-shadow: -5px 0 15px rgba(0,0,0,0.1); color: var(--text-main); }
         .settings-drawer.open { right: 0; }
-        
         .drawer-btn { width: 100%; padding: 14px; margin-bottom: 10px; border-radius: 12px; border: 1px solid var(--border-color); background: var(--white); color: var(--text-main); font-weight: 700; cursor: pointer; font-size: 0.85rem; text-align: left; }
-        .btn-danger { color: #ef4444; border-color: #fecaca; }
-
-        /* Ajustes específicos para tarjetas en modo oscuro */
-        body.dark-mode .queue-card[style*="background: rgb(245, 243, 255)"], 
-        body.dark-mode .queue-card[style*="background: #f5f3ff"] {
-            background: #2e1065 !important;
-            border-color: #7c3aed !important;
-        }
+        
+        body.dark-mode .queue-card[style*="background: #f5f3ff"] { background: #2e1065 !important; border-color: #7c3aed !important; }
     </style>
 </head>
 <body>
@@ -111,55 +101,33 @@
             <option value="vegas">🎲 Las Vegas</option>
             <option value="la">🎬 Los Ángeles</option>
             <option value="dc">🏛️ Washington D.C.</option>
-            <option value="chicago">🏙️ Chicago</option>
-            <option value="sf">🌁 San Francisco</option>
-            <option value="boston">🎓 Boston</option>
-            <option value="seattle">☕ Seattle</option>
-            <option value="dallas">🤠 Dallas</option>
-            <option value="philly">🔔 Philadelphia</option>
-            <option value="nola">🎷 New Orleans</option>
-            <option value="atlanta">🍑 Atlanta</option>
         </select>
 
         <textarea id="noteInput" rows="4" placeholder="Vuelos, hoteles, recordatorios..."></textarea>
-        
         <button class="btn-add" onclick="addNote()">AGREGAR AL HISTORIAL</button>
         
         <div class="queues-box" id="dynamicQueues"></div>
 
         <div class="dato-itinerario" onclick="nextTip()">
             <small style="color: var(--blue); font-weight: 800; font-size: 0.6rem; text-transform: uppercase;">✨ Tip de Viaje</small>
-            <div id="tip-text" style="font-weight: 700; font-size: 0.85rem; color: var(--text-main); margin-top: 4px; transition: opacity 0.3s ease;">Cargando tips...</div>
+            <div id="tip-text" style="font-weight: 700; font-size: 0.85rem; color: var(--text-main); margin-top: 4px;">Cargando tips...</div>
         </div>
     </div>
 
-    <div id="notesList" class="list-container"><p style="text-align:center; color:#94a3b8;">Cargando...</p></div>
+    <div id="notesList" class="list-container"></div>
     
     <div id="menuOverlay" class="menu-overlay" onclick="toggleSettings()"></div>
     <div id="settingsDrawer" class="settings-drawer">
         <h3 style="margin-top:0; color: var(--primary);">Ajustes</h3>
-        <p id="userEmail" style="font-size:0.75rem; color:var(--text-muted); margin-bottom:20px; font-weight:700;"></p>
-        
-        <button class="drawer-btn" onclick="toggleDarkMode()" id="darkModeBtn">🌙 Modo Oscuro: OFF</button>
-        
-        <button class="drawer-btn" onclick="changeEmail()">📧 Cambiar Correo (Verificación)</button>
-        <button class="drawer-btn" onclick="changePassword()">🔑 Cambiar Contraseña</button>
+        <button class="drawer-btn" onclick="toggleDarkMode()" id="darkModeBtn">🌙 Modo Oscuro</button>
         <button class="drawer-btn" onclick="logout()">🚪 Cerrar Sesión</button>
-        <div style="margin-top: auto; padding-top: 20px;">
-            <button class="drawer-btn btn-danger" onclick="deleteAccount()">⚠️ Eliminar Cuenta</button>
-        </div>
     </div>
 
-    <div class="footer">
-        <span>Creado por Juan Cruz Bria <img src="https://flagcdn.com/w40/ar.png" style="width:18px;" alt="ARG"></span>
-    </div>
-    <div class="api-credits">
-        APIs: Firebase • Queue-Times • FlagCDN • reCAPTCHA v3
-    </div>
+    <div class="footer">Creado por Juan Cruz Bria 🇦🇷</div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut, sendPasswordResetEmail, deleteUser, verifyBeforeUpdateEmail } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, query, where, orderBy, onSnapshot, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
         const firebaseConfig = { apiKey: "AIzaSyCm0Ig-CPklsjf6j-1uSAeF6I8xtyQKj7U", authDomain: "viajes-db538.firebaseapp.com", projectId: "viajes-db538", storageBucket: "viajes-db538.firebasestorage.app", messagingSenderId: "237311739178", appId: "1:237311739178:web:333e468b184c0402a98a53" };
@@ -168,31 +136,22 @@
         const db = getFirestore(app);
         let currentUser = null;
 
-        // Lógica de Modo Oscuro
+        // MODO OSCURO
         window.toggleDarkMode = () => {
             const isDark = document.body.classList.toggle('dark-mode');
             localStorage.setItem('dark-mode', isDark);
             updateDarkModeBtn();
         };
-
         function updateDarkModeBtn() {
             const btn = document.getElementById('darkModeBtn');
-            if(document.body.classList.contains('dark-mode')) {
-                btn.innerText = "☀️ Modo Claro";
-            } else {
-                btn.innerText = "🌙 Modo Oscuro";
-            }
+            btn.innerText = document.body.classList.contains('dark-mode') ? "☀️ Modo Claro" : "🌙 Modo Oscuro";
         }
-
-        // Cargar Modo Oscuro desde LocalStorage al iniciar
-        if (localStorage.getItem('dark-mode') === 'true') {
-            document.body.classList.add('dark-mode');
-        }
+        if (localStorage.getItem('dark-mode') === 'true') document.body.classList.add('dark-mode');
         updateDarkModeBtn();
 
         onAuthStateChanged(auth, (user) => {
-            if (!user) { window.location.replace("login.html"); } 
-            else { currentUser = user; document.getElementById('userEmail').innerText = user.email; listenNotes(user.uid); renderCityData(); }
+            if (!user) window.location.replace("login.html");
+            else { currentUser = user; listenNotes(user.uid); renderCityData(); }
         });
 
         const citiesConfig = {
@@ -205,233 +164,107 @@
                 { name: "🦖 Islands of Adventure", id: "ioa", parkId: "64" },
                 { name: "✨ Epic Universe", id: "epic", parkId: 334, span: true }
             ],
-            nyc: [
-                { name: "🔭 Top of the Rock", id: "rock" }, { name: "🏙️ Empire State", id: "emp" },
-                { name: "🏙️ The Edge", id: "edge" }, { name: "💎 Summit One Vanderbilt", id: "summit" },
-                { name: "⚓ Statue Liberty", id: "stat" }, { name: "🌳 Central Park", id: "cp" }
-            ],
-            miami: [
-                { name: "🛍️ Sawgrass Mills", id: "saw" }, { name: "🎨 Wynwood Walls", id: "wyn" },
-                { name: "🌊 South Beach", id: "sb" }, { name: "🐊 Everglades", id: "ev" },
-                { name: "🏛️ Vizcaya Museum", id: "viz" }, { name: "🚢 Bayside Market", id: "bay" }
-            ],
-            vegas: [
-                { name: "🔮 The Sphere", id: "sph" }, { name: "🎰 The Strip", id: "strip" },
-                { name: "⛲ Bellagio", id: "bel" }, { name: "🎡 High Roller", id: "high" },
-                { name: "🎢 Stratosphere", id: "strat" }, { name: "🌵 Red Rock", id: "red" }
-            ],
-            la: [
-                { name: "🎡 Santa Monica", id: "sm" }, { name: "🔭 Griffith Obs.", id: "grif" },
-                { name: "🌟 Walk of Fame", id: "walk" }, { name: "🎬 Universal LA", id: "ula" },
-                { name: "🖼️ The Getty", id: "get" }, { name: "🎭 Hollywood Sign", id: "hsign" }
-            ],
-            dc: [
-                { name: "🏛️ White House", id: "white" }, { name: "🏛️ Capitol Building", id: "cap" },
-                { name: "🗼 Lincoln Mem.", id: "linc" }, { name: "🚀 Air & Space", id: "space" },
-                { name: "🦁 National Zoo", id: "zoo" }, { name: "🕵️ Spy Museum", id: "spy" }
-            ],
-            chicago: [
-                { name: "🏢 Willis Tower", id: "willis" }, { name: "☁️ The Bean", id: "bean" },
-                { name: "🎡 Navy Pier", id: "navy" }, { name: "🏙️ 360 Chicago", id: "chi360" },
-                { name: "🖼️ Art Institute", id: "art" }, { name: "🧪 Field Museum", id: "field" }
-            ],
-            sf: [
-                { name: "🌉 Golden Gate", id: "gg" }, { name: "⛓️ Alcatraz", id: "alc" },
-                { name: "⛵ Pier 39", id: "p39" }, { name: "🎢 Lombard St.", id: "lom" },
-                { name: "🎨 SFMOMA", id: "moma" }, { name: "🚠 Cable Car", id: "ccar" }
-            ],
-            boston: [
-                { name: "⚾ Fenway Park", id: "fen" }, { name: "🎓 Harvard", id: "harv" },
-                { name: "🚶 Freedom Trail", id: "free" }, { name: "🐟 Quincy Market", id: "quin" },
-                { name: "🏛️ Public Library", id: "bpl" }, { name: "⛵ Boston Harbor", id: "bhb" }
-            ],
-            seattle: [
-                { name: "🗼 Space Needle", id: "sn" }, { name: "🐟 Pike Place", id: "pike" },
-                { name: "🎸 MoPOP", id: "mop" }, { name: "🎡 Seattle Wheel", id: "swh" },
-                { name: "☕ First Starbucks", id: "stb" }, { name: "🧪 Science Center", id: "psc" }
-            ],
-            dallas: [
-                { name: "🏙️ Reunion Tower", id: "reun" }, { name: "🔫 6th Floor Mus.", id: "jfk" },
-                { name: "🐂 Stockyards", id: "stock" }, { name: "🏈 AT&T Stadium", id: "att" },
-                { name: "🌳 Klyde Warren", id: "kly" }, { name: "🎨 Arts District", id: "dart" }
-            ],
-            philly: [
-                { name: "🔔 Liberty Bell", id: "lib" }, { name: "🏛️ Art Museum", id: "philart" },
-                { name: "🥪 Reading Market", id: "read" }, { name: "⚖️ Indep. Hall", id: "ihall" },
-                { name: "🥊 Rocky Steps", id: "rocky" }, { name: "🏘️ Elfreth's Alley", id: "elf" }
-            ],
-            nola: [
-                { name: "🎷 Bourbon St.", id: "bour" }, { name: "⚜️ French Quarter", id: "fq" },
-                { name: "☕ Café Du Monde", id: "caf" }, { name: "🚢 Mississippi R.", id: "miss" },
-                { name: "🌳 City Park", id: "cpk" }, { name: "⛪ St. Louis Cath.", id: "slc" }
-            ],
-            atlanta: [
-                { name: "🐠 GA Aquarium", id: "gaq" }, { name: "🥤 World of CocaCola", id: "wcc" },
-                { name: "🎡 SkyView ATL", id: "skyv" }, { name: "🏟️ Mercedes-Benz", id: "mbz" },
-                { name: "🌸 Botanical Garden", id: "abg" }, { name: "📺 CNN Center", id: "cnn" }
-            ]
+            nyc: [{ name: "🔭 Top of the Rock", id: "rock" }, { name: "🏙️ Empire State", id: "emp" }],
+            miami: [{ name: "🛍️ Sawgrass Mills", id: "saw" }, { name: "🌊 South Beach", id: "sb" }]
         };
 
         window.renderCityData = () => {
             const city = document.getElementById('citySelector').value;
             const container = document.getElementById('dynamicQueues');
-            const spots = citiesConfig[city];
+            const spots = citiesConfig[city] || [];
             
-            let html = spots.map(s => `
-                <div class="queue-card" style="${s.span ? 'grid-column: span 3; background: #f5f3ff; border-color: #c084fc;' : ''}">
-                    <div class="queue-name" style="${s.span ? 'color: #7c3aed; height: auto; margin-bottom: 6px;' : ''}">${s.name}</div>
+            container.innerHTML = spots.map(s => `
+                <div class="queue-card" style="${s.span ? 'grid-column: span 3;' : ''}">
+                    <div class="queue-name">${s.name}</div>
                     <div id="${s.id}" class="queue-status">...</div>
                 </div>
-            `).join('');
+            `).join('') + (city === 'orlando' ? '<div class="api-attribution"><a href="https://queue-times.com/">Powered by Queue-Times.com</a></div>' : '');
 
-            if (city === 'orlando') {
-                html += `<div class="api-attribution"><a href="https://queue-times.com/" target="_blank">Powered by Queue-Times.com</a></div>`;
-                container.innerHTML = html;
-                updateQueueTimes();
-            } else {
-                container.innerHTML = html;
-                spots.forEach(s => {
-                    const el = document.getElementById(s.id);
-                    if(!el) return;
-                    const states = ["ABIERTO 🟢", "MEDIO 🟡", "ALTO 🔴", "CONCURRIDO 🟡"];
-                    const classes = ["q-low", "q-med", "q-high", "q-med"];
-                    const rand = Math.floor(Math.random() * 4);
-                    el.innerText = states[rand];
-                    el.className = "queue-status " + classes[rand];
-                });
-            }
+            updateQueueTimes();
         };
 
         async function updateQueueTimes() {
             const city = document.getElementById('citySelector').value;
-            if (city !== 'orlando') return;
-
+            
             // Obtener hora actual en Orlando (ET)
-            const orlandoHour = parseInt(new Intl.DateTimeFormat("en-US", {
+            const orlandoTime = new Intl.DateTimeFormat("en-US", {
                 timeZone: "America/New_York",
                 hour: "numeric",
                 hour12: false
-            }).format(new Date()));
+            }).format(new Date());
+            const orlandoHour = parseInt(orlandoTime);
 
-            const parks = citiesConfig.orlando.filter(p => p.parkId);
-            for (const park of parks) {
-                const el = document.getElementById(park.id);
-                if (!el) continue;
-                try {
-                    const proxy = "https://corsproxy.io/?";
-                    const apiUrl = `https://queue-times.com/parks/${park.parkId}/queue_times.json`;
-                    const response = await fetch(proxy + encodeURIComponent(apiUrl));
-                    const data = await response.json();
-                    let totalWait = 0, count = 0;
-                    if (data && data.lands) {
-                        data.lands.forEach(land => {
+            const isClosed = (orlandoHour >= 22 || orlandoHour < 8);
+
+            if (city === 'orlando') {
+                const parks = citiesConfig.orlando.filter(p => p.parkId);
+                for (const park of parks) {
+                    const el = document.getElementById(park.id);
+                    if (!el) continue;
+
+                    // PRIORIDAD: Si es tarde, marcar como cerrado directamente
+                    if (isClosed) {
+                        el.innerText = "CERRADO 🌙";
+                        el.className = "queue-status q-off";
+                        continue;
+                    }
+
+                    try {
+                        const proxy = "https://corsproxy.io/?";
+                        const apiUrl = `https://queue-times.com/parks/${park.parkId}/queue_times.json`;
+                        const response = await fetch(proxy + encodeURIComponent(apiUrl));
+                        const data = await response.json();
+                        
+                        let totalWait = 0, count = 0;
+                        data.lands?.forEach(land => {
                             land.rides.forEach(ride => {
                                 if (ride.is_open) { totalWait += ride.wait_time; count++; }
                             });
                         });
+
+                        const average = count > 0 ? totalWait / count : 0;
+                        if (count === 0) {
+                            el.innerText = "SIN INFO 🔄";
+                            el.className = "queue-status q-off";
+                        } else if (average <= 20) {
+                            el.innerText = "BAJA 🟢"; el.className = "queue-status q-low";
+                        } else if (average <= 45) {
+                            el.innerText = "MED 🟡"; el.className = "queue-status q-med";
+                        } else {
+                            el.innerText = "ALTA 🔴"; el.className = "queue-status q-high";
+                        }
+                    } catch (e) { 
+                        el.innerText = "Error 🔄"; el.className = "queue-status q-off"; 
                     }
-                    const average = count > 0 ? totalWait / count : 0;
-                    if (count === 0) {
-                        // Basado en hora real de Orlando
-                        el.innerText = (orlandoHour < 8 || orlandoHour >= 22) ? "CERRADO 🌙" : "SIN INFO 🔄";
-                        el.className = "queue-status q-off";
-                    } else if (average <= 20) {
-                        el.innerText = "BAJA 🟢"; el.className = "queue-status q-low";
-                    } else if (average <= 45) {
-                        el.innerText = "MED 🟡"; el.className = "queue-status q-med";
-                    } else {
-                        el.innerText = "ALTA 🔴"; el.className = "queue-status q-high";
-                    }
-                } catch (e) { el.innerText = "Error 🔄"; el.className = "queue-status q-off"; }
+                }
             }
         }
 
-        window.changeEmail = async () => {
-            const newEmail = prompt("Ingresa el nuevo correo electrónico:");
-            if (newEmail && newEmail.includes("@")) {
-                try {
-                    await verifyBeforeUpdateEmail(currentUser, newEmail);
-                    alert("¡Correo de verificación enviado a " + newEmail + "!");
-                } catch (e) { alert("Error: " + e.message); }
-            }
-        };
-
-        window.changePassword = () => { if (currentUser?.email) sendPasswordResetEmail(auth, currentUser.email).then(() => alert("Correo de restablecimiento enviado.")).catch(e => alert(e.message)); };
-        window.logout = () => signOut(auth).then(() => window.location.replace("login.html"));
-        window.toggleSettings = () => { const d = document.getElementById('settingsDrawer'); d.classList.toggle('open'); document.getElementById('menuOverlay').style.display = d.classList.contains('open') ? 'block' : 'none'; };
-        
         window.addNote = async () => { 
             const input = document.getElementById('noteInput'); 
-            if (!input.value.trim()) { alert("Escribe una nota primero."); return; }
-
-            grecaptcha.ready(() => {
-                grecaptcha.execute('6LeK6cssAAAAALxcJy-95R2nhVMmnuIyB78AQgvw', {action: 'submit_note'}).then(async (token) => {
-                    try {
-                        await addDoc(collection(db, "notas"), { 
-                            text: input.value, 
-                            userId: currentUser.uid, 
-                            createdAt: Date.now(), 
-                            completed: false,
-                            captchaToken: token 
-                        }); 
-                        input.value = ''; 
-                    } catch (e) { alert("Error: " + e.message); }
-                });
-            });
+            if (!input.value.trim()) return;
+            await addDoc(collection(db, "notas"), { text: input.value, userId: currentUser.uid, createdAt: Date.now(), completed: false });
+            input.value = ''; 
         };
-
-        window.toggleCheck = async (id, status) => { await updateDoc(doc(db, "notas", id), { completed: !status }); };
-        window.deleteNote = async (id) => { if (confirm('¿Eliminar?')) await deleteDoc(doc(db, "notas", id)); };
-        window.deleteAccount = async () => { if (confirm("¿Eliminar cuenta permanentemente?")) { try { await deleteDoc(doc(db, "usuarios", currentUser.uid)); await deleteUser(currentUser); window.location.replace("login.html"); } catch (e) { alert("Re-autenticación necesaria."); } } };
 
         function listenNotes(uid) {
             const q = query(collection(db, "notas"), where("userId", "==", uid), orderBy("createdAt", "desc"));
             onSnapshot(q, (sn) => {
-                const container = document.getElementById('notesList');
-                if (sn.empty) { container.innerHTML = '<p style="text-align:center; color:#94a3b8;">Sin notas.</p>'; return; }
-                container.innerHTML = sn.docs.map(docSnap => {
+                document.getElementById('notesList').innerHTML = sn.docs.map(docSnap => {
                     const d = docSnap.data();
-                    const dateStr = new Date(d.createdAt).toLocaleString('es-AR', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'});
                     return `<div class="note-item ${d.completed ? 'completed' : ''}">
-                        <div class="status-indicator" onclick="toggleCheck('${docSnap.id}', ${d.completed})"></div>
-                        <div class="note-content" onclick="toggleCheck('${docSnap.id}', ${d.completed})">
-                            <div class="note-text">${d.text}</div>
-                            <div class="note-date">${dateStr}</div>
-                        </div>
-                        <div class="btn-delete-note" onclick="deleteNote('${docSnap.id}')">×</div>
+                        <div class="note-text">${d.text}</div>
+                        <div onclick="window.deleteNote('${docSnap.id}')" style="cursor:pointer">×</div>
                     </div>`;
                 }).join('');
             });
         }
 
-        const itinerarioTips = [
-            "Orlando: Llegá 45 min antes de la apertura (Rope Drop) para subir a la mejor atracción sin fila.",
-            "NYC: No comas en Times Square, caminá 3 cuadras hacia Hell's Kitchen para mejores precios.",
-            "Miami: Usá el 'Trolley' gratuito para moverte por South Beach y Brickell.",
-            "Vegas: Registrate en los programas de recompensas de los hoteles (MGM/Caesars) para parking gratis.",
-            "Washington: Reservá con meses de anticipación si querés subir al Monumento a Washington.",
-            "SF: No dejes nada de valor a la vista dentro de un auto alquilado. Los robos son frecuentes.",
-            "Orlando: Llevá tu propio poncho de lluvia; adentro de los parques cuestan el triple.",
-            "USA: La propina estándar es del 18% al 22%. Revisá si el 'Service Charge' ya está incluido."
-        ];
-        
-        let currentTipIndex = 0;
-        window.nextTip = () => {
-            const el = document.getElementById('tip-text');
-            if(!el) return;
-            el.style.opacity = 0;
-            setTimeout(() => {
-                currentTipIndex = (currentTipIndex + 1) % itinerarioTips.length;
-                el.innerText = itinerarioTips[currentTipIndex];
-                el.style.opacity = 1;
-            }, 300);
-        };
-        
-        setInterval(updateQueueTimes, 300000);
-        setInterval(window.nextTip, 10000);
-        window.onload = () => { 
-            if(document.getElementById('tip-text')) document.getElementById('tip-text').innerText = itinerarioTips[0]; 
-        };
+        window.deleteNote = async (id) => { if(confirm('¿Eliminar?')) await deleteDoc(doc(db, "notas", id)); };
+        window.toggleSettings = () => { document.getElementById('settingsDrawer').classList.toggle('open'); document.getElementById('menuOverlay').style.display = document.getElementById('settingsDrawer').classList.contains('open') ? 'block' : 'none'; };
+        window.logout = () => signOut(auth).then(() => window.location.replace("login.html"));
+
+        setInterval(updateQueueTimes, 60000); // Actualiza cada minuto
     </script>
 </body>
 </html>
