@@ -329,7 +329,8 @@ h1 {
     <div id="settingsDrawer" class="settings-drawer">
         <h3 style="margin-top:0; color: var(--primary);">Ajustes</h3>
         <p id="userEmail" style="font-size:0.75rem; color:var(--text-sub); margin-bottom:20px; font-weight:700;"></p>
-        
+
+        <button class="drawer-btn" onclick="changeProfile()">👤 Cambiar de Perfil</button>
         <button class="drawer-btn" onclick="toggleDarkMode()">🌓 Cambiar Tema</button>
         <button class="drawer-btn" onclick="location.reload()">🔄 Actualizar App</button>
         <button class="drawer-btn" onclick="updateEmail()">📧 Cambiar Correo</button>
@@ -359,8 +360,48 @@ h1 {
         const auth = getAuth(app);
         const db = getFirestore(app);
         let currentUser = null;
+        const perfilId = localStorage.getItem('perfilActivoId');
+        const perfilFoto = localStorage.getItem('perfilActivoFoto');
         let tripData = { destination: "Orlando", date: "2027-01-01" };
         let currentTipPercentage = 15;
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                
+                // Si está logueado pero no eligió perfil, mandarlo a elegir
+                if (!perfilId) {
+                    window.location.replace("profiles.html");
+                    return;
+                }
+
+                // Inyectar foto de perfil en el botón de ajustes
+                if (perfilFoto) {
+                    const trigger = document.querySelector('.settings-trigger-bar');
+                    if (trigger) {
+                        trigger.style.backgroundImage = `url(${perfilFoto})`;
+                        trigger.style.backgroundSize = "cover";
+                        trigger.style.backgroundPosition = "center";
+                        trigger.style.borderRadius = "50%";
+                        trigger.style.border = "2px solid var(--primary)";
+                        trigger.innerText = ""; // Limpiamos el texto para que se vea la foto
+                    }
+                }
+
+                loadTripData(); // Tu función de carga de datos
+            } else {
+                window.location.replace("login.html");
+            }
+        });
+
+        // --- 3. FUNCIONES DE AJUSTES (Agregadas) ---
+        window.changeProfile = () => {
+            // No borramos el usuario de Firebase, solo el perfil elegido
+            localStorage.removeItem('perfilActivoId');
+            localStorage.removeItem('perfilActivoNombre');
+            localStorage.removeItem('perfilActivoFoto');
+            window.location.href = "profiles.html";
+        };
 
         // --- LÓGICA DARK MODE ---
         window.toggleDarkMode = () => {
