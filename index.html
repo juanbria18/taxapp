@@ -580,34 +580,37 @@ h1 {
         };
 
         window.saveTripSettings = async () => {
-    await getRecaptchaToken('save_trip');
+    // 1. Comentamos esto temporalmente para ver si es el problema
+    // await getRecaptchaToken('save_trip');
     
-    // 1. Recolectamos los datos del modal
+    console.log("Intentando guardar para el perfil:", perfilId);
+    console.log("Usuario actual:", currentUser ? currentUser.uid : "Nadie logueado");
+
     const destination = document.getElementById('input-destination').value || "Orlando";
     const date = document.getElementById('input-date').value || "2027-01-01";
     
     tripData = { destination, date };
 
-    // 2. Actualizamos la interfaz (Contador y textos)
-    updateTripUI();
-    closeTripModal();
-
-    // 3. GUARDADO CLAVE: 
-    // Si hay un usuario y un perfil seleccionado, guardamos en la subcolección del perfil
     if (currentUser && perfilId) {
         try {
+            // Referencia a la ruta: usuarios -> UID -> perfiles -> perfilId
             const profileRef = doc(db, "usuarios", currentUser.uid, "perfiles", perfilId);
             
-            // Guardamos los datos específicos de ESTE perfil
             await setDoc(profileRef, { 
                 trip: tripData,
                 lastUpdate: Date.now() 
             }, { merge: true });
             
-            console.log("Datos guardados en el perfil:", perfilId);
+            console.log("¡Guardado exitoso en Firebase!");
+            updateTripUI();
+            closeTripModal();
         } catch (e) {
-            console.error("Error al guardar en el perfil:", e);
+            console.error("Error de Firebase:", e);
+            alert("Error al guardar: " + e.message);
         }
+    } else {
+        console.warn("No se pudo guardar: perfilId o currentUser faltantes.");
+        alert("Error: No se detectó el perfil activo.");
     }
 };
 
