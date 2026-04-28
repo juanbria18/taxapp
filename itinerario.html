@@ -209,6 +209,9 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
         let currentUser = null;
+        const perfilId = localStorage.getItem('perfilId');
+        const perfilNombre = localStorage.getItem('perfilNombre');
+        const perfilFoto = localStorage.getItem('perfilFoto');
 
         // --- FUNCIONES DE CUENTA ---
         window.changeEmail = async () => {
@@ -345,7 +348,6 @@
             }
         }
 
-        // --- FLUJO APP ---
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 currentUser = user;
@@ -356,28 +358,26 @@
                 }
 
                 // Lógica de Foto de Perfil en el botón de ajustes
-                const trigger = document.querySelector('.settings-trigger-bar');
+                const trigger = document.querySelector('.settings-trigger-nav'); // Corregida la clase
                 if (trigger) {
-                    // Prioridad 1: Foto del perfil (viaje) | Prioridad 2: Foto de Google
                     const imagenAMostrar = perfilFoto || user.photoURL;
                     if (imagenAMostrar) {
                         trigger.style.backgroundImage = `url(${imagenAMostrar})`;
                         trigger.style.backgroundSize = "cover";
+                        trigger.style.borderRadius = "50%"; // Para que sea un circulito
                         trigger.innerText = ""; 
                     }
                 }
 
                 try {
-                    // Verificamos que el perfil exista en Firestore (Ruta: usuarios -> UID -> perfiles -> perfilId)
                     const profileRef = doc(db, "usuarios", user.uid, "perfiles", perfilId);
                     const snap = await getDoc(profileRef);
 
-                    / Verificamos si existe el perfil para cargar los datos de la ciudad
                     if (snap.exists()) {
-                        renderCityData(); // Esto carga el clima y datos de la ciudad
+                        renderCityData(); // Carga clima y datos
                     }
                     
-                    listenNotes(); // Esto activa la escucha de las notas del perfil
+                    listenNotes(); // Activa las notas
                 } catch (e) {
                     console.error("Error cargando perfil:", e);
                 }
