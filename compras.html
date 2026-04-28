@@ -525,24 +525,30 @@ window.onload = updateEmojis;
     const valorEl = document.getElementById('valor');
     
     const n = nombreEl.value;
-    // IMPORTANTE: Leemos el valor directamente como número
     const v = parseFloat(valorEl.value);
 
-    if (n && !isNaN(v) && v > 0 && currentUser) {
+    // Verificamos que tengamos Usuario y Perfil antes de guardar
+    if (n && !isNaN(v) && v > 0 && currentUser && perfilId) {
         try {
-            await addDoc(collection(db, "compras"), {
+            // RUTA CORRECTA: usuarios -> UID -> perfiles -> perfilId -> gastos
+            const gastosRef = collection(db, "usuarios", currentUser.uid, "perfiles", perfilId, "gastos");
+            
+            await addDoc(gastosRef, {
                 nombre: n,
-                valor: v, // Guardamos el número puro
-                userId: currentUser.uid,
-                createdAt: Date.now()
+                valor: v,
+                fecha: Date.now() // Usamos fecha para que el orderBy funcione
             });
+
+            // Limpiamos los campos
             nombreEl.value = "";
             valorEl.value = "";
+            console.log("¡Gasto guardado en el perfil correctamente!");
+            
         } catch (e) {
-            console.error("Error al añadir: ", e);
+            console.error("Error de Tesorería al añadir: ", e);
         }
     } else {
-        alert("Por favor, ingresá un nombre y un precio válido.");
+        alert("Por favor, ingresá un nombre, un precio válido y asegurate de estar en un perfil.");
     }
 };
 
