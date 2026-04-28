@@ -349,24 +349,58 @@
 
         window.addNote = async () => {
             const input = document.getElementById('noteInput');
-            if (!input.value.trim()) return;
-            await addDoc(collection(db, "notas"), { text: input.value, userId: currentUser.uid, createdAt: Date.now() });
-            input.value = '';
+            const text = input.value.trim();
+
+            // Verificamos que existan el Usuario y el Perfil antes de operar
+            if (text && currentUser && perfilId) {
+                try {
+                    // RUTA: usuarios -> UID -> perfiles -> perfilId -> notas
+                    const notesRef = collection(db, "usuarios", currentUser.uid, "perfiles", perfilId, "notas");
+                    await addDoc(notesRef, {
+                        text: text,
+                        createdAt: Date.now()
+                    });
+                    input.value = "";
+                    console.log("Nota guardada en el perfil activo");
+                } catch (e) {
+                    console.error("Error de Tesorería al añadir nota: ", e);
+                }
+            } else {
+                alert("Por favor, escribí algo y asegurate de haber seleccionado un perfil.");
+            }
         };
 
-        function listenNotes(uid) {
-            const q = query(collection(db, "notas"), where("userId", "==", uid), orderBy("createdAt", "desc"));
+        function listenNotes() {
+            // Si no hay perfil, no intentamos leer nada
+            if (!currentUser || !perfilId || perfilId === "null") return;
+            
+            const notesRef = collection(db, "usuarios", currentUser.uid, "perfiles", perfilId, "notas");
+            const q = query(notesRef, orderBy("createdAt", "desc"));
+            
             onSnapshot(q, (sn) => {
-                document.getElementById('notesList').innerHTML = sn.docs.map(docSnap => `
+                const container = document.getElementById('notesList');
+                if (!container) return;
+
+                container.innerHTML = sn.docs.map(docSnap => `
                     <div class="note-item">
                         <div class="note-text">${docSnap.data().text}</div>
-                        <div onclick="window.deleteNote('${docSnap.id}')" style="cursor:pointer; font-weight:bold; color:#94a3b8">×</div>
+                        <div onclick="window.deleteNote('${docSnap.id}')" style="cursor:pointer; font-weight:bold; color:#94a3b8; padding: 5px;">×</div>
                     </div>
                 `).join('');
             });
         }
 
-        window.deleteNote = async (id) => { if(confirm('¿Eliminar?')) await deleteDoc(doc(db, "notas", id)); };
+        window.deleteNote = async (id) => {
+            if (confirm('¿Eliminar esta nota?')) {
+                try {
+                    // Importante: la ruta debe ser la misma donde se guardó
+                    const docRef = doc(db, "usuarios", currentUser.uid, "perfiles", perfilId, "notas", id);
+                    await deleteDoc(docRef);
+                } catch (e) {
+                    console.error("Error al eliminar nota: ", e);
+                }
+            }
+        };    
         
         window.toggleSettings = () => { 
             const d = document.getElementById('settingsDrawer');
