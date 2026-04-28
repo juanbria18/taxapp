@@ -368,46 +368,27 @@ h1 {
         onAuthStateChanged(auth, async (user) => {
     if (user) {
         currentUser = user;
-        
-        // 1. Verificamos que haya un perfil en el navegador
+        document.getElementById('userEmail').innerText = user.email;
+
         if (!perfilId) {
             window.location.replace("profiles.html");
             return;
         }
 
-        // 2. Inyectamos la foto en el botón de ajustes
-        if (perfilFoto) {
-            const trigger = document.querySelector('.settings-trigger-bar');
-            if (trigger) {
-                trigger.style.backgroundImage = `url(${perfilFoto})`;
-                trigger.style.backgroundSize = "cover";
-                trigger.style.backgroundPosition = "center";
-                trigger.style.borderRadius = "50%";
-                trigger.style.border = "2px solid var(--primary)";
-                trigger.innerText = ""; 
-            }
-        }
-
-        // 3. CARGA DE DATOS DEL PERFIL (Reemplaza a loadTripData)
+        // 1. CARGA ÚNICA Y CORRECTA: usuarios -> UID -> perfiles -> perfilId
         try {
             const profileRef = doc(db, "usuarios", user.uid, "perfiles", perfilId);
             const snap = await getDoc(profileRef);
 
             if (snap.exists() && snap.data().trip) {
-                // Si el perfil ya tiene datos de viaje guardados
                 tripData = snap.data().trip;
             } else {
-                // Si es un perfil nuevo, usamos los valores por defecto
                 tripData = { destination: "Orlando", date: "2027-01-01" };
             }
-            
-            // Actualizamos la interfaz (el contador y el texto del destino)
             updateTripUI();
-
         } catch (e) {
             console.error("Error cargando perfil:", e);
         }
-
     } else {
         window.location.replace("login.html");
     }
