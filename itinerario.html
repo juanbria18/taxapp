@@ -199,16 +199,30 @@
 
     <div class="footer">Creado por Juan Cruz Bria 🇦🇷</div>
 
-    <script type="module">
+   <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut, updateEmail, updatePassword, deleteUser, verifyBeforeUpdateEmail } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, query, where, orderBy, onSnapshot, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+        // IMPORTANTE: Agregamos getDoc aquí abajo
+        import { getFirestore, collection, addDoc, query, where, orderBy, onSnapshot, deleteDoc, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
-        const firebaseConfig = { apiKey: "AIzaSyCm0Ig-CPklsjf6j-1uSAeF6I8xtyQKj7U", authDomain: "viajes-db538.firebaseapp.com", projectId: "viajes-db538", storageBucket: "viajes-db538.firebasestorage.app", messagingSenderId: "237311739178", appId: "1:237311739178:web:333e468b184c0402a98a53" };
+        const firebaseConfig = { 
+            apiKey: "AIzaSyCm0Ig-CPklsjf6j-1uSAeF6I8xtyQKj7U", 
+            authDomain: "viajes-db538.firebaseapp.com", 
+            projectId: "viajes-db538", 
+            storageBucket: "viajes-db538.firebasestorage.app", 
+            messagingSenderId: "237311739178", 
+            appId: "1:237311739178:web:333e468b184c0402a98a53" 
+        };
+
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+        
+        // --- AUDITORÍA DE PERFIL (Agregá esto aquí) ---
         let currentUser = null;
+        const perfilId = localStorage.getItem('perfilActivoId'); 
+        const perfilNombre = localStorage.getItem('perfilActivoNombre');
+        const perfilFoto = localStorage.getItem('perfilActivoFoto');
 
         // --- FUNCIONES DE CUENTA ---
         window.changeEmail = async () => {
@@ -337,17 +351,18 @@
         }
 
         // --- FLUJO APP ---
+        // --- FLUJO APP ---
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 currentUser = user;
                 
-                // 1. Verificamos que haya un perfil seleccionado
+                // 1. Verificamos perfil
                 if (!perfilId || perfilId === "null") {
                     window.location.replace("profiles.html");
                     return;
                 }
 
-                // 2. Lógica de la foto de perfil en el botón
+                // 2. Foto de perfil en el botón⚙️
                 const trigger = document.querySelector('.settings-trigger-nav');
                 if (trigger) {
                     const imagenAMostrar = perfilFoto || user.photoURL;
@@ -360,21 +375,29 @@
                 }
 
                 try {
-                    // 3. Verificamos que el perfil exista en Firestore
+                    // 3. Traemos el destino del perfil para setear el selector automáticamente
                     const profileRef = doc(db, "usuarios", user.uid, "perfiles", perfilId);
                     const snap = await getDoc(profileRef);
 
                     if (snap.exists()) {
-                        renderCityData(); // Carga clima del destino del perfil
+                        const destinoPerfil = snap.data().destino ? snap.data().destino.toLowerCase() : "orlando";
+                        
+                        // Ponemos el selector en la ciudad que corresponde al viaje
+                        const selector = document.getElementById('citySelector');
+                        if (selector) {
+                            selector.value = destinoPerfil;
+                        }
                     }
                     
-                    // 4. Cargamos las notas de ESTE perfil
+                    // 4. Cargamos los datos de la ciudad (Parques/Spots) y las notas
+                    renderCityData(); 
                     listenNotes(); 
                     
-                    // Tip inicial
+                    // Mostramos el primer tip
                     document.getElementById('tip-text').innerText = tips[0];
+
                 } catch (e) {
-                    console.error("Error de Tesorería al cargar perfil:", e);
+                    console.error("Error al cargar datos del perfil:", e);
                 }
             } else {
                 window.location.replace("login.html");
