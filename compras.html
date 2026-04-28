@@ -583,37 +583,74 @@ window.onload = updateEmojis;
             }
         };
 
-        window.changePassword = () => { if (currentUser) sendPasswordResetEmail(auth, currentUser.email).then(() => alert("Correo enviado.")); };
-        window.deleteAccount = async () => { if (confirm("¿Borrar cuenta?")) { await deleteDoc(doc(db, "usuarios", currentUser.uid)); await deleteUser(currentUser); window.location.replace("login.html"); } };
-        window.logout = () => signOut(auth).then(() => window.location.replace("login.html"));
+        // --- SECCIÓN DE AJUSTES Y CUENTA ---
+        window.changeProfile = () => {
+            // Borramos el perfil de la memoria para que pida elegir uno nuevo
+            localStorage.removeItem('perfilId');
+            localStorage.removeItem('perfilNombre');
+            localStorage.removeItem('perfilFoto');
+            window.location.href = "profiles.html";
+        };
 
+        window.changePassword = () => { 
+            if (currentUser) {
+                sendPasswordResetEmail(auth, currentUser.email)
+                    .then(() => alert("Se ha enviado un correo para restablecer tu contraseña.")); 
+            }
+        };
+
+        window.deleteAccount = async () => { 
+            if (confirm("¿Estás seguro de borrar tu cuenta? Se perderán todos tus viajes y gastos.")) { 
+                try {
+                    await deleteDoc(doc(db, "usuarios", currentUser.uid)); 
+                    await deleteUser(currentUser); 
+                    window.location.replace("login.html"); 
+                } catch (e) {
+                    alert("Por seguridad, debes re-autenticarte para borrar la cuenta.");
+                }
+            } 
+        };
+
+        window.logout = () => {
+            if (confirm("¿Cerrar sesión y cambiar de usuario?")) {
+                signOut(auth).then(() => window.location.replace("login.html"));
+            }
+        };
+
+        // --- MANEJO DE ESTADO DE USUARIO ---
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 currentUser = user;
+                
                 if (!perfilId) {
                     window.location.replace("profiles.html");
                     return;
                 }
 
-                // Cargamos la foto en el botón de ajustes (opcional, como en el index)
-                if (perfilFoto) {
-                    const trigger = document.querySelector('.settings-trigger-bar');
-                    if (trigger) { trigger.style.backgroundImage = `url(${perfilFoto})`; trigger.style.backgroundSize = "cover"; trigger.innerText = ""; }
+                // Lógica de Foto de Perfil en el botón de ajustes
+                const trigger = document.querySelector('.settings-trigger-bar');
+                if (trigger) {
+                    // Prioridad 1: Foto del perfil (viaje) | Prioridad 2: Foto de Google
+                    const imagenAMostrar = perfilFoto || user.photoURL;
+                    if (imagenAMostrar) {
+                        trigger.style.backgroundImage = `url(${imagenAMostrar})`;
+                        trigger.style.backgroundSize = "cover";
+                        trigger.innerText = ""; 
+                    }
                 }
 
                 try {
-                    // RUTA: usuarios -> UID -> perfiles -> perfilId
                     const profileRef = doc(db, "usuarios", user.uid, "perfiles", perfilId);
                     const snap = await getDoc(profileRef);
 
                     if (snap.exists() && snap.data().presupuesto) {
                         presupuestoBase = Number(snap.data().presupuesto);
                     } else {
-                        presupuestoBase = 1000; // Valor inicial si no hay nada guardado
+                        presupuestoBase = 1000; 
                     }
                     
-                    fetchRates(); // Trae el dólar blue/oficial
-                    listenGastos(); // Activamos la escucha de gastos
+                    fetchRates(); 
+                    listenGastos(); 
                 } catch (e) {
                     console.error("Error cargando perfil:", e);
                 }
