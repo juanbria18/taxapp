@@ -200,27 +200,15 @@
     <div class="footer">Creado por Juan Cruz Bria 🇦🇷</div>
 
     <script type="module">
-        <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, deleteDoc, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged, signOut, updateEmail, updatePassword, deleteUser, verifyBeforeUpdateEmail } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, query, where, orderBy, onSnapshot, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
-        const firebaseConfig = { 
-            apiKey: "AIzaSyCm0Ig-CPklsjf6j-1uSAeF6I8xtyQKj7U", 
-            authDomain: "viajes-db538.firebaseapp.com", 
-            projectId: "viajes-db538", 
-            storageBucket: "viajes-db538.firebasestorage.googleapis.com", 
-            messagingSenderId: "1053003173098", 
-            appId: "1:1053003173098:web:ecf5cdc31b9cca17e2151f" 
-        };
-
+        const firebaseConfig = { apiKey: "AIzaSyCm0Ig-CPklsjf6j-1uSAeF6I8xtyQKj7U", authDomain: "viajes-db538.firebaseapp.com", projectId: "viajes-db538", storageBucket: "viajes-db538.firebasestorage.app", messagingSenderId: "237311739178", appId: "1:237311739178:web:333e468b184c0402a98a53" };
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-
         let currentUser = null;
-        const perfilId = localStorage.getItem('perfilId');
-        const perfilFoto = localStorage.getItem('perfilFoto');
 
         // --- FUNCIONES DE CUENTA ---
         window.changeEmail = async () => {
@@ -349,113 +337,122 @@
         }
 
         // --- FLUJO APP ---
-       // --- FLUJO APP ---
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                currentUser = user;
-                if (!perfilId) {
-                    window.location.replace("profiles.html");
-                    return;
-                }
+       onAuthStateChanged(auth, (user) => {
+    if (user) {
+        currentUser = user;
+        if (!perfilId) {
+            window.location.replace("profiles.html");
+            return;
+        }
 
-                // Avatar en la barra (Foto perfil o Google)
-                const trigger = document.querySelector('.settings-trigger-bar');
-                if (trigger) {
-                    const img = perfilFoto || user.photoURL;
-                    if (img) {
-                        trigger.style.backgroundImage = `url(${img})`;
-                        trigger.style.backgroundSize = "cover";
-                        trigger.innerText = "";
-                    }
-                }
+        // Foto en la barra de navegación (como en index)
+        const trigger = document.querySelector('.settings-trigger-bar');
+        if (trigger && (perfilFoto || user.photoURL)) {
+            trigger.style.backgroundImage = `url(${perfilFoto || user.photoURL})`;
+            trigger.style.backgroundSize = "cover";
+            trigger.innerText = "";
+        }
 
-                listenNotes(); // Activa notas del perfil
-                renderCityData(); // Carga clima/datos iniciales
-            } else {
-                window.location.replace("login.html");
-            }
-        });
-
-        window.addNote = async () => {
-            const input = document.getElementById('noteInput');
-            const text = input.value.trim();
-            if (text && currentUser && perfilId) {
-                try {
-                    const notesRef = collection(db, "usuarios", currentUser.uid, "perfiles", perfilId, "notas");
-                    await addDoc(notesRef, { text, createdAt: Date.now() });
-                    input.value = "";
-                } catch (e) { console.error("Error al guardar nota:", e); }
-            }
-        };
+        // Activamos la escucha de notas para este perfil específico
+        listenNotes(); 
+    } else {
+        window.location.replace("login.html");
+    }
+});
+            
+     window.addNote = async () => {
+    const input = document.getElementById('noteInput');
+    const text = input.value.trim();
+    if (text && currentUser && perfilId) {
+        try {
+            // RUTA: usuarios -> UID -> perfiles -> perfilId -> notas
+            const notesRef = collection(db, "usuarios", currentUser.uid, "perfiles", perfilId, "notas");
+            await addDoc(notesRef, {
+                text: text,
+                createdAt: Date.now()
+            });
+            input.value = "";
+        } catch (e) { console.error("Error al guardar nota:", e); }
+    }
+};
 
         // Función de escucha corregida para la nueva estructura
 function listenNotes() {
-            if (!currentUser || !perfilId) return;
-            const notesRef = collection(db, "usuarios", currentUser.uid, "perfiles", perfilId, "notas");
-            const q = query(notesRef, orderBy("createdAt", "desc"));
-            onSnapshot(q, (sn) => {
-                const container = document.getElementById('notesList');
-                if (container) {
-                    container.innerHTML = sn.docs.map(docSnap => `
-                        <div class="note-item">
-                            <div class="note-text">${docSnap.data().text}</div>
-                            <div onclick="window.deleteNote('${docSnap.id}')" style="cursor:pointer; font-weight:bold; color:#94a3b8; padding:5px;">×</div>
-                        </div>
-                    `).join('');
-                }
-            });
-        }
+    if (!currentUser || !perfilId) return;
+    
+    const notesRef = collection(db, "usuarios", currentUser.uid, "perfiles", perfilId, "notas");
+    const q = query(notesRef, orderBy("createdAt", "desc"));
+    
+    onSnapshot(q, (sn) => {
+        // Asegúrate de que el ID en tu HTML sea 'notesList'
+        const container = document.getElementById('notesList');
+        if (!container) return;
 
-      window.deleteNote = async (id) => {
-            if (confirm('¿Eliminar esta nota?')) {
-                const docRef = doc(db, "usuarios", currentUser.uid, "perfiles", perfilId, "notas", id);
-                await deleteDoc(docRef);
-            }
-        };        
+        container.innerHTML = sn.docs.map(docSnap => `
+            <div class="note-item">
+                <div class="note-text">${docSnap.data().text}</div>
+                <div onclick="window.deleteNote('${docSnap.id}')" style="cursor:pointer; font-weight:bold; color:#94a3b8; padding: 5px;">×</div>
+            </div>
+        `).join('');
+    });
+}
 
-        // --- AJUSTES ---
-        window.changeProfile = () => {
-            localStorage.removeItem('perfilId');
-            localStorage.removeItem('perfilNombre');
-            localStorage.removeItem('perfilFoto');
-            window.location.href = "profiles.html";
-        };
-
-        window.changePassword = () => {
-            if (currentUser) sendPasswordResetEmail(auth, currentUser.email).then(() => alert("Correo enviado."));
-        };
-
-        window.logout = () => {
-            if (confirm("¿Cerrar sesión?")) signOut(auth).then(() => window.location.replace("login.html"));
-        };
-
+       window.deleteNote = async (id) => {
+    if (confirm('¿Eliminar esta nota?')) {
+        try {
+            const docRef = doc(db, "usuarios", currentUser.uid, "perfiles", perfilId, "notas", id);
+            await deleteDoc(docRef);
+        } catch (e) { console.error("Error al eliminar:", e); }
+    }
+};        
         window.toggleSettings = () => { 
-            const d = document.getElementById('settingsDrawer');
-            d.classList.toggle('open');
-            document.getElementById('menuOverlay').style.display = d.classList.contains('open') ? 'block' : 'none';
-        };
+    const d = document.getElementById('settingsDrawer');
+    d.classList.toggle('open');
+    document.getElementById('menuOverlay').style.display = d.classList.contains('open') ? 'block' : 'none';
+};
 
-        window.toggleDarkMode = () => {
-            const isDark = document.body.classList.toggle('dark-mode');
-            localStorage.setItem('dark-mode', isDark);
-            const btn = document.getElementById('darkModeBtn');
-            if (btn) btn.innerText = isDark ? "☀️ Modo Claro" : "🌙 Modo Oscuro";
-        };
+window.toggleDarkMode = () => {
+    const isDark = document.body.classList.toggle('dark-mode');
+    localStorage.setItem('dark-mode', isDark);
+    const btn = document.getElementById('darkModeBtn');
+    if (btn) btn.innerText = isDark ? "☀️ Modo Claro" : "🌙 Modo Oscuro";
+};
 
-        if (localStorage.getItem('dark-mode') === 'true') {
-            document.body.classList.add('dark-mode');
-            const btn = document.getElementById('darkModeBtn');
-            if (btn) btn.innerText = "☀️ Modo Claro";
-        }
+       // Carga inicial del modo oscuro
+if (localStorage.getItem('dark-mode') === 'true') {
+    document.body.classList.add('dark-mode');
+    const btn = document.getElementById('darkModeBtn');
+    if (btn) btn.innerText = "☀️ Modo Claro";
+}
 
-        setInterval(() => { if(currentUser) renderCityData(); }, 120000);
+        window.changeProfile = () => {
+    localStorage.removeItem('perfilId');
+    localStorage.removeItem('perfilNombre');
+    localStorage.removeItem('perfilFoto');
+    window.location.href = "profiles.html";
+};
+
+    window.changePassword = () => {
+    if (currentUser) {
+        sendPasswordResetEmail(auth, currentUser.email)
+            .then(() => alert("Correo enviado a " + currentUser.email));
+    }
+};
+
+    window.logout = () => {
+    if (confirm("¿Cerrar sesión?")) {
+        signOut(auth).then(() => window.location.replace("login.html"));
+    }
+};        
+setInterval(() => { if(currentUser) renderCityData(); }, 120000);   
     </script>
-
-    <script>
-        function avisoProximamente(event) {
-            event.preventDefault();
-            alert("🚀 ¡El Comparador de Precios estará disponible próximamente!");
-        }
-    </script>
+    function avisoProximamente(event) {
+        // Evita que la página intente recargarse al tocar el link
+        event.preventDefault();
+        
+        // Muestra el mensaje
+        alert("🚀 ¡El Comparador de Precios estará disponible próximamente!");
+    }
+</script>
 </body>
 </html>
