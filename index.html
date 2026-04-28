@@ -297,9 +297,9 @@ h1 {
             <div class="final-value" id="final-total">USD 0.00</div>
         </div>
 
-        <div id="dynamic-tip">
-            💡 <span id="tip-content" style="transition: opacity 0.4s ease;">Cargando tip económico...</span>
-        </div>
+        <div id="dynamic-tip" class="info-box" onclick="clicManualConsejo()" style="cursor: pointer;">
+    💡 <span id="tip-content" style="transition: opacity 0.4s ease;">Cargando tip económico...</span>
+    </div>
     </div>
 
     <div class="footer">
@@ -472,17 +472,45 @@ h1 {
         };
 
         const econTips = [
-            "Delaware y Oregon tienen 0% de Sales Tax. Ideal para comprar Apple o lujo.",
-            "En NYC, la ropa y calzado de menos de $110 están exentos de tax municipal.",
-            "New Jersey tiene 0% de tax en ropa. Ideal si vas al Jersey Gardens desde NY.",
-            "En Miami (7%), los outlets como Sawgrass rinden más si usás su libro de cupones.",
-            "Texas ofrece 'Tax Free Shopping' para turistas extranjeros en locales adheridos.",
-            "Recuerda: en EE.UU. el precio de etiqueta NUNCA incluye el impuesto de venta.",
-            "Minnesota y Pennsylvania no cobran impuestos en la mayoría de la ropa y calzado.",
-            "Ahorra: los estados con 'Tax Holidays' (como Florida en agosto) eliminan taxes en útiles.",
-            "Si comprás online y retirás en tienda (Store Pickup), pagás el tax de esa ubicación.",
-            "Las propinas (Tips) se calculan sobre el valor total CON impuestos en muchos tickets."
-        ];
+    "💡 Delaware y Oregon tienen 0% de Sales Tax. Ideal para comprar Apple o lujo.",
+    "💡 En NYC, la ropa y calzado de menos de $110 están exentos de tax municipal.",
+    "💡 New Jersey tiene 0% de tax en ropa. Ideal si vas al Jersey Gardens desde NY.",
+    "💡 En Miami (7%), los outlets como Sawgrass rinden más si usás su libro de cupones.",
+    "💡 Texas ofrece 'Tax Free Shopping' para turistas extranjeros en locales adheridos.",
+    "💡 Recuerda: en EE.UU. el precio de etiqueta NUNCA incluye el impuesto de venta.",
+    "💡 Minnesota y Pennsylvania no cobran impuestos en la mayoría de la ropa y calzado.",
+    "💡 Ahorra: los estados con 'Tax Holidays' (como Florida en agosto) eliminan taxes en útiles.",
+    "💡 Si comprás online y retirás en tienda (Store Pickup), pagás el tax de esa ubicación.",
+    "💡 Las propinas (Tips) se calculan sobre el valor total CON impuestos en muchos tickets."
+];
+
+let indiceConsejo = 0;
+
+window.cambiarConsejo = () => {
+    // Buscamos el SPAN que está dentro del cuadro
+    const pConsejo = document.getElementById('tip-content');
+    
+    if (pConsejo) {
+        pConsejo.style.opacity = 0;
+        
+        setTimeout(() => {
+            indiceConsejo = (indiceConsejo + 1) % econTips.length;
+            // Actualizamos el texto del span
+            pConsejo.innerText = econTips[indiceConsejo].replace("💡 ", ""); 
+            pConsejo.style.opacity = 1;
+        }, 400);
+    }
+};
+
+// Configurar el cambio automático cada 8 segundos
+let timerConsejos = setInterval(window.cambiarConsejo, 8000);
+
+// Función para el clic manual
+window.clicManualConsejo = () => {
+    clearInterval(timerConsejos); 
+    window.cambiarConsejo();      
+    timerConsejos = setInterval(window.cambiarConsejo, 8000); 
+};
 
         window.updateEmail = async () => {
             const token = await getRecaptchaToken('update_email');
