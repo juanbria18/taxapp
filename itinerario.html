@@ -208,10 +208,10 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        let currentUser = null;
-        const perfilId = localStorage.getItem('perfilActivoId'); 
-        const perfilNombre = localStorage.getItem('perfilActivoNombre');
-        const perfilFoto = localStorage.getItem('perfilActivoFoto');
+        let currentUser = null; 
+    const perfilId = localStorage.getItem('perfilActivoId'); 
+    const perfilNombre = localStorage.getItem('perfilActivoNombre');
+    const perfilFoto = localStorage.getItem('perfilActivoFoto');
 
         // --- FUNCIONES DE CUENTA ---
         window.changeEmail = async () => {
@@ -349,42 +349,45 @@
         }
 
         onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                currentUser = user;
-                
-                if (!perfilId) {
-                    window.location.replace("profiles.html");
-                    return;
-                }
+        if (user) {
+            currentUser = user;
 
-                // Lógica de Foto de Perfil en el botón de ajustes
-                const trigger = document.querySelector('.settings-trigger-nav'); // Corregida la clase
-                if (trigger) {
-                    const imagenAMostrar = perfilFoto || user.photoURL;
-                    if (imagenAMostrar) {
-                        trigger.style.backgroundImage = `url(${imagenAMostrar})`;
-                        trigger.style.backgroundSize = "cover";
-                        trigger.style.borderRadius = "50%"; // Para que sea un circulito
-                        trigger.innerText = ""; 
-                    }
-                }
-
-                try {
-                    const profileRef = doc(db, "usuarios", user.uid, "perfiles", perfilId);
-                    const snap = await getDoc(profileRef);
-
-                    if (snap.exists()) {
-                        renderCityData(); // Carga clima y datos
-                    }
-                    
-                    listenNotes(); // Activa las notas
-                } catch (e) {
-                    console.error("Error cargando perfil:", e);
-                }
-            } else {
-                window.location.replace("login.html");
+            // Verificamos si el perfilId existe y no es la palabra "null"
+            if (!perfilId || perfilId === "null") {
+                console.warn("Perfil no encontrado, redirigiendo a selección...");
+                window.location.replace("profiles.html");
+                return;
             }
-        });
+
+            // Si pasó el check, cargamos la interfaz
+            const trigger = document.querySelector('.settings-trigger-nav');
+            if (trigger) {
+                const img = perfilFoto || user.photoURL;
+                if (img) {
+                    trigger.style.backgroundImage = `url(${img})`;
+                    trigger.style.backgroundSize = "cover";
+                    trigger.innerText = "";
+                }
+            }
+
+            try {
+                // Solo si el perfilId es válido intentamos leer Firebase
+                const profileRef = doc(db, "usuarios", user.uid, "perfiles", perfilId);
+                const snap = await getDoc(profileRef);
+                
+                if (snap.exists()) {
+                    renderCityData();
+                }
+                listenNotes();
+            } catch (e) {
+                console.error("Error en la carga de datos:", e);
+            }
+
+        } else {
+            // Si no hay usuario logueado, al login
+            window.location.replace("login.html");
+        }
+    });
 
         window.addNote = async () => {
             const input = document.getElementById('noteInput');
