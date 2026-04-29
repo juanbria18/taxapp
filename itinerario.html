@@ -141,7 +141,11 @@
     <button class="drawer-btn" onclick="changeProfile()">👤 <span data-i18n="btn_change_profile">Cambiar Perfil</span></button>
     <button class="drawer-btn" onclick="toggleDarkMode()">🌓 <span data-i18n="btn_theme">Cambiar Tema</span></button>
     <button class="drawer-btn" onclick="location.reload()">🔄 <span data-i18n="btn_refresh">Actualizar App</span></button>
+    <button class="drawer-btn" onclick="executeWithToken(changeEmail)">📧 <span data-i18n="btn_change_email">Cambiar Correo</span></button>
+    <button class="drawer-btn" onclick="executeWithToken(changePassword)">🔑 <span data-i18n="btn_change_pass">Cambiar Contraseña</span></button>
     <button class="drawer-btn" onclick="doLogout()">🚪 <span data-i18n="btn_logout">Cerrar Sesión</span></button>
+    <div style="margin-top: auto; padding-top: 20px;">
+     <button class="drawer-btn btn-danger-text" onclick="executeWithToken(deleteAccount)">🗑️ <span data-i18n="btn_delete_acc">Eliminar Cuenta</span></button>
 </div>
 
 <script type="module">
@@ -176,7 +180,11 @@
             city_miami: "🏖️ Miami", city_vegas: "🎲 Las Vegas", city_la: "🎬 Los Ángeles",
             city_sf: "🌉 San Francisco", city_chicago: "🏢 Chicago", city_dc: "🏛️ Washington D.C.",
             status_low: "BAJA 🟢", status_med: "MED 🟡", status_high: "ALTA 🔴", status_closed: "CERRADO 🌙", status_na: "N/A",
-            settings_title: "Ajustes", label_language: "Idioma", btn_change_profile: "Cambiar Perfil",
+            settings_title: "Ajustes", label_language: "Idioma", btn_change_profile: "Cambiar Perfil", btn_change_email: "📧 Cambiar Correo", 
+            btn_change_pass: "🔑 Cambiar Contraseña", btn_delete_acc: "🗑️ Eliminar Cuenta", prompt_new_email: "Ingresa el nuevo correo electrónico:",
+            prompt_new_pass: "Ingresa la nueva contraseña (mínimo 6 caracteres):", alert_email_verify: "Se ha enviado un correo de verificación. El cambio se aplicará tras verificar.",
+            alert_pass_success: "Contraseña actualizada con éxito.", alert_reauth_required: "Error: Reautenticación requerida para cambios sensibles.",
+            confirm_delete_account: "¿ESTÁS SEGURO? Esta acción borrará todos tus datos de forma permanente.",
             btn_theme: "Cambiar Tema", btn_refresh: "Actualizar App", btn_logout: "Cerrar Sesión", footer_by: "Creado por Juan Cruz Bria"
         },
         en: {
@@ -187,14 +195,19 @@
             city_miami: "🏖️ Miami", city_vegas: "🎲 Las Vegas", city_la: "🎬 Los Angeles",
             city_sf: "🌉 San Francisco", city_chicago: "🏢 Chicago", city_dc: "🏛️ Washington D.C.",
             status_low: "LOW 🟢", status_med: "MED 🟡", status_high: "HIGH 🔴", status_closed: "CLOSED 🌙", status_na: "N/A",
-            settings_title: "Settings", label_language: "Language", btn_change_profile: "Change Profile",
+            settings_title: "Settings", label_language: "Language", btn_change_profile: "Change Profile", btn_change_email: "📧 Change Email",
+            btn_change_pass: "🔑 Change Password", btn_delete_acc: "🗑️ Delete Account", prompt_new_email: "Enter your new email address:",
+            prompt_new_pass: "Enter your new password (minimum 6 characters):", alert_email_verify: "A verification email has been sent. Changes will apply after verification.",
+            alert_pass_success: "Password updated successfully.", alert_reauth_required: "Error: Re-authentication required for sensitive changes.",
+            confirm_delete_account: "ARE YOU SURE? This action will permanently delete all your data.",
             btn_theme: "Toggle Theme", btn_refresh: "Refresh App", btn_logout: "Sign Out", footer_by: "Created by Juan Cruz Bria"
         }
     };
 
     const tips = {
-        es: ["Orlando: La mejor hora para filas cortas es durante el show de fuegos artificiales.","NYC: El ferry a Staten Island es gratis y pasa cerca de la Estatua de la Libertad.","Miami: Si vas de compras, el Dolphin Mall suele ser más barato que Sawgrass.","Vegas: Caminar por la Strip lleva mucho más tiempo de lo que parece.","SF: Llevá siempre un abrigo, aunque sea verano.","Universal: Bajate la app oficial para ver los tiempos de espera en tiempo real."],
-        en: ["Orlando: The best time for short lines is during the fireworks show.","NYC: The Staten Island Ferry is free and passes right by the Statue of Liberty.","Miami: If shopping, Dolphin Mall is often cheaper than Sawgrass Mills.","Vegas: Walking the Strip takes much longer than it looks.","SF: Always carry a jacket, even during the summer.","Universal: Get the official app to check wait times in real-time."]
+        es: ["Orlando: La mejor hora para filas cortas es durante el show de fuegos artificiales.","NYC: El ferry a Staten Island es gratis y pasa cerca de la Estatua de la Libertad.","Miami: Si vas de compras, el Dolphin Mall suele ser más barato que Sawgrass.","Vegas: Caminar por la Strip lleva mucho más tiempo de lo que parece.","SF: Llevá siempre un abrigo, aunque sea verano.","Universal: Bajate la app oficial para ver los tiempos de espera en tiempo real.", "NYC: Descargá la App OMNY o pagá directo con el celu en el subte.","DC: Todos los museos Smithsonian son gratis.",
+"Orlando: Reservá tus comidas con antelación si vas a los parques principales.","Vegas: Los hoteles son gigantes, calculá 15 min solo para salir a la calle.","Miami: El estacionamiento en South Beach es caro, usá apps como ParkWhiz.",],
+        en: ["Orlando: The best time for short lines is during the fireworks show.","NYC: The Staten Island Ferry is free and passes right by the Statue of Liberty.","Miami: If shopping, Dolphin Mall is often cheaper than Sawgrass Mills.","Vegas: Walking the Strip takes much longer than it looks.","SF: Always carry a jacket, even during the summer.","Universal: Get the official app to check wait times in real-time.","NYC: Download the OMNY App or pay directly with your phone in the subway.","DC: All Smithsonian museums are free of charge.","Orlando: Book your dining reservations in advance for major theme parks.","Vegas: Hotels are massive, allow 15 mins just to reach the street.","Miami: Parking in South Beach is expensive, use apps like ParkWhiz.",]
     };
 
     const citiesConfig = {
