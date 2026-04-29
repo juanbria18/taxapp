@@ -206,157 +206,166 @@ img.emoji {
 </div>
 
    <div class="budget-card">
-    <div class="budget-label">Presupuesto Restante</div>
+    <div class="budget-label" data-i18n="label_total_spent">Presupuesto Restante</div>
     <div class="budget-value" id="disp-fondo">USD 0.00</div>
     <div class="set-budget">
-        <input type="number" id="input-fondo" placeholder="TOTAL USD" step="0.01" inputmode="decimal">
+        <input type="number" id="input-fondo" data-i18n="placeholder_total_usd" placeholder="TOTAL USD" step="0.01" inputmode="decimal">
         <button onclick="updateFondo()">SET</button>
     </div>
 </div>
 
     <div id="scanner-ui">
-        <div class="close-scanner" onclick="stopScanner()">✕</div>
-        <div id="ocr-loader" class="ocr-loading">
-            <span id="ocr-status-text">Analizando ticket... 🧐</span>
-            <small style="margin-top:10px; font-weight:400; opacity:0.8;">Detectando Totales y Taxes</small>
-        </div>
-        <video id="video-preview" autoplay playsinline></video>
-        <button onclick="captureTicket()" style="position:absolute; bottom:15px; left:50%; transform:translateX(-50%); width:60px; height:60px; border-radius:50%; border:4px solid white; background:rgba(255,255,255,0.3); color:white; font-size:1.5rem; display:flex; align-items:center; justify-content:center; cursor:pointer; z-index:5;">📸</button>
+    <div class="close-scanner" onclick="stopScanner()">✕</div>
+    <div id="ocr-loader" class="ocr-loading">
+        <span id="ocr-status-text" data-i18n="ocr_analyzing">Analizando ticket... 🧐</span>
+        <small style="margin-top:10px; font-weight:400; opacity:0.8;" data-i18n="ocr_detecting">Detectando Totales y Taxes</small>
     </div>
-    <canvas id="ocr-canvas" style="display:none;"></canvas>
+    <video id="video-preview" autoplay playsinline></video>
+    <button onclick="captureTicket()" style="position:absolute; bottom:15px; left:50%; transform:translateX(-50%); width:60px; height:60px; border-radius:50%; border:4px solid white; background:rgba(255,255,255,0.3); color:white; font-size:1.5rem; display:flex; align-items:center; justify-content:center; cursor:pointer; z-index:5;">📸</button>
+</div>
+<canvas id="ocr-canvas" style="display:none;"></canvas>
 
-    <div class="card">
-        <div class="dato-clave" onclick="nextTip()">
-            <small style="color:var(--success); font-weight:800; font-size:0.6rem;">🛍️ GUÍA DE COMPRAS</small>
-            <div id="tip-text">Cargando consejos...</div>
+<div class="card">
+    <div class="dato-clave" onclick="nextTip()">
+        <small style="color:var(--success); font-weight:800; font-size:0.6rem;" data-i18n="shopping_guide">🛍️ GUÍA DE COMPRAS</small>
+        <div id="tip-text">Cargando consejos...</div>
+    </div>
+    <div class="tab-container">
+        <button class="tab active" onclick="showSec('gastos')" id="t-gastos" data-i18n="tab_list">GASTOS</button>
+        <button class="tab" onclick="showSec('talles')" id="t-talles" data-i18n="tab_sizes">TALLES</button>
+    </div>
+    
+    <div id="sec-gastos">
+        <div id="scanner-warning" class="scanner-warning" style="display:none;" data-i18n="scanner_beta_msg">
+            ⚠️ El escáner está en desarrollo y puede cometer errores. Verifica siempre el monto detectado.
         </div>
-        <div class="tab-container">
-            <button class="tab active" onclick="showSec('gastos')" id="t-gastos">GASTOS</button>
-            <button class="tab" onclick="showSec('talles')" id="t-talles">TALLES</button>
-        </div>
-        
-        <div id="sec-gastos">
-            <div id="scanner-warning" class="scanner-warning" style="display:none;">
-                ⚠️ El escáner está en desarrollo y puede cometer errores. Verifica siempre el monto detectado.
+        <button class="btn-scan" onclick="startScanner()" data-i18n="btn_scan_ticket">📷 ESCANEAR TICKET</button>
+
+        <div class="rates-container">
+            <div class="rate-box arg">
+                <div class="rate-label" data-i18n="rate_official">Dólar Oficial</div>
+                <div class="rate-row"><span>🇺🇸</span><input type="text" id="oficial-usd" value="1" oninput="formatVisual(this); convert('oficial', 'usd')"></div>
+                <div class="rate-divider">⇅</div>
+                <div class="rate-row"><span>🇦🇷</span><input type="text" id="oficial-local" oninput="formatVisual(this); convert('oficial', 'local')"></div>
             </div>
-            <button class="btn-scan" onclick="startScanner()">📷 ESCANEAR TICKET</button>
-
-            <div class="rates-container">
-                <div class="rate-box arg">
-                    <div class="rate-label">Dólar Oficial</div>
-                    <div class="rate-row"><span>🇺🇸</span><input type="text" id="oficial-usd" value="1" oninput="formatVisual(this); convert('oficial', 'usd')"></div>
-                    <div class="rate-divider">⇅</div>
-                    <div class="rate-row"><span>🇦🇷</span><input type="text" id="oficial-local" oninput="formatVisual(this); convert('oficial', 'local')"></div>
-                </div>
-                <div class="rate-box arg">
-                    <div class="rate-label">Dólar Tarjeta</div>
-                    <div class="rate-row"><span>🇺🇸</span><input type="text" id="tarjeta-usd" value="1" oninput="formatVisual(this); convert('tarjeta', 'usd')"></div>
-                    <div class="rate-divider">⇅</div>
-                    <div class="rate-row"><span>🇦🇷</span><input type="text" id="tarjeta-local" oninput="formatVisual(this); convert('tarjeta', 'local')"></div>
-                </div>
-                
-                <div class="rate-box multi">
-                    <select id="select-eur" class="currency-select" onchange="updateMulti('eur')">
-                        <option value="EUR">Euro</option>
-                        <option value="GBP">Libra</option>
-                        <option value="CHF">F. Suizo</option>
-                    </select>
-                    <div class="rate-row"><span>🇺🇸</span><input type="text" id="eur-usd" value="1" oninput="formatVisual(this); convert('eur', 'usd')"></div>
-                    <div class="rate-divider">⇅</div>
-                    <div class="rate-row"><span id="flag-eur">🇪🇺</span><input type="text" id="eur-local" oninput="formatVisual(this); convert('eur', 'local')"></div>
-                </div>
-
-                <div class="rate-box multi">
-                    <select id="select-brl" class="currency-select" onchange="updateMulti('brl')">
-                        <option value="BRL">Real</option>
-                        <option value="CLP">P. Chileno</option>
-                        <option value="UYU">P. Uruguayo</option>
-                        <option value="MXN">P. Mexicano</option>
-                        <option value="PEN">Sol Peruano</option>
-                        <option value="COP">P. Colombiano</option>
-                    </select>
-                    <div class="rate-row"><span>🇺🇸</span><input type="text" id="brl-usd" value="1" oninput="formatVisual(this); convert('brl', 'usd')"></div>
-                    <div class="rate-divider">⇅</div>
-                    <div class="rate-row"><span id="flag-brl">🇧🇷</span><input type="text" id="brl-local" oninput="formatVisual(this); convert('brl', 'local')"></div>
-                </div>
+            <div class="rate-box arg">
+                <div class="rate-label" data-i18n="rate_card">Dólar Tarjeta</div>
+                <div class="rate-row"><span>🇺🇸</span><input type="text" id="tarjeta-usd" value="1" oninput="formatVisual(this); convert('tarjeta', 'usd')"></div>
+                <div class="rate-divider">⇅</div>
+                <div class="rate-row"><span>🇦🇷</span><input type="text" id="tarjeta-local" oninput="formatVisual(this); convert('tarjeta', 'local')"></div>
+            </div>
+            
+            <div class="rate-box multi">
+                <select id="select-eur" class="currency-select" onchange="updateMulti('eur')">
+                    <option value="EUR">Euro</option>
+                    <option value="GBP" data-i18n="opt_pound">Libra</option>
+                    <option value="CHF" data-i18n="opt_swiss">F. Suizo</option>
+                </select>
+                <div class="rate-row"><span>🇺🇸</span><input type="text" id="eur-usd" value="1" oninput="formatVisual(this); convert('eur', 'usd')"></div>
+                <div class="rate-divider">⇅</div>
+                <div class="rate-row"><span id="flag-eur">🇪🇺</span><input type="text" id="eur-local" oninput="formatVisual(this); convert('eur', 'local')"></div>
             </div>
 
-            <input type="text" id="nombre" placeholder="Producto" style="margin-bottom:10px;">
-            <input type="number" id="valor" placeholder="Precio USD" step="0.01" inputmode="decimal" style="margin-bottom:10px;">
-            <button class="btn-add" onclick="addGasto()">GUARDAR GASTO</button>
-            <div id="listaGastos" style="margin-top:20px;"><p style="text-align:center; color:#94a3b8;">Cargando...</p></div>
+            <div class="rate-box multi">
+                <select id="select-brl" class="currency-select" onchange="updateMulti('brl')">
+                    <option value="BRL" data-i18n="opt_real">Real</option>
+                    <option value="CLP" data-i18n="opt_clp">P. Chileno</option>
+                    <option value="UYU" data-i18n="opt_uyu">P. Uruguayo</option>
+                    <option value="MXN" data-i18n="opt_mxn">P. Mexicano</option>
+                    <option value="PEN" data-i18n="opt_pen">Sol Peruano</option>
+                    <option value="COP" data-i18n="opt_cop">P. Colombiano</option>
+                </select>
+                <div class="rate-row"><span>🇺🇸</span><input type="text" id="brl-usd" value="1" oninput="formatVisual(this); convert('brl', 'usd')"></div>
+                <div class="rate-divider">⇅</div>
+                <div class="rate-row"><span id="flag-brl">🇧🇷</span><input type="text" id="brl-local" oninput="formatVisual(this); convert('brl', 'local')"></div>
+            </div>
         </div>
 
-        <div id="sec-talles" style="display:none;" class="talles-section">
-            <div class="talles-title">👟 Calzado (ARG → US)</div>
-            <div class="talles-grid">
-                <table class="talles-table">
-                    <thead><tr><th>ARG</th><th>H</th><th>M</th></tr></thead>
-                    <tbody>
-                        <tr><td>35</td><td>-</td><td>5</td></tr>
-                        <tr><td>36</td><td>-</td><td>6</td></tr>
-                        <tr><td>37</td><td>-</td><td>7</td></tr>
-                        <tr><td>38</td><td>6</td><td>8</td></tr>
-                        <tr><td>39</td><td>7</td><td>9</td></tr>
-                        <tr><td>40</td><td>8</td><td>10</td></tr>
-                    </tbody>
-                </table>
-                <table class="talles-table">
-                    <thead><tr><th>ARG</th><th>H</th><th>M</th></tr></thead>
-                    <tbody>
-                        <tr><td>41</td><td>9</td><td>11</td></tr>
-                        <tr><td>42</td><td>10</td><td>12</td></tr>
-                        <tr><td>43</td><td>11</td><td>-</td></tr>
-                        <tr><td>44</td><td>12</td><td>-</td></tr>
-                        <tr><td>45</td><td>13</td><td>-</td></tr>
-                        <tr><td>46</td><td>14</td><td>-</td></tr>
-                    </tbody>
-                </table>
-            </div>
-            <div class="talles-title">👕 Remeras / Tops</div>
-            <table class="talles-table" style="table-layout: auto;">
-                <thead><tr><th>ARG</th><th>EQUIV. US</th></tr></thead>
+        <input type="text" id="nombre" data-i18n="placeholder_product" placeholder="Producto" style="margin-bottom:10px;">
+        <input type="number" id="valor" data-i18n="placeholder_price" placeholder="Precio USD" step="0.01" inputmode="decimal" style="margin-bottom:10px;">
+        <button class="btn-add" onclick="addGasto()" data-i18n="btn_save_expense">GUARDAR GASTO</button>
+        <div id="listaGastos" style="margin-top:20px;"><p style="text-align:center; color:#94a3b8;" data-i18n="loading">Cargando...</p></div>
+    </div>
+
+    <div id="sec-talles" style="display:none;" class="talles-section">
+        <div class="talles-title" data-i18n="title_footwear">👟 Calzado (ARG → US)</div>
+        <div class="talles-grid">
+            <table class="talles-table">
+                <thead><tr><th>ARG</th><th data-i18n="th_men">H</th><th data-i18n="th_women">M</th></tr></thead>
                 <tbody>
-                    <tr><td>XS</td><td>S</td></tr>
-                    <tr><td>S</td><td>M</td></tr>
-                    <tr><td>M</td><td>L</td></tr>
-                    <tr><td>L</td><td>XL</td></tr>
-                    <tr><td>XL</td><td>2XL</td></tr>
-                    <tr><td>2XL</td><td>3XL</td></tr>
+                    <tr><td>35</td><td>-</td><td>5</td></tr>
+                    <tr><td>36</td><td>-</td><td>6</td></tr>
+                    <tr><td>37</td><td>-</td><td>7</td></tr>
+                    <tr><td>38</td><td>6</td><td>8</td></tr>
+                    <tr><td>39</td><td>7</td><td>9</td></tr>
+                    <tr><td>40</td><td>8</td><td>10</td></tr>
                 </tbody>
             </table>
-            <div class="talles-title">🧥 Buzos / Camperas</div>
-            <table class="talles-table" style="table-layout: auto;">
-                <thead><tr><th>ARG</th><th>US SIZE</th></tr></thead>
+            <table class="talles-table">
+                <thead><tr><th>ARG</th><th data-i18n="th_men">H</th><th data-i18n="th_women">M</th></tr></thead>
                 <tbody>
-                    <tr><td>S</td><td>XS/S</td></tr>
-                    <tr><td>M</td><td>S/M</td></tr>
-                    <tr><td>L</td><td>M/L</td></tr>
-                    <tr><td>XL</td><td>L/XL</td></tr>
-                    <tr><td>XXL</td><td>XL/XXL</td></tr>
+                    <tr><td>41</td><td>9</td><td>11</td></tr>
+                    <tr><td>42</td><td>10</td><td>12</td></tr>
+                    <tr><td>43</td><td>11</td><td>-</td></tr>
+                    <tr><td>44</td><td>12</td><td>-</td></tr>
+                    <tr><td>45</td><td>13</td><td>-</td></tr>
+                    <tr><td>46</td><td>14</td><td>-</td></tr>
                 </tbody>
             </table>
         </div>
+        <div class="talles-title" data-i18n="title_tops">👕 Remeras / Tops</div>
+        <table class="talles-table" style="table-layout: auto;">
+            <thead><tr><th>ARG</th><th data-i18n="th_equiv">EQUIV. US</th></tr></thead>
+            <tbody>
+                <tr><td>XS</td><td>S</td></tr>
+                <tr><td>S</td><td>M</td></tr>
+                <tr><td>M</td><td>L</td></tr>
+                <tr><td>L</td><td>XL</td></tr>
+                <tr><td>XL</td><td>2XL</td></tr>
+                <tr><td>2XL</td><td>3XL</td></tr>
+            </tbody>
+        </table>
+        <div class="talles-title" data-i18n="title_jackets">🧥 Buzos / Camperas</div>
+        <table class="talles-table" style="table-layout: auto;">
+            <thead><tr><th>ARG</th><th>US SIZE</th></tr></thead>
+            <tbody>
+                <tr><td>S</td><td>XS/S</td></tr>
+                <tr><td>M</td><td>S/M</td></tr>
+                <tr><td>L</td><td>M/L</td></tr>
+                <tr><td>XL</td><td>L/XL</td></tr>
+                <tr><td>XXL</td><td>XL/XXL</td></tr>
+            </tbody>
+        </table>
     </div>
+</div>
 
-    <div id="menuOverlay" class="menu-overlay" onclick="toggleSettings()"></div>
-    <div id="settingsDrawer" class="settings-drawer">
-        <h3 style="color:var(--primary); margin-top:0;">Ajustes</h3>
-        <p id="userEmail" style="font-size:0.75rem; color:var(--text-muted); margin-bottom:20px; font-weight:700;"></p>
-        <button class="drawer-btn" onclick="changeProfile()">👤 Cambiar de Perfil</button>
-        <button class="drawer-btn" onclick="toggleDarkMode()">🌓 Cambiar Tema</button>
-        <button class="drawer-btn" onclick="location.reload()">🔄 Actualizar App</button>
-        <button class="drawer-btn" onclick="changeEmail()">📧 Cambiar Correo</button>
-        <button class="drawer-btn" onclick="changePassword()">🔑 Cambiar Contraseña</button>
-        <button class="drawer-btn" onclick="logout()">🚪 Cerrar Sesión</button>
-        <div style="margin-top: auto; padding-top: 20px;">
-            <button class="drawer-btn btn-danger" onclick="deleteAccount()">🗑️ Eliminar Cuenta</button>
+<div id="menuOverlay" class="menu-overlay" onclick="toggleSettings()"></div>
+<div id="settingsDrawer" class="settings-drawer">
+    <h3 style="color:var(--primary); margin-top:0;" data-i18n="title_settings">Ajustes</h3>
+    <p id="userEmail" style="font-size:0.75rem; color:var(--text-muted); margin-bottom:20px; font-weight:700;"></p>
+    
+    <div class="settings-group" style="margin-bottom: 20px;">
+        <label style="font-size: 0.7rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;" data-i18n="label_language">Idioma / Language</label>
+        <div style="display: flex; gap: 10px; margin-top: 10px;">
+            <button id="lang-es" class="lang-opt" onclick="changeLanguage('es')">🇪🇸 ES</button>
+            <button id="lang-en" class="lang-opt" onclick="changeLanguage('en')">🇺🇸 EN</button>
         </div>
     </div>
 
-    <div class="footer">
-        <span class="footer-name">Creado por Juan Cruz Bria 🇦🇷</span>
+    <button class="drawer-btn" onclick="changeProfile()">👤 <span data-i18n="btn_change_profile">Cambiar de Perfil</span></button>
+    <button class="drawer-btn" onclick="toggleDarkMode()">🌓 <span data-i18n="btn_toggle_theme">Cambiar Tema</span></button>
+    <button class="drawer-btn" onclick="location.reload()">🔄 <span data-i18n="btn_update">Actualizar App</span></button>
+    <button class="drawer-btn" onclick="changeEmail()">📧 <span data-i18n="btn_change_email">Cambiar Correo</span></button>
+    <button class="drawer-btn" onclick="changePassword()">🔑 <span data-i18n="btn_change_pass">Cambiar Contraseña</span></button>
+    <button class="drawer-btn" onclick="logout()">🚪 <span data-i18n="btn_logout">Cerrar Sesión</span></button>
+    <div style="margin-top: auto; padding-top: 20px;">
+        <button class="drawer-btn btn-danger" onclick="deleteAccount()">🗑️ <span data-i18n="btn_delete_acc">Eliminar Cuenta</span></button>
     </div>
+</div>
+
+<div class="footer">
+    <span class="footer-name" data-i18n="footer_text">Creado por Juan Cruz Bria 🇦🇷</span>
+</div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
@@ -382,40 +391,84 @@ img.emoji {
         let baseRates = { oficial: 0, tarjeta: 0, eur: 0, brl: 0 };
         const flags = { EUR: "🇪🇺", GBP: "🇬🇧", CHF: "🇨🇭", BRL: "🇧🇷", CLP: "🇨🇱", UYU: "🇺🇾", MXN: "🇲🇽", PEN: "🇵🇪", COP: "🇨🇴" };
 
-        const translations = {
-            es: {
-                nav_home: "INICIO", nav_itinerary: "ITINERARIO", nav_compare: "COMPARAR", nav_units: "UNIDADES",
-                title_compras: "Mis Gastos",
-                label_total_spent: "SALDO DISPONIBLE",
-                btn_add_expense: "Agregar Gasto",
-                tab_list: "LISTADO", tab_sizes: "TALLES",
-                placeholder_search: "Buscar gasto...",
-                empty_list: "No hay gastos en este perfil.",
-                footer_by: "Creado por Juan Cruz Bria",
-                btn_save: "GUARDAR", btn_close: "CERRAR"
-            },
-            en: {
-                nav_expenses: "HOME", nav_itinerary: "ITINERARY", nav_compare: "COMPARE", nav_units: "UNITS",
-                title_compras: "My Expenses",
-                label_total_spent: "AVAILABLE BALANCE",
-                btn_add_expense: "Add Expense",
-                tab_list: "LIST", tab_sizes: "SIZES",
-                placeholder_search: "Search expense...",
-                empty_list: "No expenses in this profile.",
-                footer_by: "Created by Juan Cruz Bria",
-                btn_save: "SAVE", btn_close: "CLOSE"
-            }
-        };
-        
-        window.changeLanguage = (lang) => {
+       const translations = {
+    es: {
+        ocr_analyzing: "Analizando ticket... 🧐",
+        ocr_detecting: "Detectando Totales y Taxes",
+        shopping_guide: "🛍️ GUÍA DE COMPRAS",
+        tab_list: "GASTOS",
+        tab_sizes: "TALLES",
+        scanner_beta_msg: "⚠️ El escáner está en desarrollo y puede cometer errores. Verifica siempre el monto detectado.",
+        btn_scan_ticket: "📷 ESCANEAR TICKET",
+        rate_official: "Dólar Oficial",
+        rate_card: "Dólar Tarjeta",
+        opt_pound: "Libra", opt_swiss: "F. Suizo",
+        opt_real: "Real", opt_clp: "P. Chileno", opt_uyu: "P. Uruguayo",
+        opt_mxn: "P. Mexicano", opt_pen: "Sol Peruano", opt_cop: "P. Colombiano",
+        placeholder_product: "Producto",
+        placeholder_price: "Precio USD",
+        btn_save_expense: "GUARDAR GASTO",
+        loading: "Cargando...",
+        title_footwear: "👟 Calzado (ARG → US)",
+        th_men: "H", th_women: "M", th_equiv: "EQUIV. US",
+        title_tops: "👕 Remeras / Tops",
+        title_jackets: "🧥 Buzos / Camperas",
+        title_settings: "Ajustes",
+        label_language: "Idioma / Language",
+        btn_change_profile: "Cambiar de Perfil",
+        btn_toggle_theme: "Cambiar Tema",
+        btn_update: "Actualizar App",
+        btn_change_email: "Cambiar Correo",
+        btn_change_pass: "Cambiar Contraseña",
+        btn_logout: "Cerrar Sesión",
+        btn_delete_acc: "Eliminar Cuenta",
+        footer_text: "Creado por Juan Cruz Bria 🇦🇷",
+        nav_expenses: "INICIO", nav_itinerary: "ITINERARIO", nav_compare: "COMPARAR", nav_units: "UNIDADES"
+    },
+    en: {
+        ocr_analyzing: "Analyzing ticket... 🧐",
+        ocr_detecting: "Detecting Totals and Taxes",
+        shopping_guide: "🛍️ SHOPPING GUIDE",
+        tab_list: "EXPENSES",
+        tab_sizes: "SIZES",
+        scanner_beta_msg: "⚠️ Scanner is in beta and may make mistakes. Always verify the detected amount.",
+        btn_scan_ticket: "📷 SCAN TICKET",
+        rate_official: "Official Dollar",
+        rate_card: "Card Dollar",
+        opt_pound: "Pound", opt_swiss: "Swiss F.",
+        opt_real: "Real", opt_clp: "Chilean P.", opt_uyu: "Uruguayan P.",
+        opt_mxn: "Mexican P.", opt_pen: "Peruvian Sol", opt_cop: "Colombian P.",
+        placeholder_product: "Product Name",
+        placeholder_price: "Price in USD",
+        btn_save_expense: "SAVE EXPENSE",
+        loading: "Loading...",
+        title_footwear: "👟 Footwear (ARG → US)",
+        th_men: "M", th_women: "W", th_equiv: "US EQUIV.",
+        title_tops: "👕 T-Shirts / Tops",
+        title_jackets: "🧥 Hoodies / Jackets",
+        title_settings: "Settings",
+        label_language: "Language / Idioma",
+        btn_change_profile: "Change Profile",
+        btn_toggle_theme: "Toggle Theme",
+        btn_update: "Update App",
+        btn_change_email: "Change Email",
+        btn_change_pass: "Change Password",
+        btn_logout: "Logout",
+        btn_delete_acc: "Delete Account",
+        footer_text: "Created by Juan Cruz Bria 🇦🇷",
+        nav_expenses: "HOME", nav_itinerary: "ITINERARY", nav_compare: "COMPARE", nav_units: "UNITS"
+    }
+};
+
+window.changeLanguage = (lang) => {
     localStorage.setItem('appLang', lang);
 
-    // 1. Actualizar botones ES/EN (como en index.html)
+    // Actualizar botones visuales ES/EN
     document.querySelectorAll('.lang-opt').forEach(opt => opt.classList.remove('active'));
-    const activeBtn = document.getElementById('lang-' + lang);
-    if (activeBtn) activeBtn.classList.add('active');
+    const btn = document.getElementById('lang-' + lang);
+    if (btn) btn.classList.add('active');
 
-    // 2. Traducir elementos con data-i18n
+    // Traducir elementos
     document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
         if (translations[lang][key]) {
@@ -426,8 +479,8 @@ img.emoji {
             }
         }
     });
+};
 
-    // 3. Forzar actualización de Emojis (Twemoji)
     if (typeof updateEmojis === 'function') updateEmojis();
 };
 
@@ -439,19 +492,17 @@ img.emoji {
         if (localStorage.getItem('darkMode') === 'enabled') document.body.classList.add('dark-mode');
 
         window.formatVisual = (input) => {
-    // 1. Limpiamos: solo números y un solo punto decimal
+            
     let val = input.value.replace(/[^\d.]/g, "");
     let parts = val.split('.');
     if (parts.length > 2) val = parts[0] + '.' + parts.slice(1).join('');
 
     if (val === "") return;
 
-    // 2. Formateamos la parte entera con comas de miles
     let integerPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     
-    // 3. Reconstruimos el string
     if (val.includes('.')) {
-        // Mantenemos hasta 2 decimales
+        
         input.value = integerPart + "." + (parts[1] !== undefined ? parts[1].substring(0, 2) : "");
     } else {
         input.value = integerPart;
@@ -464,14 +515,13 @@ img.emoji {
         }
 
         function formatNumber(num) {
-    // Esto asegura que el número siempre tenga 2 decimales y use punto para decimales
+            
     return parseFloat(num).toLocaleString('en-US', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
     });
 }
 
-// 1. Tu función de parseo
 function updateEmojis(element = document.body) {
     if (typeof twemoji !== 'undefined') {
         twemoji.parse(element, { 
@@ -484,15 +534,13 @@ function updateEmojis(element = document.body) {
     }
 }
 
-// 2. Vigilante de "Fuerza Bruta"
-// Si algo cambia el HTML, lo volvemos a convertir al instante
+
 const emojiObserver = new MutationObserver((mutations) => {
-    // Desconectamos un segundo para evitar bucles infinitos
+
     emojiObserver.disconnect();
     
     updateEmojis();
     
-    // Volvemos a conectar
     startObserving();
 });
 
@@ -504,10 +552,8 @@ function startObserving() {
     });
 }
 
-// Iniciar vigilancia
 startObserving();
 
-// Disparo inicial
 window.onload = updateEmojis;
         
         async function fetchRates() {
@@ -553,18 +599,18 @@ window.onload = updateEmojis;
     
     if (!isNaN(nuevoPresupuesto) && nuevoPresupuesto >= 0) {
         if (currentUser && perfilId) {
-            // Referencia exacta a la subcolección del perfil activo
+
             const profileRef = doc(db, "usuarios", currentUser.uid, "perfiles", perfilId);
             
             try {
-                // Guardamos en Firebase para que sea persistente
+
                 await updateDoc(profileRef, {
                     presupuesto: nuevoPresupuesto
                 });
                 
                 presupuestoBase = nuevoPresupuesto;
                 
-                // Refrescamos los cálculos inmediatamente
+
                 if(typeof listenGastos === 'function') {
                     listenGastos(); 
                 }
