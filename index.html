@@ -472,20 +472,10 @@ window.onload = () => {
     if (tc) tc.innerText = econTips[lang][tipIndex];
     tipTimer = setInterval(window.cambiarConsejo, 8000);
 };
-    window.avisoProximamente = (event) => { 
-    if (event) event.preventDefault(); 
-    
-    // Detectamos el idioma guardado (por defecto español)
-    const lang = localStorage.getItem('appLang') || 'es';
-    
-    // Definimos los mensajes
-    const msgs = {
-        es: "🚀 El Comparador de Precios estará disponible próximamente.",
-        en: "🚀 The Price Comparator will be available soon."
+    window.avisoProximamente = (event) => {
+        if (event) event.preventDefault();
+        alert("🚀 El Comparador de Precios estará disponible próximamente.");
     };
-
-    // Mostramos el mensaje según el idioma
-    alert(msgs[lang]); 
 </script>
 </body>
 </html>
