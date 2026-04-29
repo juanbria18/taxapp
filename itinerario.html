@@ -185,7 +185,8 @@
             prompt_new_pass: "Ingresa la nueva contraseña (mínimo 6 caracteres):", alert_email_verify: "Se ha enviado un correo de verificación. El cambio se aplicará tras verificar.",
             alert_pass_success: "Contraseña actualizada con éxito.", alert_reauth_required: "Error: Reautenticación requerida para cambios sensibles.",
             confirm_delete_account: "¿ESTÁS SEGURO? Esta acción borrará todos tus datos de forma permanente.",
-            btn_theme: "Cambiar Tema", btn_refresh: "Actualizar App", btn_logout: "Cerrar Sesión", footer_by: "Creado por Juan Cruz Bria"
+            btn_theme: "Cambiar Tema", btn_refresh: "Actualizar App", btn_logout: "Cerrar Sesión", footer_by: "Creado por Juan Cruz Bria",
+            alert_upcoming: "🚀 El Comparador de Precios estará disponible próximamente."
         },
         en: {
             nav_home:"HOME", nav_expenses:"EXPENSES", nav_compare:"COMPARE", nav_units:"UNITS",
@@ -200,7 +201,8 @@
             prompt_new_pass: "Enter your new password (minimum 6 characters):", alert_email_verify: "A verification email has been sent. Changes will apply after verification.",
             alert_pass_success: "Password updated successfully.", alert_reauth_required: "Error: Re-authentication required for sensitive changes.",
             confirm_delete_account: "ARE YOU SURE? This action will permanently delete all your data.",
-            btn_theme: "Toggle Theme", btn_refresh: "Refresh App", btn_logout: "Sign Out", footer_by: "Created by Juan Cruz Bria"
+            btn_theme: "Toggle Theme", btn_refresh: "Refresh App", btn_logout: "Sign Out", footer_by: "Created by Juan Cruz Bria",
+            alert_upcoming: "🚀 The Price Comparator will be available soon."
         }
     };
 
@@ -223,6 +225,7 @@
 
    window.changeLanguage = (lang) => {
         localStorage.setItem('appLang', lang);
+        document.documentElement.setAttribute('lang', lang);
         document.querySelectorAll('.lang-opt').forEach(opt => opt.classList.remove('active'));
         document.getElementById('lang-' + lang)?.classList.add('active');
         document.querySelectorAll('[data-i18n]').forEach(el => {
@@ -363,9 +366,14 @@
     });
 
 window.avisoProximamente = (event) => {
-        if (event) event.preventDefault();
-        alert("🚀 El Comparador de Precios estará disponible próximamente.");
-    };
+    if (event) event.preventDefault();
+    
+    // Obtenemos el idioma guardado o usamos español por defecto
+    const lang = localStorage.getItem('appLang') || 'es';
+    
+    // Mostramos el mensaje traducido desde nuestro objeto i18n
+    alert(i18n[lang].alert_upcoming);
+};
 </script>
 </body>
 </html>
