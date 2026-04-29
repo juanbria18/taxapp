@@ -450,47 +450,8 @@ window.toggleDarkMode=()=>{
 };
 window.changeProfile=()=>{localStorage.removeItem('perfilActivoId');window.location.href='profiles.html';};
 window.doLogout=()=>signOut(auth).then(()=>window.location.replace('login.html'));
-window.doChangeEmail = async () => {
-    if (!currentUser) return;
-
-    // 1. Detectar idioma
-    const lang = localStorage.getItem('appLang') || 'es';
-
-    // 2. Diccionario de mensajes
-    const msgs = {
-        es: {
-            prompt: "Ingresá tu nuevo correo electrónico:",
-            success: "Correo de verificación enviado a la nueva dirección.",
-            error: "Error: "
-        },
-        en: {
-            prompt: "Enter your new email address:",
-            success: "Verification email sent to the new address.",
-            error: "Error: "
-        }
-    };
-
-    const t = msgs[lang];
-
-    // 3. Ejecución
-    const newEmail = prompt(t.prompt);
-    
-    if (newEmail) {
-        try {
-            await verifyBeforeUpdateEmail(currentUser, newEmail);
-            alert(t.success);
-        } catch (er) {
-            // Personalización de errores comunes (opcional)
-            let errorMsg = er.message;
-            if (er.code === 'auth/requires-recent-login') {
-                errorMsg = lang === 'es' 
-                    ? "Por seguridad, debés reautenticarte (cerrar y volver a iniciar sesión) para cambiar el email." 
-                    : "For security reasons, you must re-authenticate (log out and back in) to change your email.";
-            }
-            alert(t.error + errorMsg);
-        }
-    }
-};window.doChangePassword=async()=>{if(!currentUser)return;try{await sendPasswordResetEmail(auth,currentUser.email);alert('Correo enviado.');}catch(er){alert(er.message);}};
+window.doChangeEmail=async()=>{if(!currentUser)return;const e=prompt('Nuevo correo:');if(e){try{await verifyBeforeUpdateEmail(currentUser,e);alert('Verificación enviada.');}catch(er){alert(er.message);}}};
+window.doChangePassword=async()=>{if(!currentUser)return;try{await sendPasswordResetEmail(auth,currentUser.email);alert('Correo enviado.');}catch(er){alert(er.message);}};
 window.doDeleteAccount=async()=>{if(!confirm('¿Eliminar cuenta?'))return;try{await deleteUser(currentUser);window.location.replace('login.html');}catch(e){alert('Reautenticación requerida.');}};
 
 onAuthStateChanged(auth,async(user)=>{
