@@ -218,93 +218,94 @@ h1 {
     </div>
 
     <div class="card">
-        <h1>TaxUSA <img src="https://flagcdn.com/w40/us.png" style="width: 28px; border-radius: 3px;" alt="USA"></h1>
-        <div class="nav-bar">
+    <h1>TaxUSA <img src="https://flagcdn.com/w40/us.png" style="width: 28px; border-radius: 3px;" alt="USA"></h1>
+    
+    <div class="nav-bar">
         <a href="compras.html" class="btn-nav">
             <span>🛍️</span>
-            <span>GASTOS</span>
+            <span data-i18n="nav_expenses">GASTOS</span>
         </a>
         <a href="itinerario.html" class="btn-nav">
             <span>📍</span>
-            <span>ITINERARIO</span>
+            <span data-i18n="nav_itinerary">ITINERARIO</span>
         </a>
         <a href="javascript:void(0)" class="btn-nav" onclick="avisoProximamente(event)">
             <span>🔍</span>
-            <span>COMPARADOR</span>
+            <span data-i18n="nav_compare">COMPARADOR</span>
         </a>
         <a href="unidades.html" class="btn-nav">
             <span>⚖️</span>
-            <span>UNIDADES</span>
+            <span data-i18n="nav_units">UNIDADES</span>
         </a>
         <button class="settings-trigger-bar" onclick="toggleSettings()">⚙️</button>
     </div>
+    
+    <div class="countdown-box" id="box-trip" onclick="openTripModal()">
+        <span class="edit-hint">✏️</span>
+        <span class="countdown-label" id="trip-label" data-i18n="loading">Cargando viaje...</span>
+        <span id="timer">00d 00h 00m 00s</span>
+    </div>
+    
+    <div class="input-group">
+        <label data-i18n="label_price">Precio en Etiqueta (USD)</label>
+        <input type="number" id="price" placeholder="0.00" oninput="calculate()" step="0.01" inputmode="decimal">
+    </div>
+
+    <label data-i18n="label_category">Categoría</label>
+    <div class="category-grid">
+        <button class="cat-btn active" id="btn-general" onclick="setCategory('general')">🛍️ <span data-i18n="cat_general">GENERAL</span></button>
+        <button class="cat-btn" id="btn-tech" onclick="setCategory('tech')">💻 <span data-i18n="cat_tech">TECH</span></button>
+        <button class="cat-btn" id="btn-food" onclick="setCategory('food')">🍎 <span data-i18n="cat_food">COMIDA</span></button>
+        <button class="cat-btn" id="btn-med" onclick="setCategory('med')">💊 <span data-i18n="cat_med">MEDICINA</span></button>
+    </div>
+
+    <div class="input-group">
+        <label data-i18n="label_state">Estado</label>
+        <select id="state-select" onchange="loadCities()"></select>
+    </div>
+
+    <div class="input-group">
+        <label data-i18n="label_city">Ciudad / Condado</label>
+        <select id="city-select" onchange="calculate()"></select>
+    </div>
+
+    <div class="result-box">
+        <div class="result-value" id="total-with-tax">USD 0.00</div>
+        <div id="tax-detail" data-i18n="tax_applied">Tax Aplicado: 0%</div>
+    </div>
+
+    <div class="tip-section">
+        <label data-i18n="label_tip">Propina (Tip)</label>
+        <div class="tip-grid">
+            <button class="tip-btn" id="tip-0" onclick="setTip(0)">0% <span id="val-tip-0">$0.00</span></button>
+            <button class="tip-btn" id="tip-10" onclick="setTip(10)">10% <span id="val-tip-10">$0.00</span></button>
+            <button class="tip-btn active" id="tip-15" onclick="setTip(15)">15% <span id="val-tip-15">$0.00</span></button>
+            <button class="tip-btn" id="tip-20" onclick="setTip(20)">20% <span id="val-tip-20">$0.00</span></button>
+        </div>
         
-        <div class="countdown-box" id="box-trip" onclick="openTripModal()">
-            <span class="edit-hint">✏️</span>
-            <span class="countdown-label" id="trip-label">Cargando viaje...</span>
-            <span id="timer">00d 00h 00m 00s</span>
-        </div>
-        
-        <div class="input-group">
-            <label>Precio en Etiqueta (USD)</label>
-            <input type="number" id="price" placeholder="0.00" oninput="calculate()" step="0.01" inputmode="decimal">
-        </div>
-
-        <label>Categoría</label>
-        <div class="category-grid">
-            <button class="cat-btn active" id="btn-general" onclick="setCategory('general')">🛍️ GENERAL</button>
-            <button class="cat-btn" id="btn-tech" onclick="setCategory('tech')">💻 TECH</button>
-            <button class="cat-btn" id="btn-food" onclick="setCategory('food')">🍎 COMIDA</button>
-            <button class="cat-btn" id="btn-med" onclick="setCategory('med')">💊 MEDICINA</button>
-        </div>
-
-        <div class="input-group">
-            <label>Estado</label>
-            <select id="state-select" onchange="loadCities()"></select>
-        </div>
-
-        <div class="input-group">
-            <label>Ciudad / Condado</label>
-            <select id="city-select" onchange="calculate()"></select>
-        </div>
-
-        <div class="result-box">
-            <div class="result-value" id="total-with-tax">USD 0.00</div>
-            <div id="tax-detail">Tax Aplicado: 0%</div>
-        </div>
-
-        <div class="tip-section">
-            <label>Propina (Tip)</label>
-            <div class="tip-grid">
-                <button class="tip-btn" id="tip-0" onclick="setTip(0)">0% <span id="val-tip-0">$0.00</span></button>
-                <button class="tip-btn" id="tip-10" onclick="setTip(10)">10% <span id="val-tip-10">$0.00</span></button>
-                <button class="tip-btn active" id="tip-15" onclick="setTip(15)">15% <span id="val-tip-15">$0.00</span></button>
-                <button class="tip-btn" id="tip-20" onclick="setTip(20)">20% <span id="val-tip-20">$0.00</span></button>
+        <div class="custom-tip-container">
+            <div class="custom-tip-header">
+                <span data-i18n="label_other">OTRO</span>
+                <input type="number" id="custom-tip-input" placeholder="0" oninput="setCustomTip()" inputmode="numeric">
+                <span>%</span>
             </div>
-            
-            <div class="custom-tip-container">
-                <div class="custom-tip-header">
-                    <span>OTRO</span>
-                    <input type="number" id="custom-tip-input" placeholder="0" oninput="setCustomTip()" inputmode="numeric">
-                    <span>%</span>
-                </div>
-                <span id="val-tip-custom">$0.00</span>
-            </div>
+            <span id="val-tip-custom">$0.00</span>
         </div>
-
-        <div class="final-box">
-            <label style="color: rgba(255,255,255,0.8); margin: 0;">TOTAL FINAL (INC. TIP)</label>
-            <div class="final-value" id="final-total">USD 0.00</div>
-        </div>
-
-        <div id="dynamic-tip" class="info-box" onclick="clicManualConsejo()" style="cursor: pointer;">
-    💡 <span id="tip-content" style="transition: opacity 0.4s ease;">Cargando tip económico...</span>
-    </div>
     </div>
 
-    <div class="footer">
-        <span>Creado por Juan Cruz Bria <img src="https://flagcdn.com/w40/ar.png" style="width:18px;" alt="Argentina"></span>
+    <div class="final-box">
+        <label style="color: rgba(255,255,255,0.8); margin: 0;" data-i18n="label_total">TOTAL FINAL (INC. TIP)</label>
+        <div class="final-value" id="final-total">USD 0.00</div>
     </div>
+
+    <div id="dynamic-tip" class="info-box" onclick="clicManualConsejo()" style="cursor: pointer;">
+        💡 <span id="tip-content" style="transition: opacity 0.4s ease;" data-i18n="loading_tips">Cargando tip económico...</span>
+    </div>
+</div>
+
+<div class="footer">
+    <span data-i18n="footer_by">Creado por Juan Cruz Bria</span> <img src="https://flagcdn.com/w40/ar.png" style="width:18px;" alt="Argentina">
+</div>
     <div class="api-credits">
         APIs USADAS: Firebase • FlagCDN • Google Auth • reCAPTCHA v3
     </div>
