@@ -231,7 +231,7 @@
                         const avg = c > 0 ? tot / c : 0;
                         if (avg <= 20) { el.innerText = t.status_low; el.className = "queue-status q-low"; }
                         else if (avg <= 45) { el.innerText = t.status_med; el.className = "queue-status q-med"; }
-    });
+    };
 
     window.changeLanguage = (lang) => {
         localStorage.setItem('appLang', lang);
