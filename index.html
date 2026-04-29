@@ -483,9 +483,17 @@ window.onload = () => {
     tipTimer = setInterval(window.cambiarConsejo, 8000);
 };
     window.avisoProximamente = (event) => {
-        if (event) event.preventDefault();
-        alert("🚀 El Comparador de Precios estará disponible próximamente.");
-    };
+    if (event) event.preventDefault();
+
+    // Detectamos si el idioma del documento empieza con "en" (English)
+    const isEnglish = document.documentElement.lang.toLowerCase().startsWith('en');
+
+    const mensaje = isEnglish 
+        ? "🚀 The Price Comparison tool will be available soon." 
+        : "🚀 El Comparador de Precios estará disponible próximamente.";
+
+    alert(mensaje);
+};
 </script>
 </body>
 </html>
