@@ -175,7 +175,7 @@
                     <select id="select-eur" class="currency-select" onchange="updateMulti('eur')">
                         <option value="EUR">Euro</option><option value="GBP" data-i18n="opt_pound">Libra</option><option value="CHF" data-i18n="opt_swiss">F. Suizo</option>
                     </select>
-                    <div class="rate-row"><span><img src="https://flagcdn.com/16x12/us.png" alt="United States"</span><input type="text" id="eur-usd" value="1" oninput="formatVisual(this);convert('eur','usd')"></div>
+                    <div class="rate-row"><span><span><img src="https://flagcdn.com/16x12/us.png" alt="United States"></span></span><input type="text" id="eur-usd" value="1" oninput="formatVisual(this);convert('eur','usd')"></div>
                     <div class="rate-divider">⇅</div>
                     <div class="rate-row"><span id="flag-eur"><img src="https://flagcdn.com/20x15/eu.png" alt="European Union"></span><input type="text" id="eur-local" oninput="formatVisual(this);convert('eur','local')"></div>
                 </div>
@@ -247,8 +247,17 @@ const perfilFoto = localStorage.getItem('perfilActivoFoto');
 let presupuestoBase = 0;
 let allRates = {};
 let baseRates = { oficial:0, tarjeta:0, eur:0, brl:0 };
-const flags = { EUR:<img src="https://flagcdn.com/20x15/eu.png" alt="European Union">, GBP:<img src="https://flagcdn.com/20x15/gb.png" alt="United Kingdom">, CHF:<img src="https://flagcdn.com/20x15/ch.png" alt="Switzerland">, BRL:<img src="https://flagcdn.com/20x15/br.png" alt="Brazil">, CLP:<img src="https://flagcdn.com/20x15/cl.png" alt="Chile">, UYU:<img src="https://flagcdn.com/20x15/uy.png" alt="Uruguay">, MXN:<img src="https://flagcdn.com/20x15/mx.png" alt="Mexico">, PEN:<img src="https://flagcdn.com/20x15/pe.png" alt="Peru">, COP:<img src="https://flagcdn.com/20x15/co.png" alt="Colombia"> };
-let tipIndex = 0;
+const flags = {
+  EUR: '<img src="https://flagcdn.com/20x15/eu.png" alt="European Union">',
+  GBP: '<img src="https://flagcdn.com/20x15/gb.png" alt="United Kingdom">',
+  CHF: '<img src="https://flagcdn.com/20x15/ch.png" alt="Switzerland">',
+  BRL: '<img src="https://flagcdn.com/20x15/br.png" alt="Brazil">',
+  CLP: '<img src="https://flagcdn.com/20x15/cl.png" alt="Chile">',
+  UYU: '<img src="https://flagcdn.com/20x15/uy.png" alt="Uruguay">',
+  MXN: '<img src="https://flagcdn.com/20x15/mx.png" alt="Mexico">',
+  PEN: '<img src="https://flagcdn.com/20x15/pe.png" alt="Peru">',
+  COP: '<img src="https://flagcdn.com/20x15/co.png" alt="Colombia">'
+};let tipIndex = 0;
 let video, stream;
 
 const i18n = {
@@ -319,7 +328,7 @@ async function fetchRates(){
 window.updateMulti=(type)=>{
     const code=document.getElementById(`select-${type}`).value;
     baseRates[type]=allRates[code];
-    document.getElementById(`flag-${type}`).innerText=flags[code];
+    document.getElementById(`flag-${type}`).innerTextHTML=flags[code];
     document.getElementById(`${type}-usd`).value='1.00';
     document.getElementById(`${type}-local`).value=fmt(baseRates[type]);
 };
