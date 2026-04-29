@@ -479,10 +479,10 @@ window.changeLanguage = (lang) => {
             }
         }
     });
-};
 
+    // Esta es la parte que faltaba o estaba mal cerrada
     if (typeof updateEmojis === 'function') updateEmojis();
-};
+}; // <-- Asegurate de que solo haya una llave aquí
 
         window.toggleDarkMode = () => {
             const isDark = document.body.classList.toggle('dark-mode');
