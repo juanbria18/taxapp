@@ -34,6 +34,70 @@
     --header-color: #1e3a8a;
 }
 
+<style>
+    :root {
+        --primary: #2563eb; 
+        /* ... tus otras variables ... */
+    }
+
+    /* ... tus estilos actuales (body, .wrap, .card) ... */
+
+    /* PEGA EL CÓDIGO DEL LOGO AQUÍ AL FINAL */
+    .login-logo-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 30px;
+        padding: 20px;
+        animation: fadeInUp 0.8s ease-out;
+    }
+
+    .logo-icon {
+        width: 64px;
+        height: 64px;
+        background: var(--primary); 
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 10px 25px rgba(37, 99, 235, 0.3);
+    }
+
+    .flag-stripe {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 6px;
+        background: #ef4444; 
+    }
+
+    .logo-symbol {
+        color: white;
+        font-size: 32px;
+        font-weight: 900;
+    }
+
+    .logo-text {
+        font-size: 2rem;
+        font-weight: 900;
+        color: var(--header-color); /* Si no tienes esta variable, usa #1e3a8a */
+        letter-spacing: -1px;
+    }
+
+    .logo-text span {
+        color: var(--primary);
+        font-weight: 400;
+    }
+
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
 [data-theme="dark"] {
     --bg:           #0f172a;
     --surface:      #1e293b;
