@@ -691,55 +691,48 @@ window.clicManualConsejo = () => {
         };
 
         window.saveTripSettings = async () => {
-    // 1. Comentamos esto temporalmente para ver si es el problema
-    // await getRecaptchaToken('save_trip');
-    
-    console.log("Intentando guardar para el perfil:", perfilId);
-    console.log("Usuario actual:", currentUser ? currentUser.uid : "Nadie logueado");
+            const destination = document.getElementById('input-destination').value || "Orlando";
+            const date = document.getElementById('input-date').value || "2027-01-01";
+            tripData = { destination, date };
 
-    const destination = document.getElementById('input-destination').value || "Orlando";
-    const date = document.getElementById('input-date').value || "2027-01-01";
-    
-    tripData = { destination, date };
-
-    if (currentUser && perfilId) {
-        try {
-            // Referencia a la ruta: usuarios -> UID -> perfiles -> perfilId
-            const profileRef = doc(db, "usuarios", currentUser.uid, "perfiles", perfilId);
-            
-            await setDoc(profileRef, { 
-                trip: tripData,
-                lastUpdate: Date.now() 
-            }, { merge: true });
-            
-            console.log("¡Guardado exitoso en Firebase!");
-            updateTripUI();
-            closeTripModal();
-        } catch (e) {
-            console.error("Error de Firebase:", e);
-            alert("Error al guardar: " + e.message);
-        }
-    } else {
-        console.warn("No se pudo guardar: perfilId o currentUser faltantes.");
-        alert("Error: No se detectó el perfil activo.");
-    }
-};
+            if (currentUser && perfilId) {
+                try {
+                    const profileRef = doc(db, "usuarios", currentUser.uid, "perfiles", perfilId);
+                    await setDoc(profileRef, { trip: tripData, lastUpdate: Date.now() }, { merge: true });
+                    updateTripUI();
+                    closeTripModal();
+                } catch (e) {
+                    alert("Error al guardar: " + e.message);
+                }
+            }
+        };
 
         function updateTripUI() {
-            document.getElementById('trip-label').innerText = `Faltan para ${tripData.destination} ✈️`;
+            const lang = localStorage.getItem('appLang') || 'es';
+            const prefix = translations[lang].trip_prefix;
+            document.getElementById('trip-label').innerText = `${prefix} ${tripData.destination} ✈️`;
             document.getElementById('input-destination').value = tripData.destination;
             document.getElementById('input-date').value = tripData.date;
         }
 
         function updateCountdown() {
-            if (!tripData.date) return;
+            if (!tripData || !tripData.date) return;
             const target = new Date(tripData.date + "T00:00:00").getTime();
             const diff = target - new Date().getTime();
-            if (diff <= 0) { document.getElementById("timer").innerText = "¡Buen viaje! ✈️"; return; }
-            const d = Math.floor(diff / 864e5), h = Math.floor((diff % 864e5) / 36e5), m = Math.floor((diff % 36e5) / 6e4), s = Math.floor((diff % 6e4) / 1e3);
-            document.getElementById("timer").innerText = `${d}d ${h}h ${m}m ${s}s`;
+            const timerEl = document.getElementById("timer");
+            const lang = localStorage.getItem('appLang') || 'es';
+            const t = translations[lang];
+
+            if (diff <= 0) { 
+                timerEl.innerText = lang === 'es' ? "¡Buen viaje! ✈️" : "Safe travels! ✈️"; 
+                return; 
+            }
+            const d = Math.floor(diff / 864e5), h = Math.floor((diff % 864e5) / 36e5), 
+                  m = Math.floor((diff % 36e5) / 6e4), s = Math.floor((diff % 6e4) / 1e3);
+            timerEl.innerText = `${d}${t.days_label} ${h}${t.hours_label} ${m}${t.minutes_label} ${s}${t.seconds_label}`;
         }
 
+        // --- INICIALIZACIÓN ---
         const stateSelect = document.getElementById('state-select');
         Object.keys(taxData).sort().forEach(s => {
             let opt = document.createElement('option');
@@ -757,20 +750,26 @@ window.clicManualConsejo = () => {
         window.closeTripModal = () => document.getElementById('tripModal').style.display = 'none';
         window.logout = () => signOut(auth).then(() => window.location.replace("login.html"));
 
-        let tipIndex = 0;
+        // Lógica de Tips Dinámicos
+        window.onload = () => {
+            window.loadCities();
+            setInterval(updateCountdown, 1000);
+            const savedLang = localStorage.getItem('appLang') || 'es';
+            window.changeLanguage(savedLang);
 
-                    let tipIndex = 0;
-
-
-            tipElement.innerText = econTips[0];
+            const tipElement = document.getElementById('tip-content');
+            const rotateTip = () => {
+                const lang = localStorage.getItem('appLang') || 'es';
+                const lista = econTips[lang];
+                tipIndex = (tipIndex + 1) % lista.length;
+                tipElement.style.opacity = 0;
+                setTimeout(() => {
+                    tipElement.innerText = lista[tipIndex];
+                    tipElement.style.opacity = 1;
+                }, 400);
+            };
             setInterval(rotateTip, 8000);
         };
     </script>
-    <script>
-    function avisoProximamente(event) {
-        event.preventDefault();
-        alert("🚀 ¡El Comparador de Precios estará disponible próximamente!");
-    }
-</script>
 </body> 
 </html>
