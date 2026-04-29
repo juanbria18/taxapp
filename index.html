@@ -303,9 +303,12 @@ h1 {
         <div class="final-value" id="final-total">USD 0.00</div>
     </div>
 
-    <div id="dynamic-tip" class="info-box" onclick="clicManualConsejo()" style="cursor: pointer;">
-        💡 <span id="tip-content" style="transition: opacity 0.4s ease;" data-i18n="loading_tips">Cargando tip económico...</span>
-    </div>
+    <div id="dynamic-tip" class="info-box" onclick="window.clicManualConsejo()" style="cursor: pointer; display: flex; align-items: center; gap: 10px;">
+    <span style="font-size: 1.2rem;">💡</span>
+    <span id="tip-content" style="transition: opacity 0.3s ease; font-weight: 500;" data-i18n="loading_tips">
+        Cargando consejos...
+    </span>
+</div>
 </div>
 
 <div class="footer">
@@ -596,16 +599,33 @@ window.cambiarConsejo = () => {
     }
 };
 
-// Configurar el cambio automático cada 8 segundos
-let timerConsejos = setInterval(window.cambiarConsejo, 8000);
+// --- LÓGICA DE CONSEJOS (TIPS) ---
+        let indiceConsejo = 0;
+        let timerConsejos;
 
-// Función para el clic manual
-window.clicManualConsejo = () => {
-    clearInterval(timerConsejos); 
-    window.cambiarConsejo();      
-    timerConsejos = setInterval(window.cambiarConsejo, 8000); 
-};
+        window.cambiarConsejo = () => {
+            const pConsejo = document.getElementById('tip-content');
+            const lang = localStorage.getItem('appLang') || 'es';
+            const lista = econTips[lang];
+            
+            if (pConsejo && lista) {
+                pConsejo.style.opacity = 0;
+                setTimeout(() => {
+                    indiceConsejo = (indiceConsejo + 1) % lista.length;
+                    pConsejo.innerText = lista[indiceConsejo].replace("💡 ", "");
+                    pConsejo.style.opacity = 1;
+                }, 300);
+            }
+        };
 
+        // Función para el clic manual (Cambio instantáneo)
+        window.clicManualConsejo = () => {
+            clearInterval(timerConsejos); 
+            window.cambiarConsejo();      
+            timerConsejos = setInterval(window.cambiarConsejo, 8000); 
+        };
+
+        // --- GESTIÓN DE CUENTA ---
         window.updateEmail = async () => {
             const token = await getRecaptchaToken('update_email');
             const newEmail = prompt("Ingresa el nuevo correo electrónico para verificar:");
@@ -637,6 +657,7 @@ window.clicManualConsejo = () => {
             }
         };
 
+        // --- CALCULADORA ---
         window.setCategory = (cat) => {
             document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
             document.getElementById('btn-' + cat).classList.add('active');
@@ -687,6 +708,7 @@ window.clicManualConsejo = () => {
             document.getElementById('final-total').innerText = 'USD ' + finalTotal.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
         };
 
+        // --- CIUDADES Y VIAJE ---
         window.loadCities = () => {
             const state = document.getElementById('state-select').value;
             const citySelect = document.getElementById('city-select');
@@ -712,9 +734,7 @@ window.clicManualConsejo = () => {
                     await setDoc(profileRef, { trip: tripData, lastUpdate: Date.now() }, { merge: true });
                     updateTripUI();
                     closeTripModal();
-                } catch (e) {
-                    alert("Error al guardar: " + e.message);
-                }
+                } catch (e) { alert("Error al guardar: " + e.message); }
             }
         };
 
@@ -743,7 +763,27 @@ window.clicManualConsejo = () => {
             timerEl.innerText = `${d}${t.days_label} ${h}${t.hours_label} ${m}${t.minutes_label} ${s}${t.seconds_label}`;
         }
 
-        // --- INICIALIZACIÓN ---
+        // --- IDIOMA ---
+        window.changeLanguage = (lang) => {
+            localStorage.setItem('appLang', lang);
+            document.querySelectorAll('.lang-opt').forEach(opt => opt.classList.remove('active'));
+            document.getElementById('lang-' + lang)?.classList.add('active');
+            
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[lang] && translations[lang][key]) el.innerText = translations[lang][key];
+            });
+
+            const pConsejo = document.getElementById('tip-content');
+            if (pConsejo && econTips[lang]) {
+                pConsejo.innerText = econTips[lang][indiceConsejo].replace("💡 ", "");
+            }
+
+            if (typeof window.calculate === 'function') window.calculate();
+            updateTripUI();
+        };
+
+        // --- INICIALIZACIÓN Y MENÚS ---
         const stateSelect = document.getElementById('state-select');
         Object.keys(taxData).sort().forEach(s => {
             let opt = document.createElement('option');
@@ -761,38 +801,15 @@ window.clicManualConsejo = () => {
         window.closeTripModal = () => document.getElementById('tripModal').style.display = 'none';
         window.logout = () => signOut(auth).then(() => window.location.replace("login.html"));
 
-        // Lógica de Tips Dinámicos
-        // 1. Declarar tipIndex UNA SOLA VEZ y AFUERA
-let tipIndex = 0; // DECLARADA UNA SOLA VEZ ACÁ AFUERA
-
         window.onload = () => {
             window.loadCities();
             setInterval(updateCountdown, 1000);
 
             const savedLang = localStorage.getItem('appLang') || 'es';
-            window.changeLanguage(savedLang); // Esto ya dispara el primer tip gracias al paso anterior
+            window.changeLanguage(savedLang); 
 
-            const tipElement = document.getElementById('tip-content');
-            
-            const rotateTip = () => {
-                const lang = localStorage.getItem('appLang') || 'es';
-                const lista = econTips[lang];
-                
-                // 1. Desvanece (tarda 0.3s por el CSS)
-                tipElement.style.opacity = 0;
-
-                setTimeout(() => {
-                    // 2. Cambia el contenido (esto pasa cuando ya no se ve)
-                    tipIndex = (tipIndex + 1) % lista.length;
-                    tipElement.innerText = lista[tipIndex];
-                    
-                    // 3. Lo vuelve a mostrar
-                    tipElement.style.opacity = 1;
-                }, 300); // Este tiempo debe ser igual al del CSS
-            };
-
-            // Ejecuta el cambio cada 8 segundos
-            setInterval(rotateTip, 8000);
+            // Iniciar rotación automática
+            timerConsejos = setInterval(window.cambiarConsejo, 8000);
         };
     </script>
 </body> 
