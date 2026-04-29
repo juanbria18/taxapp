@@ -283,14 +283,13 @@ h1 {
             <button class="tip-btn" id="tip-20" onclick="setTip(20)">20% <span id="val-tip-20">$0.00</span></button>
         </div>
         
-        <div class="custom-tip-container">
-            <div class="custom-tip-header">
-                <span data-i18n="label_other">OTRO</span>
-                <input type="number" id="custom-tip-input" placeholder="0" oninput="setCustomTip()" inputmode="numeric">
-                <span>%</span>
-            </div>
-            <span id="val-tip-custom">$0.00</span>
-        </div>
+       <div class="custom-tip-container">
+    <div class="custom-tip-header">
+        <span data-i18n="label_other">OTRO</span> <input type="number" id="custom-tip-input" placeholder="0" oninput="setCustomTip()" inputmode="numeric">
+        <span>%</span>
+    </div>
+    <span id="val-tip-custom">$0.00</span>
+</div>
     </div>
 
     <div class="final-box">
@@ -333,9 +332,9 @@ h1 {
 
     <label data-i18n="label_language" style="display: block; font-size: 0.7rem; font-weight: 800; color: var(--text-sub); text-transform: uppercase; margin-bottom: 5px; margin-left: 5px;">Idioma</label>
     <div class="lang-selector" style="display: flex; background: var(--box-bg); border-radius: 12px; padding: 4px; margin-bottom: 20px; gap: 4px; border: 1px solid var(--input-border);">
-        <button class="lang-opt" id="lang-es" onclick="window.changeLanguage('es')" style="flex: 1; padding: 8px; border-radius: 8px; border: none; background: transparent; cursor: pointer; font-size: 0.75rem; font-weight: 800; color: var(--text-sub);">🇪🇸 ES</button>
-        <button class="lang-opt" id="lang-en" onclick="window.changeLanguage('en')" style="flex: 1; padding: 8px; border-radius: 8px; border: none; background: transparent; cursor: pointer; font-size: 0.75rem; font-weight: 800; color: var(--text-sub);">🇺🇸 EN</button>
-    </div>
+    <button class="lang-opt" id="lang-es" onclick="window.changeLanguage('es')" style="flex: 1; padding: 8px; border-radius: 8px; border: none; background: transparent; cursor: pointer; font-size: 0.75rem; font-weight: 800; color: var(--text-sub);">🇪🇸 ES</button>
+    <button class="lang-opt" id="lang-en" onclick="window.changeLanguage('en')" style="flex: 1; padding: 8px; border-radius: 8px; border: none; background: transparent; cursor: pointer; font-size: 0.75rem; font-weight: 800; color: var(--text-sub);">🇺🇸 EN</button>
+</div>
 
     <button class="drawer-btn" onclick="changeProfile()">👤 <span data-i18n="btn_change_profile">Cambiar de Perfil</span></button>
     <button class="drawer-btn" onclick="toggleDarkMode()">🌓 <span data-i18n="btn_theme">Cambiar Tema</span></button>
@@ -391,7 +390,7 @@ h1 {
                 trip_title: "Mi Viaje", btn_save: "GUARDAR", btn_close: "Cerrar", loading: "Cargando...", days_to: "Faltan para",
                 soon: "¡Próximamente!", loading: "Cargando viaje...", loading_tips: "Cargando tip económico...", footer_by: "Creado por Juan Cruz Bria",
                 api_used: "APIs USADAS", tax_applied_label: "Tax Aplicado", days_label: "d", hours_label: "h", minutes_label: "m", seconds_label: "s",
-                trip_prefix: "Faltan para"
+                trip_prefix: "Faltan para", label_other: "OTRO"
             },
             en: {
                 nav_expenses: "EXPENSES", nav_itinerary: "ITINERARY", nav_compare: "COMPARE", nav_units: "UNITS",
@@ -754,21 +753,29 @@ window.clicManualConsejo = () => {
         window.onload = () => {
             window.loadCities();
             setInterval(updateCountdown, 1000);
+            
             const savedLang = localStorage.getItem('appLang') || 'es';
             window.changeLanguage(savedLang);
 
+            // Iniciar Tips
             const tipElement = document.getElementById('tip-content');
-            const rotateTip = () => {
-                const lang = localStorage.getItem('appLang') || 'es';
-                const lista = econTips[lang];
-                tipIndex = (tipIndex + 1) % lista.length;
-                tipElement.style.opacity = 0;
-                setTimeout(() => {
-                    tipElement.innerText = lista[tipIndex];
-                    tipElement.style.opacity = 1;
-                }, 400);
-            };
-            setInterval(rotateTip, 8000);
+            if (tipElement) {
+                // Ponemos el primer tip inmediatamente según el idioma
+                tipElement.innerText = econTips[savedLang][tipIndex];
+                
+                const rotateTip = () => {
+                    const lang = localStorage.getItem('appLang') || 'es';
+                    const lista = econTips[lang];
+                    tipIndex = (tipIndex + 1) % lista.length;
+                    
+                    tipElement.style.opacity = 0;
+                    setTimeout(() => {
+                        tipElement.innerText = lista[tipIndex];
+                        tipElement.style.opacity = 1;
+                    }, 400);
+                };
+                setInterval(rotateTip, 8000);
+            }
         };
     </script>
 </body> 
