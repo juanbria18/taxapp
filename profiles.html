@@ -143,17 +143,27 @@
         .name-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.15); }
 
         .photo-grid {
-            display: grid; grid-template-columns: repeat(4, 1fr);
-            gap: 10px; margin-bottom: 20px;
-            max-height: 190px; overflow-y: auto; padding: 4px;
-        }
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* 3 fotos por fila */
+            gap: 12px;
+            margin: 20px 0;
+            max-height: 220px; 
+            overflow-y: auto; 
+            padding: 8px;
+            background: var(--surface-2);
+            border-radius: var(--radius-sm);
+}
         .photo-option {
-            aspect-ratio: 1; border-radius: 12px;
-            cursor: pointer; border: 2.5px solid transparent;
-            object-fit: cover; transition: 0.2s;
-        }
-        .photo-option:hover { transform: scale(1.08); border-color: white; }
-        .photo-option.selected { border-color: var(--primary); }
+            width: 100%;
+            aspect-ratio: 1 / 1; /* Fuerza a que sea un cuadrado */
+            object-fit: cover;   /* Corta los bordes sobrantes para que encaje perfecto */
+            border-radius: 12px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: var(--transition);
+}
+        .photo-option:hover { transform: scale(1.05); border-color: var(--primary); }
+        .photo-option.selected { border-color: var(--primary); box-shadow: 0 0 12px var(--primary-dim); }
 
         .modal-actions { display: flex; flex-direction: column; gap: 10px; }
         .btn {
