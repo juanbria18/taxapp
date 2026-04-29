@@ -976,18 +976,21 @@ if (finalUSD > 0) {
         };
 
         window.onload = () => { 
-            const el = document.getElementById('tip-text');
-            if(el) el.innerText = shoppingTips[0]; 
-            
-            setTimeout(() => {
-                if(typeof twemoji !== 'undefined') {
-                    twemoji.parse(document.body, { folder: 'svg', ext: '.svg' });
-                }
-            }, 500);
+    const el = document.getElementById('tip-text');
+    if(el) el.innerText = shoppingTips[0]; 
+    
+    setTimeout(() => {
+        if(typeof twemoji !== 'undefined') {
+            twemoji.parse(document.body, { folder: 'svg', ext: '.svg' });
+        }
+    }, 500);
 
-            setInterval(window.nextTip, 8000); 
-            fetchRates(); // Esto reactiva las APIs del dólar
-        };
+    const savedLang = localStorage.getItem('appLang') || 'es';
+    window.changeLanguage(savedLang); 
+
+    setInterval(window.nextTip, 8000); 
+    fetchRates(); 
+};
     </script>
 
     <script>
