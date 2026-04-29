@@ -424,15 +424,14 @@ h1 {
     <h3 style="margin-top:0; color: var(--primary);" data-i18n="settings_title">Ajustes</h3>
     <p id="userEmail" style="font-size:0.75rem; color:var(--text-sub); margin-bottom:20px; font-weight:700;"></p>
 
-    <label data-i18n="label_language" style="display: block; font-size: 0.7rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 5px; margin-left: 5px;">Idioma</label>
-
-<div class="lang-selector" style="display: flex; background: var(--input-bg); border-radius: 12px; padding: 4px; margin-bottom: 20px; gap: 4px; border: 1px solid var(--card-border);">
+    <label data-i18n="label_language" style="display: block; font-size: 0.7rem; font-weight: 800; color: var(--text-sub); text-transform: uppercase; margin-bottom: 5px; margin-left: 5px;">Idioma</label>
+<div class="lang-selector" style="display: flex; background: var(--box-bg); border-radius: 12px; padding: 4px; margin-bottom: 20px; gap: 4px; border: 1px solid var(--input-border);">
     
-    <button class="lang-opt" id="lang-es" onclick="changeLanguage('es')" style="flex: 1; padding: 8px; border-radius: 8px; border: none; background: transparent; cursor: pointer; font-size: 0.75rem; font-weight: 800; color: var(--text-muted); display: flex; align-items: center; justify-content: center; gap: 8px;">
+    <button class="lang-opt" id="lang-es" onclick="window.changeLanguage('es')" style="flex: 1; padding: 8px; border-radius: 8px; border: none; background: transparent; cursor: pointer; font-size: 0.75rem; font-weight: 800; color: var(--text-sub); display: flex; align-items: center; justify-content: center; gap: 8px;">
         <img src="https://flagcdn.com/w40/es.png" width="20" style="border-radius: 2px;" alt="ES"> ES
     </button>
     
-    <button class="lang-opt" id="lang-en" onclick="changeLanguage('en')" style="flex: 1; padding: 8px; border-radius: 8px; border: none; background: transparent; cursor: pointer; font-size: 0.75rem; font-weight: 800; color: var(--text-muted); display: flex; align-items: center; justify-content: center; gap: 8px;">
+    <button class="lang-opt" id="lang-en" onclick="window.changeLanguage('en')" style="flex: 1; padding: 8px; border-radius: 8px; border: none; background: transparent; cursor: pointer; font-size: 0.75rem; font-weight: 800; color: var(--text-sub); display: flex; align-items: center; justify-content: center; gap: 8px;">
         <img src="https://flagcdn.com/w40/us.png" width="20" style="border-radius: 2px;" alt="US"> EN
     </button>
     
