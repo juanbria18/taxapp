@@ -406,32 +406,27 @@ h1 {
         };
 
         window.changeLanguage = (lang) => {
-        localStorage.setItem('appLang', lang);
-        
-        // 1. Marcar botón activo
-        document.querySelectorAll('.lang-opt').forEach(opt => opt.classList.remove('active'));
-        const activeBtn = document.getElementById('lang-' + lang);
-        if (activeBtn) activeBtn.classList.add('active');
-        
-        // 2. TRADUCIR: Busca todo lo que tenga data-i18n y cambia el texto
-        document.querySelectorAll('[data-i18n]').forEach(el => {
-            const key = el.getAttribute('data-i18n');
-            if (translations[lang] && translations[lang][key]) {
-                el.innerText = translations[lang][key];
+            localStorage.setItem('appLang', lang);
+            document.querySelectorAll('.lang-opt').forEach(opt => opt.classList.remove('active'));
+            const activeBtn = document.getElementById('lang-' + lang);
+            if (activeBtn) activeBtn.classList.add('active');
+            
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[lang] && translations[lang][key]) {
+                    el.innerText = translations[lang][key];
+                }
+            });
+
+            // Esto hace que el tip cambie AL INSTANTE al tocar el botón de idioma
+            const tipElement = document.getElementById('tip-content');
+            if (tipElement) {
+                tipElement.innerText = econTips[lang][tipIndex];
             }
-        });
 
-        // 3. ACTUALIZAR EL CONSEJO (TIP) ACTUAL
-        const tipElement = document.getElementById('tip-content');
-        if (tipElement && econTips[lang]) {
-            // Usamos el tipIndex global para saber qué consejo está en pantalla
-            // y simplemente le cambiamos el idioma.
-            tipElement.innerText = econTips[lang][tipIndex];
-        }
-
-        // 4. Actualizar cálculos (para que el label del Tax también cambie)
-        if (typeof calculate === 'function') calculate();
-    };
+            if (typeof window.calculate === 'function') window.calculate();
+            if (typeof updateTripUI === 'function') updateTripUI();
+        };
         
         onAuthStateChanged(auth, async (user) => {
     if (user) {
