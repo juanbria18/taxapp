@@ -340,12 +340,12 @@ img.emoji {
 </div>
 
 <div id="menuOverlay" class="menu-overlay" onclick="toggleSettings()"></div>
-<div id="settingsDrawer" class="settings-drawer">
+<<div id="settingsDrawer" class="settings-drawer">
     <h3 style="color:var(--primary); margin-top:0;" data-i18n="title_settings">Ajustes</h3>
     <p id="userEmail" style="font-size:0.75rem; color:var(--text-muted); margin-bottom:20px; font-weight:700;"></p>
     
     <div class="settings-group" style="margin-bottom: 20px;">
-        <label style="font-size: 0.7rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;" data-i18n="label_language">Idioma / Language</label>
+        <label style="font-size: 0.7rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;" data-i18n="label_language">Idioma</label>
         <div style="display: flex; gap: 10px; margin-top: 10px;">
             <button id="lang-es" class="lang-opt" onclick="changeLanguage('es')">🇪🇸 ES</button>
             <button id="lang-en" class="lang-opt" onclick="changeLanguage('en')">🇺🇸 EN</button>
@@ -466,22 +466,23 @@ img.emoji {
 window.changeLanguage = (lang) => {
     localStorage.setItem('appLang', lang);
 
-    // 1. Actualizar botones visuales ES/EN (se ponen azules)
+    // Botones azules ES/EN
     document.querySelectorAll('.lang-opt').forEach(opt => opt.classList.remove('active'));
     const btn = document.getElementById('lang-' + lang);
     if (btn) btn.classList.add('active');
 
-    // 2. Traducir elementos estáticos (Nav, Botones, etc.)
     document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
-        if (translations[lang] && translations[lang][key]) {
-            if (el.tagName === 'INPUT') {
-                el.placeholder = translations[lang][key];
-            } else {
-                el.innerText = translations[lang][key];
-            }
-        }
+        if (translations[lang][key]) el.innerText = translations[lang][key];
     });
+
+    // Traducir el tip que se está viendo ahora mismo
+    const tipEl = document.getElementById('tip-text');
+    if (tipEl) {
+        tipEl.innerText = shoppingTips[lang][currentTipIndex];
+        if(typeof twemoji !== 'undefined') twemoji.parse(tipEl);
+    }
+};
 
     // 3. ACTUALIZAR EL TIP ACTUAL (Para que cambie de idioma al instante)
     const tipEl = document.getElementById('tip-text');
@@ -969,35 +970,27 @@ if (finalUSD > 0) {
         "Sizes: A US 'M' is usually an 'L' in Argentina. Always try it on!",
         "Cash: Always keep $1 and $5 bills for quick tips.",
         "Premium Outlets: Sign up on their website for free VIP coupon books.",
-        "Baggage: Weigh your suitcase before the airport; the limit is usually 23kg.",
+        "Baggage: Weigh your suitcase before the airport; the limit is 23kg.",
         "Amazon Hub: You can order on Amazon and pick up at 7-Eleven lockers.",
         "Banks: Notify your bank that you will use your card abroad."
     ]
 };
 
 let currentTipIndex = 0;
-
-        let currentTipIndex = 0;
-        window.nextTip = () => { 
-    // Detectamos el idioma actual
+window.nextTip = () => { 
     const lang = localStorage.getItem('appLang') || 'es';
-    const tipsActuales = shoppingTips[lang]; // Obtenemos la lista correcta (es o en)
+    const currentList = shoppingTips[lang]; // Elegimos la lista según idioma
 
-    currentTipIndex = (currentTipIndex + 1) % tipsActuales.length; 
+    currentTipIndex = (currentTipIndex + 1) % currentList.length; 
     
     const el = document.getElementById('tip-text');
     if(el) { 
         el.style.opacity = 0; 
         setTimeout(() => { 
-            // 1. Cambiamos el texto usando el idioma detectado
-            el.innerText = tipsActuales[currentTipIndex]; 
-            
-            // 2. Aplicamos Twemoji
+            el.innerText = currentList[currentTipIndex]; 
             if(typeof twemoji !== 'undefined') {
                 twemoji.parse(el, { folder: 'svg', ext: '.svg' });
             }
-            
-            // 3. Mostramos
             el.style.opacity = 1; 
         }, 300); 
     }
