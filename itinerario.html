@@ -218,19 +218,7 @@
         la: { tz: "America/Los_Angeles", spots: [{ name: "🎬 Santa Monica Pier" }, { name: "🌌 Griffith Obs" }, { name: "🎢 Universal CA" }, { name: "🌟 Walk of Fame" }] },
         sf: { tz: "America/Los_Angeles", spots: [{ name: "🌉 Golden Gate" }, { name: "⛓️ Alcatraz" }, { name: "🦀 Pier 39" }, { name: "🚋 Lombard St" }] },
         chicago: { tz: "America/Chicago", spots: [{ name: "🫘 The Bean" }, { name: "🗼 Willis Tower" }, { name: "🎡 Navy Pier" }, { name: "🖼️ Art Institute" }] },
-                if (localHour >= 22 || localHour < 8) { el.innerText = t.status_closed; el.className = "queue-status q-off"; }
-                else {
-                    try {
-                        const res = await fetch("https://corsproxy.io/?" + encodeURIComponent(`<https://queue-times.com/parks/${cityData.spots[i].parkId}/queue_times.json>`));
-                        const data = await res.json();
-                        let tot = 0, c = 0;
-                        const rides = [];
-                        if (data.lands) data.lands.forEach(l => rides.push(...l.rides));
-                        if (data.rides) rides.push(...data.rides);
-                        rides.forEach(r => { if(r.is_open){ tot += r.wait_time; c++; } });
-                        const avg = c > 0 ? tot / c : 0;
-                        if (avg <= 20) { el.innerText = t.status_low; el.className = "queue-status q-low"; }
-                        else if (avg <= 45) { el.innerText = t.status_med; el.className = "queue-status q-med"; }
+        dc: { tz: "America/New_York", spots: [{ name: "🏛️ Capitol" }, { name: "🗿 Lincoln Memorial" }, { name: "🏛️ Smithsonian" }, { name: "🌹 Arlington" }] }
     };
 
     window.changeLanguage = (lang) => {
