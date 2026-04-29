@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TaxUSA — Unidades</title>
+    <script src="https://www.google.com/recaptcha/api.js?render=6LeK6cssAAAAALxcJy-95R2nhVMmnuIyB78AQgvw"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script>
+        const _t = localStorage.getItem('theme');
+        if (_t) document.documentElement.setAttribute('data-theme', _t);
+        else if (window.matchMedia('(prefers-color-scheme: dark)').matches) document.documentElement.setAttribute('data-theme','dark');
+    </script>
+    <style>
+        :root {
+            --primary:#2563eb; --primary-dim:rgba(37,99,235,0.1);
+            --accent:#7c3aed; --accent-dim:rgba(124,58,237,0.1);
+            --danger:#ef4444; --success:#10b981; --warn:#f59e0b; --cyan:#0ea5e9;
+            --bg:#f1f5f9; --surface:#ffffff; --surface-2:#f8fafc;
+            --border:#e2e8f0; --input-bg:#f8fafc;
+            --text:#0f172a; --text-sub:#64748b; --text-dim:#94a3b8;
+            --header-color:#1e3a8a;
+            --radius:20px; --radius-sm:12px;
+            --shadow:0 4px 20px rgba(0,0,0,0.06); --shadow-lg:0 12px 40px rgba(0,0,0,0.1);
+            --tr:all 0.25s cubic-bezier(0.4,0,0.2,1);
+        }
+        [data-theme="dark"] {
+            --bg:#0f172a; --surface:#1e293b; --surface-2:#273549;
+            --border:#334155; --input-bg:#273549;
+            --text:#f1f5f9; --text-sub:#94a3b8; --text-dim:#64748b;
+            --header-color:#93c5fd;
+            --shadow:0 4px 20px rgba(0,0,0,0.3); --shadow-lg:0 12px 40px rgba(0,0,0,0.4);
+        }
+        *,*::before,*::after{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0;}
+        html{scroll-behavior:smooth;}
+        body{font-family:'DM Sans',-apple-system,system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:16px 16px 40px;transition:background .3s,color .3s;-webkit-font-smoothing:antialiased;}
+
+        .wrap{width:100%;max-width:460px;}
+
+        /* HEADER */
+        .app-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+        .logo{display:flex;align-items:center;gap:10px;font-size:1.4rem;font-weight:900;color:var(--header-color);letter-spacing:-.5px;}
+        .logo img{width:24px;border-radius:3px;}
+
+        /* NAV */
+        .nav-bar{display:flex;align-items:center;background:var(--surface);border-radius:16px;padding:6px;margin-bottom:16px;border:1px solid var(--border);box-shadow:var(--shadow);gap:2px;}
+        .btn-nav{flex:1;display:flex;flex-direction:column;align-items:center;text-decoration:none;color:var(--text-sub);font-size:8px;font-weight:700;gap:2px;padding:6px 2px;border-radius:10px;background:none;border:none;cursor:pointer;transition:var(--tr);text-transform:uppercase;letter-spacing:.3px;}
+        .btn-nav .ni{font-size:17px;line-height:1;}
+        .btn-nav:hover,.btn-nav.active{color:var(--primary);background:var(--primary-dim);}
+        .btn-nav-set{width:34px;height:34px;border-radius:50%;background:var(--surface-2);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;overflow:hidden;transition:var(--tr);background-size:cover;background-position:center;}
+        .btn-nav-set:hover{border-color:var(--primary);}
+
+        /* CARD BASE */
+        .card{background:var(--surface);border-radius:var(--radius);padding:20px;width:100%;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:14px;position:relative;}
+
+        /* SECTION LABEL */
+        .slabel{font-size:.6rem;font-weight:800;color:var(--text-dim);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;display:block;}
+
+        /* CONVERTER GROUPS */
+        .conv-group{background:var(--surface-2);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:16px;margin-bottom:12px;transition:var(--tr);}
+        .conv-group:focus-within{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-dim);}
+
+        .group-header{display:flex;align-items:center;gap:8px;margin-bottom:12px;}
+        .group-emoji{font-size:1.1rem;}
+        .group-title{font-size:.65rem;font-weight:800;color:var(--text-dim);text-transform:uppercase;letter-spacing:.8px;}
+
+        .input-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+        .input-row:last-of-type{margin-bottom:0;}
+
+        .input-wrap{position:relative;flex:1;}
+        .input-wrap input{
+            width:100%;padding:12px 52px 12px 14px;
+            background:var(--surface);border:1.5px solid var(--border);
+            border-radius:var(--radius-sm);color:var(--text);
+            font-family:inherit;font-size:.95rem;font-weight:700;
+            outline:none;transition:var(--tr);-webkit-appearance:none;
+        }
+        .input-wrap input:focus{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-dim);}
+        .input-wrap input::placeholder{color:var(--text-dim);font-weight:500;}
+        .unit-tag{
+            position:absolute;right:12px;top:50%;transform:translateY(-50%);
+            font-size:.6rem;font-weight:800;color:var(--primary);
+            text-transform:uppercase;letter-spacing:.5px;pointer-events:none;
+            background:var(--primary-dim);padding:3px 6px;border-radius:6px;
+            white-space:nowrap;
+        }
+
+        .conv-divider{text-align:center;font-size:.75rem;font-weight:800;color:var(--text-dim);margin:2px 0;opacity:.5;}
+
+        /* INFO TIP inside group */
+        .group-tip{
+            display:flex;align-items:flex-start;gap:6px;
+            background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.3);
+            border-radius:8px;padding:8px 10px;margin-top:10px;
+        }
+        .group-tip span{font-size:.72rem;font-weight:600;color:var(--warn);line-height:1.4;}
+
+        /* SMART TIP */
+        .smart-tip{background:rgba(16,185,129,.08);border:1.5px solid var(--success);border-radius:var(--radius-sm);padding:13px 14px;cursor:pointer;display:flex;align-items:flex-start;gap:10px;margin-bottom:14px;transition:var(--tr);}
+        .smart-tip:hover{opacity:.85;}
+        .st-icon{font-size:1.1rem;flex-shrink:0;margin-top:1px;}
+        .st-label{font-size:.55rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--success);margin-bottom:3px;}
+        #tip-content{font-size:.8rem;font-weight:600;color:var(--text);line-height:1.4;transition:opacity .3s;}
+
+        /* FOOTER */
+        .app-footer{margin-top:8px;padding:12px 0;text-align:center;font-size:.7rem;color:var(--text-dim);font-weight:600;display:flex;align-items:center;justify-content:center;gap:6px;}
+        .app-footer img{width:16px;border-radius:2px;}
+
+        /* SETTINGS DRAWER */
+        .menu-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;z-index:1000;backdrop-filter:blur(4px);}
+        .settings-drawer{position:fixed;top:0;right:-300px;width:290px;height:100%;background:var(--surface);z-index:1001;transition:.3s ease;padding:28px 20px;display:flex;flex-direction:column;box-shadow:-8px 0 30px rgba(0,0,0,.15);border-left:1px solid var(--border);overflow-y:auto;}
+        .settings-drawer.open{right:0;}
+        .drawer-header{font-size:1.1rem;font-weight:900;color:var(--primary);margin-bottom:4px;}
+        .drawer-email{font-size:.75rem;color:var(--text-dim);font-weight:600;margin-bottom:20px;}
+        .drawer-section-label{font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);margin-bottom:8px;display:block;}
+        .lang-selector{display:flex;background:var(--input-bg);border-radius:var(--radius-sm);padding:4px;gap:4px;margin-bottom:14px;border:1.5px solid var(--border);}
+        .lang-opt{flex:1;padding:8px 4px;border-radius:8px;border:none;background:transparent;cursor:pointer;font-size:.75rem;font-weight:800;color:var(--text-sub);font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px;transition:var(--tr);}
+        .lang-opt img{width:18px;border-radius:2px;}
+        .lang-opt.active{background:var(--primary);color:white;}
+        .drawer-btn{width:100%;padding:12px 14px;border-radius:var(--radius-sm);border:1.5px solid var(--border);background:var(--input-bg);color:var(--text);cursor:pointer;font-weight:700;margin-bottom:8px;font-size:.85rem;text-align:left;font-family:inherit;transition:var(--tr);display:flex;align-items:center;gap:10px;}
+        .drawer-btn:hover{background:var(--surface-2);border-color:var(--primary);}
+        .btn-danger{color:var(--danger)!important;border-color:rgba(239,68,68,.3)!important;}
+    </style>
+</head>
+<body>
+<div class="wrap">
+
+    <div class="app-header">
+        <div class="logo">TaxUSA <img src="https://flagcdn.com/w40/us.png" alt="USA"></div>
+    </div>
+
+    <nav class="nav-bar">
+        <a href="index.html" class="btn-nav"><span class="ni">🏠</span><span data-i18n="nav_home">INICIO</span></a>
+        <a href="compras.html" class="btn-nav"><span class="ni">🛍️</span><span data-i18n="nav_expenses">GASTOS</span></a>
+        <a href="itinerario.html" class="btn-nav"><span class="ni">📍</span><span data-i18n="nav_itinerary">ITINERARIO</span></a>
+        <a href="unidades.html" class="btn-nav active"><span class="ni">⚖️</span><span data-i18n="nav_units">UNIDADES</span></a>
+        <button class="btn-nav-set" id="btnSettings" onclick="toggleSettings()"></button>
+    </nav>
+
+    <!-- SMART TIP -->
+    <div class="smart-tip" onclick="nextTip()">
+        <span class="st-icon">💡</span>
+        <div>
+            <div class="st-label" data-i18n="tip_label">DATO ÚTIL</div>
+            <div id="tip-content">Cargando consejos...</div>
+        </div>
+    </div>
+
+    <!-- CONVERTERS CARD -->
+    <div class="card">
+        <span class="slabel" data-i18n="label_converters">Conversores</span>
+
+        <!-- TEMPERATURA -->
+        <div class="conv-group">
+            <div class="group-header">
+                <span class="group-emoji">🌡️</span>
+                <span class="group-title" data-i18n="grp_temp">Clima / Temperatura</span>
+            </div>
+            <div class="input-row">
+                <div class="input-wrap">
+                    <input type="number" id="f" placeholder="0" oninput="conv('f')" inputmode="decimal">
+                    <span class="unit-tag">°F</span>
+                </div>
+            </div>
+            <div class="conv-divider">⇅</div>
+            <div class="input-row">
+                <div class="input-wrap">
+                    <input type="number" id="c" placeholder="0" oninput="conv('c')" inputmode="decimal">
+                    <span class="unit-tag">°C</span>
+                </div>
+            </div>
+            <div class="group-tip"><span data-i18n="tip_temp">🌞 Temperatura agradable: 68-77°F (20-25°C). Bajo 32°F (0°C) es congelamiento.</span></div>
+        </div>
+
+        <!-- VELOCIDAD -->
+        <div class="conv-group">
+            <div class="group-header">
+                <span class="group-emoji">🚗</span>
+                <span class="group-title" data-i18n="grp_speed">Velocidad y Distancia</span>
+            </div>
+            <div class="input-row">
+                <div class="input-wrap">
+                    <input type="number" id="mph" placeholder="0" oninput="conv('mph')" inputmode="decimal">
+                    <span class="unit-tag">MPH</span>
+                </div>
+            </div>
+            <div class="conv-divider">⇅</div>
+            <div class="input-row">
+                <div class="input-wrap">
+                    <input type="number" id="kmh" placeholder="0" oninput="conv('kmh')" inputmode="decimal">
+                    <span class="unit-tag">KM/H</span>
+                </div>
+            </div>
+            <div class="group-tip"><span data-i18n="tip_speed">⚠️ Límites comunes: 25-35 mph (ciudad) | 65-70 mph (autopista)</span></div>
+        </div>
+
+        <!-- PESO -->
+        <div class="conv-group">
+            <div class="group-header">
+                <span class="group-emoji">⚖️</span>
+                <span class="group-title" data-i18n="grp_weight">Peso — Valija / Supermercado</span>
+            </div>
+            <div class="input-row">
+                <div class="input-wrap">
+                    <input type="number" id="lb" placeholder="0" oninput="conv('lb')" inputmode="decimal">
+                    <span class="unit-tag">LIBRA (LB)</span>
+                </div>
+            </div>
+            <div class="conv-divider">⇅</div>
+            <div class="input-row">
+                <div class="input-wrap">
+                    <input type="number" id="kg" placeholder="0" oninput="conv('kg')" inputmode="decimal">
+                    <span class="unit-tag">KG</span>
+                </div>
+            </div>
+            <div class="group-tip"><span data-i18n="tip_weight">✈️ El límite de equipaje suele ser 50 lbs = 23 kg.</span></div>
+        </div>
+
+        <!-- ONZAS -->
+        <div class="conv-group">
+            <div class="group-header">
+                <span class="group-emoji">🥨</span>
+                <span class="group-title" data-i18n="grp_oz">Onzas — Comida / Paquetes</span>
+            </div>
+            <div class="input-row">
+                <div class="input-wrap">
+                    <input type="number" id="oz" placeholder="0" oninput="conv('oz')" inputmode="decimal">
+                    <span class="unit-tag">ONZA (OZ)</span>
+                </div>
+            </div>
+            <div class="conv-divider">⇅</div>
+            <div class="input-row">
+                <div class="input-wrap">
+                    <input type="number" id="gr" placeholder="0" oninput="conv('gr')" inputmode="decimal">
+                    <span class="unit-tag">GRAMOS</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- LÍQUIDOS -->
+        <div class="conv-group">
+            <div class="group-header">
+                <span class="group-emoji">⛽</span>
+                <span class="group-title" data-i18n="grp_liquid">Combustible y Bebidas</span>
+            </div>
+            <div class="input-row">
+                <div class="input-wrap">
+                    <input type="number" id="gal" placeholder="0" oninput="conv('gal')" inputmode="decimal">
+                    <span class="unit-tag">GALÓN</span>
+                </div>
+            </div>
+            <div class="conv-divider">⇅</div>
+            <div class="input-row">
+                <div class="input-wrap">
+                    <input type="number" id="floz" placeholder="0" oninput="conv('floz')" inputmode="decimal">
+                    <span class="unit-tag">FL. OZ</span>
+                </div>
+            </div>
+            <div class="conv-divider">⇅</div>
+            <div class="input-row">
+                <div class="input-wrap">
+                    <input type="number" id="lit" placeholder="0" oninput="conv('lit')" inputmode="decimal">
+                    <span class="unit-tag">LITROS</span>
+                </div>
+            </div>
+            <div class="group-tip"><span data-i18n="tip_liquid">🥤 La botella de agua común es 16.9 fl oz ≈ 500 ml.</span></div>
+        </div>
+
+        <!-- ESTATURA -->
+        <div class="conv-group">
+            <div class="group-header">
+                <span class="group-emoji">📏</span>
+                <span class="group-title" data-i18n="grp_length">Estatura / Objetos</span>
+            </div>
+            <div class="input-row">
+                <div class="input-wrap">
+                    <input type="number" id="ft" placeholder="0" oninput="conv('ft')" inputmode="decimal">
+                    <span class="unit-tag">PIES (FT)</span>
+                </div>
+            </div>
+            <div class="conv-divider">⇅</div>
+            <div class="input-row">
+                <div class="input-wrap">
+                    <input type="number" id="in" placeholder="0" oninput="conv('in')" inputmode="decimal">
+                    <span class="unit-tag">PULG (IN)</span>
+                </div>
+            </div>
+            <div class="conv-divider">⇅</div>
+            <div class="input-row">
+                <div class="input-wrap">
+                    <input type="number" id="cm" placeholder="0" oninput="conv('cm')" inputmode="decimal">
+                    <span class="unit-tag">CM</span>
+                </div>
+            </div>
+            <div class="group-tip"><span data-i18n="tip_length">📐 6 ft = 182.9 cm. Velocidad de señales: millas por hora, no km.</span></div>
+        </div>
+
+    </div><!-- /card -->
+
+    <div class="app-footer">
+        <span data-i18n="footer_by">Creado por Juan Cruz Bria</span>
+        <img src="https://flagcdn.com/w40/ar.png" alt="Argentina">
+    </div>
+
+</div><!-- /wrap -->
+
+<!-- SETTINGS DRAWER -->
+<div id="menuOverlay" class="menu-overlay" onclick="toggleSettings()"></div>
+<div id="settingsDrawer" class="settings-drawer">
+    <div class="drawer-header"><span data-i18n="settings_title">Ajustes</span></div>
+    <p id="userEmail" class="drawer-email"></p>
+    <span class="drawer-section-label" data-i18n="label_language">Idioma</span>
+    <div class="lang-selector">
+        <button class="lang-opt" id="lang-es" onclick="window.changeLanguage('es')"><img src="https://flagcdn.com/w20/ar.png" alt=""> ES</button>
+        <button class="lang-opt" id="lang-en" onclick="window.changeLanguage('en')"><img src="https://flagcdn.com/w20/us.png" alt=""> EN</button>
+    </div>
+    <button class="drawer-btn" onclick="changeProfile()">👤 <span data-i18n="btn_change_profile">Cambiar Perfil</span></button>
+    <button class="drawer-btn" onclick="toggleDarkMode()">🌓 <span data-i18n="btn_theme">Cambiar Tema</span></button>
+    <button class="drawer-btn" onclick="location.reload()">🔄 <span data-i18n="btn_update">Actualizar App</span></button>
+    <button class="drawer-btn" onclick="doChangeEmail()">📧 <span data-i18n="btn_email">Cambiar Correo</span></button>
+    <button class="drawer-btn" onclick="doChangePassword()">🔑 <span data-i18n="btn_password">Cambiar Contraseña</span></button>
+    <button class="drawer-btn" onclick="doLogout()">🚪 <span data-i18n="btn_logout">Cerrar Sesión</span></button>
+    <div style="margin-top:auto;padding-top:16px;">
+        <button class="drawer-btn btn-danger" onclick="doDeleteAccount()">🗑️ <span data-i18n="btn_delete">Eliminar Cuenta</span></button>
+    </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut, sendPasswordResetEmail, deleteUser, verifyBeforeUpdateEmail } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+import { getFirestore, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+
+const FB = {
+    apiKey:"AIzaSyCm0Ig-CPklsjf6j-1uSAeF6I8xtyQKj7U",
+    authDomain:"viajes-db538.firebaseapp.com",
+    projectId:"viajes-db538",
+    storageBucket:"viajes-db538.firebasestorage.app",
+    messagingSenderId:"237311739178",
+    appId:"1:237311739178:web:333e468b184c0402a98a53"
+};
+const app = initializeApp(FB);
+const auth = getAuth(app);
+const db = getFirestore(app);
+let currentUser = null;
+const perfilFoto = localStorage.getItem('perfilActivoFoto');
+let tipIndex = 0;
+
+/* ── i18n ── */
+const i18n = {
+    es:{
+        nav_home:"INICIO", nav_expenses:"GASTOS", nav_itinerary:"ITINERARIO", nav_units:"UNIDADES",
+        tip_label:"DATO ÚTIL",
+        label_converters:"Conversores",
+        grp_temp:"Clima / Temperatura", grp_speed:"Velocidad y Distancia",
+        grp_weight:"Peso — Valija / Supermercado", grp_oz:"Onzas — Comida / Paquetes",
+        grp_liquid:"Combustible y Bebidas", grp_length:"Estatura / Objetos",
+        tip_temp:"🌞 Temperatura agradable: 68-77°F (20-25°C). Bajo 32°F (0°C) es congelamiento.",
+        tip_speed:"⚠️ Límites comunes: 25-35 mph (ciudad) | 65-70 mph (autopista)",
+        tip_weight:"✈️ El límite de equipaje suele ser 50 lbs = 23 kg.",
+        tip_liquid:"🥤 La botella de agua común es 16.9 fl oz ≈ 500 ml.",
+        tip_length:"📐 6 ft = 182.9 cm. Las señales de tránsito usan millas.",
+        settings_title:"Ajustes", label_language:"Idioma",
+        btn_change_profile:"Cambiar Perfil", btn_theme:"Cambiar Tema",
+        btn_update:"Actualizar App", btn_email:"Cambiar Correo",
+        btn_password:"Cambiar Contraseña", btn_logout:"Cerrar Sesión", btn_delete:"Eliminar Cuenta",
+        footer_by:"Creado por Juan Cruz Bria"
+    },
+    en:{
+        nav_home:"HOME", nav_expenses:"EXPENSES", nav_itinerary:"ITINERARY", nav_units:"UNITS",
+        tip_label:"USEFUL TIP",
+        label_converters:"Converters",
+        grp_temp:"Weather / Temperature", grp_speed:"Speed & Distance",
+        grp_weight:"Weight — Luggage / Grocery", grp_oz:"Ounces — Food / Packages",
+        grp_liquid:"Fuel & Drinks", grp_length:"Height / Objects",
+        tip_temp:"🌞 Comfortable: 68-77°F (20-25°C). Below 32°F (0°C) is freezing.",
+        tip_speed:"⚠️ Common limits: 25-35 mph (city) | 65-70 mph (highway)",
+        tip_weight:"✈️ Luggage limit is usually 50 lbs = 23 kg.",
+        tip_liquid:"🥤 A common water bottle is 16.9 fl oz ≈ 500 ml.",
+        tip_length:"📐 6 ft = 182.9 cm. Traffic signs use miles.",
+        settings_title:"Settings", label_language:"Language",
+        btn_change_profile:"Change Profile", btn_theme:"Toggle Theme",
+        btn_update:"Update App", btn_email:"Change Email",
+        btn_password:"Change Password", btn_logout:"Sign Out", btn_delete:"Delete Account",
+        footer_by:"Created by Juan Cruz Bria"
+    }
+};
+
+const unitTips = {
+    es:[
+        "32°F = 0°C, el punto de congelamiento del agua.",
+        "50 lbs es el límite estándar de equipaje en vuelos a EE.UU.",
+        "1 galón de nafta = 3.785 litros. El precio suele mostrarse por galón.",
+        "6 feet (6ft) equivalen a 1.83 m — la estatura promedio de un hombre en EE.UU.",
+        "16.9 fl oz es la botella de agua más común en los supermercados.",
+        "La velocidad en autopistas suele ser 65 mph ≈ 105 km/h.",
+        "1 libra (lb) = 453 gramos. El pollo se vende por libra.",
+        "1 oz de queso ≈ 28 gramos. Los paquetes de snacks los listan en oz.",
+        "37°C (fiebre) = 98.6°F en términos médicos americanos.",
+        "1 milla = 1.609 km. Las distancias en GPS americanos son en millas."
+    ],
+    en:[
+        "32°F = 0°C, the freezing point of water.",
+        "50 lbs is the standard luggage limit on US flights.",
+        "1 gallon of gas = 3.785 liters. Gas prices are shown per gallon.",
+        "6 feet = 1.83 m — the average US adult male height.",
+        "16.9 fl oz is the most common water bottle size in stores.",
+        "Highway speed is usually 65 mph ≈ 105 km/h.",
+        "1 pound (lb) = 453 grams. Chicken is sold by the pound.",
+        "1 oz of cheese ≈ 28 grams. Snack packages list weight in oz.",
+        "37°C (fever) = 98.6°F in US medical terms.",
+        "1 mile = 1.609 km. US GPS distances are in miles."
+    ]
+};
+
+window.nextTip = () => {
+    const lang = localStorage.getItem('appLang') || 'es';
+    const el = document.getElementById('tip-content');
+    if (!el) return;
+    el.style.opacity = 0;
+    setTimeout(() => {
+        tipIndex = (tipIndex + 1) % unitTips[lang].length;
+        el.innerText = unitTips[lang][tipIndex];
+        el.style.opacity = 1;
+    }, 300);
+};
+
+window.changeLanguage = (lang) => {
+    localStorage.setItem('appLang', lang);
+    document.querySelectorAll('.lang-opt').forEach(o => o.classList.remove('active'));
+    document.getElementById('lang-' + lang)?.classList.add('active');
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const k = el.getAttribute('data-i18n');
+        if (i18n[lang]?.[k]) el.innerText = i18n[lang][k];
+    });
+    const tc = document.getElementById('tip-content');
+    if (tc) tc.innerText = unitTips[lang][tipIndex];
+};
+
+/* ── Converters logic ── */
+window.conv = (id) => {
+    const val = parseFloat(document.getElementById(id).value);
+    if (isNaN(val)) { clearGroup(id); return; }
+    switch(id) {
+        case 'f':   set('c', ((val-32)*5/9).toFixed(1)); break;
+        case 'c':   set('f', (val*9/5+32).toFixed(1)); break;
+        case 'mph': set('kmh', (val*1.60934).toFixed(1)); break;
+        case 'kmh': set('mph', (val/1.60934).toFixed(1)); break;
+        case 'lb':  set('kg', (val*0.453592).toFixed(2)); break;
+        case 'kg':  set('lb', (val/0.453592).toFixed(2)); break;
+        case 'oz':  set('gr', (val*28.3495).toFixed(1)); break;
+        case 'gr':  set('oz', (val/28.3495).toFixed(1)); break;
+        case 'gal':
+            set('lit', (val*3.78541).toFixed(2));
+            set('floz', (val*128).toFixed(1));
+            break;
+        case 'lit':
+            set('gal', (val/3.78541).toFixed(2));
+            set('floz', (val*33.814).toFixed(1));
+            break;
+        case 'floz':
+            set('lit', (val/33.814).toFixed(3));
+            set('gal', (val/128).toFixed(3));
+            break;
+        case 'ft':
+            set('in', (val*12).toFixed(1));
+            set('cm', (val*30.48).toFixed(1));
+            break;
+        case 'in':
+            set('ft', (val/12).toFixed(2));
+            set('cm', (val*2.54).toFixed(1));
+            break;
+        case 'cm':
+            set('ft', (val/30.48).toFixed(2));
+            set('in', (val/2.54).toFixed(1));
+            break;
+    }
+};
+function set(id, val){ const el = document.getElementById(id); if(el) el.value = val; }
+function clearGroup(id) {
+    const groups = [['f','c'],['mph','kmh'],['lb','kg'],['oz','gr'],['gal','lit','floz'],['ft','in','cm']];
+    groups.forEach(g => { if(g.includes(id)) g.forEach(f => { if(f!==id) set(f,''); }); });
+}
+
+/* ── Settings & Auth ── */
+window.toggleSettings = () => {
+    const d = document.getElementById('settingsDrawer'), open = d.classList.toggle('open');
+    document.getElementById('menuOverlay').style.display = open ? 'block' : 'none';
+};
+window.toggleDarkMode = () => {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const next = isDark ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('theme', next);
+};
+window.changeProfile = () => { localStorage.removeItem('perfilActivoId'); window.location.href = 'profiles.html'; };
+window.doLogout = () => signOut(auth).then(() => window.location.replace('login.html'));
+window.doChangeEmail = async () => {
+    if (!currentUser) return;
+    const e = prompt('Nuevo correo:');
+    if (e) { try { await verifyBeforeUpdateEmail(currentUser, e); alert('Verificación enviada.'); } catch(er){ alert(er.message); } }
+};
+window.doChangePassword = async () => {
+    if (!currentUser) return;
+    try { await sendPasswordResetEmail(auth, currentUser.email); alert('Correo de recuperación enviado.'); } catch(er){ alert(er.message); }
+};
+window.doDeleteAccount = async () => {
+    if (!confirm('¿Eliminar cuenta permanentemente?')) return;
+    try {
+        await deleteDoc(doc(db, 'usuarios', currentUser.uid));
+        await deleteUser(currentUser);
+        window.location.replace('login.html');
+    } catch(e){ alert('Reautenticación requerida.'); }
+};
+
+onAuthStateChanged(auth, (user) => {
+    if (!user) { window.location.replace('login.html'); return; }
+    currentUser = user;
+    document.getElementById('userEmail').innerText = user.email;
+    const perfilId = localStorage.getItem('perfilActivoId');
+    if (!perfilId) { window.location.replace('profiles.html'); return; }
+    const img = perfilFoto || user.photoURL;
+    if (img) {
+        const btn = document.getElementById('btnSettings');
+        btn.style.backgroundImage = `url(${img})`;
+        btn.innerText = '';
+    }
+    const lang = localStorage.getItem('appLang') || 'es';
+    window.changeLanguage(lang);
+    const tc = document.getElementById('tip-content');
+    if (tc) tc.innerText = unitTips[lang][tipIndex];
+    setInterval(window.nextTip, 8000);
+});
+</script>
+</body>
+</html>
