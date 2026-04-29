@@ -424,7 +424,8 @@ img.emoji {
         btn_delete_acc: "Eliminar Cuenta",
         footer_text: "Creado por Juan Cruz Bria 🇦🇷",
         nav_expenses: "INICIO", nav_itinerary: "ITINERARIO", nav_compare: "COMPARAR", nav_units: "UNIDADES",
-        label_total_spent: "Presupuesto Restante"
+        label_total_spent: "Presupuesto Restante",
+        alert_no_total: "No se detectó el total. Cargalo manualmente.",
     },
     en: {
         ocr_analyzing: "Analyzing ticket... 🧐",
@@ -444,7 +445,7 @@ img.emoji {
         btn_save_expense: "SAVE EXPENSE",
         loading: "Loading...",
         title_footwear: "👟 Footwear (ARG → US)",
-        th_men: "M", th_women: "W", th_equiv: "US SIZE.",
+        th_men: "M", th_women: "W", th_equiv: "US SIZE",
         title_tops: "👕 T-Shirts / Tops",
         title_jackets: "🧥 Hoodies / Jackets",
         title_settings: "Settings",
@@ -458,7 +459,8 @@ img.emoji {
         btn_delete_acc: "Delete Account",
         footer_text: "Created by Juan Cruz Bria 🇦🇷",
         nav_expenses: "HOME", nav_itinerary: "ITINERARY", nav_compare: "COMPARE", nav_units: "UNITS",
-        label_total_spent: "Remaining Budget"
+        label_total_spent: "Remaining Budget",
+        alert_no_total: "Total not detected. Please enter it manually.",
     }
 };
 
@@ -920,7 +922,9 @@ if (finalUSD > 0) {
     
     console.log(`Final detectado: ${finalUSD}`);
 } else {
-    alert("No se detectó el total. Cargalo manualmente.");
+    // Detectamos el idioma actual antes de mostrar la alerta
+    const lang = localStorage.getItem('appLang') || 'es';
+    alert(translations[lang].alert_no_total);
 }
 }
 
