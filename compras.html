@@ -85,10 +85,32 @@
             color: var(--header-color); 
             transition: color 0.3s ease;
         }
-        .lang-opt.active { 
-        background: var(--card) !important; 
-        color: var(--primary) !important; 
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1); 
+       /* El contenedor gris que te falta */
+    .lang-selector {
+        display: flex; 
+        background: var(--box-bg) !important; /* El gris de fondo */
+        border-radius: 12px; 
+        padding: 4px; 
+        margin-bottom: 20px; 
+        gap: 4px; 
+        border: 1px solid var(--input-border);
+    }
+
+    /* Estilo base de los botones */
+    .lang-opt {
+        transition: all 0.3s ease;
+    }
+
+    /* El "cosito" azul cuando está seleccionado */
+    .lang-opt.active { 
+        background: var(--primary) !important; /* Azul */
+        color: white !important; /* Letra blanca para que se lea */
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15); 
+    }
+    
+    /* Evita que las imágenes interfieran con el click */
+    .lang-opt img {
+        pointer-events: none;
     }
         /* Esto hace que el emoji se comporte como un texto y no como una imagen gigante */
 img.emoji {
@@ -372,14 +394,6 @@ img.emoji {
         <button class="drawer-btn btn-danger" onclick="deleteAccount()">🗑️ <span data-i18n="btn_delete_acc">Eliminar Cuenta</span></button>
     </div>
 </div>
-        
-    <style>
-    .lang-opt.active { 
-        background: var(--card) !important; 
-        color: var(--primary) !important; 
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1); 
-    }
-</style>
 
 <div class="footer">
     <span class="footer-name" data-i18n="footer_text">Creado por Juan Cruz Bria 🇦🇷</span>
