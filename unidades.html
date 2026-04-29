@@ -518,10 +518,20 @@ onAuthStateChanged(auth, (user) => {
     if (tc) tc.innerText = unitTips[lang][tipIndex];
     setInterval(window.nextTip, 8000);
 });
-    window.avisoProximamente = (event) => {
-        if (event) event.preventDefault();
-        alert("🚀 El Comparador de Precios estará disponible próximamente.");
+    window.avisoProximamente = (event) => { 
+    if (event) event.preventDefault(); 
+    
+    // Detectamos el idioma guardado (por defecto español)
+    const lang = localStorage.getItem('appLang') || 'es';
+    
+    // Definimos los mensajes
+    const msgs = {
+        es: "🚀 El Comparador de Precios estará disponible próximamente.",
+        en: "🚀 The Price Comparator will be available soon."
     };
+
+    // Mostramos el mensaje según el idioma
+    alert(msgs[lang]); 
 </script>
 </body>
 </html>
