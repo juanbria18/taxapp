@@ -352,6 +352,7 @@ window.changeLanguage = (lang) => {
     });
     const tc = document.getElementById('tip-content');
     if (tc) tc.innerText = econTips[lang][tipIndex];
+    document.title = lang === 'en' ? 'TaxUSA — Home' : 'TaxUSA — Inicio';
     calculate();
     updateTripUI();
 };
