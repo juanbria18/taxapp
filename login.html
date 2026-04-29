@@ -1,20 +1,27 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TaxUSA — Profiles</title>
+    <title>TaxUSA — Login</title>
+    <link rel="manifest" href="./manifest.json">
+    <link rel="apple-touch-icon" href="icon-512.png">
+    <meta name="theme-color" content="#2563eb">
+    <script src="https://www.google.com/recaptcha/api.js?render=6LeK6cssAAAAALxcJy-95R2nhVMmnuIyB78AQgvw"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #2563eb; --danger: #ef4444;
-            --bg: #0f172a; --surface: #1e293b; --surface-2: #273549;
+            --primary: #2563eb; --accent: #7c3aed;
+            --bg: #f1f5f9; --surface: #ffffff;
+            --border: #e2e8f0; --input-bg: #f8fafc;
+            --text: #0f172a; --text-sub: #64748b; --text-dim: #94a3b8;
+        }
+        [data-theme="dark"] {
+            --bg: #0f172a; --surface: #1e293b;
             --border: #334155; --input-bg: #273549;
             --text: #f1f5f9; --text-sub: #94a3b8; --text-dim: #64748b;
-            --radius: 20px; --radius-sm: 12px;
-            --shadow: 0 4px 20px rgba(0,0,0,0.3);
-            --transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
         }
         *, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
         body {
@@ -22,187 +29,141 @@
             background: var(--bg); color: var(--text);
             min-height: 100vh; display: flex; flex-direction: column;
             align-items: center; justify-content: center;
-            padding: 32px 20px; -webkit-font-smoothing: antialiased;
-            overflow-x: hidden;
+            padding: 24px; transition: background 0.3s, color 0.3s;
+            -webkit-font-smoothing: antialiased;
         }
+
         body::before {
             content: ''; position: fixed; inset: 0; z-index: 0;
-            background: radial-gradient(ellipse 70% 50% at 50% 0%, rgba(37,99,235,0.12), transparent);
+            background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(37,99,235,0.15), transparent);
             pointer-events: none;
         }
 
-        .page-title {
-            font-size: 2rem; font-weight: 900; text-align: center;
-            margin-bottom: 48px; letter-spacing: -0.5px;
+        .lang-selector-top {
+            position: fixed; top: 16px; right: 16px; z-index: 100;
+            background: var(--surface); border: 1.5px solid var(--border);
+            border-radius: 12px; cursor: pointer;
+            user-select: none; min-width: 90px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+        }
+        .selected-lang {
+            padding: 8px 12px; display: flex; align-items: center; gap: 8px;
+            font-weight: 800; font-size: 0.85rem;
+        }
+        .selected-lang .arrow { font-size: 0.55rem; color: var(--primary); margin-left: auto; }
+        .lang-options {
+            display: none; position: absolute; top: calc(100% + 6px); left: 0;
+            width: 100%; background: var(--surface);
+            border: 1.5px solid var(--border); border-radius: 12px;
+            overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        }
+        .lang-options.show { display: block; }
+        .lang-option {
+            padding: 10px 12px; display: flex; align-items: center; gap: 8px;
+            font-weight: 700; font-size: 0.85rem; cursor: pointer; transition: 0.15s;
+        }
+        .lang-option:hover { background: var(--input-bg); }
+        .lang-option img { width: 18px; height: 13px; object-fit: cover; border-radius: 2px; }
+
+        .login-card {
             position: relative; z-index: 1;
-            transition: var(--transition);
-        }
-
-        .profiles-grid {
-            display: grid; grid-template-columns: repeat(2, 140px);
-            gap: 28px; justify-content: center;
-            margin-bottom: 48px; position: relative; z-index: 1;
-        }
-
-        .profile-item {
-            display: flex; flex-direction: column;
-            align-items: center; cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .avatar-wrapper {
-            position: relative; width: 120px; height: 120px; margin-bottom: 12px;
-        }
-
-        .avatar {
-            width: 120px; height: 120px;
-            border-radius: 18px;
-            background: var(--surface-2) no-repeat center/cover;
-            border: 2.5px solid transparent;
-            transition: var(--transition);
-            box-shadow: var(--shadow);
-        }
-
-        body:not(.editing-mode) .profile-item:hover .avatar {
-            transform: scale(1.06); border-color: white;
-            box-shadow: 0 8px 30px rgba(37,99,235,0.3);
-        }
-
-        .edit-overlay {
-            position: absolute; inset: 0;
-            background: rgba(0,0,0,0.55);
-            border-radius: 18px;
-            display: flex; align-items: center; justify-content: center;
-            opacity: 0; pointer-events: none;
-            transition: var(--transition); z-index: 5;
-        }
-        .editing-mode .edit-overlay { opacity: 1; pointer-events: auto; }
-        .edit-overlay svg { width: 32px; fill: white; }
-
-        .profile-name {
-            color: var(--text-sub); font-size: 0.95rem; font-weight: 700;
-            transition: var(--transition);
-        }
-        body:not(.editing-mode) .profile-item:hover .profile-name { color: var(--text); }
-
-        .add-avatar {
-            width: 120px; height: 120px;
-            border: 2px dashed var(--border);
-            border-radius: 18px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 2.5rem; color: var(--border);
-            transition: var(--transition);
-        }
-        .profile-item:hover .add-avatar { border-color: var(--text-sub); color: var(--text-sub); }
-
-        .manage-btn {
-            position: relative; z-index: 1;
-            background: var(--surface); color: var(--text-sub);
+            background: var(--surface); padding: 36px 28px;
+            border-radius: 28px; width: 100%; max-width: 400px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
             border: 1.5px solid var(--border);
-            padding: 13px 28px; border-radius: var(--radius-sm);
-            font-size: 0.8rem; font-weight: 800; cursor: pointer;
-            text-transform: uppercase; letter-spacing: 1.2px;
-            font-family: inherit; transition: var(--transition);
+            animation: fadeUp 0.5s ease;
         }
-        .manage-btn:hover { background: var(--surface-2); color: var(--text); }
-        .editing-mode .manage-btn { background: white; color: black; border-color: white; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        .modal {
-            position: fixed; inset: 0;
-            background: rgba(0,0,0,0.85);
-            display: none; align-items: center; justify-content: center;
-            z-index: 1000; padding: 24px;
-            backdrop-filter: blur(16px);
+        .card-logo {
+            display: flex; align-items: center; justify-content: center;
+            gap: 10px; margin-bottom: 28px;
+            font-size: 1.6rem; font-weight: 900; color: var(--primary);
         }
-        .modal.show { display: flex; animation: modalIn 0.25s ease; }
-        @keyframes modalIn { from { opacity:0; transform: scale(0.92); } to { opacity:1; transform: scale(1); } }
+        .card-logo img { width: 28px; border-radius: 3px; }
 
-        .modal-content {
-            background: var(--surface); border-radius: 28px;
-            padding: 28px 24px; width: 100%; max-width: 380px;
-            border: 1.5px solid var(--border); text-align: center;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
-        }
-        .modal-title { font-size: 1.2rem; font-weight: 900; color: var(--primary); margin-bottom: 20px; }
-
-        .preview-avatar {
-            width: 120px; height: 120px; border-radius: 18px;
-            margin: 0 auto 20px; border: 3px solid var(--primary);
-            background-size: cover; background-position: center;
-            background-color: var(--surface-2);
-            box-shadow: 0 0 24px rgba(37,99,235,0.25);
+        .card-title {
+            font-size: 1.5rem; font-weight: 900; text-align: center;
+            margin-bottom: 24px; color: var(--text);
         }
 
-        .name-input {
-            width: 100%; padding: 14px 16px;
+        input {
+            width: 100%; padding: 15px 16px;
             background: var(--input-bg); border: 1.5px solid var(--border);
-            border-radius: var(--radius-sm); color: var(--text);
-            font-family: inherit; font-size: 0.95rem; font-weight: 600;
-            margin-bottom: 16px; outline: none; -webkit-appearance: none;
+            border-radius: 14px; margin-bottom: 12px;
+            font-size: 0.95rem; font-weight: 600; font-family: inherit;
+            color: var(--text); outline: none; transition: 0.25s;
+            -webkit-appearance: none;
         }
-        .name-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.15); }
+        input:focus { border-color: var(--primary); background: var(--surface); box-shadow: 0 0 0 3px rgba(37,99,235,0.12); }
+        input::placeholder { color: var(--text-dim); font-weight: 500; }
 
-        .photo-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr); /* 3 fotos por fila */
-            gap: 12px;
-            margin: 20px 0;
-            max-height: 220px; 
-            overflow-y: auto; 
-            padding: 8px;
-            background: var(--surface-2);
-            border-radius: var(--radius-sm);
-}
-        .photo-option {
-            width: 100%;
-            aspect-ratio: 1 / 1; /* Fuerza a que sea un cuadrado */
-            object-fit: cover;   /* Corta los bordes sobrantes para que encaje perfecto */
-            border-radius: 12px;
-            cursor: pointer;
-            border: 2px solid transparent;
-            transition: var(--transition);
-}
-        .photo-option:hover { transform: scale(1.05); border-color: var(--primary); }
-        .photo-option.selected { border-color: var(--primary); box-shadow: 0 0 12px var(--primary-dim); }
-
-        .modal-actions { display: flex; flex-direction: column; gap: 10px; }
         .btn {
-            width: 100%; padding: 14px; border: none; border-radius: var(--radius-sm);
-            font-family: inherit; font-size: 0.85rem; font-weight: 800;
-            cursor: pointer; transition: 0.2s; text-transform: uppercase; letter-spacing: 0.4px;
+            width: 100%; padding: 16px; border: none;
+            border-radius: 14px; font-family: inherit;
+            font-size: 0.9rem; font-weight: 800;
+            letter-spacing: 0.5px; text-transform: uppercase;
+            cursor: pointer; transition: 0.25s; margin-bottom: 12px;
         }
         .btn:active { transform: scale(0.97); }
-        .btn-primary { background: white; color: black; }
-        .btn-ghost { background: transparent; color: var(--text-sub); border: 1.5px solid var(--border); }
-        .btn-danger { background: transparent; color: var(--danger); margin-top: 6px; font-size: 0.8rem; }
+        .btn-primary { background: var(--primary); color: white; box-shadow: 0 4px 16px rgba(37,99,235,0.35); }
+        .btn-primary:hover { background: #1d4ed8; }
+
+        .verif-notice {
+            display: none; background: rgba(37,99,235,0.1);
+            color: var(--primary); padding: 12px 14px;
+            border-radius: 12px; font-size: 0.8rem; font-weight: 600;
+            margin-bottom: 14px; line-height: 1.45;
+            border: 1.5px solid rgba(37,99,235,0.2);
+        }
+
+        .links { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; text-align: center; }
+        .link-danger { color: #ef4444; font-size: 0.8rem; font-weight: 700; cursor: pointer; }
+        .link-toggle { color: var(--text-sub); font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .link-toggle:hover { color: var(--primary); }
+
+        .grecaptcha-badge { bottom: 15px !important; }
     </style>
 </head>
 <body>
 
-<h1 class="page-title" id="pageTitle">¿Quién está planificando hoy?</h1>
-
-<div class="profiles-grid" id="profilesGrid"></div>
-
-<button class="manage-btn" id="manageBtn" onclick="toggleEditMode()">EDITAR PERFILES</button>
-
-<div class="modal" id="editModal">
-    <div class="modal-content">
-        <h2 class="modal-title" id="modalTitle">Nuevo Perfil</h2>
-        <div class="preview-avatar" id="previewAvatar"></div>
-        <input type="text" class="name-input" id="nameInput" placeholder="Tu nombre">
-        <div class="photo-grid" id="photoGrid"></div>
-        <div class="modal-actions">
-            <button class="btn btn-primary" onclick="saveProfile()" id="btnSave">GUARDAR</button>
-            <button class="btn btn-ghost" onclick="closeModal()" id="btnCancel">CANCELAR</button>
-            <button class="btn btn-danger" id="btnDelete" onclick="deleteProfile()">Eliminar Perfil</button>
+<div class="lang-selector-top" id="langSelector" onclick="toggleLangMenu()">
+    <div class="selected-lang" id="currentLang">
+        <img src="https://flagcdn.com/w20/ar.png" id="selectedFlag" alt="">
+        <span id="selectedCode">ES</span>
+        <span class="arrow">▼</span>
+    </div>
+    <div class="lang-options" id="langOptions">
+        <div class="lang-option" onclick="applyLanguage('es')">
+            <img src="https://flagcdn.com/w20/ar.png" alt=""> ES
         </div>
+        <div class="lang-option" onclick="applyLanguage('en')">
+            <img src="https://flagcdn.com/w20/us.png" alt=""> EN
+        </div>
+    </div>
+</div>
+
+<div class="login-card">
+    <div class="card-logo">
+        TaxUSA <img src="https://flagcdn.com/w40/us.png" alt="USA">
+    </div>
+    <h1 class="card-title" id="cardTitle">Bienvenido</h1>
+    <input type="email" id="email" placeholder="Correo electrónico" data-ph="email">
+    <input type="password" id="password" placeholder="Contraseña" data-ph="pass">
+    <div class="verif-notice" id="verifNotice">
+        Te enviaremos un mail de verificación. Revisá tu bandeja o SPAM. ✈️
+    </div>
+    <button class="btn btn-primary" id="mainBtn" onclick="handleAuth()">INGRESAR</button>
+    <div class="links">
+        <span class="link-danger" onclick="resetPassword()" id="forgotLink">¿Olvidaste tu contraseña?</span>
+        <span class="link-toggle" id="toggleLink" onclick="toggleMode()">¿No tenés cuenta? Registrate aquí</span>
     </div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, sendPasswordResetEmail, sendEmailVerification, signOut } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+    import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app-check.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyCm0Ig-CPklsjf6j-1uSAeF6I8xtyQKj7U",
@@ -210,149 +171,117 @@
         projectId: "viajes-db538",
         storageBucket: "viajes-db538.firebasestorage.app",
         messagingSenderId: "237311739178",
-        appId: "1:237311739178:web:333e468b184c0402a98a53"
+        appId: "1:237311739178:web:333e468b184c0402a98a53",
+        measurementId: "G-WYF0L0YSYJ"
     };
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
-    const db = getFirestore(app);
+    self.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
+    initializeAppCheck(app, { provider: new ReCaptchaV3Provider('6LeK6cssAAAAALxcJy-95R2nhVMmnuIyB78AQgvw'), isTokenAutoRefreshEnabled: true });
 
     const i18n = {
-        es: { pageTitle: "TaxUSA — Perfiles", title: "¿Quién está planificando hoy?", editTitle: "Administrar Perfiles", manage: "EDITAR PERFILES", done: "LISTO", save: "GUARDAR", cancel: "CANCELAR", delete: "Eliminar Perfil", edit: "Editar Perfil", newProfile: "Nuevo Perfil", guest: "Invitado", confirm: "¿Eliminar este perfil?" },
-        en: { pageTitle: "TaxUSA — Profiles", title: "Who's planning today?", editTitle: "Manage Profiles", manage: "EDIT PROFILES", done: "DONE", save: "SAVE", cancel: "CANCEL", delete: "Delete Profile", edit: "Edit Profile", newProfile: "New Profile", guest: "Guest", confirm: "Delete this profile?" }
+        es: {
+            welcome: "Bienvenido", create: "Crear Cuenta",
+            email: "Correo electrónico", pass: "Contraseña",
+            login: "INGRESAR", register: "REGISTRARME",
+            noAccount: "¿No tenés cuenta? Registrate aquí",
+            haveAccount: "¿Ya tenés cuenta? Ingresá aquí",
+            verif: "Te enviaremos un mail de verificación. Revisá tu bandeja o SPAM. ✈️",
+            forgot: "¿Olvidaste tu contraseña?",
+            errFields: "Por favor completá todos los campos.",
+            regOk: "¡Registro exitoso! Se envió verificación a ",
+            noVerif: "Tu cuenta aún no fue verificada.",
+            resetOk: "Correo de recuperación enviado.",
+            resetEmail: "Ingresá tu correo arriba primero."
+        },
+        en: {
+            welcome: "Welcome", create: "Create Account",
+            email: "Email address", pass: "Password",
+            login: "LOGIN", register: "REGISTER",
+            noAccount: "Don't have an account? Sign up here",
+            haveAccount: "Already have an account? Log in here",
+            verif: "We'll send you a verification email. Check your inbox or SPAM. ✈️",
+            forgot: "Forgot your password?",
+            errFields: "Please fill all fields.",
+            regOk: "Registration successful! Verification sent to ",
+            noVerif: "Your account hasn't been verified yet.",
+            resetOk: "Recovery email sent.",
+            resetEmail: "Please enter your email above first."
+        }
     };
 
-    const photos = [
-        "https://raw.githubusercontent.com/TaxappUSA/TaxappUSA/main/assets/Mickey.webp",
-        "https://raw.githubusercontent.com/TaxappUSA/TaxappUSA/main/assets/Buzz.png",
-        "https://raw.githubusercontent.com/TaxappUSA/TaxappUSA/main/assets/Mike.png",
-        "https://raw.githubusercontent.com/TaxappUSA/TaxappUSA/main/assets/Stitch.png",
-        "https://raw.githubusercontent.com/TaxappUSA/TaxappUSA/main/assets/WallE.png",
-        "https://raw.githubusercontent.com/TaxappUSA/TaxappUSA/main/assets/Coyote.png",
-        "https://raw.githubusercontent.com/TaxappUSA/TaxappUSA/main/assets/Homer.png",
-        "https://raw.githubusercontent.com/TaxappUSA/TaxappUSA/main/assets/Jerry.png",
-        "https://raw.githubusercontent.com/TaxappUSA/TaxappUSA/main/assets/Mario.png",
-        "https://raw.githubusercontent.com/TaxappUSA/TaxappUSA/main/assets/Patricio.png",
-        "https://raw.githubusercontent.com/TaxappUSA/TaxappUSA/main/assets/Pluto.png",
-        "https://raw.githubusercontent.com/TaxappUSA/TaxappUSA/main/assets/Shy Guy.png"
-    ];
+    let currentLang = localStorage.getItem('appLang') || 'es';
+    let isLogin = true;
 
-    let uid, profiles = [], editingId = null, selectedPhoto = photos[0], isEditing = false;
-    const lang = localStorage.getItem('appLang') || 'es';
-    let t = i18n[lang];
+    window.toggleLangMenu = () => document.getElementById('langOptions').classList.toggle('show');
+    window.onclick = (e) => { if (!e.target.closest('#langSelector')) document.getElementById('langOptions').classList.remove('show'); };
 
-    function applyLang() {
-        t = i18n[lang];
-        document.title = t.pageTitle;
-        document.getElementById('pageTitle').innerText = t.title;
-        document.getElementById('manageBtn').innerText = t.manage;
-        document.getElementById('btnSave').innerText = t.save;
-        document.getElementById('btnCancel').innerText = t.cancel;
-        document.getElementById('btnDelete').innerText = t.delete;
+    window.applyLanguage = (lang) => {
+        currentLang = lang;
+        localStorage.setItem('appLang', lang);
+        const flagSrc = lang === 'es' ? 'https://flagcdn.com/w20/ar.png' : 'https://flagcdn.com/w20/us.png';
+        document.getElementById('selectedFlag').src = flagSrc;
+        document.getElementById('selectedCode').innerText = lang.toUpperCase();
+        document.getElementById('langOptions').classList.remove('show');
+        applyTexts();
+    };
+
+    function applyTexts() {
+        const t = i18n[currentLang];
+        document.getElementById('cardTitle').innerText = isLogin ? t.welcome : t.create;
+        document.getElementById('mainBtn').innerText = isLogin ? t.login : t.register;
+        document.getElementById('toggleLink').innerText = isLogin ? t.noAccount : t.haveAccount;
+        document.getElementById('forgotLink').innerText = t.forgot;
+        document.getElementById('verifNotice').innerText = t.verif;
+        document.getElementById('email').placeholder = t.email;
+        document.getElementById('password').placeholder = t.pass;
     }
 
-    applyLang();
+    window.toggleMode = () => {
+        isLogin = !isLogin;
+        document.getElementById('verifNotice').style.display = isLogin ? 'none' : 'block';
+        applyTexts();
+    };
+
+    window.handleAuth = async () => {
+        const email = document.getElementById('email').value;
+        const pass = document.getElementById('password').value;
+        const t = i18n[currentLang];
+        if (!email || !pass) { alert(t.errFields); return; }
+        try {
+            if (isLogin) {
+                await signInWithEmailAndPassword(auth, email, pass);
+            } else {
+                const cred = await createUserWithEmailAndPassword(auth, email, pass);
+                await sendEmailVerification(cred.user);
+                alert(t.regOk + email);
+                await signOut(auth);
+                location.reload();
+            }
+        } catch(e) {
+            let msg = e.message;
+            if (e.code === 'auth/app-check-failed') msg = 'reCAPTCHA validation error.';
+            alert(msg);
+        }
+    };
+
+    window.resetPassword = async () => {
+        const email = document.getElementById('email').value;
+        const t = i18n[currentLang];
+        if (!email) { alert(t.resetEmail); return; }
+        try { await sendPasswordResetEmail(auth, email); alert(t.resetOk); }
+        catch(e) { alert(e.message); }
+    };
 
     onAuthStateChanged(auth, async (user) => {
-        if (!user) return window.location.replace('login.html');
-        uid = user.uid;
-        const snap = await getDoc(doc(db, 'usuarios', uid));
-        profiles = snap.exists() ? (snap.data().perfiles || []) : [];
-        if (profiles.length === 0) {
-            profiles = [{ id: 'p' + Date.now(), nombre: t.guest, foto: photos[0] }];
-            await setDoc(doc(db, 'usuarios', uid), { perfiles: profiles });
+        if (user) {
+            if (user.emailVerified) window.location.replace('profiles.html');
+            else { alert(i18n[currentLang].noVerif); await signOut(auth); }
         }
-        render();
     });
 
-    function render() {
-        const grid = document.getElementById('profilesGrid');
-        grid.innerHTML = profiles.map(p => `
-            <div class="profile-item" onclick="handleClick('${p.id}','${p.nombre}','${encodeURIComponent(p.foto)}')">
-                <div class="avatar-wrapper">
-                    <div class="avatar" style="background-image:url('${p.foto}')"></div>
-                    <div class="edit-overlay">
-                        <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
-                    </div>
-                </div>
-                <div class="profile-name">${p.nombre}</div>
-            </div>
-        `).join('');
-
-        if (profiles.length < 5) {
-            grid.innerHTML += `
-                <div class="profile-item" onclick="openEditor(null)">
-                    <div class="avatar-wrapper"><div class="add-avatar">+</div></div>
-                    <div class="profile-name">${t.newProfile}</div>
-                </div>`;
-        }
-    }
-
-    window.toggleEditMode = () => {
-        isEditing = !isEditing;
-        document.body.classList.toggle('editing-mode', isEditing);
-        document.getElementById('pageTitle').innerText = isEditing ? t.editTitle : t.title;
-        document.getElementById('manageBtn').innerText = isEditing ? t.done : t.manage;
-    };
-
-    window.handleClick = (id, nombre, fotoEnc) => {
-        if (isEditing) { openEditor(id); return; }
-        const foto = decodeURIComponent(fotoEnc);
-        localStorage.setItem('perfilActivoId', id);
-        localStorage.setItem('perfilActivoNombre', nombre);
-        localStorage.setItem('perfilActivoFoto', foto);
-        window.location.replace('index.html');
-    };
-
-    window.openEditor = (id) => {
-        editingId = id;
-        const p = profiles.find(x => x.id === id);
-        document.getElementById('modalTitle').innerText = id ? t.edit : t.newProfile;
-        document.getElementById('nameInput').value = p ? p.nombre : '';
-        selectedPhoto = p ? p.foto : photos[0];
-        document.getElementById('btnDelete').style.display = id ? 'block' : 'none';
-        updatePreview();
-
-        const grid = document.getElementById('photoGrid');
-        grid.innerHTML = photos.map(url => `
-            <img src="${url}" class="photo-option ${url === selectedPhoto ? 'selected' : ''}"
-                 onclick="selectPhoto('${url}')">
-        `).join('');
-
-        document.getElementById('editModal').classList.add('show');
-    };
-
-    window.selectPhoto = (url) => {
-        selectedPhoto = url;
-        document.querySelectorAll('.photo-option').forEach(img => img.classList.toggle('selected', img.src === url));
-        updatePreview();
-    };
-
-    function updatePreview() {
-        document.getElementById('previewAvatar').style.backgroundImage = `url('${selectedPhoto}')`;
-    }
-
-    window.closeModal = () => document.getElementById('editModal').classList.remove('show');
-
-    window.saveProfile = async () => {
-        const name = document.getElementById('nameInput').value.trim();
-        if (!name) return;
-        if (editingId) profiles = profiles.map(p => p.id === editingId ? { ...p, nombre: name, foto: selectedPhoto } : p);
-        else profiles.push({ id: 'p' + Date.now(), nombre: name, foto: selectedPhoto });
-        await updateDoc(doc(db, 'usuarios', uid), { perfiles: profiles });
-        closeModal();
-        if (isEditing) toggleEditMode();
-        render();
-    };
-
-    window.deleteProfile = async () => {
-        if (profiles.length <= 1 || !confirm(t.confirm)) return;
-        profiles = profiles.filter(p => p.id !== editingId);
-        await updateDoc(doc(db, 'usuarios', uid), { perfiles: profiles });
-        closeModal();
-        if (isEditing) toggleEditMode();
-        render();
-    };
+    applyLanguage(currentLang);
 </script>
 </body>
 </html>
