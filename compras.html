@@ -950,7 +950,8 @@ if (finalUSD > 0) {
 }
 }
 
-        const shoppingTips = [
+        const shoppingTips = {
+        es: [
             "Jersey Gardens (NJ): ¡Tax Free! No pagás impuesto en ropa ni calzado.",
             "Impuestos: El precio de etiqueta NO incluye el Tax (aprox. 7-9%).",
             "Ross/Marshalls: Los mejores precios están en los racks de 'Clearance'.",
@@ -966,7 +967,25 @@ if (finalUSD > 0) {
             "Equipaje: Pesá tu valija antes de ir al aeropuerto; el límite suele ser 23kg.",
             "Amazon Hub: Podés pedir por Amazon y retirar en lockers de 7-Eleven.",
             "Bancos: Avisá en tu homebanking que vas a usar la tarjeta en el exterior."
-        ];
+        ],
+        en: [
+            "The Mills at Jersey Gardens (NJ): Tax Free! You don’t pay tax on clothing or footwear.",
+            "Taxes: The price on the tag does NOT include sales tax (approx. 7–9%).",
+            "Ross Stores / Marshalls: The best deals are usually in the Clearance racks.",
+            "Apple: Buy Refurbished products on their official website to save around 15%.",
+            "Best Buy: They have an Open Box section with nearly new discounted products.",
+            "Coupons: Download the RetailMeNot app for instant discounts.",
+            "Safety: Never leave shopping bags visible inside a parked car.",
+            "Documents: Always keep a photo of your passport on your phone.",
+            "Walmart: Great for snacks, basic electronics, and cheap suitcases.",
+            "Sizes: A Medium (M) in the USA is often a Large (L) in Argentina. Always try things on!",
+            "Cash: Always carry $1 and $5 bills for quick tips.",
+            "Premium Outlets: Sign up on their website to receive free VIP coupon booklets.",
+            "Luggage: Weigh your suitcase before going to the airport; the limit is usually 23 kg (50 lb).",
+            "Amazon Hub: You can order from Amazon and pick it up at 7-Eleven lockers.",
+            "Banks: Notify your bank through online banking that you’ll be using your card abroad."
+             ]
+    };
 
         let currentTipIndex = 0;
         window.nextTip = () => { 
