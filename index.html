@@ -22,132 +22,778 @@
     </script>
 
     <style>
+        /* VARIABLES DINÁMICAS (NUEVO) */
         :root { 
             --primary: #2563eb; 
             --bg: #f8fafc; 
-            --box-bg: #ffffff;
-            --text-main: #1e293b;
+            --card: #ffffff; 
+            --accent: #7c3aed; 
+            --text-main: #1e293b; 
             --text-sub: #64748b;
-            --input-border: #e2e8f0;
+            --input-border: #f1f5f9;
+            --input-bg: #ffffff;
+            --box-bg: #f1f5f9;
+            --timer-text: #1e3a8a;
+            --header-color: #3C3B6E; /* El azul de la bandera USA */
         }
+
+#tip-content {
+    transition: opacity 0.3s ease-in-out; /* Velocidad de parpadeo rápida */
+    display: inline-block;
+    min-height: 1.2em; /* Evita que el contenedor colapse al quedar vacío */
+}
+
+        /* COLORES MODO OSCURO (AÑADIDO) */
         [data-theme="dark"] {
             --bg: #0f172a;
-            --box-bg: #1e293b;
+            --card: #1e293b;
             --text-main: #f1f5f9;
             --text-sub: #94a3b8;
             --input-border: #334155;
+            --input-bg: #1e293b;
+            --box-bg: #334155;
+            --timer-text: #60a5fa;
+            --header-color: #ffffff; /* Blanco */
         }
-        body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text-main); margin: 0; padding: 20px; transition: 0.3s; }
-        .total-card { background: var(--primary); color: white; padding: 25px; border-radius: 24px; text-align: center; margin-bottom: 20px; }
-        .tip-box { transition: 0.3s; }
-        #tip-content { transition: opacity 0.3s ease-in-out; }
-        .lang-opt.active { background: var(--primary) !important; color: white !important; }
-        /* Estilos de los drawers y modales omitidos para brevedad, mantener los tuyos */
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; transition: background 0.3s ease, color 0.3s ease; color: var(--text-main); }
+        
+        #install-banner {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 400px;
+            background: var(--card);
+            padding: 15px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            z-index: 9999;
+            border: 2px solid var(--primary);
+            animation: slideUp 0.5s ease-out;
+        }
+        @keyframes slideUp { from { bottom: -100px; } to { bottom: 20px; } }
+        .install-flex { display: flex; align-items: center; gap: 12px; }
+        .install-text { flex: 1; text-align: left; }
+        .install-text p { margin: 0; font-size: 0.8rem; font-weight: 700; color: var(--text-main); }
+        .install-text span { font-size: 0.7rem; color: var(--text-sub); }
+        .install-btns { display: flex; gap: 8px; margin-top: 10px; }
+        .btn-install-now { background: var(--primary); color: white; border: none; padding: 8px 15px; border-radius: 10px; font-weight: 800; font-size: 0.75rem; cursor: pointer; flex: 1; }
+        .btn-later { background: var(--box-bg); color: var(--text-sub); border: none; padding: 8px 15px; border-radius: 10px; font-weight: 700; font-size: 0.75rem; cursor: pointer; }
+
+        .card { background: var(--card); padding: 1.5rem; border-radius: 24px; width: 100%; max-width: 420px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); text-align: center; position: relative; transition: background 0.3s ease; margin-bottom: 80px; }
+h1 { 
+    margin: 0 0 1rem 0; 
+    font-size: 1.6rem; 
+    font-weight: 800; 
+    color: var(--header-color); /* <--- ACÁ USAMOS LA VARIABLE */
+    display: flex; 
+    align-items: center; 
+    justify-content: flex-start; 
+    gap: 10px; 
+    width: 100%;
+    transition: color 0.3s ease; /* Para que el cambio sea suave */
+}     
+        .countdown-box { background: var(--box-bg); padding: 12px; border-radius: 16px; margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 2px; cursor: pointer; position: relative; border: 2px solid transparent; transition: 0.2s; }
+        .countdown-box:active { transform: scale(0.98); border-color: var(--primary); }
+        .countdown-label { font-size: 0.6rem; font-weight: 800; color: var(--text-sub); text-transform: uppercase; }
+        #timer { font-size: 1.1rem; font-weight: 900; color: var(--timer-text); letter-spacing: 0.5px; }
+        
+        .edit-hint { position: absolute; top: 5px; right: 8px; font-size: 0.7rem; opacity: 0.5; }
+        .input-group { margin-bottom: 1rem; text-align: left; }
+        label { display: block; font-size: 0.7rem; font-weight: 800; color: var(--text-sub); margin-bottom: 0.4rem; text-transform: uppercase; margin-left: 5px; }
+        
+        input, select { width: 100%; padding: 14px; border: 2px solid var(--input-border); border-radius: 14px; font-size: 0.9rem; outline: none; background: var(--input-bg); color: var(--text-main); font-weight: 600; transition: 0.3s; }
+        
+        .category-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1.2rem; }
+        .cat-btn { padding: 15px 10px; border: 2px solid var(--input-border); border-radius: 16px; background: var(--input-bg); font-size: 0.7rem; font-weight: 800; color: var(--text-sub); cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; align-items: center; gap: 5px; }
+        .cat-btn.active { border-color: var(--primary); background: #eff6ff; color: var(--primary); }
+        [data-theme="dark"] .cat-btn.active { background: #1e3a8a; border-color: var(--primary); color: white; }
+
+        .tip-section { margin-bottom: 1.2rem; text-align: left; }
+        .tip-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 8px; }
+        .tip-btn { padding: 10px 2px; border: 2px solid var(--input-border); border-radius: 12px; background: var(--input-bg); font-size: 0.7rem; font-weight: 800; color: var(--text-sub); cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; align-items: center; }
+        .tip-btn span { font-size: 0.55rem; font-weight: 600; opacity: 0.8; }
+        .tip-btn.active { border-color: var(--accent); background: #f5f3ff; color: var(--accent); }
+        [data-theme="dark"] .tip-btn.active { background: #4c1d95; color: white; }
+
+        .custom-tip-container { display: flex; flex-direction: column; align-items: center; background: var(--box-bg); border-radius: 14px; padding: 8px 12px; border: 2px solid transparent; transition: 0.2s; }
+        .custom-tip-container:focus-within { border-color: var(--accent); }
+        .custom-tip-header { display: flex; align-items: center; justify-content: center; width: 100%; gap: 5px; }
+        .custom-tip-header span { font-weight: 800; color: var(--text-sub); font-size: 0.7rem; }
+        #custom-tip-input { background: transparent; border: none; padding: 0; text-align: center; font-size: 0.8rem; color: var(--accent); width: 40px; font-weight: 800; outline: none; }
+        #val-tip-custom { font-size: 0.55rem; font-weight: 600; color: var(--accent); opacity: 0.8; margin-top: 2px; }
+        
+        .result-box { background: rgba(37, 99, 235, 0.1); padding: 1.2rem; border-radius: 20px; margin-top: 0.8rem; border: 2px dashed var(--primary); margin-bottom: 10px; }
+        .result-value { font-size: 2rem; font-weight: 900; color: var(--primary); margin: 2px 0; }
+        #tax-detail { font-size: 0.8rem; color: var(--primary); font-weight: bold; }
+
+        .final-box { background: var(--primary); padding: 1.2rem; border-radius: 20px; color: white; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(37,99,235,0.2); }
+        .final-value { font-size: 2.2rem; font-weight: 900; margin: 4px 0; }
+
+        /* ESTILOS BARRA DE NAVEGACIÓN NIVELADA */
+        /* NAV BAR INTEGRADA ARRIBA */
+.nav-bar {
+    display: flex !important;
+    align-items: center;
+    justify-content: space-around;
+    width: 100%;
+    background: var(--box-bg);
+    border-radius: 18px;
+    padding: 8px 4px;
+    margin-bottom: 25px; /* Más espacio con el timer */
+    border: 1px solid var(--input-border);
+}
+
+.btn-nav {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: var(--text-main);
+    font-size: 9px;
+    font-weight: 800;
+    gap: 3px;
+}
+
+.btn-nav span:first-child {
+    font-size: 18px; /* Tamaño del icono */
+}
+
+.settings-trigger-bar {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 0 10px;
+    color: var(--text-main);
+}
+        }
+
+        .btn-nav:active {
+            opacity: 0.6;
+        }
+
+        .settings-trigger-bar {
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            flex: 0 0 auto;
+            padding: 0 10px;
+            color: var(--text-main);
+        }
+
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(4px); }
+        .modal-content { background: var(--card); padding: 25px; border-radius: 24px; width: 100%; max-width: 350px; color: var(--text-main); }
+        
+        .settings-trigger { position: absolute; top: 15px; right: 15px; background: var(--box-bg); border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; color: var(--text-main); }
+        
+        .settings-drawer { position: fixed; top: 0; right: -300px; width: 280px; height: 100%; background: var(--card); z-index: 1001; transition: 0.3s; padding: 25px; display: flex; flex-direction: column; box-shadow: -5px 0 15px rgba(0,0,0,0.1); color: var(--text-main); }
+        .settings-drawer.open { right: 0; }
+        .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; z-index: 1000; }
+        .drawer-btn { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid var(--input-border); background: var(--input-bg); cursor: pointer; font-weight: 700; margin-bottom: 10px; font-size: 0.8rem; text-align: left; color: var(--text-main); }
+        .btn-danger { color: #ef4444; border-color: #fecaca; }
+        
+        .footer { margin-top: 30px; text-align: center; font-size: 0.75rem; color: var(--text-sub); font-weight: 600; padding-bottom: 10px; }
+        .api-credits { font-size: 0.55rem; color: var(--text-sub); letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 20px; text-align: center; font-weight: 500; opacity: 0.6; }
+        
+        #dynamic-tip { background: rgba(34, 197, 94, 0.1); padding: 10px; border-radius: 12px; font-size: 0.75rem; color: #166534; font-weight: 700; margin-bottom: 15px; border: 1px solid rgba(34, 197, 94, 0.3); }
+        [data-theme="dark"] #dynamic-tip { color: #4ade80; border-color: #064e3b; }
     </style>
 </head>
 <body>
 
-    <div class="total-card">
-        <h2 id="final-total">USD 0.00</h2>
-        <p id="tax-detail">Tax Aplicado: 0%</p>
-        <div id="trip-label">Cargando viaje...</div>
-        <div id="timer" style="font-size: 0.8rem; opacity: 0.8;">--:--:--</div>
-    </div>
-
-    <div class="tip-box" onclick="window.clicManualTip()" style="display: flex; align-items: center; gap: 12px; background: var(--box-bg); padding: 15px; border-radius: 16px; margin: 20px 0; border: 1px solid var(--input-border); cursor: pointer; min-height: 70px;">
-        <div style="font-size: 1.5rem;">💡</div>
-        <span id="tip-content" style="font-size: 0.85rem; font-weight: 500; color: var(--text-main); line-height: 1.4;">
-            Cargando consejos...
-        </span>
-    </div>
-
-    <div id="settingsDrawer" style="padding: 20px;">
-        <label data-i18n="label_language">IDIOMA</label>
-        <div class="lang-selector" style="display: flex; background: var(--box-bg); border-radius: 12px; padding: 4px; gap: 4px; border: 1px solid var(--input-border);">
-            <button class="lang-opt" id="lang-es" onclick="window.changeLanguage('es')" style="flex: 1; padding: 8px; border-radius: 8px; border: none; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                <img src="https://flagcdn.com/w40/es.png" width="20" alt="ES"> ES
-            </button>
-            <button class="lang-opt" id="lang-en" onclick="window.changeLanguage('en')" style="flex: 1; padding: 8px; border-radius: 8px; border: none; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                <img src="https://flagcdn.com/w40/us.png" width="20" alt="US"> EN
-            </button>
+    <div id="install-banner">
+        <div class="install-flex">
+            <img src="icon-512.png" style="width: 40px; border-radius: 10px;">
+            <div class="install-text">
+                <p>Instalar TaxUSA App</p>
+                <span>Acceso rápido y ahorro de datos</span>
+            </div>
+        </div>
+        <div class="install-btns">
+            <button class="btn-install-now" id="btn-install-pwa">INSTALAR</button>
+            <button class="btn-later" onclick="closeInstallBanner()">LUEGO</button>
         </div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    <div class="card">
+    <h1>TaxUSA <img src="https://flagcdn.com/w40/us.png" style="width: 28px; border-radius: 3px;" alt="USA"></h1>
+    
+    <div class="nav-bar">
+        <a href="compras.html" class="btn-nav">
+            <span>🛍️</span>
+            <span data-i18n="nav_expenses">GASTOS</span>
+        </a>
+        <a href="itinerario.html" class="btn-nav">
+            <span>📍</span>
+            <span data-i18n="nav_itinerary">ITINERARIO</span>
+        </a>
+        <a href="javascript:void(0)" class="btn-nav" onclick="avisoProximamente(event)">
+            <span>🔍</span>
+            <span data-i18n="nav_compare">COMPARADOR</span>
+        </a>
+        <a href="unidades.html" class="btn-nav">
+            <span>⚖️</span>
+            <span data-i18n="nav_units">UNIDADES</span>
+        </a>
+        <button class="settings-trigger-bar" onclick="toggleSettings()">⚙️</button>
+    </div>
+    
+    <div class="countdown-box" id="box-trip" onclick="openTripModal()">
+    <span class="edit-hint">✏️</span>
+    <span class="countdown-label" id="trip-label" data-i18n="loading">Cargando viaje...</span>
+    <span id="timer">00d 00h 00m 00s</span>
+</div>
+    
+    <div class="input-group">
+        <label data-i18n="label_price">Precio en Etiqueta (USD)</label>
+        <input type="number" id="price" placeholder="0.00" oninput="calculate()" step="0.01" inputmode="decimal">
+    </div>
 
-        const firebaseConfig = { /* PEGA AQUÍ TU CONFIGURACIÓN DE FIREBASE */ };
+    <label data-i18n="label_category">Categoría</label>
+    <div class="category-grid">
+        <button class="cat-btn active" id="btn-general" onclick="setCategory('general')">🛍️ <span data-i18n="cat_general">GENERAL</span></button>
+        <button class="cat-btn" id="btn-tech" onclick="setCategory('tech')">💻 <span data-i18n="cat_tech">TECH</span></button>
+        <button class="cat-btn" id="btn-food" onclick="setCategory('food')">🍎 <span data-i18n="cat_food">COMIDA</span></button>
+        <button class="cat-btn" id="btn-med" onclick="setCategory('med')">💊 <span data-i18n="cat_med">MEDICINA</span></button>
+    </div>
+
+    <div class="input-group">
+        <label data-i18n="label_state">Estado</label>
+        <select id="state-select" onchange="loadCities()"></select>
+    </div>
+
+    <div class="input-group">
+        <label data-i18n="label_city">Ciudad / Condado</label>
+        <select id="city-select" onchange="calculate()"></select>
+    </div>
+
+    <div class="result-box">
+        <div class="result-value" id="total-with-tax">USD 0.00</div>
+        <div id="tax-detail" data-i18n="tax_applied">Tax Aplicado: 0%</div>
+    </div>
+
+    <div class="tip-section">
+        <label data-i18n="label_tip">Propina (Tip)</label>
+        <div class="tip-grid">
+            <button class="tip-btn" id="tip-0" onclick="setTip(0)">0% <span id="val-tip-0">$0.00</span></button>
+            <button class="tip-btn" id="tip-10" onclick="setTip(10)">10% <span id="val-tip-10">$0.00</span></button>
+            <button class="tip-btn active" id="tip-15" onclick="setTip(15)">15% <span id="val-tip-15">$0.00</span></button>
+            <button class="tip-btn" id="tip-20" onclick="setTip(20)">20% <span id="val-tip-20">$0.00</span></button>
+        </div>
+        
+       <div class="custom-tip-container">
+    <div class="custom-tip-header">
+        <span data-i18n="label_other">OTRO</span> <input type="number" id="custom-tip-input" placeholder="0" oninput="setCustomTip()" inputmode="numeric">
+        <span>%</span>
+    </div>
+    <span id="val-tip-custom">$0.00</span>
+</div>
+    </div>
+
+    <div class="final-box">
+        <label style="color: rgba(255,255,255,0.8); margin: 0;" data-i18n="label_total">TOTAL FINAL (INC. TIP)</label>
+        <div class="final-value" id="final-total">USD 0.00</div>
+    </div>
+
+    <div id="dynamic-tip" class="info-box" onclick="clicManualConsejo()" style="cursor: pointer;">
+        💡 <span id="tip-content" style="transition: opacity 0.4s ease;" data-i18n="loading_tips">Cargando tip económico...</span>
+    </div>
+</div>
+
+<div class="footer">
+    <span data-i18n="footer_by">Creado por Juan Cruz Bria</span> <img src="https://flagcdn.com/w40/ar.png" style="width:18px;" alt="Argentina">
+</div>
+    <div class="api-credits">
+    <span data-i18n="api_used">APIs USADAS</span>: Firebase • FlagCDN • Google Auth • reCAPTCHA v3
+</div>
+
+    <div id="tripModal" class="modal">
+    <div class="modal-content">
+        <h3 style="margin-top:0; color: var(--primary);" data-i18n="modal_trip_title">Mi Viaje</h3>
+        <div class="input-group">
+            <label data-i18n="modal_city_label">¿A qué ciudad vas?</label>
+            <input type="text" id="input-destination" placeholder="Ej: Orlando">
+        </div>
+        <div class="input-group">
+            <label data-i18n="modal_date_label">Fecha del viaje</label>
+            <input type="date" id="input-date">
+        </div>
+        <button class="drawer-btn" style="background: var(--primary); color: white; border: none;" onclick="saveTripSettings()" data-i18n="btn_save">GUARDAR</button>
+        <button onclick="closeTripModal()" style="..." data-i18n="btn_close">Cerrar</button>
+    </div>
+</div>
+
+    <div id="menuOverlay" class="menu-overlay" onclick="toggleSettings()"></div>
+    <div id="settingsDrawer" class="settings-drawer">
+    <h3 style="margin-top:0; color: var(--primary);" data-i18n="settings_title">Ajustes</h3>
+    <p id="userEmail" style="font-size:0.75rem; color:var(--text-sub); margin-bottom:20px; font-weight:700;"></p>
+
+    <label data-i18n="label_language" style="display: block; font-size: 0.7rem; font-weight: 800; color: var(--text-sub); text-transform: uppercase; margin-bottom: 5px; margin-left: 5px;">Idioma</label>
+<div class="lang-selector" style="display: flex; background: var(--box-bg); border-radius: 12px; padding: 4px; margin-bottom: 20px; gap: 4px; border: 1px solid var(--input-border);">
+    
+    <button class="lang-opt" id="lang-es" onclick="window.changeLanguage('es')" style="flex: 1; padding: 8px; border-radius: 8px; border: none; background: transparent; cursor: pointer; font-size: 0.75rem; font-weight: 800; color: var(--text-sub); display: flex; align-items: center; justify-content: center; gap: 8px;">
+        <img src="https://flagcdn.com/w40/es.png" width="20" style="border-radius: 2px;" alt="ES"> ES
+    </button>
+    
+    <button class="lang-opt" id="lang-en" onclick="window.changeLanguage('en')" style="flex: 1; padding: 8px; border-radius: 8px; border: none; background: transparent; cursor: pointer; font-size: 0.75rem; font-weight: 800; color: var(--text-sub); display: flex; align-items: center; justify-content: center; gap: 8px;">
+        <img src="https://flagcdn.com/w40/us.png" width="20" style="border-radius: 2px;" alt="US"> EN
+    </button>
+    
+</div>
+
+    <button class="drawer-btn" onclick="changeProfile()">👤 <span data-i18n="btn_change_profile">Cambiar de Perfil</span></button>
+    <button class="drawer-btn" onclick="toggleDarkMode()">🌓 <span data-i18n="btn_theme">Cambiar Tema</span></button>
+    <button class="drawer-btn" onclick="location.reload()">🔄 <span data-i18n="btn_update">Actualizar App</span></button>
+    <button class="drawer-btn" onclick="updateEmail()">📧 <span data-i18n="btn_email">Cambiar Correo</span></button>
+    <button class="drawer-btn" onclick="changePassword()">🔑 <span data-i18n="btn_password">Cambiar Contraseña</span></button>
+    <button class="drawer-btn" onclick="logout()">🚪 <span data-i18n="btn_logout">Cerrar Sesión</span></button>
+    
+    <div style="margin-top: auto; padding-top: 20px;">
+        <button class="drawer-btn btn-danger" onclick="deleteAccount()">🗑️ <span data-i18n="btn_delete">Eliminar Cuenta</span></button>
+    </div>
+</div>
+
+    <style>
+    .lang-opt.active { 
+        background: var(--card) !important; 
+        color: var(--primary) !important; 
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1); 
+    }
+</style>
+    
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut, sendPasswordResetEmail, deleteUser, verifyBeforeUpdateEmail } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCm0Ig-CPklsjf6j-1uSAeF6I8xtyQKj7U",
+            authDomain: "viajes-db538.firebaseapp.com",
+            projectId: "viajes-db538",
+            storageBucket: "viajes-db538.firebasestorage.app",
+            messagingSenderId: "237311739178",
+            appId: "1:237311739178:web:333e468b184c0402a98a53"
+        };
+
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-
-        // DATA NECESARIA (QUE SE HABÍA BORRADO)
-        const taxData = { "Florida": [{n: "Orlando", t: 6.5}, {n: "Miami", t: 7.0}], "New York": [{n: "NYC", t: 8.875}] };
-        const translations = {
-            es: { label_language: "IDIOMA", label_other: "OTRO", trip_prefix: "Viaje a", days_label: "d", hours_label: "h", minutes_label: "m", seconds_label: "s" },
-            en: { label_language: "LANGUAGE", label_other: "OTHER", trip_prefix: "Trip to", days_label: "d", hours_label: "h", minutes_label: "m", seconds_label: "s" }
-        };
-        const econTips = {
-            es: ["Delaware y Oregon tienen 0% de Sales Tax.", "En NYC, ropa menor a $110 no paga tax."],
-            en: ["Delaware and Oregon have 0% Sales Tax.", "In NYC, clothing under $110 is tax-free."]
-        };
-
-        let tipIndex = 0;
-        let timerTips;
         let currentUser = null;
+        const perfilId = localStorage.getItem('perfilActivoId');
+        const perfilFoto = localStorage.getItem('perfilActivoFoto');
         let tripData = { destination: "Orlando", date: "2027-01-01" };
+        let currentTipPercentage = 15;
+
+        // --- LÓGICA DE TRADUCCIÓN ---
+        const translations = {
+            es: {
+                nav_expenses: "GASTOS", nav_itinerary: "ITINERARIO", nav_compare: "COMPARAR", nav_units: "UNIDADES",
+                label_price: "Precio en Etiqueta (USD)", label_category: "Categoría", cat_general: "GENERAL", cat_tech: "TECH", cat_food: "COMIDA", cat_med: "MEDICINA",
+                label_state: "Estado", label_city: "Ciudad / Condado", tax_applied: "Tax Aplicado", label_tip: "Propina (Tip)", label_total: "TOTAL FINAL (INC. TIP)",
+                settings_title: "Ajustes", label_language: "Idioma", btn_change_profile: "Cambiar Perfil",
+                btn_theme: "Cambiar Tema", btn_password: "Cambiar Contraseña", btn_logout: "Cerrar Sesión", btn_delete: "Eliminar Cuenta",
+                trip_title: "Mi Viaje", btn_save: "GUARDAR", btn_close: "Cerrar", loading: "Cargando...", days_to: "Faltan para",
+                soon: "¡Próximamente!", loading: "Cargando viaje...", loading_tips: "Cargando tip económico...", footer_by: "Creado por Juan Cruz Bria",
+                api_used: "APIs USADAS", tax_applied_label: "Tax Aplicado", days_label: "d", hours_label: "h", minutes_label: "m", seconds_label: "s",
+                trip_prefix: "Faltan para", label_other: "OTRO"
+            },
+            en: {
+                nav_expenses: "EXPENSES", nav_itinerary: "ITINERARY", nav_compare: "COMPARE", nav_units: "UNITS",
+                label_price: "Pre-tax price (USD)", label_category: "Category", cat_general: "GENERAL", cat_tech: "TECH", cat_food: "FOOD", cat_med: "MEDICINE",
+                label_state: "State", label_city: "City / County", tax_applied: "Applied Tax", label_tip: "Tip", label_total: "FINAL PRICE (TIP INC. )",
+                settings_title: "Settings", label_language: "Language", btn_change_profile: "Change Profile",
+                btn_theme: "Toggle Theme", btn_password: "Change Password", btn_logout: "Logout", btn_delete: "Delete Account",
+                trip_title: "My Trip", btn_save: "SAVE", btn_close: "Close", loading: "Loading...", days_to: "Days until",
+                soon: "Coming Soon!", loading: "Loading trip...", loading_tips: "Loading economic tip...",  footer_by: "Created by Juan Cruz Bria",
+                api_used: "APIS USED",  tax_applied_label: "Tax Applied", days_label: "d", hours_label: "h", minutes_label: "m", seconds_label: "s", 
+                trip_prefix: "Days until", label_other: "OTHER"
+            }
+        };
 
         window.changeLanguage = (lang) => {
             localStorage.setItem('appLang', lang);
-            document.querySelectorAll('.lang-opt').forEach(opt => opt.classList.remove('active'));
-            document.getElementById('lang-' + lang)?.classList.add('active');
             
+            // Marcar botón activo
+            document.querySelectorAll('.lang-opt').forEach(opt => opt.classList.remove('active'));
+            const activeBtn = document.getElementById('lang-' + lang);
+            if (activeBtn) activeBtn.classList.add('active');
+            
+            // Traducir elementos estáticos
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
-                if (translations[lang][key]) el.innerText = translations[lang][key];
+                if (translations[lang] && translations[lang][key]) {
+                    el.innerText = translations[lang][key];
+                }
             });
 
+            // --- ESTO ES LO QUE TE FALTA ---
             const tipElement = document.getElementById('tip-content');
-            if (tipElement) tipElement.innerText = econTips[lang][tipIndex];
+            if (tipElement && econTips[lang]) {
+                tipElement.innerText = econTips[lang][tipIndex]; // Actualiza el tip al cambiar idioma
+                tipElement.style.opacity = 1; 
+            }
+
+            if (typeof window.calculate === 'function') window.calculate();
+            if (typeof updateTripUI === 'function') updateTripUI();
+        };
+        
+        onAuthStateChanged(auth, async (user) => {
+    if (user) {
+        currentUser = user;
+        document.getElementById('userEmail').innerText = user.email;
+
+        if (!perfilId) {
+            window.location.replace("profiles.html");
+            return;
+        }
+
+        // 1. CARGA ÚNICA Y CORRECTA: usuarios -> UID -> perfiles -> perfilId
+        try {
+            const profileRef = doc(db, "usuarios", user.uid, "perfiles", perfilId);
+            const snap = await getDoc(profileRef);
+
+            if (snap.exists() && snap.data().trip) {
+                tripData = snap.data().trip;
+            } else {
+                tripData = { destination: "Orlando", date: "2027-01-01" };
+            }
+            updateTripUI();
+        } catch (e) {
+            console.error("Error cargando perfil:", e);
+        }
+    } else {
+        window.location.replace("login.html");
+    }
+});
+
+        // --- 3. FUNCIONES DE AJUSTES (Agregadas) ---
+        window.changeProfile = () => {
+            // No borramos el usuario de Firebase, solo el perfil elegido
+            localStorage.removeItem('perfilActivoId');
+            localStorage.removeItem('perfilActivoNombre');
+            localStorage.removeItem('perfilActivoFoto');
+            window.location.href = "profiles.html";
         };
 
-        window.rotateTip = () => {
-            const tipElement = document.getElementById('tip-content');
-            const lang = localStorage.getItem('appLang') || 'es';
-            tipElement.style.opacity = 0;
-            setTimeout(() => {
-                tipIndex = (tipIndex + 1) % econTips[lang].length;
-                tipElement.innerText = econTips[lang][tipIndex];
-                tipElement.style.opacity = 1;
-            }, 300);
+        // --- LÓGICA DARK MODE ---
+        window.toggleDarkMode = () => {
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            const newTheme = isDark ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
         };
 
-        window.clicManualTip = () => {
-            clearInterval(timerTips);
-            window.rotateTip();
-            timerTips = setInterval(window.rotateTip, 8000);
+        // Registro de Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW error', err));
+            });
+        }
+
+        // Lógica de Banner PWA
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            const dismissed = localStorage.getItem('pwa_banner_dismissed');
+            if (!dismissed || (Date.now() - dismissed > 86400000)) {
+                document.getElementById('install-banner').style.display = 'block';
+            }
+        });
+
+        document.getElementById('btn-install-pwa').addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt = null;
+                document.getElementById('install-banner').style.display = 'none';
+            }
+        });
+
+        window.closeInstallBanner = () => {
+            document.getElementById('install-banner').style.display = 'none';
+            localStorage.setItem('pwa_banner_dismissed', Date.now());
         };
 
-        window.onload = () => {
-            // Inicializar estados
-            const stateSelect = document.getElementById('state-select');
-            if(stateSelect) {
-                Object.keys(taxData).forEach(s => {
+        // Función reCAPTCHA
+        async function getRecaptchaToken(actionName) {
+            return new Promise((resolve) => {
+                grecaptcha.ready(() => {
+                    grecaptcha.execute('6LeK6cssAAAAALxcJy-95R2nhVMmnuIyB78AQgvw', {action: actionName}).then((token) => {
+                        resolve(token);
+                    });
+                });
+            });
+        }
+
+        const taxData = {
+            "Alabama": [{n:"Birmingham", t:9.29}], "Alaska": [{n:"Sin Tax", t:0}], "Arizona": [{n:"Phoenix", t:8.6}], "Arkansas": [{n:"Little Rock", t:9.51}],
+            "California": [{n:"Los Angeles", t:9.5}, {n:"San Francisco", t:8.63}, {n:"San Diego", t:7.75}], "Colorado": [{n:"Denver", t:8.81}],
+            "Connecticut": [{n:"Stamford", t:6.35}], "Delaware": [{n:"Sin Tax", t:0}],
+            "Florida": [{n:"Orlando", t:6.50}, {n:"Miami", t:7.00}, {n:"Tampa", t:8.50}, {n:"Kissimmee", t:6.50}],
+            "Georgia": [{n:"Atlanta", t:8.9}], "Hawaii": [{n:"Honolulu", t:4.5}], "Idaho": [{n:"Boise", t:6.0}], "Illinois": [{n:"Chicago", t:10.25}],
+            "Indiana": [{n:"New Castle", t:7.0}], "Iowa": [{n:"Des Moines", t:7.0}], "Kansas": [{n:"Wichita", t:7.5}], "Kentucky": [{n:"Louisville", t:6.0}],
+            "Louisiana": [{n:"New Orleans", t:9.45}], "Maine": [{n:"Portland", t:5.5}], "Maryland": [{n:"Baltimore", t:6.0}], "Massachusetts": [{n:"Boston", t:6.25}],
+            "Michigan": [{n:"Detroit", t:6.0}], "Minnesota": [{n:"Minneapolis", t:8.03}], "Mississippi": [{n:"Jackson", t:7.07}], "Missouri": [{n:"St. Louis", t:8.29}],
+            "Montana": [{n:"Sin Tax", t:0}], "Nebraska": [{n:"Omaha", t:7.0}], "Nevada": [{n:"Las Vegas", t:8.38}], "New Hampshire": [{n:"Sin Tax", t:0}],
+            "New Jersey": [{n:"Jersey City", t:6.63}], "New Mexico": [{n:"Albuquerque", t:7.88}], "New York": [{n:"NYC", t:8.88}, {n:"Buffalo", t:8.75}],
+            "North Carolina": [{n:"Charlotte", t:7.25}], "North Dakota": [{n:"Fargo", t:6.85}], "Ohio": [{n:"Columbus", t:7.5}], "Oklahoma": [{n:"Oklahoma City", t:8.63}],
+            "Oregon": [{n:"Sin Tax", t:0}], "Pennsylvania": [{n:"Philadelphia", t:8.0}], "Rhode Island": [{n:"Providence", t:7.0}], "South Carolina": [{n:"Charleston", t:9.0}],
+            "South Dakota": [{n:"Sioux Falls", t:6.4}], "Tennessee": [{n:"Nashville", t:9.25}], "Texas": [{n:"Houston", t:8.25}, {n:"Dallas", t:8.25}, {n:"Austin", t:8.25}],
+            "Utah": [{n:"Salt Lake City", t:7.75}], "Vermont": [{n:"Burlington", t:7.0}], "Virginia": [{n:"Virginia Beach", t:6.0}], "Washington": [{n:"Seattle", t:10.25}],
+            "West Virginia": [{n:"Bridgeport", t:6.5}], "Wisconsin": [{n:"Milwaukee", t:5.5}], "Wyoming": [{n:"Cheyenne", t:6.0}]
+        };
+
+        const econTips = {
+    es: [
+        "Delaware y Oregon tienen 0% de Sales Tax. Ideal para comprar Apple o lujo.",
+        "En NYC, la ropa y calzado de menos de $110 están exentos de tax municipal.",
+        "New Jersey tiene 0% de tax en ropa. Ideal si vas al Jersey Gardens desde NY.",
+        "En Miami (7%), los outlets como Sawgrass rinden más si usás su libro de cupones.",
+        "Texas ofrece 'Tax Free Shopping' para turistas extranjeros en locales adheridos.",
+        "Recuerda: en EE.UU. el precio de etiqueta NUNCA incluye el impuesto de venta.",
+        "Minnesota y Pennsylvania no cobran impuestos en la mayoría de la ropa y calzado.",
+        "Ahorra: los estados con 'Tax Holidays' (como Florida en agosto) eliminan taxes en útiles.",
+        "Si comprás online y retirás en tienda (Store Pickup), pagás el tax de esa ubicación.",
+        "Las propinas (Tips) se calculan sobre el valor total CON impuestos en muchos tickets."
+    ],
+    en: [
+        "Delaware and Oregon have 0% Sales Tax. Ideal for Apple products or luxury items.",
+        "In NYC, clothing and footwear under $110 are exempt from local sales tax.",
+        "New Jersey has 0% tax on clothing. Perfect if you visit Jersey Gardens from NY.",
+        "In Miami (7%), outlets like Sawgrass are better if you use their coupon book.",
+        "Texas offers 'Tax Free Shopping' for foreign tourists at participating stores.",
+        "Remember: in the US, the sticker price NEVER includes sales tax.",
+        "Minnesota and Pennsylvania do not charge tax on most clothing and footwear.",
+        "Save more: states with 'Tax Holidays' (like Florida in August) remove taxes on supplies.",
+        "If you buy online and use Store Pickup, you pay the tax of that specific location.",
+        "Tips are calculated on the total value INCLUDING taxes on many receipts."
+    ]
+};
+
+let indiceConsejo = 0;
+
+window.cambiarConsejo = () => {
+    // Buscamos el SPAN que está dentro del cuadro
+    const pConsejo = document.getElementById('tip-content');
+    
+    if (pConsejo) {
+        pConsejo.style.opacity = 0;
+        
+        setTimeout(() => {
+            indiceConsejo = (indiceConsejo + 1) % econTips.length;
+            // Actualizamos el texto del span
+            pConsejo.innerText = econTips[indiceConsejo].replace("💡 ", ""); 
+            pConsejo.style.opacity = 1;
+        }, 400);
+    }
+};
+
+// Configurar el cambio automático cada 8 segundos
+let timerConsejos = setInterval(window.cambiarConsejo, 8000);
+
+// Función para el clic manual
+window.clicManualConsejo = () => {
+    clearInterval(timerConsejos); 
+    window.cambiarConsejo();      
+    timerConsejos = setInterval(window.cambiarConsejo, 8000); 
+};
+
+        window.updateEmail = async () => {
+            const token = await getRecaptchaToken('update_email');
+            const newEmail = prompt("Ingresa el nuevo correo electrónico para verificar:");
+            if (newEmail && newEmail !== currentUser.email && newEmail.includes("@")) {
+                try {
+                    await verifyBeforeUpdateEmail(currentUser, newEmail);
+                    alert("Se ha enviado un correo de verificación. Token verificado.");
+                    toggleSettings();
+                } catch (e) { alert("Error: Por seguridad, debes haber iniciado sesión recientemente."); }
+            } else if (newEmail) { alert("Correo inválido."); }
+        };
+
+        window.changePassword = async () => {
+            await getRecaptchaToken('change_password');
+            try {
+                await sendPasswordResetEmail(auth, currentUser.email);
+                alert("Correo de restablecimiento enviado a " + currentUser.email);
+            } catch (e) { alert("Error: " + e.message); }
+        };
+
+        window.deleteAccount = async () => {
+            await getRecaptchaToken('delete_account');
+            if (confirm("¿ESTÁS SEGURO? Esta acción eliminará todos tus datos.")) {
+                try {
+                    await deleteDoc(doc(db, "users", currentUser.uid));
+                    await deleteUser(currentUser);
+                    window.location.replace("login.html");
+                } catch (e) { alert("Error: Re-autenticación necesaria."); }
+            }
+        };
+
+        window.setCategory = (cat) => {
+            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('btn-' + cat).classList.add('active');
+            window.calculate();
+        };
+
+        window.setTip = (percent) => {
+            currentTipPercentage = percent;
+            document.querySelectorAll('.tip-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('tip-' + percent).classList.add('active');
+            document.getElementById('custom-tip-input').value = "";
+            window.calculate();
+        };
+
+        window.setCustomTip = () => {
+            const val = parseFloat(document.getElementById('custom-tip-input').value);
+            if (!isNaN(val)) {
+                currentTipPercentage = val;
+                document.querySelectorAll('.tip-btn').forEach(b => b.classList.remove('active'));
+            } else { currentTipPercentage = 0; }
+            window.calculate();
+        };
+
+        window.calculate = () => {
+            const price = parseFloat(document.getElementById('price').value) || 0;
+            let tax = parseFloat(document.getElementById('city-select').value) || 0;
+            const categoryBtn = document.querySelector('.cat-btn.active');
+            
+            if (categoryBtn && (categoryBtn.id === 'btn-med' || categoryBtn.id === 'btn-food')) tax = 0;
+            
+            const subtotal = price + (price * (tax / 100));
+            
+            [0, 10, 15, 20].forEach(p => {
+                const amount = subtotal * (p / 100);
+                const el = document.getElementById(`val-tip-${p}`);
+                if(el) el.innerText = `$${amount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            });
+
+            const customVal = parseFloat(document.getElementById('custom-tip-input').value) || 0;
+            const customAmount = subtotal * (customVal / 100);
+            document.getElementById('val-tip-custom').innerText = `$${customAmount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+
+            const tipAmount = subtotal * (currentTipPercentage / 100);
+            const finalTotal = subtotal + tipAmount;
+
+            document.getElementById('total-with-tax').innerText = 'USD ' + subtotal.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            document.getElementById('tax-detail').innerText = `Tax Aplicado: ${tax}%`;
+            document.getElementById('final-total').innerText = 'USD ' + finalTotal.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        };
+
+        window.loadCities = () => {
+            const state = document.getElementById('state-select').value;
+            const citySelect = document.getElementById('city-select');
+            citySelect.innerHTML = "";
+            if(taxData[state]) {
+                taxData[state].forEach(city => {
                     let opt = document.createElement('option');
-                    opt.value = s; opt.text = s;
-                    stateSelect.appendChild(opt);
+                    opt.value = city.t; opt.text = `${city.n} (${city.t}%)`;
+                    citySelect.appendChild(opt);
                 });
             }
-            
-            const savedLang = localStorage.getItem('appLang') || 'es';
-            window.changeLanguage(savedLang);
-            timerTips = setInterval(window.rotateTip, 8000);
-            setInterval(updateCountdown, 1000);
+            window.calculate();
         };
 
-        // ... El resto de tus funciones (calculate, loadCities, etc.)
+        window.saveTripSettings = async () => {
+            const destination = document.getElementById('input-destination').value || "Orlando";
+            const date = document.getElementById('input-date').value || "2027-01-01";
+            tripData = { destination, date };
+
+            if (currentUser && perfilId) {
+                try {
+                    const profileRef = doc(db, "usuarios", currentUser.uid, "perfiles", perfilId);
+                    await setDoc(profileRef, { trip: tripData, lastUpdate: Date.now() }, { merge: true });
+                    updateTripUI();
+                    closeTripModal();
+                } catch (e) {
+                    alert("Error al guardar: " + e.message);
+                }
+            }
+        };
+
+        function updateTripUI() {
+            const lang = localStorage.getItem('appLang') || 'es';
+            const prefix = translations[lang].trip_prefix;
+            document.getElementById('trip-label').innerText = `${prefix} ${tripData.destination} ✈️`;
+            document.getElementById('input-destination').value = tripData.destination;
+            document.getElementById('input-date').value = tripData.date;
+        }
+
+        function updateCountdown() {
+            if (!tripData || !tripData.date) return;
+            const target = new Date(tripData.date + "T00:00:00").getTime();
+            const diff = target - new Date().getTime();
+            const timerEl = document.getElementById("timer");
+            const lang = localStorage.getItem('appLang') || 'es';
+            const t = translations[lang];
+
+            if (diff <= 0) { 
+                timerEl.innerText = lang === 'es' ? "¡Buen viaje! ✈️" : "Safe travels! ✈️"; 
+                return; 
+            }
+            const d = Math.floor(diff / 864e5), h = Math.floor((diff % 864e5) / 36e5), 
+                  m = Math.floor((diff % 36e5) / 6e4), s = Math.floor((diff % 6e4) / 1e3);
+            timerEl.innerText = `${d}${t.days_label} ${h}${t.hours_label} ${m}${t.minutes_label} ${s}${t.seconds_label}`;
+        }
+
+        // --- INICIALIZACIÓN ---
+        const stateSelect = document.getElementById('state-select');
+        Object.keys(taxData).sort().forEach(s => {
+            let opt = document.createElement('option');
+            opt.value = s; opt.text = s;
+            if(s === "Florida") opt.selected = true;
+            stateSelect.appendChild(opt);
+        });
+
+        window.toggleSettings = () => {
+            const d = document.getElementById('settingsDrawer');
+            document.getElementById('menuOverlay').style.display = d.classList.toggle('open') ? 'block' : 'none';
+        };
+
+        window.openTripModal = () => document.getElementById('tripModal').style.display = 'flex';
+        window.closeTripModal = () => document.getElementById('tripModal').style.display = 'none';
+        window.logout = () => signOut(auth).then(() => window.location.replace("login.html"));
+
+        // Lógica de Tips Dinámicos
+        // 1. Declarar tipIndex UNA SOLA VEZ y AFUERA
+let tipIndex = 0; // DECLARADA UNA SOLA VEZ ACÁ AFUERA
+
+        window.onload = () => {
+            window.loadCities();
+            setInterval(updateCountdown, 1000);
+
+            const savedLang = localStorage.getItem('appLang') || 'es';
+            window.changeLanguage(savedLang); // Esto ya dispara el primer tip gracias al paso anterior
+
+            const tipElement = document.getElementById('tip-content');
+            
+            const rotateTip = () => {
+                const lang = localStorage.getItem('appLang') || 'es';
+                const lista = econTips[lang];
+                
+                // 1. Desvanece (tarda 0.3s por el CSS)
+                tipElement.style.opacity = 0;
+
+                setTimeout(() => {
+                    // 2. Cambia el contenido (esto pasa cuando ya no se ve)
+                    tipIndex = (tipIndex + 1) % lista.length;
+                    tipElement.innerText = lista[tipIndex];
+                    
+                    // 3. Lo vuelve a mostrar
+                    tipElement.style.opacity = 1;
+                }, 300); // Este tiempo debe ser igual al del CSS
+            };
+
+            // Ejecuta el cambio cada 8 segundos
+            setInterval(rotateTip, 8000);
+        };
     </script>
-</body>
+</body> 
 </html>
