@@ -130,10 +130,23 @@
 </head>
 <body>
 
-    <div class="lang-selector">
-        <button class="lang-btn" id="btn-es" onclick="applyLanguage('es')">ES</button>
-        <button class="lang-btn" id="btn-en" onclick="applyLanguage('en')">EN</button>
+    <div class="custom-select-wrapper">
+    <div class="custom-select" onclick="toggleLangMenu()">
+        <div class="selected-lang" id="current-lang-display">
+            <img src="https://flagcdn.com/w20/ar.png" id="selected-flag">
+            <span>ES</span>
+            <span class="arrow">▼</span>
+        </div>
+        <div class="lang-options" id="langOptions">
+            <div class="option" onclick="applyLanguage('es')">
+                <img src="https://flagcdn.com/w20/ar.png"> ES
+            </div>
+            <div class="option" onclick="applyLanguage('en')">
+                <img src="https://flagcdn.com/w20/us.png"> EN
+            </div>
+        </div>
     </div>
+</div>
 
     <div class="login-card">
         <h1 id="title" data-key="welcome">Bienvenido</h1>
