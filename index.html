@@ -37,6 +37,10 @@
             --header-color: #3C3B6E; /* El azul de la bandera USA */
         }
 
+        #tip-content {
+    transition: opacity 0.3s ease-in-out;
+}
+
         /* COLORES MODO OSCURO (AÑADIDO) */
         [data-theme="dark"] {
             --bg: #0f172a;
@@ -331,9 +335,16 @@ h1 {
     <p id="userEmail" style="font-size:0.75rem; color:var(--text-sub); margin-bottom:20px; font-weight:700;"></p>
 
     <label data-i18n="label_language" style="display: block; font-size: 0.7rem; font-weight: 800; color: var(--text-sub); text-transform: uppercase; margin-bottom: 5px; margin-left: 5px;">Idioma</label>
-    <div class="lang-selector" style="display: flex; background: var(--box-bg); border-radius: 12px; padding: 4px; margin-bottom: 20px; gap: 4px; border: 1px solid var(--input-border);">
-    <button class="lang-opt" id="lang-es" onclick="window.changeLanguage('es')" style="flex: 1; padding: 8px; border-radius: 8px; border: none; background: transparent; cursor: pointer; font-size: 0.75rem; font-weight: 800; color: var(--text-sub);">🇪🇸 ES</button>
-    <button class="lang-opt" id="lang-en" onclick="window.changeLanguage('en')" style="flex: 1; padding: 8px; border-radius: 8px; border: none; background: transparent; cursor: pointer; font-size: 0.75rem; font-weight: 800; color: var(--text-sub);">🇺🇸 EN</button>
+<div class="lang-selector" style="display: flex; background: var(--box-bg); border-radius: 12px; padding: 4px; margin-bottom: 20px; gap: 4px; border: 1px solid var(--input-border);">
+    
+    <button class="lang-opt" id="lang-es" onclick="window.changeLanguage('es')" style="flex: 1; padding: 8px; border-radius: 8px; border: none; background: transparent; cursor: pointer; font-size: 0.75rem; font-weight: 800; color: var(--text-sub); display: flex; align-items: center; justify-content: center; gap: 8px;">
+        <img src="https://flagcdn.com/w40/es.png" width="20" style="border-radius: 2px;" alt="ES"> ES
+    </button>
+    
+    <button class="lang-opt" id="lang-en" onclick="window.changeLanguage('en')" style="flex: 1; padding: 8px; border-radius: 8px; border: none; background: transparent; cursor: pointer; font-size: 0.75rem; font-weight: 800; color: var(--text-sub); display: flex; align-items: center; justify-content: center; gap: 8px;">
+        <img src="https://flagcdn.com/w40/us.png" width="20" style="border-radius: 2px;" alt="US"> EN
+    </button>
+    
 </div>
 
     <button class="drawer-btn" onclick="changeProfile()">👤 <span data-i18n="btn_change_profile">Cambiar de Perfil</span></button>
@@ -763,13 +774,18 @@ let tipIndex = 0; // DECLARADA UNA SOLA VEZ ACÁ AFUERA
             const rotateTip = () => {
                 const lang = localStorage.getItem('appLang') || 'es';
                 const lista = econTips[lang];
-                tipIndex = (tipIndex + 1) % lista.length;
                 
+                // 1. Desvanecer texto viejo
                 tipElement.style.opacity = 0;
+
                 setTimeout(() => {
+                    // 2. Cambiar el índice y el texto mientras está invisible
+                    tipIndex = (tipIndex + 1) % lista.length;
                     tipElement.innerText = lista[tipIndex];
+                    
+                    // 3. Aparecer texto nuevo rápido
                     tipElement.style.opacity = 1;
-                }, 400);
+                }, 300); // Solo 300ms de espera para el cambio
             };
             setInterval(rotateTip, 8000);
         };
