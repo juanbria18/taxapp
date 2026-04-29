@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TaxUSA — Perfiles/Profiles</title>
+    <title>TaxUSA — Profiles</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
@@ -173,11 +173,31 @@
         }
         .btn:active { transform: scale(0.97); }
         .btn-primary { background: white; color: black; }
+
+        .lang-switcher {
+            position: fixed; top: 20px; right: 20px;
+            z-index: 100; display: flex; gap: 6px;
+        }
+        .lang-btn {
+            background: var(--surface); border: 1.5px solid var(--border);
+            color: var(--text-sub); border-radius: 8px;
+            padding: 6px 12px; font-family: inherit;
+            font-size: 0.75rem; font-weight: 800;
+            cursor: pointer; letter-spacing: 0.5px;
+            transition: var(--transition);
+        }
+        .lang-btn:hover { background: var(--surface-2); color: var(--text); }
+        .lang-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
         .btn-ghost { background: transparent; color: var(--text-sub); border: 1.5px solid var(--border); }
         .btn-danger { background: transparent; color: var(--danger); margin-top: 6px; font-size: 0.8rem; }
     </style>
 </head>
 <body>
+
+<div class="lang-switcher">
+    <button class="lang-btn" id="btnEs" onclick="setLang('es')">ES</button>
+    <button class="lang-btn" id="btnEn" onclick="setLang('en')">EN</button>
+</div>
 
 <h1 class="page-title" id="pageTitle">¿Quién está planificando hoy?</h1>
 
@@ -218,8 +238,8 @@
     const db = getFirestore(app);
 
     const i18n = {
-        es: { title: "¿Quién está planificando hoy?", editTitle: "Administrar Perfiles", manage: "EDITAR PERFILES", done: "LISTO", save: "GUARDAR", cancel: "CANCELAR", delete: "Eliminar Perfil", edit: "Editar Perfil", newProfile: "Nuevo Perfil", guest: "Invitado", confirm: "¿Eliminar este perfil?" },
-        en: { title: "Who's planning today?", editTitle: "Manage Profiles", manage: "EDIT PROFILES", done: "DONE", save: "SAVE", cancel: "CANCEL", delete: "Delete Profile", edit: "Edit Profile", newProfile: "New Profile", guest: "Guest", confirm: "Delete this profile?" }
+        es: { pageTitle: "TaxUSA — Perfiles", title: "¿Quién está planificando hoy?", editTitle: "Administrar Perfiles", manage: "EDITAR PERFILES", done: "LISTO", save: "GUARDAR", cancel: "CANCELAR", delete: "Eliminar Perfil", edit: "Editar Perfil", newProfile: "Nuevo Perfil", guest: "Invitado", confirm: "¿Eliminar este perfil?" },
+        en: { pageTitle: "TaxUSA — Profiles", title: "Who's planning today?", editTitle: "Manage Profiles", manage: "EDIT PROFILES", done: "DONE", save: "SAVE", cancel: "CANCEL", delete: "Delete Profile", edit: "Edit Profile", newProfile: "New Profile", guest: "Guest", confirm: "Delete this profile?" }
     };
 
     const photos = [
@@ -238,14 +258,29 @@
     ];
 
     let uid, profiles = [], editingId = null, selectedPhoto = photos[0], isEditing = false;
-    const lang = localStorage.getItem('appLang') || 'es';
-    const t = i18n[lang];
+    let lang = localStorage.getItem('appLang') || 'es';
+    let t = i18n[lang];
 
-    document.getElementById('pageTitle').innerText = t.title;
-    document.getElementById('manageBtn').innerText = t.manage;
-    document.getElementById('btnSave').innerText = t.save;
-    document.getElementById('btnCancel').innerText = t.cancel;
-    document.getElementById('btnDelete').innerText = t.delete;
+    function applyLang() {
+        t = i18n[lang];
+        document.title = t.pageTitle;
+        document.getElementById('pageTitle').innerText = isEditing ? t.editTitle : t.title;
+        document.getElementById('manageBtn').innerText = isEditing ? t.done : t.manage;
+        document.getElementById('btnSave').innerText = t.save;
+        document.getElementById('btnCancel').innerText = t.cancel;
+        document.getElementById('btnDelete').innerText = t.delete;
+        document.getElementById('btnEs').classList.toggle('active', lang === 'es');
+        document.getElementById('btnEn').classList.toggle('active', lang === 'en');
+        render();
+    }
+
+    window.setLang = (newLang) => {
+        lang = newLang;
+        localStorage.setItem('appLang', lang);
+        applyLang();
+    };
+
+    applyLang();
 
     onAuthStateChanged(auth, async (user) => {
         if (!user) return window.location.replace('login.html');
