@@ -13,6 +13,7 @@
             --text-main: #f1f5f9;
             --text-sec: #94a3b8;
             --input-bg: #334155;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         body {
@@ -26,7 +27,7 @@
             min-height: 100vh;
             margin: 0;
             padding: 20px;
-            overflow: hidden;
+            overflow-x: hidden;
         }
 
         h1 { 
@@ -35,76 +36,147 @@
             font-weight: 500; 
             text-align: center; 
             letter-spacing: -0.5px;
-            animation: fadeInDown 0.6s ease;
+            transition: var(--transition);
         }
 
         .profiles-container {
-            display: flex; gap: 25px; flex-wrap: wrap;
-            justify-content: center; padding: 20px; max-width: 900px;
+            display: flex; 
+            gap: 25px; 
+            flex-wrap: wrap;
+            justify-content: center; 
+            padding: 20px; 
+            max-width: 900px;
+            margin-bottom: 40px;
         }
 
-        /* Estilo perfiles tipo Streaming */
+        /* Contenedor Individual de Perfil */
         .profile { 
-            display: flex; flex-direction: column; align-items: center; width: 130px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            width: 140px; 
             cursor: pointer;
+            transition: var(--transition);
         }
 
-        .avatar-wrapper { position: relative; width: 110px; height: 110px; margin-bottom: 12px; }
+        .avatar-wrapper { 
+            position: relative; 
+            width: 120px; 
+            height: 120px; 
+            margin-bottom: 12px; 
+        }
 
         .avatar {
-            width: 110px; height: 110px; border-radius: 4px;
+            width: 120px; 
+            height: 120px; 
+            border-radius: 4px;
             background: var(--card-bg) no-repeat center/cover;
             border: 3px solid transparent; 
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: var(--transition);
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
-        .profile:hover .avatar { transform: scale(1.05); border-color: var(--text-main); }
-
-        .edit-badge {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6); border-radius: 4px;
-            display: flex; align-items: center; justify-content: center;
-            opacity: 0; transition: 0.3s;
-        }
-        .profile:hover .edit-badge { opacity: 1; }
-        .edit-badge svg { width: 28px; fill: white; }
-
-        .name { color: var(--text-sec); font-size: 1rem; font-weight: 500; margin-top: 10px; transition: 0.3s; }
-        .profile:hover .name { color: var(--text-main); }
-
-        .add-profile-btn { 
-            border: 2px dashed #475569; background: transparent; 
-            color: #475569; font-size: 2.5rem; display: flex; 
-            align-items: center; justify-content: center;
+        /* Efecto Hover fuera de edición */
+        body:not(.editing-mode) .profile:hover .avatar { 
+            transform: scale(1.08); 
+            border-color: var(--text-main); 
         }
 
-        /* Modal de Edición */
+        /* Capa de Lápiz (Solo se activa en editing-mode) */
+        .edit-overlay {
+            position: absolute; 
+            inset: 0;
+            background: rgba(0,0,0,0.6); 
+            border-radius: 4px;
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            opacity: 0; 
+            pointer-events: none;
+            transition: var(--transition);
+            z-index: 5;
+        }
+
+        .editing-mode .edit-overlay { 
+            opacity: 1; 
+            pointer-events: auto; 
+        }
+
+        .edit-overlay svg { 
+            width: 35px; 
+            fill: white; 
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+        }
+
+        .name { 
+            color: var(--text-sec); 
+            font-size: 1.1rem; 
+            font-weight: 500; 
+            margin-top: 10px; 
+            transition: var(--transition); 
+        }
+        
+        body:not(.editing-mode) .profile:hover .name { color: var(--text-main); }
+
+        /* Estilo Botón "Añadir" */
+        .add-btn-inner {
+            width: 100%;
+            height: 100%;
+            border: 2px dashed #475569;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: #475569;
+            border-radius: 4px;
+            transition: var(--transition);
+        }
+        .profile:hover .add-btn-inner { border-color: var(--text-sec); color: var(--text-sec); }
+
+        /* Botón de Administración Inferior */
+        .manage-btn {
+            background: rgba(51, 65, 85, 0.4);
+            color: var(--text-sec);
+            border: 1px solid #475569;
+            padding: 12px 24px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            transition: var(--transition);
+        }
+        .manage-btn:hover { background: rgba(255,255,255,0.1); color: white; }
+        .editing-mode .manage-btn { background: white; color: black; border-color: white; }
+
+        /* --- VENTANA MODAL --- */
         .modal {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.92);
+            position: fixed; inset: 0; background: rgba(0,0,0,0.96);
             display: none; flex-direction: column; align-items: center;
             justify-content: center; z-index: 1000; padding: 20px;
-            backdrop-filter: blur(8px);
+            backdrop-filter: blur(12px);
         }
-        .modal.show { display: flex; animation: fadeIn 0.3s ease; }
+        .modal.show { display: flex; animation: modalFade 0.3s ease; }
 
-        .modal-content { width: 100%; max-width: 420px; text-align: center; }
+        .modal-content { width: 100%; max-width: 440px; text-align: center; }
         
-        .edit-avatar-preview {
-            width: 120px; height: 120px; border-radius: 4px; margin: 0 auto 25px;
+        .preview-avatar {
+            width: 130px; height: 130px; border-radius: 4px; margin: 0 auto 25px;
             border: 3px solid var(--primary); background-size: cover;
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
         }
 
-        input.edit-name-input {
-            width: 100%; padding: 14px; background: var(--input-bg);
+        .edit-input {
+            width: 100%; padding: 15px; background: var(--input-bg);
             border: 1px solid #475569; border-radius: 4px;
             color: white; font-size: 1.1rem; margin-bottom: 25px; outline: none;
         }
 
         .grid-fotos {
             display: grid; grid-template-columns: repeat(4, 1fr);
-            gap: 10px; margin-bottom: 25px; max-height: 180px; overflow-y: auto;
-            padding: 5px;
+            gap: 12px; margin-bottom: 25px; max-height: 200px; overflow-y: auto;
+            padding: 10px;
         }
         .img-option { 
             width: 100%; aspect-ratio: 1; border-radius: 4px; 
@@ -113,34 +185,34 @@
         }
         .img-option:hover { transform: scale(1.1); border-color: white; }
 
-        .btn-group { display: flex; flex-direction: column; gap: 10px; width: 100%; }
-        .btn { 
-            padding: 14px; border-radius: 4px; font-weight: 700; cursor: pointer; 
+        .btn-group-modal { display: flex; flex-direction: column; gap: 12px; width: 100%; }
+        .btn-m { 
+            padding: 15px; border-radius: 4px; font-weight: 700; cursor: pointer; 
             border: none; text-transform: uppercase; font-size: 0.9rem;
         }
-        .btn-save { background: white; color: black; }
-        .btn-cancel { background: transparent; color: var(--text-sec); border: 1px solid var(--text-sec); }
-        .btn-delete { color: var(--danger); background: transparent; font-size: 0.8rem; margin-top: 15px; }
+        .btn-m-save { background: white; color: black; }
+        .btn-m-cancel { background: transparent; color: var(--text-sec); border: 1px solid var(--text-sec); }
+        .btn-m-delete { color: var(--danger); background: transparent; margin-top: 15px; }
 
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes modalFade { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
     </style>
 </head>
 <body>
 
     <h1 id="mainTitle"></h1>
     <div class="profiles-container" id="profilesContainer"></div>
+    <button id="btnManage" class="manage-btn" onclick="toggleEditMode()"></button>
 
     <div id="modalEdit" class="modal">
         <div class="modal-content">
-            <h2 id="modalTitle" style="margin-bottom: 20px;"></h2>
-            <div id="editPreview" class="edit-avatar-preview"></div>
-            <input type="text" id="editNameInput" class="edit-name-input">
+            <h2 id="modalTitle" style="margin-bottom: 25px;"></h2>
+            <div id="editPreview" class="preview-avatar"></div>
+            <input type="text" id="editNameInput" class="edit-input">
             <div class="grid-fotos" id="gridFotos"></div>
-            <div class="btn-group">
-                <button class="btn btn-save" id="btnSave" onclick="guardarPerfil()"></button>
-                <button class="btn btn-cancel" id="btnCancel" onclick="cerrarModal()"></button>
-                <button id="btnEliminar" class="btn btn-delete" onclick="eliminarPerfil()"></button>
+            <div class="btn-group-modal">
+                <button class="btn-m btn-m-save" id="btnSave" onclick="guardarPerfil()"></button>
+                <button class="btn-m btn-m-cancel" id="btnCancel" onclick="cerrarModal()"></button>
+                <button id="btnEliminar" class="btn-m btn-m-delete" onclick="eliminarPerfil()"></button>
             </div>
         </div>
     </div>
@@ -163,35 +235,13 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // --- LÓGICA DE IDIOMAS AUTOMÁTICA ---
         const i18n = {
-            es: { 
-                title: "¿Quién está planificando hoy?", 
-                save: "Guardar", 
-                cancel: "Ahora no", 
-                delete: "Eliminar Perfil", 
-                edit: "Editar Perfil", 
-                new: "Añadir Perfil", 
-                guest: "Invitado",
-                confirmDelete: "¿Seguro quieres eliminar este perfil?",
-                lastProfile: "No puedes eliminar el último perfil."
-            },
-            en: { 
-                title: "Who's planning today?", 
-                save: "Save", 
-                cancel: "Not now", 
-                delete: "Delete Profile", 
-                edit: "Edit Profile", 
-                new: "Add Profile", 
-                guest: "Guest",
-                confirmDelete: "Are you sure you want to delete this profile?",
-                lastProfile: "You cannot delete the last profile."
-            }
+            es: { title: "¿Quién está planificando hoy?", editTitle: "Administrar Perfiles", manage: "Editar Perfiles", done: "Listo", save: "Guardar", cancel: "Cancelar", delete: "Eliminar Perfil", edit: "Editar Perfil", new: "Nuevo Perfil", guest: "Invitado", confirm: "¿Eliminar este perfil?" },
+            en: { title: "Who's planning today?", editTitle: "Manage Profiles", manage: "Edit Profiles", done: "Done", save: "Save", cancel: "Cancel", delete: "Delete Profile", edit: "Edit Profile", new: "New Profile", guest: "Guest", confirm: "Delete this profile?" }
         };
 
-        // Detecta el idioma guardado en Login
-        const currentLang = localStorage.getItem('appLang') || 'es';
-        const t = i18n[currentLang];
+        const lang = localStorage.getItem('appLang') || 'es';
+        const t = i18n[lang];
 
         const personajes = [
             "https://raw.githubusercontent.com/TaxappUSA/TaxappUSA/main/Mickey.webp",
@@ -204,42 +254,34 @@
             "https://img.icons8.com/color/150/baby-yoda.png"
         ];
 
-        let currentUID = null;
-        let perfilesLocal = [];
-        let editingId = null;
-        let selectedFoto = personajes[0];
+        let currentUID, perfilesLocal = [], editingId = null, selectedFoto = personajes[0], isEditingMode = false;
 
-        // Traducir textos iniciales
+        // Inicializar textos
         document.getElementById('mainTitle').innerText = t.title;
+        document.getElementById('btnManage').innerText = t.manage;
         document.getElementById('btnSave').innerText = t.save;
         document.getElementById('btnCancel').innerText = t.cancel;
         document.getElementById('btnEliminar').innerText = t.delete;
 
         onAuthStateChanged(auth, async (user) => {
-            if (!user) { window.location.replace("login.html"); return; }
+            if (!user) return window.location.replace("login.html");
             currentUID = user.uid;
-            cargarPerfiles();
-        });
-
-        async function cargarPerfiles() {
-            const userRef = doc(db, "usuarios", currentUID);
-            const userSnap = await getDoc(userRef);
-            perfilesLocal = userSnap.exists() ? (userSnap.data().perfiles || []) : [];
-            
+            const snap = await getDoc(doc(db, "usuarios", currentUID));
+            perfilesLocal = snap.exists() ? (snap.data().perfiles || []) : [];
             if (perfilesLocal.length === 0) {
-                perfilesLocal = [{ id: "p" + Date.now(), nombre: t.guest, foto: personajes[0] }];
-                await setDoc(userRef, { perfiles: perfilesLocal });
+                perfilesLocal = [{ id: "p"+Date.now(), nombre: t.guest, foto: personajes[0] }];
+                await setDoc(doc(db, "usuarios", currentUID), { perfiles: perfilesLocal });
             }
             render();
-        }
+        });
 
         function render() {
             const container = document.getElementById('profilesContainer');
             container.innerHTML = perfilesLocal.map(p => `
-                <div class="profile">
+                <div class="profile" onclick="handleAction('${p.id}', '${p.nombre}', '${p.foto}')">
                     <div class="avatar-wrapper">
-                        <div class="avatar" style="background-image: url('${p.foto}')" onclick="selectProfile('${p.id}', '${p.nombre}', '${p.foto}')"></div>
-                        <div class="edit-badge" onclick="abrirEditor('${p.id}')">
+                        <div class="avatar" style="background-image: url('${p.foto}')"></div>
+                        <div class="edit-overlay">
                             <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
                         </div>
                     </div>
@@ -250,75 +292,70 @@
             if (perfilesLocal.length < 5) {
                 container.innerHTML += `
                     <div class="profile" onclick="abrirEditor(null)">
-                        <div class="avatar add-profile-btn">+</div>
+                        <div class="avatar-wrapper"><div class="add-btn-inner">+</div></div>
                         <div class="name">${t.new}</div>
                     </div>`;
             }
         }
 
+        window.toggleEditMode = () => {
+            isEditingMode = !isEditingMode;
+            document.body.classList.toggle('editing-mode', isEditingMode);
+            document.getElementById('mainTitle').innerText = isEditingMode ? t.editTitle : t.title;
+            document.getElementById('btnManage').innerText = isEditingMode ? t.done : t.manage;
+        };
+
+        window.handleAction = (id, nombre, foto) => {
+            if (isEditingMode) abrirEditor(id);
+            else {
+                localStorage.setItem('perfilActivoId', id);
+                localStorage.setItem('perfilActivoNombre', nombre);
+                localStorage.setItem('perfilActivoFoto', foto);
+                window.location.replace("index.html");
+            }
+        };
+
         window.abrirEditor = (id) => {
             editingId = id;
             const p = perfilesLocal.find(x => x.id === id);
-            
             document.getElementById('modalTitle').innerText = id ? t.edit : t.new;
             document.getElementById('editNameInput').value = p ? p.nombre : "";
-            document.getElementById('editNameInput').placeholder = t.guest;
             selectedFoto = p ? p.foto : personajes[0];
             document.getElementById('btnEliminar').style.display = id ? "block" : "none";
-            
             actualizarPreview();
-            cargarGaleria();
-            document.getElementById('modalEdit').classList.add('show');
-        };
-
-        function cargarGaleria() {
+            
             const grid = document.getElementById('gridFotos');
             grid.innerHTML = personajes.map(url => `
                 <img src="${url}" class="img-option" onclick="cambiarFoto('${url}')">
             `).join('');
-        }
-
-        window.cambiarFoto = (url) => {
-            selectedFoto = url;
-            actualizarPreview();
+            
+            document.getElementById('modalEdit').classList.add('show');
         };
 
-        function actualizarPreview() {
-            document.getElementById('editPreview').style.backgroundImage = `url('${selectedFoto}')`;
-        }
-
+        window.cambiarFoto = (url) => { selectedFoto = url; actualizarPreview(); };
+        window.actualizarPreview = () => document.getElementById('editPreview').style.backgroundImage = `url('${selectedFoto}')`;
         window.cerrarModal = () => document.getElementById('modalEdit').classList.remove('show');
 
         window.guardarPerfil = async () => {
-            const nuevoNombre = document.getElementById('editNameInput').value.trim();
-            if (!nuevoNombre) return;
-
-            if (editingId) {
-                perfilesLocal = perfilesLocal.map(p => p.id === editingId ? { ...p, nombre: nuevoNombre, foto: selectedFoto } : p);
-            } else {
-                perfilesLocal.push({ id: "p" + Date.now(), nombre: nuevoNombre, foto: selectedFoto });
-            }
-
+            const nom = document.getElementById('editNameInput').value.trim();
+            if (!nom) return;
+            if (editingId) perfilesLocal = perfilesLocal.map(p => p.id === editingId ? {...p, nombre: nom, foto: selectedFoto} : p);
+            else perfilesLocal.push({ id: "p"+Date.now(), nombre: nom, foto: selectedFoto });
+            
             await updateDoc(doc(db, "usuarios", currentUID), { perfiles: perfilesLocal });
-            cerrarModal();
+            cerrarModal(); 
+            if(isEditingMode) toggleEditMode();
             render();
         };
 
         window.eliminarPerfil = async () => {
-            if (perfilesLocal.length <= 1) return alert(t.lastProfile);
-            if (!confirm(t.confirmDelete)) return;
-
+            if (perfilesLocal.length <= 1) return;
+            if (!confirm(t.confirm)) return;
             perfilesLocal = perfilesLocal.filter(p => p.id !== editingId);
             await updateDoc(doc(db, "usuarios", currentUID), { perfiles: perfilesLocal });
             cerrarModal();
+            if(isEditingMode) toggleEditMode();
             render();
-        };
-
-        window.selectProfile = (id, nombre, foto) => {
-            localStorage.setItem('perfilActivoId', id);
-            localStorage.setItem('perfilActivoNombre', nombre);
-            localStorage.setItem('perfilActivoFoto', foto);
-            window.location.replace("index.html");
         };
     </script>
 </body>
