@@ -85,6 +85,10 @@
             transition: color 0.3s ease;
         }
 
+        #tip-text {
+    transition: opacity 0.3s ease; /* Esto hace que el texto "aparezca" suavemente */
+    min-height: 2.4em; /* Evita que el contenedor salte si un tip es más largo que otro */
+}
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; color: var(--text-main); transition: background 0.3s, color 0.3s; }
         
@@ -406,20 +410,64 @@ window.deleteAccount = async () => {
 };
 
         // --- SISTEMA DE TIPS ---
-        const tips = [
-            "Orlando: La mejor hora para filas cortas es durante el show de fuegos artificiales.",
-            "NYC: Descargá la App OMNY o pagá directo con el celu en el subte.",
-            "Miami: Si vas de compras, el Dolphin Mall suele ser más barato que Sawgrass.",
-            "Vegas: Caminar por la Strip lleva mucho más tiempo de lo que parece.",
-            "SF: Llevá siempre un abrigo, aunque sea verano.",
-            "DC: Todos los museos Smithsonian son gratis.",
-            "General: Siempre dejá entre 18% y 22% de propina en restaurantes."
-        ];
+        const Tips = {
+    es: [
+        "Orlando: La mejor hora para filas cortas es durante el show de fuegos artificiales.",
+        "NYC: Descargá la App OMNY o pagá directo con el celu en el subte.",
+        "Miami: Si vas de compras, el Dolphin Mall suele ser más barato que Sawgrass.",
+        "Vegas: Caminar por la Strip lleva mucho más tiempo de lo que parece.",
+        "SF: Llevá siempre un abrigo, aunque sea verano.",
+        "DC: Todos los museos Smithsonian son gratis.",
+        "General: Siempre dejá entre 18% y 22% de propina en restaurantes.",
+        "Universal: Bajate la app oficial para ver los tiempos de espera en tiempo real.",
+        "Orlando: Reservá tus comidas con antelación si vas a los parques principales.",
+        "NYC: El ferry a Staten Island es gratis y pasa cerca de la Estatua de la Libertad.",
+        "Vegas: Los hoteles son gigantes, calculá 15 min solo para salir a la calle.",
+        "Miami: El estacionamiento en South Beach es caro, usá apps como ParkWhiz.",
+    ],
+    en: [
+        "Orlando: The best time for short lines is during the fireworks show.",
+        "NYC: Download the OMNY App or pay directly with your phone in the subway.",
+        "Miami: If shopping, Dolphin Mall is often cheaper than Sawgrass Mills.",
+        "Vegas: Walking the Strip takes much longer than it looks.",
+        "SF: Always carry a jacket, even during the summer.",
+        "DC: All Smithsonian museums are free of charge.",
+        "General: Always leave between 18% and 22% tip at restaurants.",
+        "Universal: Get the official app to check wait times in real-time.",
+        "Orlando: Book your dining reservations in advance for major theme parks.",
+        "NYC: The Staten Island Ferry is free and passes right by the Statue of Liberty.",
+        "Vegas: Hotels are massive, allow 15 mins just to reach the street.",
+        "Miami: Parking in South Beach is expensive, use apps like ParkWhiz.",
+    ]
+};
         let currentTipIndex = 0;
-        window.nextTip = () => {
-            currentTipIndex = (currentTipIndex + 1) % tips.length;
-            document.getElementById('tip-text').innerText = tips[currentTipIndex];
-        };
+window.nextTip = () => {
+    // 1. Detectamos el idioma
+    const lang = localStorage.getItem('appLang') || 'es';
+    
+    // 2. Usamos el nombre "tips" que definiste
+    const tipsList = tips[lang]; 
+    
+    if (!tipsList) return;
+
+    // 3. Avanzamos al siguiente índice
+    currentTipIndex = (currentTipIndex + 1) % tipsList.length;
+    
+    const el = document.getElementById('tip-text');
+    if (el) {
+        // 4. Efecto de fundido
+        el.style.opacity = 0;
+        setTimeout(() => {
+            el.innerText = tipsList[currentTipIndex];
+            
+            if (typeof twemoji !== 'undefined') {
+                twemoji.parse(el, { folder: 'svg', ext: '.svg' });
+            }
+            
+            el.style.opacity = 1;
+        }, 300);
+    }
+};
 
         // --- CIUDADES Y ESTADOS ---
         const citiesConfig = {
@@ -696,49 +744,53 @@ window.changeLanguage = (lang) => {
         alert("🚀 ¡El Comparador de Precios estará disponible próximamente!");
     }
     window.onload = () => {
-    // 1. Cargamos el idioma guardado (o español por defecto)
-    const savedLang = localStorage.getItem('appLang') || 'es';
-    
-    // 2. Aplicamos el idioma a toda la pantalla
-    // Esta función traducirá el menú, títulos, botones y ciudades
-    if (typeof window.changeLanguage === 'function') {
-        window.changeLanguage(savedLang);
-    }
-
-    // 3. Cargamos el primer Tip de Viaje
-    const tipEl = document.getElementById('tip-text');
-    if (tipEl && typeof shoppingTips !== 'undefined') {
-        tipEl.innerText = shoppingTips[savedLang][0];
-    }
-
-    // 4. Iniciamos el reloj de los tips (cambia cada 8 segundos)
-    setInterval(() => {
-        if (typeof window.nextTip === 'function') window.nextTip();
-    }, 8000);
-
-    // 5. Verificamos el estado de Firebase (si lo tenés configurado)
-    if (typeof auth !== 'undefined') {
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                window.currentUser = user;
-                const emailEl = document.getElementById('userEmail');
-                if (emailEl) emailEl.innerText = user.email;
-                
-                // Cargamos los datos de la ciudad inicial (ej: Orlando)
-                if (typeof renderCityData === 'function') renderCityData();
-            } else {
-                window.location.replace("login.html");
-            }
-        });
-    }
-
-    // 6. Refresco automático de estados de filas cada 2 minutos
-    setInterval(() => { 
-        if (window.currentUser && typeof renderCityData === 'function') {
-            renderCityData(); 
+        // 1. Cargamos el idioma guardado (o español por defecto)
+        const savedLang = localStorage.getItem('appLang') || 'es';
+        
+        // 2. Aplicamos el idioma a toda la pantalla
+        if (typeof window.changeLanguage === 'function') {
+            window.changeLanguage(savedLang);
         }
-    }, 120000);
-};
+
+        // 3. Cargamos el primer Tip manualmente al iniciar
+        const tipEl = document.getElementById('tip-text');
+        if (tipEl && typeof tips !== 'undefined') {
+            tipEl.innerText = tips[savedLang][0];
+            
+            // Si usas twemoji lo aplicamos al inicio
+            if (typeof twemoji !== 'undefined') {
+                twemoji.parse(tipEl, { folder: 'svg', ext: '.svg' });
+            }
+        }
+
+        // 4. Iniciamos el intervalo para que los tips roten cada 8 segundos
+        setInterval(() => {
+            if (typeof window.nextTip === 'function') window.nextTip();
+        }, 8000);
+
+        // 5. Verificamos el estado de Firebase
+        if (typeof auth !== 'undefined') {
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    window.currentUser = user;
+                    const emailEl = document.getElementById('userEmail');
+                    if (emailEl) emailEl.innerText = user.email;
+                    
+                    // Cargamos los datos de las filas de la ciudad inicial
+                    if (typeof renderCityData === 'function') renderCityData();
+                } else {
+                    window.location.replace("login.html");
+                }
+            });
+        }
+
+        // 6. Refresco automático de estados de filas cada 2 minutos
+        setInterval(() => { 
+            if (window.currentUser && typeof renderCityData === 'function') {
+                renderCityData(); 
+            }
+        }, 120000);
+    };
 </script>
 </body>
 </html>
