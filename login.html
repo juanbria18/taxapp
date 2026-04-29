@@ -143,20 +143,33 @@
     </div>
 </div>
 
-<div class="login-card">
-    <div class="card-logo">
-        TaxUSA <img src="https://flagcdn.com/w40/us.png" alt="USA">
+<div class="wrap">
+    <div class="login-logo-container">
+        <div class="logo-icon">
+            <span class="flag-stripe"></span>
+            <span class="logo-symbol">T</span>
+        </div>
+        <div class="logo-text">
+            Tax<span>USA</span>
+        </div>
     </div>
-    <h1 class="card-title" id="cardTitle">Bienvenido</h1>
-    <input type="email" id="email" placeholder="Correo electrónico" data-ph="email">
-    <input type="password" id="password" placeholder="Contraseña" data-ph="pass">
-    <div class="verif-notice" id="verifNotice">
-        Te enviaremos un mail de verificación. Revisá tu bandeja o SPAM. ✈️
-    </div>
-    <button class="btn btn-primary" id="mainBtn" onclick="handleAuth()">INGRESAR</button>
-    <div class="links">
-        <span class="link-danger" onclick="resetPassword()" id="forgotLink">¿Olvidaste tu contraseña?</span>
-        <span class="link-toggle" id="toggleLink" onclick="toggleMode()">¿No tenés cuenta? Registrate aquí</span>
+
+    <div class="card" id="loginCard">
+        <h1 class="card-title" id="cardTitle">Bienvenido</h1>
+        
+        <input type="email" id="email" placeholder="Correo electrónico" data-ph="email">
+        <input type="password" id="password" placeholder="Contraseña" data-ph="pass">
+        
+        <div class="verif-notice" id="verifNotice">
+            Te enviaremos un mail de verificación. Revisá tu bandeja o SPAM. ✈️
+        </div>
+        
+        <button class="btn btn-primary" id="mainBtn" onclick="handleAuth()">INGRESAR</button>
+        
+        <div class="links">
+            <span class="link-danger" onclick="resetPassword()" id="forgotLink">¿Olvidaste tu contraseña?</span>
+            <span class="link-toggle" id="toggleLink" onclick="toggleMode()">¿No tenés cuenta? Registrate aquí</span>
+        </div>
     </div>
 </div>
 
