@@ -359,11 +359,17 @@
     window.openGoogleLens = () => {
         const query = document.getElementById('searchInput').value.trim();
         if (photoBase64) {
-            window.open('https://lens.google.com/upload', '_blank');
+            // Abrir Lens upload — funciona en desktop Chrome/Edge arrastrando la imagen
+            // o en móvil desde la galería
+            window.open('https://lens.google.com/upload?hl=es', '_blank');
+            setTimeout(() => {
+                alert('📸 En la página que se abrió, arrastrá tu imagen o hacé clic en "Subir una imagen".');
+            }, 800);
         } else if (query) {
-            window.open('https://lens.google.com/search?q=' + encodeURIComponent(query), '_blank');
+            // Búsqueda por texto en Google Lens
+            window.open('https://lens.google.com/search?p=' + encodeURIComponent(query) + '&hl=es', '_blank');
         } else {
-            window.open('https://lens.google.com', '_blank');
+            window.open('https://lens.google.com/upload?hl=es', '_blank');
         }
     };
 
@@ -439,6 +445,8 @@ Dado un texto o imagen de producto, respondé SOLO con JSON válido (sin markdow
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'x-api-key': 'TU_API_KEY_AQUI',
+                    'anthropic-version': '2023-06-01',
                     'anthropic-dangerous-direct-browser-access': 'true'
                 },
                 body: JSON.stringify({
