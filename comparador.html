@@ -48,6 +48,56 @@
             --text-sub:     #94a3b8;
             --text-dim:     #64748b;
             --header-color: #2563eb;
+            --shadow:       0 4px 20px rgba(0,0,0,0.3);<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TaxUSA — Comparador</title>
+    <link rel="manifest" href="./manifest.json">
+    <link rel="apple-touch-icon" href="icon-512.png">
+    <meta name="theme-color" content="#2563eb">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        /* ── style.css inlineado ── */
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&display=swap');
+
+        :root {
+            --primary:      #2563eb;
+            --primary-dim:  rgba(37,99,235,0.12);
+            --accent:       #7c3aed;
+            --accent-dim:   rgba(124,58,237,0.12);
+            --danger:       #ef4444;
+            --success:      #10b981;
+            --warn:         #f59e0b;
+            --cyan:         #0ea5e9;
+            --bg:           #f1f5f9;
+            --surface:      #ffffff;
+            --surface-2:    #f8fafc;
+            --border:       #e2e8f0;
+            --input-bg:     #f8fafc;
+            --text:         #0f172a;
+            --text-sub:     #64748b;
+            --text-dim:     #94a3b8;
+            --radius:       20px;
+            --radius-sm:    12px;
+            --shadow:       0 4px 20px rgba(0,0,0,0.07);
+            --shadow-lg:    0 10px 40px rgba(0,0,0,0.12);
+            --transition:   all 0.25s cubic-bezier(0.4,0,0.2,1);
+            --header-color: #1e3a8a;
+        }
+
+        [data-theme="dark"] {
+            --bg:           #0f172a;
+            --surface:      #1e293b;
+            --surface-2:    #273549;
+            --border:       #334155;
+            --input-bg:     #273549;
+            --text:         #f1f5f9;
+            --text-sub:     #94a3b8;
+            --text-dim:     #64748b;
+            --header-color: #2563eb;
             --shadow:       0 4px 20px rgba(0,0,0,0.3);
             --shadow-lg:    0 10px 40px rgba(0,0,0,0.4);
         }
@@ -157,8 +207,6 @@
         /* Botones específicos */
         .btn-primary { margin-bottom: 12px; }
         .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-        .btn-lens { background: var(--surface-2); color: var(--text); border: 1.5px solid var(--border); margin-bottom: 10px; }
-        .btn-lens:hover { border-color: var(--cyan); color: var(--cyan); }
 
         /* Loading */
         .loading-bar { display: none; height: 3px; background: var(--border); border-radius: 99px; overflow: hidden; margin-bottom: 16px; }
@@ -228,10 +276,6 @@
             <img id="photoPreview" src="" alt="" style="display:none;">
             <button class="photo-remove" onclick="removePhoto(event)">✕</button>
         </div>
-
-        <button class="btn btn-lens" id="lensBtn" onclick="openGoogleLens()">
-            🔎 <span data-i18n="btn_lens">BUSCAR CON GOOGLE LENS</span>
-        </button>
 
         <button class="btn btn-primary" id="searchBtn" onclick="buscarProducto()">
             🤖 <span data-i18n="btn_search">BUSCAR CON IA</span>
@@ -459,24 +503,6 @@
         area.querySelector('.photo-area-label').style.display = 'block';
     };
 
-    // ── GOOGLE LENS ───────────────────────────────────────
-    window.openGoogleLens = () => {
-        const query = document.getElementById('searchInput').value.trim();
-        if (photoBase64) {
-            // Abrir Lens upload — funciona en desktop Chrome/Edge arrastrando la imagen
-            // o en móvil desde la galería
-            window.open('https://lens.google.com/upload?hl=es', '_blank');
-            setTimeout(() => {
-                alert('📸 En la página que se abrió, arrastrá tu imagen o hacé clic en "Subir una imagen".');
-            }, 800);
-        } else if (query) {
-            // Búsqueda por texto en Google Lens
-            window.open('https://lens.google.com/search?p=' + encodeURIComponent(query) + '&hl=es', '_blank');
-        } else {
-            window.open('https://lens.google.com/upload?hl=es', '_blank');
-        }
-    };
-
     // ── TIENDAS ───────────────────────────────────────────
     const STORES = [
         { id: 'amazon',    name: 'Amazon',         emoji: '📦', color: '#FF9900', url: q => `https://www.amazon.com/s?k=${encodeURIComponent(q)}` },
@@ -517,21 +543,18 @@
         result.classList.remove('show');
 
         try {
-            const messages = [];
+            // Armar el mensaje para Claude
+            const userContent = [];
+
             if (photoBase64) {
                 const base64Data = photoBase64.split(',')[1];
                 const mediaType = photoBase64.split(';')[0].split(':')[1];
-                messages.push({
-                    role: 'user',
-                    content: [
-                        { type: 'image', source: { type: 'base64', media_type: mediaType, data: base64Data } },
-                        { type: 'text', text: query
-                            ? `El usuario quiere buscar "${query}" y adjuntó esta imagen. Identificá el producto exacto.`
-                            : 'Identificá qué producto aparece en esta imagen.' }
-                    ]
-                });
+                userContent.push({ type: 'image', source: { type: 'base64', media_type: mediaType, data: base64Data } });
+                userContent.push({ type: 'text', text: query
+                    ? `El usuario quiere buscar "${query}" y adjuntó esta imagen. Identificá el producto exacto.`
+                    : 'Identificá qué producto aparece en esta imagen y respondé en JSON.' });
             } else {
-                messages.push({ role: 'user', content: query });
+                userContent.push({ type: 'text', text: query });
             }
 
             const systemPrompt = `Sos un asistente de compras para viajeros argentinos en USA.
@@ -549,28 +572,33 @@ Dado un texto o imagen de producto, respondé SOLO con JSON válido (sin markdow
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'x-api-key': 'TU_API_KEY_AQUI',
                     'anthropic-version': '2023-06-01',
                     'anthropic-dangerous-direct-browser-access': 'true'
                 },
                 body: JSON.stringify({
                     model: 'claude-sonnet-4-20250514',
-                    max_tokens: 1000,
+                    max_tokens: 500,
                     system: systemPrompt,
-                    messages
+                    messages: [{ role: 'user', content: userContent }]
                 })
             });
 
+            if (!response.ok) {
+                const errData = await response.json().catch(() => ({}));
+                throw new Error(errData?.error?.message || `HTTP ${response.status}`);
+            }
+
             const data = await response.json();
-            if (data.error) throw new Error(data.error.message);
-            const text = data.content.map(b => b.text || '').join('').trim();
-            const clean = text.replace(/```json|```/g, '').trim();
+            const rawText = data.content.map(b => b.text || '').join('').trim();
+            const clean = rawText.replace(/```json|```/g, '').trim();
             const parsed = JSON.parse(clean);
 
+            // Mostrar resultado del producto
             document.getElementById('productName').innerText = parsed.nombre;
             document.getElementById('productDesc').innerText = parsed.descripcion;
             document.getElementById('tipText').innerText = parsed.tip;
 
+            // Generar cards de tiendas
             const storeIds = CATEGORY_STORES[parsed.categoria] || CATEGORY_STORES.general;
             const storesGrid = document.getElementById('storesGrid');
             storesGrid.innerHTML = '';
@@ -600,10 +628,11 @@ Dado un texto o imagen de producto, respondé SOLO con JSON válido (sin markdow
             });
 
             result.classList.add('show');
+            result.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
         } catch (err) {
-            console.error(err);
-            alert(I18N[currentLang].err_ai);
+            console.error('Error buscarProducto:', err);
+            alert(I18N[currentLang].err_ai + '\n\n' + err.message);
         } finally {
             btn.disabled = false;
             btn.querySelector('span[data-i18n]').innerText = I18N[currentLang].btn_search;
