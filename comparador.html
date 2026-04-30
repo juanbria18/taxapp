@@ -546,6 +546,10 @@ Dado un texto o imagen de producto, respondé SOLO con JSON válido (sin markdow
             const data = await response.json();
             // Gemini devuelve: candidates[0].content.parts[0].text
             const rawText = (data?.candidates?.[0]?.content?.parts?.[0]?.text || '').trim();
+            if (!rawText) {
+                const reason = data?.candidates?.[0]?.finishReason || JSON.stringify(data);
+                throw new Error('Gemini sin contenido: ' + reason);
+            }
             const clean = rawText.replace(/```json|```/g, '').trim();
             const parsed = JSON.parse(clean);
 
