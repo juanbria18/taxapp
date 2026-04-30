@@ -121,8 +121,8 @@
     <nav class="nav-bar">
         <a href="index.html" class="btn-nav"><span class="ni">🏠</span><span data-i18n="nav_home">INICIO</span></a>
         <a href="itinerario.html" class="btn-nav"><span class="ni">📍</span><span data-i18n="nav_itinerary">ITINERARIO</span></a>
-        <a href="javascript:void(0)" class="btn-nav" onclick="avisoProximamente(event)"><span class="ni">🔍</span> <span data-i18n="nav_compare">COMPARAR</span></a>      
-        <a href="unidades.html" class="btn-nav"><span class="ni">⚖️</span><span data-i18n="nav_units">UNIDADES</span></a>
+        <a href="unidades.html" class="btn-nav"><span class="ni">⚖️</span><span data-i18n="nav_itinerary">UNIDADES</span></a>      
+        <a href="unidades.html" class="btn-nav"><span class="ni">🔍</span><span data-i18n="nav_units">COMPARADOR</span></a>
         <button class="btn-nav-set" id="btnSettings" onclick="toggleSettings()"></button>
     </nav>
 
@@ -495,13 +495,7 @@ document.getElementById('userEmail').innerText = perfilNombre || user.email;
     document.getElementById('tip-text').innerText=shoppingTips[lang][0];
     setInterval(window.nextTip,8000);
 });
-window.avisoProximamente = (event) => {
-    if (event) event.preventDefault();
-    
-    const lang = localStorage.getItem('appLang') || 'es';
-    
-    alert(i18n[lang].alert_upcoming);
-};
+
 </script>
 </body>
 </html>
