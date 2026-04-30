@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tax-usa-v1600';
+const CACHE_NAME = 'tax-usa-v1700';
 const CACHE_IMAGES = 'tax-usa-img-v1600';
 
 const STATIC_ASSETS = [
