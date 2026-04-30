@@ -347,7 +347,8 @@
         if (user) {
             currentUser = user;
             if (!perfilId) { window.location.replace("profiles.html"); return; }
-            document.getElementById('userEmail').innerText = user.email;
+            const perfilNombre = localStorage.getItem('perfilActivoNombre');
+document.getElementById('userEmail').innerText = perfilNombre || user.email;
             const img = perfilFoto || user.photoURL;
             if (img) {
                 const btn = document.getElementById('btnSettings');
