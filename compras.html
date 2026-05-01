@@ -499,29 +499,26 @@ document.getElementById('userEmail').innerText = perfilNombre || user.email;
 
 <!-- ═══════════════ TAXUSA AI CHAT ═══════════════ -->
 <style>
-/* Bubble button */
 #ai-bubble {
     position: fixed;
     bottom: 24px;
     left: 20px;
-    width: 58px;
-    height: 58px;
+    width: 54px;
+    height: 54px;
     border-radius: 50%;
-    background: #ffffff;
-    border: 2.5px solid #1e3a8a;
+    background: linear-gradient(135deg, #1e3a8a, #2563eb);
+    border: none;
     cursor: pointer;
     z-index: 3000;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 20px rgba(30,58,138,0.30);
+    box-shadow: 0 4px 20px rgba(37,99,235,0.45);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 #ai-bubble:hover { transform: scale(1.08); box-shadow: 0 6px 28px rgba(37,99,235,0.55); }
 #ai-bubble:active { transform: scale(0.95); }
 #ai-bubble svg { width: 26px; height: 26px; }
-
-/* Badge de notificación */
 #ai-badge {
     position: absolute;
     top: -3px; right: -3px;
@@ -531,11 +528,9 @@ document.getElementById('userEmail').innerText = perfilNombre || user.email;
     border: 2px solid white;
     display: none;
 }
-
-/* Chat window */
 #ai-chat {
     position: fixed;
-    bottom: 92px;
+    bottom: 88px;
     left: 16px;
     width: min(360px, calc(100vw - 32px));
     height: min(520px, calc(100vh - 120px));
@@ -554,8 +549,6 @@ document.getElementById('userEmail').innerText = perfilNombre || user.email;
     from { opacity:0; transform: scale(0.88) translateY(16px); }
     to   { opacity:1; transform: scale(1) translateY(0); }
 }
-
-/* Header */
 #ai-header {
     background: linear-gradient(135deg, #1e3a8a, #2563eb);
     padding: 14px 16px;
@@ -576,140 +569,77 @@ document.getElementById('userEmail').innerText = perfilNombre || user.email;
     flex-shrink: 0; transition: 0.2s;
 }
 #ai-close:hover { background: rgba(255,255,255,0.25); }
-
-/* Messages area */
 #ai-messages {
-    flex: 1;
-    overflow-y: auto;
+    flex: 1; overflow-y: auto;
     padding: 14px 14px 8px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    scroll-behavior: smooth;
+    display: flex; flex-direction: column;
+    gap: 10px; scroll-behavior: smooth;
 }
 #ai-messages::-webkit-scrollbar { width: 4px; }
 #ai-messages::-webkit-scrollbar-track { background: transparent; }
 #ai-messages::-webkit-scrollbar-thumb { background: var(--border, #334155); border-radius: 4px; }
-
 .ai-msg {
-    max-width: 88%;
-    padding: 10px 13px;
-    border-radius: 16px;
-    font-size: 0.82rem;
-    font-weight: 600;
-    line-height: 1.45;
-    word-break: break-word;
+    max-width: 88%; padding: 10px 13px; border-radius: 16px;
+    font-size: 0.82rem; font-weight: 600; line-height: 1.45; word-break: break-word;
 }
 .ai-msg.bot {
-    background: var(--surface-2, #273549);
-    color: var(--text, #f1f5f9);
-    border-bottom-left-radius: 4px;
-    align-self: flex-start;
+    background: var(--surface-2, #273549); color: var(--text, #f1f5f9);
+    border-bottom-left-radius: 4px; align-self: flex-start;
     border: 1px solid var(--border, #334155);
 }
-.ai-msg.user {
-    background: #2563eb;
-    color: white;
-    border-bottom-right-radius: 4px;
-    align-self: flex-end;
-}
-.ai-msg.typing {
-    display: flex; gap: 5px; align-items: center;
-    padding: 12px 16px;
-}
-.ai-dot {
-    width: 7px; height: 7px;
-    background: var(--text-dim, #64748b);
-    border-radius: 50%;
-    animation: aiDot 1.2s infinite;
-}
+.ai-msg.user { background: #2563eb; color: white; border-bottom-right-radius: 4px; align-self: flex-end; }
+.ai-msg.typing { display: flex; gap: 5px; align-items: center; padding: 12px 16px; }
+.ai-dot { width: 7px; height: 7px; background: var(--text-dim, #64748b); border-radius: 50%; animation: aiDot 1.2s infinite; }
 .ai-dot:nth-child(2) { animation-delay: 0.2s; }
 .ai-dot:nth-child(3) { animation-delay: 0.4s; }
 @keyframes aiDot {
     0%,60%,100% { transform: translateY(0); opacity:0.4; }
-    30%          { transform: translateY(-5px); opacity:1; }
+    30% { transform: translateY(-5px); opacity:1; }
 }
-
-/* Quick suggestions */
-#ai-suggestions {
-    padding: 0 14px 10px;
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-    flex-shrink: 0;
-}
+#ai-suggestions { padding: 0 14px 10px; display: flex; gap: 6px; flex-wrap: wrap; flex-shrink: 0; }
 .ai-chip {
     background: var(--primary-dim, rgba(37,99,235,0.12));
-    border: 1px solid rgba(37,99,235,0.25);
-    color: #2563eb;
-    padding: 5px 10px;
-    border-radius: 20px;
-    font-size: 0.7rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: 0.2s;
-    white-space: nowrap;
+    border: 1px solid rgba(37,99,235,0.25); color: #2563eb;
+    padding: 5px 10px; border-radius: 20px; font-size: 0.7rem;
+    font-weight: 700; cursor: pointer; transition: 0.2s; white-space: nowrap;
 }
 .ai-chip:hover { background: #2563eb; color: white; }
-
-/* Input area */
 #ai-input-area {
-    padding: 10px 12px 12px;
-    display: flex;
-    gap: 8px;
-    align-items: flex-end;
-    border-top: 1px solid var(--border, #334155);
-    flex-shrink: 0;
-    background: var(--surface, #1e293b);
+    padding: 10px 12px 12px; display: flex; gap: 8px;
+    align-items: flex-end; border-top: 1px solid var(--border, #334155);
+    flex-shrink: 0; background: var(--surface, #1e293b);
 }
 #ai-input {
-    flex: 1;
-    background: var(--input-bg, #273549);
-    border: 1.5px solid var(--border, #334155);
-    border-radius: 12px;
-    padding: 10px 13px;
-    color: var(--text, #f1f5f9);
-    font-family: inherit;
-    font-size: 0.85rem;
-    font-weight: 600;
-    outline: none;
-    resize: none;
-    max-height: 80px;
-    line-height: 1.4;
-    transition: 0.2s;
+    flex: 1; background: var(--input-bg, #273549);
+    border: 1.5px solid var(--border, #334155); border-radius: 12px;
+    padding: 10px 13px; color: var(--text, #f1f5f9); font-family: inherit;
+    font-size: 0.85rem; font-weight: 600; outline: none; resize: none;
+    max-height: 80px; line-height: 1.4; transition: 0.2s;
 }
 #ai-input:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.15); }
 #ai-input::placeholder { color: var(--text-dim, #64748b); font-weight: 500; }
 #ai-send {
-    width: 38px; height: 38px;
-    border-radius: 50%;
-    background: #2563eb;
-    border: none; cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-    box-shadow: 0 2px 8px rgba(37,99,235,0.35);
-    transition: 0.2s;
+    width: 38px; height: 38px; border-radius: 50%; background: #2563eb;
+    border: none; cursor: pointer; display: flex; align-items: center;
+    justify-content: center; flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(37,99,235,0.35); transition: 0.2s;
 }
 #ai-send:hover { background: #1d4ed8; transform: scale(1.05); }
 #ai-send:disabled { background: var(--border, #334155); cursor: not-allowed; transform: none; }
 #ai-send svg { width: 16px; fill: white; }
-
-
 </style>
 
-<!-- Bubble -->
-<button id="ai-bubble" onclick="toggleChat()" aria-label="Asistente de viaje">
+<button id="ai-bubble" aria-label="Asistente de viaje">
     <span id="ai-badge"></span>
     <svg viewBox="0 0 32 32" fill="none">
-        <rect x="0" y="10" width="32" height="4" fill="#ef4444"/>
-        <rect x="0" y="18" width="32" height="4" fill="#ef4444"/>
-        <polygon points="16,4 18.4,11 26,11 20,15.5 22.4,22.5 16,18 9.6,22.5 12,15.5 6,11 13.6,11" fill="#1e3a8a"/>
+        <rect width="32" height="32" rx="8" fill="white" fill-opacity="0.15"/>
+        <rect x="0" y="10" width="32" height="4" fill="#ef4444" opacity="0.9"/>
+        <rect x="0" y="18" width="32" height="4" fill="#ef4444" opacity="0.9"/>
+        <polygon points="16,4 18.4,11 26,11 20,15.5 22.4,22.5 16,18 9.6,22.5 12,15.5 6,11 13.6,11" fill="#ffffff"/>
     </svg>
 </button>
 
-<!-- Chat window -->
 <div id="ai-chat">
-    <!-- Header -->
     <div id="ai-header">
         <svg viewBox="0 0 32 32" fill="none">
             <rect x="0" y="10" width="32" height="4" fill="#ef4444" opacity="0.9"/>
@@ -720,22 +650,13 @@ document.getElementById('userEmail').innerText = perfilNombre || user.email;
             <div class="ai-header-title">TaxUSA Asistente</div>
             <div class="ai-header-sub" id="ai-header-sub">Experto en viajes a USA ✈️</div>
         </div>
-        <button id="ai-close" onclick="toggleChat()">✕</button>
+        <button id="ai-close">✕</button>
     </div>
-
-
-
-    <!-- Messages -->
     <div id="ai-messages"></div>
-
-    <!-- Quick suggestions -->
     <div id="ai-suggestions"></div>
-
-    <!-- Input -->
     <div id="ai-input-area">
-        <textarea id="ai-input" placeholder="Preguntá sobre tu viaje a USA..." rows="1"
-            onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage();}"></textarea>
-        <button id="ai-send" onclick="sendMessage()">
+        <textarea id="ai-input" rows="1"></textarea>
+        <button id="ai-send">
             <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
         </button>
     </div>
@@ -743,216 +664,182 @@ document.getElementById('userEmail').innerText = perfilNombre || user.email;
 
 <script>
 (function() {
-    const GROQ_KEY = (()=>{const p=['gsk_ek1Phki4XCC','aBAJPzba4WGdy','b3FYQtwTCLNL2','A2CsdC5xCQL4Qc9'];return p.join('');})();
-    const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
-    const MODEL    = 'llama-3.3-70b-versatile';
-    const STORAGE_KEY = 'taxusa_chat_history';
+    var K = ['gsk_ek1Phki4XCC','aBAJPzba4WGdy','b3FYQtwTCLNL2','A2CsdC5xCQL4Qc9'].join('');
+    var GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
+    var MODEL = 'llama-3.3-70b-versatile';
+    var lang = localStorage.getItem('appLang') || 'es';
+    var chatHistory = [];
+    var isOpen = false;
+    var isLoading = false;
+    var hasShownWelcome = false;
 
-    const lang = localStorage.getItem('appLang') || 'es';
-    let chatHistory = [];
-    let isOpen = false;
-    let isLoading = false;
-    let hasShownWelcome = false;
+    var WELCOME_ES = '\u00a1Hola! Soy tu asistente de viaje para USA \ud83c\uddfa\ud83c\uddf8\n\nPuedo ayudarte con:\n\u2022 Recomendaciones de lugares\n\u2022 Consejos de compras y tiendas\n\u2022 Informaci\u00f3n sobre taxes y propinas\n\u2022 Tips de transporte y hospedaje\n\u2022 Cambio de moneda y presupuesto\n\n\u00bfEn qu\u00e9 puedo ayudarte?';
+    var WELCOME_EN = 'Hi! I am your USA travel assistant \ud83c\uddfa\ud83c\uddf8\n\nI can help you with:\n\u2022 Place recommendations\n\u2022 Shopping & store tips\n\u2022 Tax & tip information\n\u2022 Transport & accommodation\n\u2022 Currency & budget advice\n\nWhat can I help you with?';
 
-    const i18n = {
-        es: {
-            sub: 'Experto en viajes a USA ✈️',
-            placeholder: 'Preguntá sobre tu viaje a USA...',
-            welcome: '¡Hola! Soy tu asistente de viaje para USA 🇺🇸
+    var CHIPS_ES = ['\ud83c\udff0 Disney Orlando', '\ud83d\udecd\ufe0f Mejores outlets', '\ud83d\udcb0 Propinas en USA', '\ud83c\udf21\ufe0f Clima en Florida', '\u2708\ufe0f Aeropuertos', '\ud83d\ude97 Alquilar auto'];
+    var CHIPS_EN = ['\ud83c\udff0 Disney Orlando', '\ud83d\udecd\ufe0f Best outlets', '\ud83d\udcb0 Tipping in USA', '\ud83c\udf21\ufe0f Florida weather', '\u2708\ufe0f Airports', '\ud83d\ude97 Rent a car'];
 
-Puedo ayudarte con:
-• Recomendaciones de lugares
-• Consejos de compras y tiendas
-• Información sobre taxes y propinas
-• Tips de transporte y hospedaje
-• Cambio de moneda y presupuesto
+    var SUB_ES = 'Experto en viajes a USA \u2708\ufe0f';
+    var SUB_EN = 'USA Travel Expert \u2708\ufe0f';
+    var PH_ES = 'Pregunt\u00e1 sobre tu viaje a USA...';
+    var PH_EN = 'Ask about your USA trip...';
+    var ERR_ES = 'Ocurri\u00f3 un error. Verific\u00e1 tu conexi\u00f3n e intent\u00e1 de nuevo.';
+    var ERR_EN = 'An error occurred. Check your connection and try again.';
 
-¿En qué puedo ayudarte?',
-            offTopic: 'Solo puedo ayudarte con temas relacionados a viajes a Estados Unidos. ¿Tenés alguna pregunta sobre tu viaje? 🇺🇸',
-            error: 'Ocurrió un error. Verificá tu conexión e intentá de nuevo.',
-            chips: ['🏰 Disney Orlando', '🛍️ Mejores outlets', '💰 Propinas en USA', '🌡️ Clima en Florida', '✈️ Aeropuertos', '🚗 Alquilar auto'],
-        },
-        en: {
-            sub: 'USA Travel Expert ✈️',
-            placeholder: 'Ask about your USA trip...',
-            welcome: 'Hi! I'm your USA travel assistant 🇺🇸
+    var isEs = (lang !== 'en');
+    var welcome = isEs ? WELCOME_ES : WELCOME_EN;
+    var chips   = isEs ? CHIPS_ES   : CHIPS_EN;
+    var sub     = isEs ? SUB_ES     : SUB_EN;
+    var ph      = isEs ? PH_ES      : PH_EN;
+    var errMsg  = isEs ? ERR_ES     : ERR_EN;
 
-I can help you with:
-• Place recommendations
-• Shopping & store tips
-• Tax & tip information
-• Transport & accommodation
-• Currency & budget advice
+    var SYSTEM = isEs
+        ? 'Sos TaxUSA Asistente de Viaje, experto exclusivamente en viajes a Estados Unidos. SOLO respondés sobre: destinos turisticos en USA, parques tematicos, compras (outlets, estados sin tax), propinas e impuestos, cambio de moneda, transporte, hoteles, gastronomia, clima, documentacion de viaje, valija, seguro de viaje y presupuesto. Si preguntan algo NO relacionado con viajes a USA, declinas amablemente. Se amigable, practico y conciso. Usa bullet points. Responde en espanol.'
+        : 'You are TaxUSA Travel Assistant, an expert exclusively on travel to the United States. Answer ONLY questions about: tourist destinations, theme parks, shopping, tips and taxes, currency exchange, transport, hotels, food, weather, travel documents, packing, travel insurance, and budgeting for USA trips. If asked anything NOT related to USA travel, politely decline. Be friendly, practical and concise. Use bullet points. Respond in English.';
 
-What can I help you with?',
-            offTopic: 'I can only help with topics related to traveling in the United States. Do you have any questions about your trip? 🇺🇸',
-            error: 'An error occurred. Check your connection and try again.',
-            chips: ['🏰 Disney Orlando', '🛍️ Best outlets', '💰 Tipping in USA', '🌡️ Florida weather', '✈️ Airports', '🚗 Rent a car'],
+    function init() {
+        var bubble     = document.getElementById('ai-bubble');
+        var chatEl     = document.getElementById('ai-chat');
+        var messagesEl = document.getElementById('ai-messages');
+        var inputEl    = document.getElementById('ai-input');
+        var sendBtn    = document.getElementById('ai-send');
+        var suggestEl  = document.getElementById('ai-suggestions');
+        var headerSub  = document.getElementById('ai-header-sub');
+        var closeBtn   = document.getElementById('ai-close');
+
+        if (!bubble || !chatEl) return;
+
+        if (headerSub) headerSub.textContent = sub;
+        if (inputEl) inputEl.placeholder = ph;
+
+        // Chips
+        if (suggestEl) {
+            suggestEl.innerHTML = chips.map(function(c) {
+                return '<button class="ai-chip">' + c + '</button>';
+            }).join('');
+            suggestEl.querySelectorAll('.ai-chip').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    if (inputEl) inputEl.value = btn.textContent;
+                    sendMessage();
+                    suggestEl.style.display = 'none';
+                });
+            });
         }
-    };
 
-    const t = i18n[lang] || i18n.es;
-
-    const SYSTEM_PROMPT = lang === 'en'
-        ? `You are TaxUSA Travel Assistant, an expert exclusively on travel to the United States. 
-You ONLY answer questions about: tourist destinations in the USA, theme parks, shopping (outlets, malls, tax-free states), 
-tips and taxes, currency exchange (especially ARS/BRL/EUR to USD), transport (flights, car rentals, Uber), 
-hotels and accommodation, food and restaurants, weather and best times to visit, 
-travel documents (visas, ESTA, passport), packing tips, travel insurance, and budgeting for USA trips.
-
-If the user asks about anything NOT related to traveling in the USA, politely decline and redirect them.
-Be friendly, practical and concise. Use bullet points when listing things. 
-Respond in English since the user has English selected.`
-        : `Sos TaxUSA Asistente de Viaje, un experto exclusivamente en viajes a Estados Unidos.
-SOLO respondés preguntas sobre: destinos turísticos en USA, parques temáticos, compras (outlets, malls, estados sin tax), 
-propinas e impuestos, cambio de moneda (especialmente ARS/BRL/EUR a USD), transporte (vuelos, alquiler de autos, Uber), 
-hoteles y alojamiento, gastronomía y restaurantes, clima y mejores épocas para visitar, 
-documentación de viaje (visas, ESTA, pasaporte), qué llevar en la valija, seguro de viaje, y presupuesto para viajes a USA.
-
-Si el usuario pregunta algo que NO está relacionado con viajes a Estados Unidos, declinás amablemente y lo redirigís.
-Sé amigable, práctico y conciso. Usá bullet points cuando listes cosas.
-Respondé en español ya que el usuario tiene el idioma en español seleccionado.`;
-
-    // ── DOM refs ──
-    const bubble    = document.getElementById('ai-bubble');
-    const chatEl    = document.getElementById('ai-chat');
-    const messagesEl= document.getElementById('ai-messages');
-    const inputEl   = document.getElementById('ai-input');
-    const sendBtn   = document.getElementById('ai-send');
-    const suggestEl = document.getElementById('ai-suggestions');
-    const headerSub = document.getElementById('ai-header-sub');
-    const badge     = document.getElementById('ai-badge');
-
-    // ── Init ──
-    headerSub.innerText = t.sub;
-    inputEl.placeholder = t.placeholder;
-    renderChips();
-
-    // ── Toggle chat ──
-    window.toggleChat = function() {
-        isOpen = !isOpen;
-        chatEl.classList.toggle('open', isOpen);
-        if (isOpen) {
-            badge.style.display = 'none';
-            if (!hasShownWelcome) {
-                hasShownWelcome = true;
-                setTimeout(() => addMessage('bot', t.welcome), 200);
+        function toggleChat() {
+            isOpen = !isOpen;
+            if (isOpen) {
+                chatEl.style.display = 'flex';
+                // force reflow for animation
+                chatEl.offsetHeight;
+                chatEl.classList.add('open');
+                if (!hasShownWelcome) {
+                    hasShownWelcome = true;
+                    setTimeout(function() { addMessage('bot', welcome); }, 200);
+                }
+                setTimeout(function() { if (inputEl) inputEl.focus(); }, 300);
+            } else {
+                chatEl.classList.remove('open');
+                setTimeout(function() { chatEl.style.display = 'none'; }, 250);
             }
-            setTimeout(() => inputEl.focus(), 300);
         }
-    };
 
-    // ── Chips ──
-    function renderChips() {
-        suggestEl.innerHTML = t.chips.map(c =>
-            `<button class="ai-chip" onclick="sendChip(this.innerText)">${c}</button>`
-        ).join('');
-    }
+        bubble.addEventListener('click', function(e) { e.stopPropagation(); toggleChat(); });
+        if (closeBtn) closeBtn.addEventListener('click', function(e) { e.stopPropagation(); toggleChat(); });
 
-    window.sendChip = function(text) {
-        inputEl.value = text;
-        sendMessage();
-        suggestEl.style.display = 'none';
-    };
+        document.addEventListener('click', function(e) {
+            if (isOpen && !chatEl.contains(e.target) && !bubble.contains(e.target)) {
+                isOpen = false;
+                chatEl.classList.remove('open');
+                setTimeout(function() { chatEl.style.display = 'none'; }, 250);
+            }
+        });
 
-    // ── Add message ──
-    function addMessage(role, text) {
-        const div = document.createElement('div');
-        div.className = `ai-msg ${role}`;
-        // Convert newlines to <br> and **bold** to <strong>
-        div.innerHTML = text
-            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-            .replace(/
-/g, '<br>');
-        messagesEl.appendChild(div);
-        messagesEl.scrollTop = messagesEl.scrollHeight;
-        return div;
-    }
+        function addMessage(role, text) {
+            if (!messagesEl) return;
+            var div = document.createElement('div');
+            div.className = 'ai-msg ' + role;
+            div.innerHTML = text
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+            messagesEl.appendChild(div);
+            messagesEl.scrollTop = messagesEl.scrollHeight;
+        }
 
-    // ── Typing indicator ──
-    function showTyping() {
-        const div = document.createElement('div');
-        div.className = 'ai-msg bot typing';
-        div.id = 'ai-typing';
-        div.innerHTML = '<div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div>';
-        messagesEl.appendChild(div);
-        messagesEl.scrollTop = messagesEl.scrollHeight;
-    }
-    function hideTyping() {
-        const t = document.getElementById('ai-typing');
-        if (t) t.remove();
-    }
+        function showTyping() {
+            if (!messagesEl) return;
+            var div = document.createElement('div');
+            div.className = 'ai-msg bot typing';
+            div.id = 'ai-typing';
+            div.innerHTML = '<div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div>';
+            messagesEl.appendChild(div);
+            messagesEl.scrollTop = messagesEl.scrollHeight;
+        }
 
-    // ── Send message ──
-    window.sendMessage = async function() {
-        const text = inputEl.value.trim();
-        if (!text || isLoading) return;
+        function hideTyping() {
+            var el = document.getElementById('ai-typing');
+            if (el) el.remove();
+        }
 
-        inputEl.value = '';
-        inputEl.style.height = 'auto';
-        addMessage('user', text);
-        suggestEl.style.display = 'none';
-
-        isLoading = true;
-        sendBtn.disabled = true;
-        showTyping();
-
-        chatHistory.push({ role: 'user', content: text });
-
-        try {
-            const res = await fetch(GROQ_URL, {
+        function sendMessage() {
+            if (!inputEl) return;
+            var text = inputEl.value.trim();
+            if (!text || isLoading) return;
+            inputEl.value = '';
+            inputEl.style.height = 'auto';
+            addMessage('user', text);
+            if (suggestEl) suggestEl.style.display = 'none';
+            isLoading = true;
+            if (sendBtn) sendBtn.disabled = true;
+            showTyping();
+            chatHistory.push({ role: 'user', content: text });
+            fetch(GROQ_URL, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${GROQ_KEY}`
-                },
+                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + K },
                 body: JSON.stringify({
                     model: MODEL,
-                    messages: [
-                        { role: 'system', content: SYSTEM_PROMPT },
-                        ...chatHistory.slice(-10) // últimos 10 mensajes para contexto
-                    ],
+                    messages: [{ role: 'system', content: SYSTEM }].concat(chatHistory.slice(-10)),
                     max_tokens: 512,
                     temperature: 0.7,
                     stream: false
                 })
+            })
+            .then(function(res) { return res.json().then(function(d) { return { ok: res.ok, data: d }; }); })
+            .then(function(r) {
+                if (!r.ok) throw new Error(r.data.error && r.data.error.message || 'API error');
+                var reply = r.data.choices && r.data.choices[0] && r.data.choices[0].message && r.data.choices[0].message.content || errMsg;
+                chatHistory.push({ role: 'assistant', content: reply });
+                hideTyping();
+                addMessage('bot', reply);
+            })
+            .catch(function(e) {
+                hideTyping();
+                addMessage('bot', errMsg);
+                console.error('[TaxUSA Chat]', e);
+            })
+            .finally(function() {
+                isLoading = false;
+                if (sendBtn) sendBtn.disabled = false;
+                if (inputEl) inputEl.focus();
             });
-
-            const data = await res.json();
-
-            if (!res.ok) throw new Error(data.error?.message || 'API error');
-
-            const reply = data.choices?.[0]?.message?.content || t.error;
-            chatHistory.push({ role: 'assistant', content: reply });
-
-            hideTyping();
-            addMessage('bot', reply);
-
-        } catch(e) {
-            hideTyping();
-            addMessage('bot', t.error);
-            console.error('[TaxUSA Chat]', e);
-        } finally {
-            isLoading = false;
-            sendBtn.disabled = false;
-            inputEl.focus();
         }
-    };
 
-    // ── Auto-resize textarea ──
-    inputEl.addEventListener('input', function() {
-        this.style.height = 'auto';
-        this.style.height = Math.min(this.scrollHeight, 80) + 'px';
-    });
-
-    // ── Cerrar con click afuera ──
-    document.addEventListener('click', function(e) {
-        if (isOpen && !chatEl.contains(e.target) && !bubble.contains(e.target)) {
-            isOpen = false;
-            chatEl.classList.remove('open');
+        if (sendBtn) sendBtn.addEventListener('click', sendMessage);
+        if (inputEl) {
+            inputEl.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+            });
+            inputEl.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = Math.min(this.scrollHeight, 80) + 'px';
+            });
         }
-    });
+    }
 
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
 })();
 </script>
 <!-- ═══════════════ FIN TAXUSA AI CHAT ═══════════════ -->
