@@ -178,6 +178,9 @@
         <div class="lang-option" onclick="applyLanguage('en')">
             <img src="https://flagcdn.com/w20/us.png" alt=""> EN
         </div>
+        <div class="lang-option" onclick="applyLanguage('pt')">
+            <img src="https://flagcdn.com/w20/br.png" alt=""> PT
+        </div>
     </div>
 </div>
 
@@ -254,6 +257,20 @@
             noVerif: "Your account hasn't been verified yet.",
             resetOk: "Recovery email sent.",
             resetEmail: "Please enter your email above first."
+        },
+        pt: {
+            welcome: "Bem-vindo", create: "Criar Conta",
+            email: "E-mail", pass: "Senha",
+            login: "ENTRAR", register: "CADASTRAR",
+            noAccount: "Não tem conta? Cadastre-se aqui",
+            haveAccount: "Já tem conta? Entre aqui",
+            verif: "Enviaremos um e-mail de verificação. Verifique sua caixa ou SPAM. ✈️",
+            forgot: "Esqueceu sua senha?",
+            errFields: "Por favor, preencha todos os campos.",
+            regOk: "Cadastro realizado! Verificação enviada para ",
+            noVerif: "Sua conta ainda não foi verificada.",
+            resetOk: "E-mail de recuperação enviado.",
+            resetEmail: "Digite seu e-mail acima primeiro."
         }
     };
 
@@ -266,9 +283,10 @@
     window.applyLanguage = (lang) => {
         currentLang = lang;
         localStorage.setItem('appLang', lang);
-        const flagSrc = lang === 'es' ? 'https://flagcdn.com/w20/ar.png' : 'https://flagcdn.com/w20/us.png';
-        document.getElementById('selectedFlag').src = flagSrc;
-        document.getElementById('selectedCode').innerText = lang.toUpperCase();
+        const flags = { es: 'https://flagcdn.com/w20/ar.png', en: 'https://flagcdn.com/w20/us.png', pt: 'https://flagcdn.com/w20/br.png' };
+        const codes = { es: 'ES', en: 'EN', pt: 'PT' };
+        document.getElementById('selectedFlag').src = flags[lang];
+        document.getElementById('selectedCode').innerText = codes[lang] || lang.toUpperCase();
         document.getElementById('langOptions').classList.remove('show');
         applyTexts();
     };
