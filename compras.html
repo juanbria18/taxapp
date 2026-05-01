@@ -3,15 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TaxUSA — Gastos</title>
-    <script src="https://www.google.com/recaptcha/api.js?render=6LeK6cssAAAAALxcJy-95R2nhVMmnuIyB78AQgvw"></script>
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <title>TaxUSA — Itinerario</title>
+    <script src="https://www.google.com/recaptcha/api.js?render=6LeK6cssAAAAALxcJy-95R2nhVMmnuIyB78AQgvw" async defer></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <script>const _t=localStorage.getItem('theme');if(_t)document.documentElement.setAttribute('data-theme',_t);else if(window.matchMedia('(prefers-color-scheme:dark)').matches)document.documentElement.setAttribute('data-theme','dark');</script>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;800&display=swap" rel="stylesheet"></noscript>
+    <script>
+        const _t = localStorage.getItem('theme');
+        if (_t) document.documentElement.setAttribute('data-theme', _t);
+        else if (window.matchMedia('(prefers-color-scheme: dark)').matches) document.documentElement.setAttribute('data-theme','dark');
+    </script>
     <style>
-        :root{--primary:#2563eb;--primary-dim:rgba(37,99,235,.1);--accent:#7c3aed;--accent-dim:rgba(124,58,237,.1);--danger:#ef4444;--success:#10b981;--cyan:#0ea5e9;--bg:#f1f5f9;--surface:#fff;--surface-2:#f8fafc;--border:#e2e8f0;--input-bg:#f8fafc;--text:#0f172a;--text-sub:#64748b;--text-dim:#94a3b8;--header-color:#1e3a8a;--radius:20px;--radius-sm:12px;--shadow:0 4px 20px rgba(0,0,0,.06);--shadow-lg:0 12px 40px rgba(0,0,0,.1);--tr:all .25s cubic-bezier(.4,0,.2,1);}
-        [data-theme="dark"]{--bg:#0f172a;--surface:#1e293b;--surface-2:#273549;--border:#334155;--input-bg:#273549;--text:#f1f5f9;--text-sub:#94a3b8;--text-dim:#64748b;--header-color:#2563eb;--shadow:0 4px 20px rgba(0,0,0,.3);--shadow-lg:0 12px 40px rgba(0,0,0,.4);}
+        :root {
+            --primary:#7c3aed; --primary-dim:rgba(124,58,237,0.1);
+            --accent:#2563eb; --accent-dim:rgba(37,99,235,0.1);
+            --danger:#ef4444; --success:#10b981; --warn:#f59e0b;
+            --bg:#f1f5f9; --surface:#ffffff; --surface-2:#f8fafc;
+            --border:#e2e8f0; --input-bg:#f8fafc;
+            --text:#0f172a; --text-sub:#64748b; --text-dim:#94a3b8;
+            --header-color:#1e3a8a;
+            --radius:20px; --radius-sm:12px;
+            --shadow:0 4px 20px rgba(0,0,0,0.06); --shadow-lg:0 12px 40px rgba(0,0,0,0.1);
+            --tr:all 0.25s cubic-bezier(0.4,0,0.2,1);
+        }
+        [data-theme="dark"] {
+            --bg:#0f172a; --surface:#1e293b; --surface-2:#273549;
+            --border:#334155; --input-bg:#273549;
+            --text:#f1f5f9; --text-sub:#94a3b8; --text-dim:#64748b;
+            --header-color:#2563eb;
+            --shadow:0 4px 20px rgba(0,0,0,0.3); --shadow-lg:0 12px 40px rgba(0,0,0,0.4);
+        }
         *,*::before,*::after{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0;}
         body{font-family:'DM Sans',-apple-system,system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:16px 16px 40px;transition:background .3s,color .3s;-webkit-font-smoothing:antialiased;}
         .wrap{width:100%;max-width:460px;}
@@ -26,84 +47,44 @@
         .btn-nav-set:hover{border-color:var(--primary);}
         .card{background:var(--surface);border-radius:var(--radius);padding:20px;width:100%;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:14px;position:relative;}
         .slabel{font-size:.6rem;font-weight:800;color:var(--text-dim);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;display:block;}
-        input,select,textarea{width:100%;padding:13px 15px;background:var(--input-bg);border:1.5px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:inherit;font-size:.9rem;font-weight:600;outline:none;transition:var(--tr);-webkit-appearance:none;}
-        input:focus,select:focus,textarea:focus{border-color:var(--primary);background:var(--surface);box-shadow:0 0 0 3px var(--primary-dim);}
-        input::placeholder{color:var(--text-dim);font-weight:500;}
-        .input-group{margin-bottom:12px;}
-
-        .budget-card{background:linear-gradient(135deg,var(--primary),var(--accent));color:white;padding:20px 22px;border-radius:var(--radius);width:100%;margin-bottom:14px;box-shadow:0 8px 24px rgba(37,99,235,.3);}
-        .budget-label{font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;opacity:.9;margin-bottom:6px;}
-        .budget-value{font-size:2.2rem;font-weight:900;margin-bottom:14px;}
-        .budget-set{display:flex;gap:8px;background:rgba(255,255,255,.15);border-radius:12px;padding:8px 12px;align-items:center;}
-        .budget-set input{background:transparent;border:none;color:white;padding:4px 8px;font-weight:700;flex:1;width:60px;box-shadow:none!important;}
-        .budget-set input::placeholder{color:rgba(255,255,255,.7);}
-        .budget-set button{background:white;color:var(--primary);border:none;padding:8px 16px;border-radius:8px;font-weight:800;font-size:.8rem;cursor:pointer;flex-shrink:0;}
-
-        .tab-bar{display:flex;background:var(--surface-2);padding:5px;border-radius:14px;margin-bottom:16px;gap:4px;}
-        .tab-btn{flex:1;padding:11px;border:none;border-radius:10px;font-weight:800;cursor:pointer;background:transparent;color:var(--text-sub);font-size:.8rem;font-family:inherit;transition:var(--tr);}
-        .tab-btn.active{background:var(--surface);color:var(--primary);box-shadow:0 2px 8px rgba(0,0,0,.06);}
-
-        .smart-tip{background:rgba(16,185,129,.08);border:1.5px solid var(--success);border-radius:var(--radius-sm);padding:13px 14px;cursor:pointer;display:flex;align-items:flex-start;gap:10px;margin-bottom:14px;transition:var(--tr);}
-        .smart-tip:hover{opacity:.85;}
-        .st-icon{font-size:1.1rem;flex-shrink:0;margin-top:1px;}
-        .st-label{font-size:.55rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--success);margin-bottom:3px;}
+        select, textarea, input{width:100%;padding:14px 16px;background:var(--input-bg);border:1.5px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:inherit;font-size:.9rem;font-weight:600;outline:none;transition:var(--tr);-webkit-appearance:none;margin-bottom:12px;}
+        select:focus, textarea:focus, input:focus{border-color:var(--primary);background:var(--surface);box-shadow:0 0 0 3px var(--primary-dim);}
+        .queues-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+        .queue-card{background:var(--surface-2);border:1px solid var(--border);border-radius:14px;padding:12px 8px;text-align:center;display:flex;flex-direction:column;gap:4px;transition:var(--tr);}
+        .queue-name{font-size:.65rem;font-weight:800;color:var(--text-sub);text-transform:uppercase;letter-spacing:.5px;}
+        .queue-status{font-size:.85rem;font-weight:900;}
+        .q-low{color:var(--success);} .q-med{color:var(--warn);} .q-high{color:var(--danger);} .q-off{color:var(--text-dim);}
+        .smart-tip{background:var(--primary-dim);border:1.5px solid var(--primary);border-radius:var(--radius-sm);padding:13px 14px;cursor:pointer;display:flex;align-items:flex-start;gap:10px;margin-bottom:14px;}
+        .st-icon{font-size:1.1rem;flex-shrink:0;}
+        .st-label{font-size:.55rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--primary);margin-bottom:3px;}
         #tip-text{font-size:.8rem;font-weight:600;color:var(--text);line-height:1.4;transition:opacity .3s;}
-
-        .rates-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
-        .rate-box{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:8px;box-shadow:0 2px 8px rgba(0,0,0,.04);}
-        .rate-box.arg{border-top:3px solid var(--cyan);}
-        .rate-box.multi{border-top:3px solid var(--accent);}
-        .rate-label{font-size:.6rem;font-weight:800;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;}
-        .rate-row{display:flex;align-items:center;gap:6px;justify-content:center;}
-        .rate-row span{font-size:1rem;}
-        .rate-row input{padding:7px;font-size:.85rem;text-align:center;border:1px solid var(--border);border-radius:8px;background:var(--surface-2);width:100%;font-weight:700;}
-        .rate-divider{text-align:center;font-size:.7rem;color:var(--text-dim);font-weight:800;}
-        .currency-select{padding:6px 8px;font-size:.82rem;border:1px solid var(--border);background:var(--surface-2);border-radius:8px;font-weight:800;color:var(--accent);cursor:pointer;width:100%;-webkit-appearance:none;}
-
-        #scanner-ui{display:none;margin-bottom:14px;border-radius:var(--radius);overflow:hidden;background:#000;position:relative;width:100%;}
-        #video-preview{width:100%;display:block;}
-        .ocr-loading{position:absolute;inset:0;background:rgba(0,0,0,.7);color:white;display:none;flex-direction:column;align-items:center;justify-content:center;z-index:10;gap:8px;}
-        .close-scanner{position:absolute;top:12px;right:12px;width:34px;height:34px;background:rgba(255,255,255,.2);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-weight:800;z-index:20;border:none;}
-        .capture-btn{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);width:56px;height:56px;border-radius:50%;border:3px solid white;background:rgba(255,255,255,.25);color:white;font-size:1.4rem;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:5;}
-
-        .btn{width:100%;padding:14px;border:none;border-radius:var(--radius-sm);font-family:inherit;font-size:.85rem;font-weight:800;text-transform:uppercase;letter-spacing:.4px;cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:10px;}
-        .btn:active{transform:scale(.97);}
-        .btn-primary{background:var(--primary);color:white;box-shadow:0 4px 14px rgba(37,99,235,.3);}
-        .btn-cyan{background:var(--cyan);color:white;box-shadow:0 4px 14px rgba(14,165,233,.3);}
-        .btn-ghost{background:transparent;color:var(--text-sub);border:1.5px solid var(--border);}
-
-        .history-item{background:var(--surface-2);padding:13px 15px;border-radius:var(--radius-sm);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;border-left:3px solid var(--primary);}
-        .h-name{font-weight:700;font-size:.9rem;}
-        .h-right{display:flex;align-items:center;gap:10px;}
-        .h-amount{font-weight:800;color:var(--danger);font-size:.9rem;}
-        .h-del{background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:1rem;font-weight:800;padding:4px;}
-        .h-del:hover{color:var(--danger);}
-
-        .scanner-warn{background:rgba(245,158,11,.08);border:1.5px solid var(--warn);border-radius:var(--radius-sm);padding:11px 13px;font-size:.8rem;font-weight:700;color:var(--warn);margin-bottom:12px;display:none;}
-
-        .sizes-title{font-weight:900;color:var(--primary);font-size:.85rem;margin:16px 0 8px;padding-bottom:4px;border-bottom:2px solid var(--border);display:flex;justify-content:space-between;text-transform:uppercase;}
-        .sizes-grid{display:flex;gap:8px;margin-bottom:16px;}
-        .size-table{flex:1;width:100%;border-collapse:collapse;background:var(--surface-2);border-radius:10px;overflow:hidden;border:1px solid var(--border);}
-        .size-table th,.size-table td{padding:7px 4px;text-align:center;border:1px solid var(--border);font-size:.65rem;color:var(--text);}
-        .size-table th{background:var(--input-bg);font-weight:800;color:var(--text-sub);}
-
+        .btn-primary{width:100%;padding:15px;background:var(--primary);color:white;border:none;border-radius:var(--radius-sm);font-weight:800;font-size:.85rem;text-transform:uppercase;letter-spacing:.5px;cursor:pointer;transition:var(--tr);box-shadow:0 4px 14px rgba(124,58,237,.3);}
+        .btn-primary:active{transform:scale(.97);}
+        .note-item{background:var(--surface-2);padding:14px 16px;border-radius:var(--radius-sm);margin-bottom:10px;display:flex;justify-content:space-between;align-items:flex-start;border-left:4px solid var(--primary);}
+        .note-text{font-size:.9rem;font-weight:600;flex:1;margin-right:10px;}
+        .note-del{background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:1.2rem;line-height:1;}
         .app-footer{margin-top:8px;padding:12px 0;text-align:center;font-size:.7rem;color:var(--text-dim);font-weight:600;display:flex;align-items:center;justify-content:center;gap:6px;}
         .app-footer img{width:16px;border-radius:2px;}
-
+        .api-note{font-size:.55rem;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;opacity:.6;text-align:center;margin-top:4px;}
         .menu-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;z-index:1000;backdrop-filter:blur(4px);}
         .settings-drawer{position:fixed;top:0;right:-300px;width:290px;height:100%;background:var(--surface);z-index:1001;transition:.3s ease;padding:28px 20px;display:flex;flex-direction:column;box-shadow:-8px 0 30px rgba(0,0,0,.15);border-left:1px solid var(--border);overflow-y:auto;}
         .settings-drawer.open{right:0;}
         .drawer-header{font-size:1.1rem;font-weight:900;color:var(--primary);margin-bottom:4px;}
         .drawer-email{font-size:.75rem;color:var(--text-dim);font-weight:600;margin-bottom:20px;}
-        .drawer-section-label{font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);margin-bottom:8px;display:block;}
-        .lang-selector{display:flex;background:var(--input-bg);border-radius:var(--radius-sm);padding:4px;gap:4px;margin-bottom:14px;border:1.5px solid var(--border);}
-        .lang-opt{flex:1;padding:8px 4px;border-radius:8px;border:none;background:transparent;cursor:pointer;font-size:.75rem;font-weight:800;color:var(--text-sub);font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px;transition:var(--tr);}
-        .lang-opt img{width:18px;border-radius:2px;}
-        .lang-opt.active{background:var(--primary);color:white;}
         .drawer-btn{width:100%;padding:12px 14px;border-radius:var(--radius-sm);border:1.5px solid var(--border);background:var(--input-bg);color:var(--text);cursor:pointer;font-weight:700;margin-bottom:8px;font-size:.85rem;text-align:left;font-family:inherit;transition:var(--tr);display:flex;align-items:center;gap:10px;}
-        .drawer-btn:hover{background:var(--surface-2);border-color:var(--primary);}
-        .btn-danger{color:var(--danger)!important;border-color:rgba(239,68,68,.3)!important;}
+        .lang-selector{display:flex;background:var(--input-bg);border-radius:var(--radius-sm);padding:4px;gap:4px;margin-bottom:14px;border:1.5px solid var(--border);}
+        .lang-opt{flex:1;padding:8px 4px;border-radius:8px;border:none;background:transparent;cursor:pointer;font-size:.75rem;font-weight:800;color:var(--text-sub);display:flex;align-items:center;justify-content:center;gap:6px;}
+        .lang-opt.active{background:var(--primary);color:white;}
+        .lang-opt img{width:18px;border-radius:2px;}
     </style>
+    <script>
+        // Registrar Service Worker para cache offline y carga rápida
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').catch(() => {});
+            });
+        }
+    </script>
 </head>
 <body>
 <div class="wrap">
@@ -118,382 +99,295 @@
   TaxUSA
 </div>
     </div>
+
     <nav class="nav-bar">
         <a href="index.html" class="btn-nav"><span class="ni">🏠</span><span data-i18n="nav_home">INICIO</span></a>
-        <a href="itinerario.html" class="btn-nav"><span class="ni">📍</span><span data-i18n="nav_itinerary">ITINERARIO</span></a>
-        <a href="unidades.html" class="btn-nav"><span class="ni">⚖️</span><span data-i18n="nav_units">UNIDADES</span></a>      
+        <a href="compras.html" class="btn-nav"><span class="ni">🛍️</span><span data-i18n="nav_expenses">GASTOS</span></a>
+        <a href="unidades.html" class="btn-nav"><span class="ni">⚖️</span><span data-i18n="nav_units">UNIDADES</span></a>
         <button class="btn-nav-set" id="btnSettings" onclick="toggleSettings()"></button>
     </nav>
 
-    <div class="budget-card">
-        <div class="budget-label" data-i18n="label_budget">Presupuesto Restante</div>
-        <div class="budget-value" id="disp-fondo">USD 0.00</div>
-        <div class="budget-set">
-            <input type="number" id="input-fondo" placeholder="TOTAL USD" step="0.01" inputmode="decimal">
-            <button onclick="updateFondo()" data-i18n="btn_set">SET</button>
-        </div>
-    </div>
+    <div class="card">
+        <span class="slabel" data-i18n="itinerary_title">📍 Planificador de Viaje</span>
+        <select id="citySelector" onchange="renderCityData()">
+            <option value="orlando" data-i18n="city_orlando">🎡 Orlando</option>
+            <option value="nyc" data-i18n="city_nyc">🍎 Nueva York</option>
+            <option value="miami" data-i18n="city_miami">🏖️ Miami</option>
+            <option value="vegas" data-i18n="city_vegas">🎲 Las Vegas</option>
+            <option value="la" data-i18n="city_la">🎬 Los Ángeles</option>
+            <option value="sf" data-i18n="city_sf">🌉 San Francisco</option>
+            <option value="chicago" data-i18n="city_chicago">🏢 Chicago</option>
+            <option value="dc" data-i18n="city_dc">🏛️ Washington D.C.</option>
+        </select>
 
-    <div id="scanner-ui">
-        <button class="close-scanner" onclick="stopScanner()">✕</button>
-        <div id="ocr-loader" class="ocr-loading">
-            <span id="ocr-status" data-i18n="ocr_analyzing">Analizando ticket... 🧐</span>
-            <small data-i18n="ocr_detecting">Detectando Totales y Taxes</small>
+        <div class="queues-grid" id="dynamicQueues"></div>
+
+        <div class="smart-tip" onclick="nextTip()">
+            <span class="st-icon">✨</span>
+            <div>
+                <div class="st-label" data-i18n="tip_label">TIP DE VIAJE</div>
+                <div id="tip-text">Cargando tips...</div>
+            </div>
         </div>
-        <video id="video-preview" autoplay playsinline></video>
-        <button class="capture-btn" onclick="captureTicket()">📸</button>
     </div>
-    <canvas id="ocr-canvas" style="display:none;"></canvas>
 
     <div class="card">
-        <div class="smart-tip" onclick="nextTip()">
-            <span class="st-icon">🛍️</span>
-            <div>
-                <div class="st-label" data-i18n="shopping_guide">GUÍA DE COMPRAS</div>
-                <div id="tip-text">Cargando consejos...</div>
-            </div>
-        </div>
-
-        <div class="tab-bar">
-            <button class="tab-btn active" id="t-gastos" onclick="showSec('gastos')" data-i18n="tab_list">GASTOS</button>
-            <button class="tab-btn" id="t-talles" onclick="showSec('talles')" data-i18n="tab_sizes">TALLES</button>
-        </div>
-
-        <div id="sec-gastos">
-            <div class="scanner-warn" id="scanner-warning" data-i18n="scanner_beta_msg">⚠️ El escáner está en beta. Verificá siempre el monto detectado.</div>
-            <button class="btn btn-cyan" onclick="startScanner()">📷 <span data-i18n="btn_scan_ticket">ESCANEAR TICKET</span></button>
-
-            <!-- Exchange rates -->
-            <span class="slabel" style="margin-bottom:10px;" data-i18n="label_exchange">Cotizaciones</span>
-            <div class="rates-grid">
-                <div class="rate-box arg">
-                    <div class="rate-label" data-i18n="rate_official">Dólar Oficial</div>
-                    <div class="rate-row"><span><img src="https://flagcdn.com/20x15/us.png" alt="United States"></span><input type="text" id="oficial-usd" value="1" oninput="formatVisual(this);convert('oficial','usd')"></div>
-                    <div class="rate-divider">⇅</div>
-                    <div class="rate-row"><span></span><img src="https://flagcdn.com/20x15/ar.png" alt="Argentina"><input type="text" id="oficial-local" oninput="formatVisual(this);convert('oficial','local')"></div>
-                </div>
-                <div class="rate-box arg">
-                    <div class="rate-label" data-i18n="rate_card">Dólar Tarjeta</div>
-                    <div class="rate-row"><span><img src="https://flagcdn.com/20x15/us.png" alt="United States"></span><input type="text" id="tarjeta-usd" value="1" oninput="formatVisual(this);convert('tarjeta','usd')"></div>
-                    <div class="rate-divider">⇅</div>
-                    <div class="rate-row"><span><img src="https://flagcdn.com/20x15/ar.png" alt="Argentina"></span><input type="text" id="tarjeta-local" oninput="formatVisual(this);convert('tarjeta','local')"></div>
-                </div>
-                <div class="rate-box multi">
-                    <select id="select-eur" class="currency-select" onchange="updateMulti('eur')">
-                        <option value="EUR">Euro</option><option value="GBP" data-i18n="opt_pound">Libra</option><option value="CHF" data-i18n="opt_swiss">F. Suizo</option>
-                    </select>
-                    <div class="rate-row"><span><img src="https://flagcdn.com/20x15/us.png" alt="United States"></span><input type="text" id="eur-usd" value="1" oninput="formatVisual(this);convert('eur','usd')"></div>
-                    <div class="rate-divider">⇅</div>
-                    <div class="rate-row"><span id="flag-eur"><img src="https://flagcdn.com/20x15/eu.png" alt="European Union"></span><input type="text" id="eur-local" oninput="formatVisual(this);convert('eur','local')"></div>
-                </div>
-                <div class="rate-box multi">
-                    <select id="select-brl" class="currency-select" onchange="updateMulti('brl')">
-                        <option value="BRL" data-i18n="opt_real">Real</option><option value="CLP" data-i18n="opt_clp">P. Chileno</option><option value="UYU" data-i18n="opt_uyu">P. Uruguayo</option><option value="MXN" data-i18n="opt_mxn">P. Mexicano</option><option value="PEN" data-i18n="opt_pen">Sol Peruano</option><option value="COP" data-i18n="opt_cop">P. Colombiano</option>
-                    </select>
-                    <div class="rate-row"><span><img src="https://flagcdn.com/20x15/us.png" alt="United States"></span><input type="text" id="brl-usd" value="1" oninput="formatVisual(this);convert('brl','usd')"></div>
-                    <div class="rate-divider">⇅</div>
-                    <div class="rate-row"><span id="flag-brl"><img src="https://flagcdn.com/20x15/br.png" alt="Brazil"></span><input type="text" id="brl-local" oninput="formatVisual(this);convert('brl','local')"></div>
-                </div>
-            </div>
-
-            <div class="input-group"><input type="text" id="nombre" placeholder="Producto" data-i18n-ph="placeholder_product"></div>
-            <div class="input-group"><input type="number" id="valor" placeholder="Precio USD" step="0.01" inputmode="decimal" data-i18n-ph="placeholder_price"></div>
-            <button class="btn btn-primary" onclick="addGasto()">💾 <span data-i18n="btn_save_expense">GUARDAR GASTO</span></button>
-            <div id="listaGastos"><p style="text-align:center;color:var(--text-dim);font-size:.85rem;" data-i18n="loading">Cargando...</p></div>
-        </div>
-
-        <div id="sec-talles" style="display:none;">
-            <div class="sizes-title" data-i18n="title_footwear">👟 Calzado (ARG → US)</div>
-            <div class="sizes-grid">
-                <table class="size-table"><thead><tr><th>ARG</th><th data-i18n="th_men">H</th><th data-i18n="th_women">M</th></tr></thead><tbody><tr><td>35</td><td>-</td><td>5</td></tr><tr><td>36</td><td>-</td><td>6</td></tr><tr><td>37</td><td>-</td><td>7</td></tr><tr><td>38</td><td>6</td><td>8</td></tr><tr><td>39</td><td>7</td><td>9</td></tr><tr><td>40</td><td>8</td><td>10</td></tr></tbody></table>
-                <table class="size-table"><thead><tr><th>ARG</th><th data-i18n="th_men">H</th><th data-i18n="th_women">M</th></tr></thead><tbody><tr><td>41</td><td>9</td><td>11</td></tr><tr><td>42</td><td>10</td><td>12</td></tr><tr><td>43</td><td>11</td><td>-</td></tr><tr><td>44</td><td>12</td><td>-</td></tr><tr><td>45</td><td>13</td><td>-</td></tr><tr><td>46</td><td>14</td><td>-</td></tr></tbody></table>
-            </div>
-            <div class="sizes-title" data-i18n="title_tops">👕 Remeras / Tops</div>
-            <table class="size-table" style="table-layout:auto;"><thead><tr><th>ARG</th><th data-i18n="th_equiv">EQUIV. US</th></tr></thead><tbody><tr><td>XS</td><td>S</td></tr><tr><td>S</td><td>M</td></tr><tr><td>M</td><td>L</td></tr><tr><td>L</td><td>XL</td></tr><tr><td>XL</td><td>2XL</td></tr><tr><td>2XL</td><td>3XL</td></tr></tbody></table>
-            <div class="sizes-title" data-i18n="title_jackets">🧥 Buzos / Camperas</div>
-            <table class="size-table" style="table-layout:auto;"><thead><tr><th>ARG</th><th>US SIZE</th></tr></thead><tbody><tr><td>S</td><td>XS/S</td></tr><tr><td>M</td><td>S/M</td></tr><tr><td>L</td><td>M/L</td></tr><tr><td>XL</td><td>L/XL</td></tr><tr><td>XXL</td><td>XL/XXL</td></tr></tbody></table>
-        </div>
+        <span class="slabel" data-i18n="label_notes">Notas y Recordatorios</span>
+        <textarea id="noteInput" rows="3" data-i18n-placeholder="note_placeholder" placeholder="Vuelos, hoteles..."></textarea>
+        <button class="btn-primary" onclick="addNote()" data-i18n="btn_add_note">AGREGAR NOTA</button>
+        
+        <div id="notesList" style="margin-top:20px;"></div>
     </div>
 
-    <div class="app-footer"><span data-i18n="footer_by">Creado por Juan Cruz Bria</span><img src="https://flagcdn.com/w40/ar.png" alt="AR"></div>
-</div><!-- /wrap -->
+    <div class="app-footer">
+        <span data-i18n="footer_by">Creado por Juan Cruz Bria</span>
+        <img src="https://flagcdn.com/w40/ar.png" alt="AR">
+        <div class="api-note"> Powered by Queue-Times.com - Dolarapi</div>
+    </div>
+</div>
 
+<!-- SETTINGS DRAWER -->
 <div id="menuOverlay" class="menu-overlay" onclick="toggleSettings()"></div>
 <div id="settingsDrawer" class="settings-drawer">
     <div class="drawer-header"><span data-i18n="settings_title">Ajustes</span></div>
     <p id="userEmail" class="drawer-email"></p>
-    <span class="drawer-section-label" data-i18n="label_language">Idioma</span>
+    <span class="drawer-section-label" style="font-size:.6rem;font-weight:800;text-transform:uppercase;color:var(--text-dim);margin-bottom:8px;display:block;" data-i18n="label_language">Idioma</span>
     <div class="lang-selector">
         <button class="lang-opt" id="lang-es" onclick="window.changeLanguage('es')"><img src="https://flagcdn.com/w20/ar.png" alt=""> ES</button>
         <button class="lang-opt" id="lang-en" onclick="window.changeLanguage('en')"><img src="https://flagcdn.com/w20/us.png" alt=""> EN</button>
     </div>
     <button class="drawer-btn" onclick="changeProfile()">👤 <span data-i18n="btn_change_profile">Cambiar Perfil</span></button>
     <button class="drawer-btn" onclick="toggleDarkMode()">🌓 <span data-i18n="btn_theme">Cambiar Tema</span></button>
-    <button class="drawer-btn" onclick="location.reload()">🔄 <span data-i18n="btn_update">Actualizar App</span></button>
-    <button class="drawer-btn" onclick="doChangeEmail()">📧 <span data-i18n="btn_email">Cambiar Correo</span></button>
-    <button class="drawer-btn" onclick="doChangePassword()">🔑 <span data-i18n="btn_password">Cambiar Contraseña</span></button>
+    <button class="drawer-btn" onclick="location.reload()">🔄 <span data-i18n="btn_refresh">Actualizar App</span></button>
+    <button class="drawer-btn" onclick="executeWithToken(changeEmail)">📧 <span data-i18n="btn_change_email">Cambiar Correo</span></button>
+    <button class="drawer-btn" onclick="executeWithToken(changePassword)">🔑<span data-i18n="btn_change_pass">Cambiar Contraseña</span></button>
     <button class="drawer-btn" onclick="doLogout()">🚪 <span data-i18n="btn_logout">Cerrar Sesión</span></button>
-    <div style="margin-top:auto;padding-top:16px;"><button class="drawer-btn btn-danger" onclick="doDeleteAccount()">🗑️ <span data-i18n="btn_delete">Eliminar Cuenta</span></button></div>
+    <div style="margin-top: auto; padding-top: 20px;">
+     <button class="drawer-btn btn-danger-text" onclick="executeWithToken(deleteAccount)">🗑️ <span data-i18n="btn_delete_acc">Eliminar Cuenta</span></button>
 </div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-import { getAuth, onAuthStateChanged, signOut, sendPasswordResetEmail, deleteUser, verifyBeforeUpdateEmail } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
-import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, deleteDoc, doc, setDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
-import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app-check.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+    import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, deleteDoc, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
-const FB = { apiKey:"AIzaSyCm0Ig-CPklsjf6j-1uSAeF6I8xtyQKj7U", authDomain:"viajes-db538.firebaseapp.com", projectId:"viajes-db538", storageBucket:"viajes-db538.firebasestorage.googleapis.com", messagingSenderId:"1053003173098", appId:"1:1053003173098:web:ecf5cdc31b9cca17e2151f" };
-const app = initializeApp(FB);
-const auth = getAuth(app);
-const db = getFirestore(app);
-initializeAppCheck(app, { provider: new ReCaptchaV3Provider('6LeK6cssAAAAALxcJy-95R2nhVMmnuIyB78AQgvw'), isTokenAutoRefreshEnabled: true });
+    const firebaseConfig = { 
+        apiKey: "AIzaSyCm0Ig-CPklsjf6j-1uSAeF6I8xtyQKj7U", 
+        authDomain: "viajes-db538.firebaseapp.com", 
+        projectId: "viajes-db538", 
+        storageBucket: "viajes-db538.firebasestorage.app", 
+        messagingSenderId: "237311739178", 
+        appId: "1:237311739178:web:333e468b184c0402a98a53" 
+    };
 
-let currentUser = null;
-const perfilId = localStorage.getItem('perfilActivoId');
-const perfilFoto = localStorage.getItem('perfilActivoFoto');
-let presupuestoBase = 0;
-let allRates = {};
-let baseRates = { oficial:0, tarjeta:0, eur:0, brl:0 };
-const flags = {
-  EUR: '<img src="https://flagcdn.com/20x15/eu.png">',
-  GBP: '<img src="https://flagcdn.com/20x15/gb.png">',
-  CHF: '<img src="https://flagcdn.com/20x15/ch.png">',
-  BRL: '<img src="https://flagcdn.com/20x15/br.png">',
-  CLP: '<img src="https://flagcdn.com/20x15/cl.png">',
-  UYU: '<img src="https://flagcdn.com/20x15/uy.png">',
-  MXN: '<img src="https://flagcdn.com/20x15/mx.png">',
-  PEN: '<img src="https://flagcdn.com/20x15/pe.png">',
-  COP: '<img src="https://flagcdn.com/20x15/co.png">'
-};
-    let tipIndex = 0;
-let video, stream;
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    
+    let currentUser = null;
+    const perfilId = localStorage.getItem('perfilActivoId');
+    const perfilFoto = localStorage.getItem('perfilActivoFoto');
+    let currentTipIndex = 0;
 
-const i18n = {
-    es:{ nav_home:"INICIO",nav_itinerary:"ITINERARIO",nav_compare:"COMPARAR",nav_units:"UNIDADES",label_budget:"Presupuesto Restante",btn_set:"SET",ocr_analyzing:"Analizando ticket... 🧐",ocr_detecting:"Detectando Totales y Taxes",shopping_guide:"🛍️ GUÍA DE COMPRAS",tab_list:"GASTOS",tab_sizes:"TALLES",scanner_beta_msg:"⚠️ El escáner está en beta. Verificá siempre el monto detectado.",btn_scan_ticket:"ESCANEAR TICKET",rate_official:"Dólar Oficial",rate_card:"Dólar Tarjeta",label_exchange:"Cotizaciones",opt_pound:"Libra",opt_swiss:"F. Suizo",opt_real:"Real",opt_clp:"P. Chileno",opt_uyu:"P. Uruguayo",opt_mxn:"P. Mexicano",opt_pen:"Sol Peruano",opt_cop:"P. Colombiano",placeholder_product:"Producto",placeholder_price:"Precio USD",btn_save_expense:"GUARDAR GASTO",loading:"Cargando...",title_footwear:"👟 Calzado (ARG → US)",th_men:"H",th_women:"M",th_equiv:"EQUIV. US",title_tops:"👕 Remeras / Tops",title_jackets:"🧥 Buzos / Camperas",settings_title:"Ajustes",label_language:"Idioma",btn_change_profile:"Cambiar Perfil",btn_theme:"Cambiar Tema",btn_update:"Actualizar App",btn_email:"Cambiar Correo",btn_password:"Cambiar Contraseña",btn_logout:"Cerrar Sesión",btn_delete:"Eliminar Cuenta",footer_by:"Creado por Juan Cruz Bria",alert_no_total:"No se detectó el total. Cargalo manualmente.", alert_upcoming: "🚀 El Comparador de Precios estará disponible próximamente." },
-    en:{ nav_home:"HOME",nav_itinerary:"ITINERARY",nav_compare:"COMPARE",nav_units:"UNITS",label_budget:"Remaining Budget",btn_set:"SET",ocr_analyzing:"Analyzing ticket... 🧐",ocr_detecting:"Detecting Totals and Taxes",shopping_guide:"🛍️ SHOPPING GUIDE",tab_list:"EXPENSES",tab_sizes:"SIZES",scanner_beta_msg:"⚠️ Scanner is in beta. Always verify the detected amount.",btn_scan_ticket:"SCAN TICKET",rate_official:"Official Dollar",rate_card:"Card Dollar",label_exchange:"Exchange Rates",opt_pound:"Pound",opt_swiss:"Swiss F.",opt_real:"Real",opt_clp:"Chilean P.",opt_uyu:"Uruguayan P.",opt_mxn:"Mexican P.",opt_pen:"Peruvian Sol",opt_cop:"Colombian P.",placeholder_product:"Product Name",placeholder_price:"Price in USD",btn_save_expense:"SAVE EXPENSE",loading:"Loading...",title_footwear:"👟 Footwear (ARG → US)",th_men:"M",th_women:"W",th_equiv:"US SIZE",title_tops:"👕 T-Shirts / Tops",title_jackets:"🧥 Hoodies / Jackets",settings_title:"Settings",label_language:"Language",btn_change_profile:"Change Profile",btn_theme:"Toggle Theme",btn_update:"Update App",btn_email:"Change Email",btn_password:"Change Password",btn_logout:"Sign Out",btn_delete:"Delete Account",footer_by:"Created by Juan Cruz Bria",alert_no_total:"Total not detected. Please enter it manually.", alert_upcoming: "🚀 The Price Comparator will be available soon." }
-};
-
-const shoppingTips = {
-    es:["Jersey Gardens (NJ): ¡Tax Free! No pagás impuesto en ropa ni calzado.","El precio de etiqueta NO incluye el Tax (aprox. 7-9%).","Ross/Marshalls: Los mejores precios están en los racks de 'Clearance'.","Apple: Comprá 'Refurbished' en su web oficial para ahorrar un 15%.","Best Buy: Tienen sección 'Open Box' con productos casi nuevos rebajados.","Cupones: Descargá 'RetailMeNot' para descuentos en el momento.","Seguridad: Nunca dejes bolsas visibles dentro del auto estacionado.","Un 'M' en USA suele ser un 'L' en Argentina. ¡Probate siempre!","Siempre tené billetes de $1 y $5 USD para propinas rápidas.","Premium Outlets: Registrate en su web para recibir cuponeras VIP gratis.","Pesá tu valija antes de ir al aeropuerto; el límite suele ser 23 kg.","Avisá en tu homebanking que vas a usar la tarjeta en el exterior."],
-    en:["Jersey Gardens (NJ): Tax Free! No tax on clothing or footwear.","The price tag does NOT include sales tax (approx. 7-9%).","Ross Stores / Marshalls: Best deals are in the Clearance racks.","Apple: Buy Refurbished on their official site to save around 15%.","Best Buy has an Open Box section with nearly new discounted products.","Download RetailMeNot for instant in-store discounts.","Safety: Never leave shopping bags visible inside a parked car.","A Medium (M) in the US is usually a Large (L). Always try things on!","Always carry $1 and $5 bills for quick tips.","Premium Outlets: Sign up for free VIP coupon booklets.","Weigh your suitcase before the airport; limit is usually 23 kg (50 lb).","Notify your bank that you'll be using your card abroad."]
-};
-
-const knownStores = ["ROSS","MARSHALLS","WALMART","APPLE","BEST BUY","TARGET","TJ MAXX","MACY'S","ZARA","H&M","NIKE","ADIDAS","AMAZON","COSTCO","FOOT LOCKER","JD SPORTS","BATH & BODY WORKS"];
-
-window.formatVisual = (inp) => {
-    let v = inp.value.replace(/[^\d.]/g,'');
-    let p = v.split('.');
-    if(p.length>2) v = p[0]+'.'+p.slice(1).join('');
-    if(v==='') return;
-    let int = p[0].replace(/\B(?=(\d{3})+(?!\d))/g,',');
-    inp.value = v.includes('.') ? int+'.'+(p[1]||'').substring(0,2) : int;
-};
-function cleanVal(s){ return parseFloat((s||'').toString().replace(/,/g,''))||0; }
-function fmt(n){ return parseFloat(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
-
-window.nextTip = () => {
-    const lang = localStorage.getItem('appLang')||'es';
-    const list = shoppingTips[lang];
-    tipIndex = (tipIndex+1)%list.length;
-    const el = document.getElementById('tip-text');
-    if(el){ el.style.opacity=0; setTimeout(()=>{el.innerText=list[tipIndex];el.style.opacity=1;},300); }
-};
-
-window.changeLanguage = (lang) => {
-    localStorage.setItem('appLang',lang);
-    document.documentElement.setAttribute('lang', lang);
-    document.querySelectorAll('.lang-opt').forEach(o=>o.classList.remove('active'));
-    document.getElementById('lang-'+lang)?.classList.add('active');
-    document.querySelectorAll('[data-i18n]').forEach(el=>{
-        const k=el.getAttribute('data-i18n');
-        if(i18n[lang]?.[k]) el.innerText=i18n[lang][k];
-    });
-    document.querySelectorAll('[data-i18n-ph]').forEach(el=>{
-        const k=el.getAttribute('data-i18n-ph');
-        if(i18n[lang]?.[k]) el.placeholder=i18n[lang][k];
-    });
-    const el=document.getElementById('tip-text');
-    if(el) el.innerText=shoppingTips[lang][tipIndex];
-    document.title = lang === 'en' ? 'TaxUSA — Expenses' : 'TaxUSA — Gastos';
-};
-
-async function fetchRates(){
-    try{
-        const r1=await fetch('https://dolarapi.com/v1/dolares');
-        const d1=await r1.json();
-        baseRates.oficial=d1.find(d=>d.casa==='oficial')?.venta||0;
-        baseRates.tarjeta=d1.find(d=>d.casa==='tarjeta')?.venta||0;
-        const r2=await fetch('https://open.er-api.com/v6/latest/USD');
-        const d2=await r2.json();
-        allRates=d2.rates;
-        baseRates.eur=allRates.EUR; baseRates.brl=allRates.BRL;
-        document.getElementById('oficial-local').value=fmt(baseRates.oficial);
-        document.getElementById('tarjeta-local').value=fmt(baseRates.tarjeta);
-        document.getElementById('eur-local').value=fmt(baseRates.eur);
-        document.getElementById('brl-local').value=fmt(baseRates.brl);
-    }catch(e){console.error(e);}
-}
-window.updateMulti=(type)=>{
-    const code=document.getElementById(`select-${type}`).value;
-    baseRates[type]=allRates[code];
-    document.getElementById(`flag-${type}`).innerHTML = flags[code];;
-    document.getElementById(`${type}-usd`).value='1.00';
-    document.getElementById(`${type}-local`).value=fmt(baseRates[type]);
-};
-window.convert=(type,dir)=>{
-    const u=document.getElementById(`${type}-usd`),l=document.getElementById(`${type}-local`);
-    const r=baseRates[type];
-    if(dir==='usd') l.value=fmt(cleanVal(u.value)*r);
-    else u.value=fmt(cleanVal(l.value)/r);
-};
-
-window.updateFondo=async()=>{
-    const v=parseFloat(document.getElementById('input-fondo').value);
-    if(isNaN(v)||v<0){alert('Monto inválido.');return;}
-    if(currentUser&&perfilId){
-        try{
-            await updateDoc(doc(db,'usuarios',currentUser.uid,'perfiles',perfilId),{presupuesto:v});
-            presupuestoBase=v;
-        }catch(e){alert('Error al guardar.');}
-    }
-};
-
-window.addGasto=async()=>{
-    const n=document.getElementById('nombre').value,v=parseFloat(document.getElementById('valor').value);
-    if(!n||isNaN(v)||v<=0||!currentUser||!perfilId){alert('Completá nombre y precio.');return;}
-    try{
-        await addDoc(collection(db,'usuarios',currentUser.uid,'perfiles',perfilId,'gastos'),{nombre:n,valor:v,fecha:Date.now()});
-        document.getElementById('nombre').value='';
-        document.getElementById('valor').value='';
-    }catch(e){console.error(e);}
-};
-window.deleteGasto=async(id)=>{
-    if(!confirm('¿Eliminar este gasto?')||!currentUser||!perfilId)return;
-    try{await deleteDoc(doc(db,'usuarios',currentUser.uid,'perfiles',perfilId,'gastos',id));}
-    catch(e){console.error(e);}
-};
-
-function listenGastos(){
-    if(!currentUser||!perfilId)return;
-    const q=query(collection(db,'usuarios',currentUser.uid,'perfiles',perfilId,'gastos'),orderBy('fecha','desc'));
-    onSnapshot(q,(snap)=>{
-        const c=document.getElementById('listaGastos');
-        let total=0;
-        if(snap.empty){c.innerHTML='<p style="text-align:center;color:var(--text-dim);font-size:.85rem;">No hay gastos.</p>';updateBudgetDisplay(0);return;}
-        c.innerHTML=snap.docs.map(d=>{
-            const data=d.data(),val=parseFloat(data.valor)||0;
-            total+=val;
-            return `<div class="history-item"><div class="h-name">${data.nombre}</div><div class="h-right"><div class="h-amount">-$${fmt(val)}</div><button class="h-del" onclick="deleteGasto('${d.id}')">✕</button></div></div>`;
-        }).join('');
-        updateBudgetDisplay(total);
-    });
-}
-function updateBudgetDisplay(spent){
-    const el=document.getElementById('disp-fondo');
-    if(el) el.innerText='USD '+fmt(presupuestoBase-spent);
-}
-
-window.showSec=(s)=>{
-    document.getElementById('sec-gastos').style.display=s==='gastos'?'block':'none';
-    document.getElementById('sec-talles').style.display=s==='talles'?'block':'none';
-    document.getElementById('t-gastos').className=s==='gastos'?'tab-btn active':'tab-btn';
-    document.getElementById('t-talles').className=s==='talles'?'tab-btn active':'tab-btn';
-};
-
-window.startScanner=async()=>{
-    document.getElementById('scanner-ui').style.display='block';
-    document.getElementById('scanner-warning').style.display='block';
-    video=document.getElementById('video-preview');
-    try{
-        stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});
-        video.srcObject=stream;
-    }catch(e){alert('Cámara no disponible.');stopScanner();}
-};
-window.stopScanner=()=>{
-    if(stream)stream.getTracks().forEach(t=>t.stop());
-    document.getElementById('scanner-ui').style.display='none';
-    document.getElementById('ocr-loader').style.display='none';
-};
-window.captureTicket=async()=>{
-    const loader=document.getElementById('ocr-loader');
-    loader.style.display='flex';
-    const canvas=document.getElementById('ocr-canvas');
-    canvas.width=video.videoWidth;canvas.height=video.videoHeight;
-    canvas.getContext('2d').drawImage(video,0,0);
-    try{
-        const worker=await Tesseract.createWorker('eng');
-        const {data:{text}}=await worker.recognize(canvas.toDataURL('image/jpeg',0.9));
-        await worker.terminate();
-        parseTicket(text);
-        stopScanner();
-    }catch(e){alert('Error OCR.');loader.style.display='none';}
-};
-function parseTicket(text){
-    const lines=text.toUpperCase().split('\n').map(l=>l.trim()).filter(l=>l);
-    let store='Compra',total=0,subtotal=0,taxes=0,montoEnt=0,vuelto=0,all=[];
-    for(let s of knownStores){if(text.toUpperCase().includes(s)){store=s;break;}}
-    const kwTotal=["TOTAL","GRAND TOTAL","AMOUNT DUE","TOTAL PAYABLE","SALE TOTAL"];
-    const kwPay=["VISA","MASTERCARD","DEBIT","CASH","AMEX"];
-    const kwChange=["CHANGE","CHANGE DUE","CASH BACK"];
-    const kwSub=["SUBTOTAL","SUB TOTAL","MDSE TOTAL"];
-    const kwTax=["TAX","SALES TAX"];
-    const kwEx=["TOTAL ITEMS","ITEMS","UNIT PRICE"];
-    lines.forEach(l=>{
-        const m=l.match(/\d{1,3}(?:,\d{3})*(?:\.\d{2})|\d+(?:\.\d{2})/g);
-        if(!m)return;
-        m.forEach(str=>{
-            const v=parseFloat(str.replace(/,/g,''));if(isNaN(v))return;
-            all.push(v);
-            if(kwChange.some(k=>l.includes(k))) vuelto=Math.max(vuelto,v);
-            else if(kwSub.some(k=>l.includes(k))) subtotal=v;
-            else if(kwTax.some(k=>l.includes(k))) taxes+=v;
-            else if(kwPay.some(k=>l.includes(k))){ if(v>montoEnt) montoEnt=v; }
-            else if(kwTotal.some(k=>l.includes(k))&&!kwEx.some(k=>l.includes(k))){ if(v>total) total=v; }
-        });
-    });
-    let final=total>0?total:subtotal>0?(subtotal+taxes):montoEnt>0?(montoEnt-vuelto):all.length>0?Math.max(...all.filter(v=>v>=.5&&v<=5000)):0;
-    document.getElementById('nombre').value=store;
-    if(final>0) document.getElementById('valor').value=final.toFixed(2);
-    else alert(i18n[localStorage.getItem('appLang')||'es'].alert_no_total);
-}
-
-window.toggleSettings=()=>{
-    const d=document.getElementById('settingsDrawer'),open=d.classList.toggle('open');
-    document.getElementById('menuOverlay').style.display=open?'block':'none';
-};
-window.toggleDarkMode=()=>{
-    const isDark=document.documentElement.getAttribute('data-theme')==='dark';
-    const next=isDark?'light':'dark';
-    document.documentElement.setAttribute('data-theme',next);
-    localStorage.setItem('theme',next);
-};
-window.changeProfile=()=>{localStorage.removeItem('perfilActivoId');window.location.href='profiles.html';};
-window.doLogout=()=>signOut(auth).then(()=>window.location.replace('login.html'));
-window.doChangeEmail=async()=>{if(!currentUser)return;const l=localStorage.getItem('appLang')||'es',m={es:{p:"Ingresá tu nuevo correo:",s:"Verificación enviada.",e:"Error: "},en:{p:"Enter your new email:",s:"Verification sent.",e:"Error: "}},t=m[l],e=prompt(t.p);if(e){try{await verifyBeforeUpdateEmail(currentUser,e);alert(t.s);}catch(er){alert(t.e+er.message);}}};
-window.doChangePassword=async()=>{if(!currentUser)return;const l=localStorage.getItem('appLang')||'es',m={es:{s:"Correo de recuperación enviado.",e:"Error: "},en:{s:"Recovery email sent.",e:"Error: "}},t=m[l];try{await sendPasswordResetEmail(auth,currentUser.email);alert(t.s);}catch(er){alert(t.e+er.message);}};
-window.doDeleteAccount=async()=>{const l=localStorage.getItem('appLang')||'es',m={es:{c:"¿Eliminar cuenta permanentemente?",e:"Reautenticación requerida. Cerrá sesión y volvé a entrar para eliminar tu cuenta."},en:{c:"Permanently delete account?",e:"Re-authentication required. Please log out and back in to delete your account."}},t=m[l];if(!confirm(t.c))return;try{await deleteUser(currentUser);window.location.replace('login.html');}catch(e){alert(t.e);}};   
-onAuthStateChanged(auth,async(user)=>{
-    if(!user){window.location.replace('login.html');return;}
-    currentUser=user;
-    const perfilNombre = localStorage.getItem('perfilActivoNombre');
-document.getElementById('userEmail').innerText = perfilNombre || user.email;
-    if(!perfilId){window.location.replace('profiles.html');return;}
-    const img=perfilFoto||user.photoURL;
-    if(img){const b=document.getElementById('btnSettings');b.style.backgroundImage=`url(${img})`;b.innerText='';}
-    try{
-        const snap=await getDoc(doc(db,'usuarios',user.uid,'perfiles',perfilId));
-        if(snap.exists()&&snap.data().presupuesto!==undefined){
-            presupuestoBase=Number(snap.data().presupuesto);
-            document.getElementById('input-fondo').value=presupuestoBase;
+    const i18n = {
+        es: {
+            nav_home:"INICIO", nav_expenses:"GASTOS", nav_compare:"COMPARAR", nav_units:"UNIDADES",
+            itinerary_title: "📍 Itinerario", label_notes: "Notas y Recordatorios",
+            note_placeholder: "Vuelos, hoteles, recordatorios...", btn_add_note: "AGREGAR NOTA",
+            tip_label: "✨ Tip de Viaje", city_orlando: "🎡 Orlando", city_nyc: "🍎 Nueva York",
+            city_miami: "🏖️ Miami", city_vegas: "🎲 Las Vegas", city_la: "🎬 Los Ángeles",
+            city_sf: "🌉 San Francisco", city_chicago: "🏢 Chicago", city_dc: "🏛️ Washington D.C.",
+            status_low: "BAJA 🟢", status_med: "MED 🟡", status_high: "ALTA 🔴", status_closed: "CERRADO 🌙", status_na: "N/A",
+            settings_title: "Ajustes", label_language: "Idioma", btn_change_profile: "Cambiar Perfil", btn_change_email: "📧 Cambiar Correo", 
+            btn_change_pass: "🔑 Cambiar Contraseña", btn_delete_acc: "🗑️ Eliminar Cuenta", prompt_new_email: "Ingresa el nuevo correo electrónico:",
+            prompt_new_pass: "Ingresa la nueva contraseña (mínimo 6 caracteres):", alert_email_verify: "Se ha enviado un correo de verificación. El cambio se aplicará tras verificar.",
+            alert_pass_success: "Contraseña actualizada con éxito.", alert_reauth_required: "Error: Reautenticación requerida para cambios sensibles.",
+            confirm_delete_account: "¿ESTÁS SEGURO? Esta acción borrará todos tus datos de forma permanente.",
+            btn_theme: "Cambiar Tema", btn_refresh: "Actualizar App", btn_logout: "Cerrar Sesión", footer_by: "Creado por Juan Cruz Bria",
+            alert_upcoming: "🚀 El Comparador de Precios estará disponible próximamente."
+        },
+        en: {
+            nav_home:"HOME", nav_expenses:"EXPENSES", nav_compare:"COMPARE", nav_units:"UNITS",
+            itinerary_title: "📍 Itinerary", label_notes: "Notes & Reminders",
+            note_placeholder: "Flights, hotels, reminders...", btn_add_note: "ADD NOTE",
+            tip_label: "✨ Travel Tip", city_orlando: "🎡 Orlando", city_nyc: "🍎 New York",
+            city_miami: "🏖️ Miami", city_vegas: "🎲 Las Vegas", city_la: "🎬 Los Angeles",
+            city_sf: "🌉 San Francisco", city_chicago: "🏢 Chicago", city_dc: "🏛️ Washington D.C.",
+            status_low: "LOW 🟢", status_med: "MED 🟡", status_high: "HIGH 🔴", status_closed: "CLOSED 🌙", status_na: "N/A",
+            settings_title: "Settings", label_language: "Language", btn_change_profile: "Change Profile", btn_change_email: "📧 Change Email",
+            btn_change_pass: "🔑 Change Password", btn_delete_acc: "🗑️ Delete Account", prompt_new_email: "Enter your new email address:",
+            prompt_new_pass: "Enter your new password (minimum 6 characters):", alert_email_verify: "A verification email has been sent. Changes will apply after verification.",
+            alert_pass_success: "Password updated successfully.", alert_reauth_required: "Error: Re-authentication required for sensitive changes.",
+            confirm_delete_account: "ARE YOU SURE? This action will permanently delete all your data.",
+            btn_theme: "Toggle Theme", btn_refresh: "Refresh App", btn_logout: "Sign Out", footer_by: "Created by Juan Cruz Bria",
+            alert_upcoming: "🚀 The Price Comparator will be available soon."
         }
-    }catch(e){console.error(e);}
-    fetchRates();
-    listenGastos();
-    const lang=localStorage.getItem('appLang')||'es';
-    window.changeLanguage(lang);
-    document.getElementById('tip-text').innerText=shoppingTips[lang][0];
-    setInterval(window.nextTip,8000);
-});
+    };
+
+    const tips = {
+        es: ["Orlando: La mejor hora para filas cortas es durante el show de fuegos artificiales.","NYC: El ferry a Staten Island es gratis y pasa cerca de la Estatua de la Libertad.","Miami: Si vas de compras, el Dolphin Mall suele ser más barato que Sawgrass.","Vegas: Caminar por la Strip lleva mucho más tiempo de lo que parece.","SF: Llevá siempre un abrigo, aunque sea verano.","Universal: Bajate la app oficial para ver los tiempos de espera en tiempo real.", "NYC: Descargá la App OMNY o pagá directo con el celu en el subte.","DC: Todos los museos Smithsonian son gratis.",
+"Orlando: Reservá tus comidas con antelación si vas a los parques principales.","Vegas: Los hoteles son gigantes, calculá 15 min solo para salir a la calle.","Miami: El estacionamiento en South Beach es caro, usá apps como ParkWhiz.",],
+        en: ["Orlando: The best time for short lines is during the fireworks show.","NYC: The Staten Island Ferry is free and passes right by the Statue of Liberty.","Miami: If shopping, Dolphin Mall is often cheaper than Sawgrass Mills.","Vegas: Walking the Strip takes much longer than it looks.","SF: Always carry a jacket, even during the summer.","Universal: Get the official app to check wait times in real-time.","NYC: Download the OMNY App or pay directly with your phone in the subway.","DC: All Smithsonian museums are free of charge.","Orlando: Book your dining reservations in advance for major theme parks.","Vegas: Hotels are massive, allow 15 mins just to reach the street.","Miami: Parking in South Beach is expensive, use apps like ParkWhiz.",]
+    };
+
+    const citiesConfig = {
+        orlando: { tz: "America/New_York", spots: [{ name: "🏰 Magic Kingdom", parkId: "6" }, { name: "🚀 Epcot", parkId: "5" }, { name: "🎬 Hollywood Studios", parkId: "7" }, { name: "🦁 Animal Kingdom", parkId: "8" }, { name: "📽️ Universal Studios", parkId: "65" }, { name: "🦖 Islands of Adventure", parkId: "64" }, { name: "🌟 EPIC UNIVERSE", parkId: "334" }] },
+        nyc: { tz: "America/New_York", spots: [{ name: "🗽 Estatua Libertad" }, { name: "🏢 Empire State" }, { name: "🍎 Times Square" }, { name: "🌳 Central Park" }] },
+        miami: { tz: "America/New_York", spots: [{ name: "🌊 South Beach" }, { name: "🛍️ Sawgrass Mills" }, { name: "🎨 Wynwood Walls" }, { name: "🛥️ Bayside Mkt" }] },
+        vegas: { tz: "America/Los_Angeles", spots: [{ name: "🎲 Bellagio Fountains" }, { name: "🎡 High Roller" }, { name: "🎰 Fremont St" }] },
+        la: { tz: "America/Los_Angeles", spots: [{ name: "🎬 Santa Monica Pier" }, { name: "🌌 Griffith Obs" }, { name: "🎢 Universal CA" }, { name: "🌟 Walk of Fame" }] },
+        sf: { tz: "America/Los_Angeles", spots: [{ name: "🌉 Golden Gate" }, { name: "⛓️ Alcatraz" }, { name: "🦀 Pier 39" }, { name: "🚋 Lombard St" }] },
+        chicago: { tz: "America/Chicago", spots: [{ name: "🫘 The Bean" }, { name: "🗼 Willis Tower" }, { name: "🎡 Navy Pier" }, { name: "🖼️ Art Institute" }] },
+        dc: { tz: "America/New_York", spots: [{ name: "🏛️ Capitol" }, { name: "🗿 Lincoln Memorial" }, { name: "🏛️ Smithsonian" }, { name: "🌹 Arlington" }] }
+    };
+
+   window.changeLanguage = (lang) => {
+        localStorage.setItem('appLang', lang);
+        document.documentElement.setAttribute('lang', lang);
+        document.querySelectorAll('.lang-opt').forEach(opt => opt.classList.remove('active'));
+        document.getElementById('lang-' + lang)?.classList.add('active');
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (i18n[lang]?.[key]) el.innerText = i18n[lang][key];
+        });
+        document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+            const key = el.getAttribute('data-i18n-placeholder');
+            if (i18n[lang]?.[key]) el.placeholder = i18n[lang][key];
+        });
+        const tipEl = document.getElementById('tip-text');
+        if (tipEl) tipEl.innerText = tips[lang][currentTipIndex];
+        document.title = lang === 'en' ? 'TaxUSA — Itinerary' : 'TaxUSA — Itinerario';
+        renderCityData();
+    };
+
+    window.nextTip = () => {
+        const lang = localStorage.getItem('appLang') || 'es';
+        const el = document.getElementById('tip-text');
+        if (!el) return;
+        el.style.opacity = 0;
+        setTimeout(() => {
+            currentTipIndex = (currentTipIndex + 1) % tips[lang].length;
+            el.innerText = tips[lang][currentTipIndex];
+            el.style.opacity = 1;
+        }, 300);
+    };
+
+    window.renderCityData = async () => {
+        const cityKey = document.getElementById('citySelector').value;
+        const container = document.getElementById('dynamicQueues');
+        const cityData = citiesConfig[cityKey];
+        container.innerHTML = cityData.spots.map((s, i) => `
+            <div class="queue-card">
+                <div class="queue-name">${s.name}</div>
+                <div id="spot-${i}" class="queue-status">...</div>
+            </div>
+        `).join('');
+        // Cargar filas de parques después del render inicial para no bloquear UI
+        if (typeof requestIdleCallback !== 'undefined') {
+            requestIdleCallback(() => updateStatusDisplay(cityKey), { timeout: 2000 });
+        } else {
+            setTimeout(() => updateStatusDisplay(cityKey), 150);
+        }
+    };
+
+    async function updateStatusDisplay(cityKey) {
+        const cityData = citiesConfig[cityKey];
+        const lang = localStorage.getItem('appLang') || 'es';
+        const t = i18n[lang];
+        const localHour = parseInt(new Intl.DateTimeFormat("en-US", { timeZone: cityData.tz, hour: "numeric", hour12: false }).format(new Date()));
+
+        for (let i = 0; i < cityData.spots.length; i++) {
+            const el = document.getElementById(`spot-${i}`);
+            if (!el) continue;
+            if (cityKey === 'orlando' && cityData.spots[i].parkId) {
+                if (localHour >= 22 || localHour < 8) { el.innerText = t.status_closed; el.className = "queue-status q-off"; }
+                else {
+                    try {
+                        const res = await fetch("https://corsproxy.io/?" + encodeURIComponent(`https://queue-times.com/parks/${cityData.spots[i].parkId}/queue_times.json`), { signal: AbortSignal.timeout(8000) });
+                        const data = await res.json();
+                        let tot = 0, c = 0;
+                        data.lands?.forEach(l => l.rides.forEach(r => { if(r.is_open){ tot += r.wait_time; c++; } }));
+                        const avg = c > 0 ? tot / c : 0;
+                        if (avg <= 20) { el.innerText = t.status_low; el.className = "queue-status q-low"; }
+                        else if (avg <= 45) { el.innerText = t.status_med; el.className = "queue-status q-med"; }
+                        else { el.innerText = t.status_high; el.className = "queue-status q-high"; }
+                    } catch(e) { el.innerText = t.status_na; el.className = "queue-status q-off"; }
+                }
+            } else {
+                if (localHour >= 23 || localHour < 7) { el.innerText = t.status_closed; el.className = "queue-status q-off"; }
+                else if (localHour >= 12 && localHour <= 19) { el.innerText = t.status_high; el.className = "queue-status q-high"; }
+                else if (localHour >= 9 && localHour < 12) { el.innerText = t.status_med; el.className = "queue-status q-med"; }
+                else { el.innerText = t.status_low; el.className = "queue-status q-low"; }
+            }
+        }
+    }
+
+    window.addNote = async () => {
+        const input = document.getElementById('noteInput');
+        const text = input.value.trim();
+        if (text && currentUser && perfilId) {
+            try {
+                await addDoc(collection(db, "usuarios", currentUser.uid, "perfiles", perfilId, "notas"), { text, createdAt: Date.now() });
+                input.value = "";
+            } catch (e) { console.error(e); }
+        }
+    };
+
+    function listenNotes() {
+        if (!currentUser || !perfilId) return;
+        const q = query(collection(db, "usuarios", currentUser.uid, "perfiles", perfilId, "notas"), orderBy("createdAt", "desc"));
+        onSnapshot(q, (sn) => {
+            document.getElementById('notesList').innerHTML = sn.docs.map(d => `
+                <div class="note-item">
+                    <div class="note-text">${d.data().text}</div>
+                    <button class="note-del" onclick="window.deleteNote('${d.id}')">✕</button>
+                </div>
+            `).join('');
+        });
+    }
+
+    window.deleteNote = async (id) => {
+        if (confirm('¿Eliminar?')) await deleteDoc(doc(db, "usuarios", currentUser.uid, "perfiles", perfilId, "notas", id));
+    };
+
+    window.toggleSettings = () => {
+        const d = document.getElementById('settingsDrawer');
+        const open = d.classList.toggle('open');
+        document.getElementById('menuOverlay').style.display = open ? 'block' : 'none';
+    };
+    window.toggleDarkMode = () => {
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        const next = isDark ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', next);
+        localStorage.setItem('theme', next);
+    };
+    window.changeProfile = () => { localStorage.removeItem('perfilActivoId'); window.location.href = "profiles.html"; };
+    window.doLogout = () => signOut(auth).then(() => window.location.replace("login.html"));
+
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            currentUser = user;
+            if (!perfilId) { window.location.replace("profiles.html"); return; }
+            const perfilNombre = localStorage.getItem('perfilActivoNombre');
+document.getElementById('userEmail').innerText = perfilNombre || user.email;
+            const img = perfilFoto || user.photoURL;
+            if (img) {
+                const btn = document.getElementById('btnSettings');
+                btn.style.backgroundImage = `url(${img})`;
+                btn.innerText = '';
+            }
+            try {
+                const snap = await getDoc(doc(db, "usuarios", user.uid, "perfiles", perfilId));
+                if (snap.exists() && snap.data().destino) {
+                    document.getElementById('citySelector').value = snap.data().destino.toLowerCase();
+                }
+            } catch (e) {}
+            renderCityData();
+            listenNotes();
+            window.changeLanguage(localStorage.getItem('appLang') || 'es');
+            setInterval(window.nextTip, 8000);
+        } else { window.location.replace("login.html"); }
+    });
 
 </script>
 
