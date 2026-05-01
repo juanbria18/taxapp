@@ -446,6 +446,7 @@ window.changeLanguage = (lang) => {
     const tc = document.getElementById('tip-content');
     if (tc) tc.innerText = unitTips[lang][tipIndex];
     document.title = lang === 'en' ? 'TaxUSA — Units' : 'TaxUSA — Unidades';
+    if (window.taxieUpdateLang) window.taxieUpdateLang(lang);
 };
 
 /* ── Converters logic ── */
@@ -679,7 +680,7 @@ document.getElementById('userEmail').innerText = perfilNombre || user.email;
 (function() {
     var K = ['gsk_ek1Phki4XCC','aBAJPzba4WGdy','b3FYQtwTCLNL2','A2CsdC5xCQL4Qc9'].join('');
     var GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
-    var MODEL = 'compound-beta';
+    var MODEL = 'llama-3.3-70b-versatile';
     var lang = localStorage.getItem('appLang') || 'es';
     var perfilId   = localStorage.getItem('perfilActivoId') || 'default';
     var HISTORY_KEY = 'taxie_history_' + perfilId;
@@ -837,9 +838,8 @@ document.getElementById('userEmail').innerText = perfilNombre || user.email;
         }
 
         function sendMessage() {
+            window._taxieSend = sendMessage;
             if (!inputEl) return;
-            var text = inputEl.value.trim();
-            if (!text || isLoading) return;
             inputEl.value = '';
             inputEl.style.height = 'auto';
             addMessage('user', text);
@@ -854,15 +854,43 @@ document.getElementById('userEmail').innerText = perfilNombre || user.email;
                 body: JSON.stringify({
                     model: MODEL,
                     messages: [{ role: 'system', content: SYSTEM }].concat(chatHistory.slice(-14)),
-                    max_tokens: 600,
+                    max_tokens: 800,
                     temperature: 0.7,
-                    stream: false
+                    stream: false,
+                    tools: [{ type: 'function', function: { name: 'web_search', description: 'Search the web for real-time information like park wait times, exchange rates, current weather, store hours or updated prices.', parameters: { type: 'object', properties: { query: { type: 'string', description: 'Search query' } }, required: ['query'] } } }],
+                    tool_choice: 'auto'
                 })
             })
             .then(function(res) { return res.json().then(function(d) { return { ok: res.ok, data: d }; }); })
             .then(function(r) {
                 if (!r.ok) throw new Error(r.data.error && r.data.error.message || 'API error');
-                var reply = r.data.choices && r.data.choices[0] && r.data.choices[0].message && r.data.choices[0].message.content || errMsg;
+                var msg = r.data.choices && r.data.choices[0] && r.data.choices[0].message;
+                if (msg && msg.tool_calls && msg.tool_calls.length > 0) {
+                    var tc = msg.tool_calls[0];
+                    var query = '';
+                    try { query = JSON.parse(tc.function.arguments).query; } catch(e) {}
+                    var searchUrl = 'https://api.groq.com/openai/v1/chat/completions';
+                    var msgsWithTool = [{ role: 'system', content: SYSTEM }]
+                        .concat(chatHistory.slice(-14))
+                        .concat([
+                            { role: 'assistant', content: null, tool_calls: msg.tool_calls },
+                            { role: 'tool', tool_call_id: tc.id, content: 'No se pudo obtener resultado en tiempo real para: ' + query + '. Respondé con lo que sabés e indicá que los datos pueden no ser del momento exacto.' }
+                        ]);
+                    return fetch(searchUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + K },
+                        body: JSON.stringify({ model: MODEL, messages: msgsWithTool, max_tokens: 800, temperature: 0.7, stream: false })
+                    }).then(function(res2) { return res2.json().then(function(d2) { return { ok: res2.ok, data: d2 }; }); })
+                    .then(function(r2) {
+                        if (!r2.ok) throw new Error(r2.data.error && r2.data.error.message || 'API error');
+                        var reply2 = r2.data.choices && r2.data.choices[0] && r2.data.choices[0].message && r2.data.choices[0].message.content || errMsg;
+                        chatHistory.push({ role: 'assistant', content: reply2 });
+                        saveHistory();
+                        hideTyping();
+                        addMessage('bot', reply2);
+                    });
+                }
+                var reply = msg && msg.content || errMsg;
                 chatHistory.push({ role: 'assistant', content: reply });
                 saveHistory();
                 hideTyping();
@@ -891,6 +919,33 @@ document.getElementById('userEmail').innerText = perfilNombre || user.email;
             });
         }
     }
+
+    window.taxieUpdateLang = function(newLang) {
+        isEs = (newLang !== 'en');
+        SYSTEM = isEs
+            ? 'Sos Taxie, asistente de viaje para USA. Tu tono es claro, directo y cálido — ni demasiado informal ni robótico. Usás el voseo rioplatense con naturalidad. Cuando alguien pregunta por info en tiempo real (filas en parques, cotizaciones, clima actual, horarios, precios actualizados), buscás la información actualizada antes de responder. Usás viñetas y **negritas** solo cuando realmente ayudan a organizar la info; si la respuesta es simple, respondés en una o dos oraciones directas. Nunca arrancás con "¡Claro!", "¡Por supuesto!" ni frases de relleno. Solo respondés sobre viajes a USA; si preguntan otra cosa, lo redirigís sin drama. Fecha actual: ' + new Date().toLocaleDateString('es-AR') + '.'
+            : 'You are Taxie, a USA travel assistant. Your tone is clear, direct and warm — not overly casual, not robotic. When someone asks for real-time info (park wait times, exchange rates, current weather, updated prices), search for current data before answering. Use bullet points and **bold** only when they genuinely help organize information; for simple questions, one or two direct sentences are better. Never open with "Of course!", "Great question!" or filler phrases. Only answer about USA travel; redirect anything off-topic without making it awkward. Today\'s date: ' + new Date().toLocaleDateString('en-US') + '.';
+        errMsg = isEs ? ERR_ES : ERR_EN;
+        var inputEl   = document.getElementById('ai-input');
+        var headerSub = document.getElementById('ai-header-sub');
+        var suggestEl = document.getElementById('ai-suggestions');
+        if (inputEl)   inputEl.placeholder = isEs ? PH_ES : PH_EN;
+        if (headerSub) headerSub.textContent = isEs ? SUB_ES : SUB_EN;
+        if (suggestEl) {
+            var newChips = isEs ? CHIPS_ES : CHIPS_EN;
+            suggestEl.innerHTML = newChips.map(function(c) {
+                return '<button class="ai-chip">' + c + '</button>';
+            }).join('');
+            suggestEl.querySelectorAll('.ai-chip').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    var inp = document.getElementById('ai-input');
+                    if (inp) inp.value = btn.textContent;
+                    if (window._taxieSend) window._taxieSend();
+                    suggestEl.style.display = 'none';
+                });
+            });
+        }
+    };
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
