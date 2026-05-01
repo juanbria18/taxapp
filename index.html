@@ -10,9 +10,10 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="icon" href="icon-512.png">
     <link rel="apple-touch-icon" href="icon-512.png">
-    <script src="https://www.google.com/recaptcha/api.js?render=6LeK6cssAAAAALxcJy-95R2nhVMmnuIyB78AQgvw"></script>
+    <script src="https://www.google.com/recaptcha/api.js?render=6LeK6cssAAAAALxcJy-95R2nhVMmnuIyB78AQgvw" async defer></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;800&display=swap" rel="stylesheet"></noscript>
     <script>
         // Apply theme before paint to avoid flash
         const _t = localStorage.getItem('theme');
@@ -129,6 +130,14 @@
         .drawer-btn:hover{background:var(--surface-2);border-color:var(--primary);}
         .btn-danger{color:var(--danger)!important;border-color:rgba(239,68,68,.3)!important;}
     </style>
+    <script>
+        // Registrar Service Worker para cache offline y carga rápida
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').catch(() => {});
+            });
+        }
+    </script>
 </head>
 <body>
 <div class="wrap">
