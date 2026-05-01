@@ -266,6 +266,7 @@
     <div class="lang-selector">
         <button class="lang-opt" id="lang-es" onclick="window.changeLanguage('es')"><img src="https://flagcdn.com/w20/ar.png" alt=""> ES</button>
         <button class="lang-opt" id="lang-en" onclick="window.changeLanguage('en')"><img src="https://flagcdn.com/w20/us.png" alt=""> EN</button>
+        <button class="lang-opt" id="lang-pt" onclick="window.changeLanguage('pt')"><img src="https://flagcdn.com/w20/br.png" alt=""> PT</button>
     </div>
     <button class="drawer-btn" onclick="changeProfile()">👤 <span data-i18n="btn_change_profile">Cambiar Perfil</span></button>
     <button class="drawer-btn" onclick="toggleDarkMode()">🌓 <span data-i18n="btn_theme">Cambiar Tema</span></button>
@@ -342,12 +343,27 @@ const i18n = {
         footer_by:"Created by Juan Cruz Bria",tip_label:"ECONOMIC TIP",
         d:"d",h:"h",m:"m",s:"s",
         alert_upcoming: "🚀 The Price Comparator will be available soon."
+    },
+    pt:{
+        nav_expenses:"GASTOS",nav_itinerary:"ITINERÁRIO",nav_compare:"COMPARAR",nav_units:"UNIDADES",
+        label_price:"Preço na Etiqueta (USD)",label_category:"Categoria",
+        cat_general:"GERAL",cat_tech:"TECH",cat_food:"COMIDA",cat_med:"MEDICINA",
+        label_state:"Estado",label_city:"Cidade / Condado",tax_applied:"Tax Aplicado",
+        label_tip:"Gorjeta (Tip)",label_total:"TOTAL FINAL (COM GORJETA)",label_other:"OUTRO",
+        settings_title:"Configurações",label_language:"Idioma",
+        btn_change_profile:"Trocar Perfil",btn_theme:"Alternar Tema",btn_update:"Atualizar App",
+        btn_email:"Alterar E-mail",btn_password:"Alterar Senha",btn_logout:"Sair",btn_delete:"Excluir Conta",
+        modal_trip_title:"Minha Viagem",modal_city_label:"Para qual cidade você vai?",modal_date_label:"Data da viagem",
+        btn_save:"SALVAR",btn_close:"FECHAR",trip_prefix:"Faltam para",
+        footer_by:"Criado por Juan Cruz Bria",tip_label:"DICA ECONÔMICA",
+        d:"d",h:"h",m:"m",s:"s",
+        alert_upcoming: "🚀 O Comparador de Preços estará disponível em breve."
     }
-};
 
 const econTips = {
     es:["Delaware y Oregon tienen 0% de Sales Tax. Ideal para Apple o lujo.","En NYC, ropa y calzado de menos de $110 están exentos de tax municipal.","New Jersey tiene 0% de tax en ropa. Ideal si vas al Jersey Gardens desde NY.","En Miami (7%), los outlets como Sawgrass rinden más con su libro de cupones.","Texas ofrece 'Tax Free Shopping' para turistas extranjeros en locales adheridos.","Recuerda: en EE.UU. el precio de etiqueta NUNCA incluye el impuesto de venta.","Minnesota y Pennsylvania no cobran impuestos en la mayoría de la ropa.","Las propinas se calculan sobre el valor total CON impuestos en muchos tickets.","Si comprás online y retirás en tienda, pagás el tax de esa ubicación.","Florida suspende el Sales Tax en algunos fines de semana del año escolar."],
-    en:["Delaware and Oregon have 0% Sales Tax. Ideal for Apple or luxury items.","In NYC, clothing under $110 is exempt from local sales tax.","New Jersey has 0% tax on clothing. Great if you visit Jersey Gardens from NY.","In Miami (7%), outlets like Sawgrass are better with their coupon book.","Texas offers Tax Free Shopping for foreign tourists at participating stores.","Remember: in the US, the price tag NEVER includes sales tax.","Minnesota and Pennsylvania don't charge tax on most clothing.","Tips are calculated on the total WITH taxes on many receipts.","If you order online and pick up in store, you pay that location's tax.","Florida suspends Sales Tax some weekends during back-to-school season."]
+    en:["Delaware and Oregon have 0% Sales Tax. Ideal for Apple or luxury items.","In NYC, clothing under $110 is exempt from local sales tax.","New Jersey has 0% tax on clothing. Great if you visit Jersey Gardens from NY.","In Miami (7%), outlets like Sawgrass are better with their coupon book.","Texas offers Tax Free Shopping for foreign tourists at participating stores.","Remember: in the US, the price tag NEVER includes sales tax.","Minnesota and Pennsylvania don't charge tax on most clothing.","Tips are calculated on the total WITH taxes on many receipts.","If you order online and pick up in store, you pay that location's tax.","Florida suspends Sales Tax some weekends during back-to-school season."],
+    pt:["Delaware e Oregon têm 0% de Sales Tax. Ótimo para Apple ou artigos de luxo.","Em NYC, roupas abaixo de US$110 são isentas de imposto municipal.","New Jersey tem 0% de imposto em roupas. Ideal perto de NY no Jersey Gardens.","Em Miami (7%), outlets como Sawgrass rendem mais com o cupom book deles.","Texas oferece Tax Free Shopping para turistas estrangeiros em lojas participantes.","Lembre: nos EUA a etiqueta NUNCA inclui o imposto de venda.","Minnesota e Pennsylvania não cobram imposto na maioria das roupas.","A gorjeta é calculada sobre o total COM impostos em muitos tickets.","Se comprar online e retirar na loja, paga o tax daquela localização.","Florida suspende o Sales Tax em alguns fins de semana do ano letivo."]
 };
 
 window.cambiarConsejo = () => {
@@ -380,7 +396,7 @@ window.changeLanguage = (lang) => {
     if (tc) tc.innerText = econTips[lang][tipIndex];
     calculate();
     updateTripUI();
-    document.title = lang === 'en' ? 'TaxUSA — Home' : 'TaxUSA — Inicio';
+    document.title = lang === 'en' ? 'TaxUSA — Home' : lang === 'pt' ? 'TaxUSA — Início' : 'TaxUSA — Inicio';
     if (window.taxieUpdateLang) window.taxieUpdateLang(lang);
 };
 
@@ -677,24 +693,32 @@ window.onload = () => {
 
     var WELCOME_ES = '\u00a1Hola! Soy **Taxie** \ud83d\uddfd\u2708\ufe0f\n\nTu asistente personal para viajes a USA. Puedo ayudarte con:\n\n\u2022 \ud83c\udff0 Destinos y parques tematicos\n\u2022 \ud83d\udecd\ufe0f Outlets y compras sin tax\n\u2022 \ud83d\udcb5 Propinas, impuestos y presupuesto\n\u2022 \ud83c\udfe8 Hoteles y transporte\n\u2022 \ud83c\udf24\ufe0f Clima y documentacion\n\n\u00bfEn que puedo ayudarte hoy?';
     var WELCOME_EN = 'Hi! I am **Taxie** \ud83d\uddfd\u2708\ufe0f\n\nYour personal USA travel guide. I can help you with:\n\n\u2022 \ud83c\udff0 Destinations & theme parks\n\u2022 \ud83d\udecd\ufe0f Outlets & tax-free shopping\n\u2022 \ud83d\udcb5 Tips, taxes & budgeting\n\u2022 \ud83c\udfe8 Hotels & transportation\n\u2022 \ud83c\udf24\ufe0f Weather & travel documents\n\nWhat can I help you with today?';
+    var WELCOME_PT = 'Olá! Sou o **Taxie** \ud83d\uddfd\u2708\ufe0f\n\nSeu assistente pessoal para viagens aos EUA. Posso te ajudar com:\n\n\u2022 \ud83c\udff0 Destinos e parques temáticos\n\u2022 \ud83d\udecd\ufe0f Outlets e compras sem tax\n\u2022 \ud83d\udcb5 Gorjetas, impostos e orçamento\n\u2022 \ud83c\udfe8 Hotéis e transporte\n\u2022 \ud83c\udf24\ufe0f Clima e documentação\n\nComo posso te ajudar hoje?';
 
     var CHIPS_ES = ['\ud83c\udff0 Disney Orlando', '\ud83d\udecd\ufe0f Mejores outlets', '\ud83d\udcb0 Propinas en USA', '\ud83c\udf21\ufe0f Clima en Florida', '\u2708\ufe0f Aeropuertos', '\ud83d\ude97 Alquilar auto'];
     var CHIPS_EN = ['\ud83c\udff0 Disney Orlando', '\ud83d\udecd\ufe0f Best outlets', '\ud83d\udcb0 Tipping in USA', '\ud83c\udf21\ufe0f Florida weather', '\u2708\ufe0f Airports', '\ud83d\ude97 Rent a car'];
+    var CHIPS_PT = ['\ud83c\udff0 Disney Orlando', '\ud83d\udecd\ufe0f Melhores outlets', '\ud83d\udcb0 Gorjetas nos EUA', '\ud83c\udf21\ufe0f Clima na Flórida', '\u2708\ufe0f Aeroportos', '\ud83d\ude97 Alugar carro'];
 
     var SUB_ES = 'Tu guia de viaje a USA \ud83d\uddfa\ufe0f';
     var SUB_EN = 'Your USA Travel Guide \ud83d\uddfa\ufe0f';
+    var SUB_PT = 'Seu guia de viagem aos EUA \ud83d\uddfa\ufe0f';
     var PH_ES  = 'Preguntale a Taxie sobre tu viaje...';
     var PH_EN  = 'Ask Taxie about your trip...';
+    var PH_PT  = 'Pergunte ao Taxie sobre sua viagem...';
     var ERR_ES = 'Ups, algo fallo. Verifica tu conexion e intenta de nuevo.';
     var ERR_EN = 'Oops, something went wrong. Check your connection and try again.';
+    var ERR_PT = 'Ops, algo deu errado. Verifique sua conexão e tente novamente.';
 
     var isEs = (lang !== 'en');
-    var chips  = isEs ? CHIPS_ES : CHIPS_EN;
-    var sub    = isEs ? SUB_ES   : SUB_EN;
-    var ph     = isEs ? PH_ES    : PH_EN;
-    var errMsg = isEs ? ERR_ES   : ERR_EN;
+    var isPt = (lang === 'pt');
+    var chips  = isPt ? CHIPS_PT : isEs ? CHIPS_ES : CHIPS_EN;
+    var sub    = isPt ? SUB_PT   : isEs ? SUB_ES   : SUB_EN;
+    var ph     = isPt ? PH_PT    : isEs ? PH_ES    : PH_EN;
+    var errMsg = isPt ? ERR_PT   : isEs ? ERR_ES   : ERR_EN;
 
-    var SYSTEM = isEs
+    var SYSTEM = isPt
+        ? 'Você é o Taxie, assistente de viagens para os EUA. Seu tom é claro, direto e amigável. Quando alguém pergunta sobre informações em tempo real (filas nos parques, cotações, clima atual, horários ou preços atualizados), você busca as informações antes de responder. Use marcadores e **negritos** só quando realmente ajudam a organizar a informação; para respostas simples, uma ou duas frases diretas são suficientes. Nunca comece com "Claro!", "Com certeza!" ou frases de preenchimento. Responda apenas sobre viagens aos EUA; se perguntarem outra coisa, redirecione brevemente. Data atual: ' + new Date().toLocaleDateString('pt-BR') + '.'
+        : isEs
         ? 'Eres Taxie, asistente de viajes a USA. Tu tono es claro, directo y amable — ni frío ni demasiado informal. Cuando alguien pregunta por info en tiempo real (filas en parques, cotizaciones, clima actual, horarios o precios actualizados), buscás la información actualizada antes de responder. Usás viñetas y **negritas** solo cuando realmente ayudan a organizar la info; si la respuesta es simple, una o dos oraciones directas son suficientes. Nunca empezás con "¡Claro!", "¡Por supuesto!" ni frases de relleno. Solo respondés sobre viajes a USA; si preguntan otra cosa, lo aclarás brevemente y redirigís. Fecha actual: ' + new Date().toLocaleDateString('es-AR') + '.'
         : 'You are Taxie, a USA travel assistant. Your tone is clear, direct and warm — not overly casual, not robotic. When someone asks for real-time info (park wait times, exchange rates, current weather, updated prices), search for current data before answering. Use bullet points and **bold** only when they genuinely help organize information; for simple questions, one or two direct sentences are better. Never open with "Of course!", "Great question!" or filler phrases. Only answer about USA travel; redirect anything off-topic without making it awkward. Today\'s date: ' + new Date().toLocaleDateString('en-US') + '.';
 
@@ -766,7 +790,7 @@ window.onload = () => {
                         });
                         if (suggestEl) suggestEl.style.display = 'none';
                     } else {
-                        var welcome = isEs ? WELCOME_ES : WELCOME_EN;
+                        var welcome = isPt ? WELCOME_PT : isEs ? WELCOME_ES : WELCOME_EN;
                         setTimeout(function() { addMessage('bot', welcome); }, 200);
                     }
                 }
@@ -904,18 +928,21 @@ window.onload = () => {
     }
 
     window.taxieUpdateLang = function(newLang) {
-        isEs = (newLang !== 'en');
-        SYSTEM = isEs
+        isEs = (newLang !== 'en' && newLang !== 'pt');
+        isPt = (newLang === 'pt');
+        SYSTEM = isPt
+            ? 'Você é o Taxie, assistente de viagens para os EUA. Seu tom é claro, direto e amigável. Quando alguém pergunta sobre informações em tempo real (filas nos parques, cotações, clima atual, horários ou preços atualizados), você busca as informações antes de responder. Use marcadores e **negritos** só quando realmente ajudam a organizar a informação; para respostas simples, uma ou duas frases diretas são suficientes. Nunca comece com "Claro!", "Com certeza!" ou frases de preenchimento. Responda apenas sobre viagens aos EUA; se perguntarem outra coisa, redirecione brevemente. Data atual: ' + new Date().toLocaleDateString('pt-BR') + '.'
+            : isEs
             ? 'Eres Taxie, asistente de viajes a USA. Tu tono es claro, directo y amable — ni frío ni demasiado informal. Cuando alguien pregunta por info en tiempo real (filas en parques, cotizaciones, clima actual, horarios o precios actualizados), buscás la información actualizada antes de responder. Usás viñetas y **negritas** solo cuando realmente ayudan a organizar la info; si la respuesta es simple, una o dos oraciones directas son suficientes. Nunca empezás con "¡Claro!", "¡Por supuesto!" ni frases de relleno. Solo respondés sobre viajes a USA; si preguntan otra cosa, lo aclarás brevemente y redirigís. Fecha actual: ' + new Date().toLocaleDateString('es-AR') + '.'
             : 'You are Taxie, a USA travel assistant. Your tone is clear, direct and warm — not overly casual, not robotic. When someone asks for real-time info (park wait times, exchange rates, current weather, updated prices), search for current data before answering. Use bullet points and **bold** only when they genuinely help organize information; for simple questions, one or two direct sentences are better. Never open with "Of course!", "Great question!" or filler phrases. Only answer about USA travel; redirect anything off-topic without making it awkward. Today\'s date: ' + new Date().toLocaleDateString('en-US') + '.';
-        errMsg = isEs ? ERR_ES : ERR_EN;
+        errMsg = isPt ? ERR_PT : isEs ? ERR_ES : ERR_EN;
         var inputEl   = document.getElementById('ai-input');
         var headerSub = document.getElementById('ai-header-sub');
         var suggestEl = document.getElementById('ai-suggestions');
-        if (inputEl)   inputEl.placeholder = isEs ? PH_ES : PH_EN;
-        if (headerSub) headerSub.textContent = isEs ? SUB_ES : SUB_EN;
+        if (inputEl)   inputEl.placeholder = isPt ? PH_PT : isEs ? PH_ES : PH_EN;
+        if (headerSub) headerSub.textContent = isPt ? SUB_PT : isEs ? SUB_ES : SUB_EN;
         if (suggestEl) {
-            var newChips = isEs ? CHIPS_ES : CHIPS_EN;
+            var newChips = isPt ? CHIPS_PT : isEs ? CHIPS_ES : CHIPS_EN;
             suggestEl.innerHTML = newChips.map(function(c) {
                 return '<button class="ai-chip">' + c + '</button>';
             }).join('');
