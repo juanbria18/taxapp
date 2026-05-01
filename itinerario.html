@@ -560,9 +560,15 @@ document.getElementById('userEmail').innerText = perfilNombre || user.email;
 (function() {
     var K = ['gsk_ek1Phki4XCC','aBAJPzba4WGdy','b3FYQtwTCLNL2','A2CsdC5xCQL4Qc9'].join('');
     var GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
-    var MODEL = 'llama-3.3-70b-versatile';
+    var MODEL = 'compound-beta';
     var lang = localStorage.getItem('appLang') || 'es';
+    var perfilId   = localStorage.getItem('perfilActivoId') || 'default';
+    var HISTORY_KEY = 'taxie_history_' + perfilId;
     var chatHistory = [];
+    try {
+        var saved = localStorage.getItem(HISTORY_KEY);
+        if (saved) chatHistory = JSON.parse(saved);
+    } catch(e) { chatHistory = []; }
     var isOpen = false;
     var isLoading = false;
     var hasShownWelcome = false;
@@ -588,8 +594,12 @@ document.getElementById('userEmail').innerText = perfilNombre || user.email;
     var errMsg  = isEs ? ERR_ES     : ERR_EN;
 
     var SYSTEM = isEs
-        ? 'Sos TaxUSA Asistente de Viaje, experto exclusivamente en viajes a Estados Unidos. SOLO respondés sobre: destinos turisticos en USA, parques tematicos, compras (outlets, estados sin tax), propinas e impuestos, cambio de moneda, transporte, hoteles, gastronomia, clima, documentacion de viaje, valija, seguro de viaje y presupuesto. Si preguntan algo NO relacionado con viajes a USA, declinas amablemente. Se amigable, practico y conciso. Usa bullet points. Responde en espanol.'
-        : 'You are TaxUSA Travel Assistant, an expert exclusively on travel to the United States. Answer ONLY questions about: tourist destinations, theme parks, shopping, tips and taxes, currency exchange, transport, hotels, food, weather, travel documents, packing, travel insurance, and budgeting for USA trips. If asked anything NOT related to USA travel, politely decline. Be friendly, practical and concise. Use bullet points. Respond in English.';
+        ? 'Sos Taxie, asistente de viaje para USA. Tu tono es claro, directo y cálido — ni demasiado informal ni robótico. Usás el voseo rioplatense con naturalidad. Cuando alguien pregunta por info en tiempo real (filas en parques, cotizaciones, clima actual, horarios, precios actualizados), buscás la información actualizada antes de responder. Usás viñetas y **negritas** solo cuando realmente ayudan a organizar la info; si la respuesta es simple, respondés en una o dos oraciones directas. Nunca arrancás con "¡Claro!", "¡Por supuesto!" ni frases de relleno. Solo respondés sobre viajes a USA; si preguntan otra cosa, lo redirigís sin drama. Fecha actual: ' + new Date().toLocaleDateString('es-AR') + '.'
+        : 'You are Taxie, a USA travel assistant. Your tone is clear, direct and warm — not overly casual, not robotic. When someone asks for real-time info (park wait times, exchange rates, current weather, updated prices), search for current data before answering. Use bullet points and **bold** only when they genuinely help organize information; for simple questions, one or two direct sentences are better. Never open with "Of course!", "Great question!" or filler phrases. Only answer about USA travel; redirect anything off-topic without making it awkward. Today\'s date: ' + new Date().toLocaleDateString('en-US') + '.';
+
+    function saveHistory() {
+        try { localStorage.setItem(HISTORY_KEY, JSON.stringify(chatHistory.slice(-40))); } catch(e) {}
+    }
 
     function init() {
         var bubble     = document.getElementById('ai-bubble');
@@ -629,7 +639,14 @@ document.getElementById('userEmail').innerText = perfilNombre || user.email;
                 chatEl.classList.add('open');
                 if (!hasShownWelcome) {
                     hasShownWelcome = true;
-                    setTimeout(function() { addMessage('bot', welcome); }, 200);
+                    if (chatHistory.length > 0) {
+                        chatHistory.forEach(function(m) {
+                            addMessage(m.role === 'user' ? 'user' : 'bot', m.content, true);
+                        });
+                        if (suggestEl) suggestEl.style.display = 'none';
+                    } else {
+                        setTimeout(function() { addMessage('bot', welcome); }, 200);
+                    }
                 }
                 setTimeout(function() { if (inputEl) inputEl.focus(); }, 300);
             } else {
@@ -649,12 +666,17 @@ document.getElementById('userEmail').innerText = perfilNombre || user.email;
             }
         });
 
-        function addMessage(role, text) {
+        function addMessage(role, text, silent) {
             if (!messagesEl) return;
             var div = document.createElement('div');
-            div.className = 'ai-msg ' + role;
-            div.innerHTML = text
-                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+            div.className = 'ai-msg ' + (role === 'user' ? 'user' : 'bot');
+            if (role === 'user') {
+                div.textContent = text;
+            } else {
+                div.innerHTML = text
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+            }
+            if (silent) div.style.animation = 'none';
             messagesEl.appendChild(div);
             messagesEl.scrollTop = messagesEl.scrollHeight;
         }
@@ -702,6 +724,7 @@ document.getElementById('userEmail').innerText = perfilNombre || user.email;
                 if (!r.ok) throw new Error(r.data.error && r.data.error.message || 'API error');
                 var reply = r.data.choices && r.data.choices[0] && r.data.choices[0].message && r.data.choices[0].message.content || errMsg;
                 chatHistory.push({ role: 'assistant', content: reply });
+                saveHistory();
                 hideTyping();
                 addMessage('bot', reply);
             })
