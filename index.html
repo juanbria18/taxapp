@@ -514,136 +514,114 @@ window.onload = () => {
 <!-- ═══════════════ TAXUSA AI CHAT ═══════════════ -->
 <style>
 #ai-bubble {
-    position: fixed;
-    bottom: 24px;
-    left: 20px;
-    width: 54px;
-    height: 54px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #1e3a8a, #2563eb);
-    border: none;
-    cursor: pointer;
-    z-index: 3000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    position: fixed; bottom: 24px; left: 20px; z-index: 3000;
+    width: 56px; height: 56px; border-radius: 50%; border: none; cursor: pointer;
+    background: linear-gradient(135deg,#2563eb,#1d4ed8);
     box-shadow: 0 4px 20px rgba(37,99,235,0.45);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex; align-items: center; justify-content: center;
+    transition: transform .2s, box-shadow .2s;
 }
 #ai-bubble:hover { transform: scale(1.08); box-shadow: 0 6px 28px rgba(37,99,235,0.55); }
 #ai-bubble:active { transform: scale(0.95); }
 #ai-bubble svg { width: 26px; height: 26px; }
 #ai-badge {
-    position: absolute;
-    top: -3px; right: -3px;
-    width: 16px; height: 16px;
-    background: #ef4444;
-    border-radius: 50%;
-    border: 2px solid white;
-    display: none;
+    position:absolute; top:6px; right:6px; width:10px; height:10px;
+    background:#22c55e; border-radius:50%; border:2px solid #1e3a8a; display:none;
 }
 #ai-chat {
-    position: fixed;
-    bottom: 88px;
-    left: 16px;
+    position: fixed; bottom: 88px; left: 16px; z-index: 2999;
     width: min(360px, calc(100vw - 32px));
-    height: min(520px, calc(100vh - 120px));
-    background: var(--surface, #1e293b);
-    border-radius: 24px;
+    width: 340px; max-height: 520px; border-radius: 16px; overflow: hidden;
+    display: none; flex-direction: column;
+    background: var(--card, #1e293b);
+    box-shadow: 0 8px 40px rgba(0,0,0,0.45);
     border: 1px solid var(--border, #334155);
-    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-    display: none;
-    flex-direction: column;
-    overflow: hidden;
-    z-index: 2999;
     animation: chatIn 0.25s cubic-bezier(0.34,1.56,0.64,1);
 }
 #ai-chat.open { display: flex; }
 @keyframes chatIn {
-    from { opacity:0; transform: scale(0.88) translateY(16px); }
-    to   { opacity:1; transform: scale(1) translateY(0); }
+    from { opacity:0; transform:translateY(16px) scale(0.96); }
+    to   { opacity:1; transform:translateY(0)   scale(1); }
 }
 #ai-header {
-    background: linear-gradient(135deg, #1e3a8a, #2563eb);
-    padding: 14px 16px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-shrink: 0;
+    display:flex; align-items:center; gap:10px; padding:12px 14px;
+    background: linear-gradient(135deg,#2563eb,#1d4ed8); flex-shrink:0;
 }
-#ai-header svg { width: 22px; height: 22px; flex-shrink: 0; }
-.ai-header-text { flex: 1; }
-.ai-header-title { font-size: 0.9rem; font-weight: 800; color: white; line-height: 1; }
-.ai-header-sub { font-size: 0.65rem; color: rgba(255,255,255,0.75); font-weight: 600; margin-top: 2px; }
+#ai-header svg { width:22px; height:22px; flex-shrink:0; }
+.ai-header-text { flex:1; }
+.ai-header-title { font-size:0.9rem; font-weight:800; color:white; line-height:1; }
+.ai-header-sub   { font-size:0.65rem; color:rgba(255,255,255,0.75); font-weight:600; margin-top:2px; }
 #ai-close {
-    width: 28px; height: 28px; border-radius: 50%;
-    background: rgba(255,255,255,0.15); border: none;
-    color: white; cursor: pointer; font-size: 1rem;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0; transition: 0.2s;
+    background:rgba(255,255,255,0.15); border:none; color:white; cursor:pointer;
+    width:24px; height:24px; border-radius:50%; font-size:0.75rem; display:flex;
+    align-items:center; justify-content:center; transition:background .15s;
 }
-#ai-close:hover { background: rgba(255,255,255,0.25); }
+#ai-close:hover { background:rgba(255,255,255,0.3); }
 #ai-messages {
-    flex: 1; overflow-y: auto;
-    padding: 14px 14px 8px;
-    display: flex; flex-direction: column;
-    gap: 10px; scroll-behavior: smooth;
+    flex:1; overflow-y:auto; padding:12px 12px 4px; display:flex;
+    flex-direction:column; gap:8px; scroll-behavior:smooth;
 }
-#ai-messages::-webkit-scrollbar { width: 4px; }
-#ai-messages::-webkit-scrollbar-track { background: transparent; }
-#ai-messages::-webkit-scrollbar-thumb { background: var(--border, #334155); border-radius: 4px; }
+#ai-messages::-webkit-scrollbar { width:4px; }
+#ai-messages::-webkit-scrollbar-track { background:transparent; }
+#ai-messages::-webkit-scrollbar-thumb { background:var(--border,#334155); border-radius:4px; }
 .ai-msg {
-    max-width: 88%; padding: 10px 13px; border-radius: 16px;
-    font-size: 0.82rem; font-weight: 600; line-height: 1.45; word-break: break-word;
+    max-width:88%; padding:9px 12px; border-radius:12px; font-size:0.82rem;
+    line-height:1.5; word-break:break-word; animation:msgIn .18s ease;
+}
+@keyframes msgIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none} }
+.ai-msg.user {
+    align-self:flex-end; background:#2563eb; color:white; border-bottom-right-radius:4px;
 }
 .ai-msg.bot {
-    background: var(--surface-2, #273549); color: var(--text, #f1f5f9);
-    border-bottom-left-radius: 4px; align-self: flex-start;
-    border: 1px solid var(--border, #334155);
+    align-self:flex-start; background:var(--hover,#273548); color:var(--text,#e2e8f0);
+    border-bottom-left-radius:4px;
 }
-.ai-msg.user { background: #2563eb; color: white; border-bottom-right-radius: 4px; align-self: flex-end; }
-.ai-msg.typing { display: flex; gap: 5px; align-items: center; padding: 12px 16px; }
-.ai-dot { width: 7px; height: 7px; background: var(--text-dim, #64748b); border-radius: 50%; animation: aiDot 1.2s infinite; }
-.ai-dot:nth-child(2) { animation-delay: 0.2s; }
-.ai-dot:nth-child(3) { animation-delay: 0.4s; }
-@keyframes aiDot {
-    0%,60%,100% { transform: translateY(0); opacity:0.4; }
-    30% { transform: translateY(-5px); opacity:1; }
+.ai-msg.bot ul  { margin:4px 0 4px 0; padding-left:18px; }
+.ai-msg.bot li  { margin:2px 0; }
+.ai-msg.bot p   { margin:4px 0; }
+.ai-msg.bot strong { color:#93c5fd; }
+.ai-msg.bot h3  { font-size:0.85rem; font-weight:700; margin:6px 0 2px; color:#93c5fd; }
+.ai-msg.bot a   { color:#60a5fa; text-decoration:underline; }
+.ai-msg.bot.typing {
+    display:flex; gap:5px; align-items:center; padding:10px 14px;
 }
-#ai-suggestions { padding: 0 14px 10px; display: flex; gap: 6px; flex-wrap: wrap; flex-shrink: 0; }
+.ai-dot {
+    width:7px; height:7px; background:var(--muted,#64748b); border-radius:50%;
+    animation:dot .9s infinite ease-in-out;
+}
+.ai-dot:nth-child(2){animation-delay:.18s}
+.ai-dot:nth-child(3){animation-delay:.36s}
+@keyframes dot { 0%,80%,100%{transform:scale(0.7);opacity:.5} 40%{transform:scale(1);opacity:1} }
+#ai-suggestions {
+    display:flex; gap:6px; flex-wrap:wrap; padding:6px 10px 2px; flex-shrink:0;
+}
 .ai-chip {
-    background: var(--primary-dim, rgba(37,99,235,0.12));
-    border: 1px solid rgba(37,99,235,0.25); color: #2563eb;
-    padding: 5px 10px; border-radius: 20px; font-size: 0.7rem;
-    font-weight: 700; cursor: pointer; transition: 0.2s; white-space: nowrap;
+    background:var(--hover,#273548); border:1px solid var(--border,#334155);
+    color:var(--text,#e2e8f0); border-radius:20px; padding:4px 10px; font-size:0.72rem;
+    cursor:pointer; transition:background .15s, transform .1s; white-space:nowrap;
 }
-.ai-chip:hover { background: #2563eb; color: white; }
+.ai-chip:hover { background:var(--border,#334155); transform:scale(1.04); }
 #ai-input-area {
-    padding: 10px 12px 12px; display: flex; gap: 8px;
-    align-items: flex-end; border-top: 1px solid var(--border, #334155);
-    flex-shrink: 0; background: var(--surface, #1e293b);
+    display:flex; gap:6px; padding:10px; border-top:1px solid var(--border,#334155);
+    flex-shrink:0; background:var(--card,#1e293b);
 }
 #ai-input {
-    flex: 1; background: var(--input-bg, #273549);
-    border: 1.5px solid var(--border, #334155); border-radius: 12px;
-    padding: 10px 13px; color: var(--text, #f1f5f9); font-family: inherit;
-    font-size: 0.85rem; font-weight: 600; outline: none; resize: none;
-    max-height: 80px; line-height: 1.4; transition: 0.2s;
+    flex:1; background:var(--hover,#273548); border:1px solid var(--border,#334155);
+    border-radius:10px; padding:8px 12px; color:var(--text,#e2e8f0); font-size:0.83rem;
+    resize:none; outline:none; line-height:1.4; max-height:80px; overflow-y:auto; font-family:inherit;
 }
-#ai-input:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.15); }
-#ai-input::placeholder { color: var(--text-dim, #64748b); font-weight: 500; }
+#ai-input:focus { border-color:#2563eb; }
 #ai-send {
-    width: 38px; height: 38px; border-radius: 50%; background: #2563eb;
-    border: none; cursor: pointer; display: flex; align-items: center;
-    justify-content: center; flex-shrink: 0;
-    box-shadow: 0 2px 8px rgba(37,99,235,0.35); transition: 0.2s;
+    width:36px; height:36px; border-radius:10px; border:none; background:#2563eb;
+    cursor:pointer; display:flex; align-items:center; justify-content:center;
+    transition:background .15s, transform .1s; flex-shrink:0; align-self:flex-end;
 }
-#ai-send:hover { background: #1d4ed8; transform: scale(1.05); }
-#ai-send:disabled { background: var(--border, #334155); cursor: not-allowed; transform: none; }
-#ai-send svg { width: 16px; fill: white; }
+#ai-send:hover { background:#1d4ed8; transform:scale(1.05); }
+#ai-send:disabled { background:var(--border,#334155); cursor:not-allowed; transform:none; }
+#ai-send svg { width:16px; fill:white; }
 </style>
 
-<button id="ai-bubble" aria-label="Asistente de viaje">
+<button id="ai-bubble" aria-label="Taxie — Asistente de viaje">
     <span id="ai-badge"></span>
     <svg viewBox="0 0 32 32" fill="none">
         <rect width="32" height="32" rx="8" fill="white" fill-opacity="0.15"/>
@@ -661,10 +639,10 @@ window.onload = () => {
             <polygon points="16,4 18.4,11 26,11 20,15.5 22.4,22.5 16,18 9.6,22.5 12,15.5 6,11 13.6,11" fill="#ffffff"/>
         </svg>
         <div class="ai-header-text">
-            <div class="ai-header-title">TaxUSA Asistente</div>
-            <div class="ai-header-sub" id="ai-header-sub">Experto en viajes a USA ✈️</div>
+            <div class="ai-header-title">Taxie ✈️</div>
+            <div class="ai-header-sub" id="ai-header-sub">Tu guia de viaje a USA</div>
         </div>
-        <button id="ai-close">✕</button>
+        <button id="ai-close">x</button>
     </div>
     <div id="ai-messages"></div>
     <div id="ai-suggestions"></div>
@@ -682,34 +660,67 @@ window.onload = () => {
     var GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
     var MODEL = 'llama-3.3-70b-versatile';
     var lang = localStorage.getItem('appLang') || 'es';
+    var perfilId   = localStorage.getItem('perfilActivoId') || 'default';
+    var HISTORY_KEY = 'taxie_history_' + perfilId;
+
     var chatHistory = [];
+    try {
+        var saved = localStorage.getItem(HISTORY_KEY);
+        if (saved) chatHistory = JSON.parse(saved);
+    } catch(e) { chatHistory = []; }
+
     var isOpen = false;
     var isLoading = false;
     var hasShownWelcome = false;
 
-    var WELCOME_ES = '\u00a1Hola! Soy tu asistente de viaje para USA \ud83c\uddfa\ud83c\uddf8\n\nPuedo ayudarte con:\n\u2022 Recomendaciones de lugares\n\u2022 Consejos de compras y tiendas\n\u2022 Informaci\u00f3n sobre taxes y propinas\n\u2022 Tips de transporte y hospedaje\n\u2022 Cambio de moneda y presupuesto\n\n\u00bfEn qu\u00e9 puedo ayudarte?';
-    var WELCOME_EN = 'Hi! I am your USA travel assistant \ud83c\uddfa\ud83c\uddf8\n\nI can help you with:\n\u2022 Place recommendations\n\u2022 Shopping & store tips\n\u2022 Tax & tip information\n\u2022 Transport & accommodation\n\u2022 Currency & budget advice\n\nWhat can I help you with?';
+    var WELCOME_ES = '\u00a1Hola! Soy **Taxie** \ud83d\uddfd\u2708\ufe0f\n\nTu asistente personal para viajes a USA. Puedo ayudarte con:\n\n\u2022 \ud83c\udff0 Destinos y parques tematicos\n\u2022 \ud83d\udecd\ufe0f Outlets y compras sin tax\n\u2022 \ud83d\udcb5 Propinas, impuestos y presupuesto\n\u2022 \ud83c\udfe8 Hoteles y transporte\n\u2022 \ud83c\udf24\ufe0f Clima y documentacion\n\n\u00bfEn que puedo ayudarte hoy?';
+    var WELCOME_EN = 'Hi! I am **Taxie** \ud83d\uddfd\u2708\ufe0f\n\nYour personal USA travel guide. I can help you with:\n\n\u2022 \ud83c\udff0 Destinations & theme parks\n\u2022 \ud83d\udecd\ufe0f Outlets & tax-free shopping\n\u2022 \ud83d\udcb5 Tips, taxes & budgeting\n\u2022 \ud83c\udfe8 Hotels & transportation\n\u2022 \ud83c\udf24\ufe0f Weather & travel documents\n\nWhat can I help you with today?';
 
     var CHIPS_ES = ['\ud83c\udff0 Disney Orlando', '\ud83d\udecd\ufe0f Mejores outlets', '\ud83d\udcb0 Propinas en USA', '\ud83c\udf21\ufe0f Clima en Florida', '\u2708\ufe0f Aeropuertos', '\ud83d\ude97 Alquilar auto'];
     var CHIPS_EN = ['\ud83c\udff0 Disney Orlando', '\ud83d\udecd\ufe0f Best outlets', '\ud83d\udcb0 Tipping in USA', '\ud83c\udf21\ufe0f Florida weather', '\u2708\ufe0f Airports', '\ud83d\ude97 Rent a car'];
 
-    var SUB_ES = 'Experto en viajes a USA \u2708\ufe0f';
-    var SUB_EN = 'USA Travel Expert \u2708\ufe0f';
-    var PH_ES = 'Pregunt\u00e1 sobre tu viaje a USA...';
-    var PH_EN = 'Ask about your USA trip...';
-    var ERR_ES = 'Ocurri\u00f3 un error. Verific\u00e1 tu conexi\u00f3n e intent\u00e1 de nuevo.';
-    var ERR_EN = 'An error occurred. Check your connection and try again.';
+    var SUB_ES = 'Tu guia de viaje a USA \ud83d\uddfa\ufe0f';
+    var SUB_EN = 'Your USA Travel Guide \ud83d\uddfa\ufe0f';
+    var PH_ES  = 'Preguntale a Taxie sobre tu viaje...';
+    var PH_EN  = 'Ask Taxie about your trip...';
+    var ERR_ES = 'Ups, algo fallo. Verifica tu conexion e intenta de nuevo.';
+    var ERR_EN = 'Oops, something went wrong. Check your connection and try again.';
 
     var isEs = (lang !== 'en');
-    var welcome = isEs ? WELCOME_ES : WELCOME_EN;
-    var chips   = isEs ? CHIPS_ES   : CHIPS_EN;
-    var sub     = isEs ? SUB_ES     : SUB_EN;
-    var ph      = isEs ? PH_ES      : PH_EN;
-    var errMsg  = isEs ? ERR_ES     : ERR_EN;
+    var chips  = isEs ? CHIPS_ES : CHIPS_EN;
+    var sub    = isEs ? SUB_ES   : SUB_EN;
+    var ph     = isEs ? PH_ES    : PH_EN;
+    var errMsg = isEs ? ERR_ES   : ERR_EN;
 
     var SYSTEM = isEs
-        ? 'Sos TaxUSA Asistente de Viaje, experto exclusivamente en viajes a Estados Unidos. SOLO respondés sobre: destinos turisticos en USA, parques tematicos, compras (outlets, estados sin tax), propinas e impuestos, cambio de moneda, transporte, hoteles, gastronomia, clima, documentacion de viaje, valija, seguro de viaje y presupuesto. Si preguntan algo NO relacionado con viajes a USA, declinas amablemente. Se amigable, practico y conciso. Usa bullet points. Responde en espanol.'
-        : 'You are TaxUSA Travel Assistant, an expert exclusively on travel to the United States. Answer ONLY questions about: tourist destinations, theme parks, shopping, tips and taxes, currency exchange, transport, hotels, food, weather, travel documents, packing, travel insurance, and budgeting for USA trips. If asked anything NOT related to USA travel, politely decline. Be friendly, practical and concise. Use bullet points. Respond in English.';
+        ? 'Sos Taxie, una asistente de viaje para USA. Hablás como una amiga que ya viajó mil veces a Estados Unidos y da consejos de verdad, no como un manual. Usás el voseo rioplatense de forma natural. Cuando tiene sentido, usás viñetas (• ) para listar cosas y **negritas** para resaltar lo más importante, pero no en cada respuesta: a veces una o dos oraciones directas son mejores que una lista. Nunca empezás con frases vacías como 'Claro!' o '¡Por supuesto!'. Respondés solo sobre viajes a USA. Si te preguntan algo que no tiene que ver, lo decís con gracia y redirigís la charla.'
+        : 'You are Taxie, a USA travel assistant who talks like a friend who has been there a dozen times. Give real, practical advice — not textbook answers. Use bullet points (• ) and **bold** when it helps, but sometimes one or two direct sentences beat a list. Never start with filler phrases like 'Of course!' or 'Great question!'. Only answer about USA travel. If asked something unrelated, redirect naturally.';
+
+    function saveHistory() {
+        try { localStorage.setItem(HISTORY_KEY, JSON.stringify(chatHistory.slice(-40))); } catch(e) {}
+    }
+
+    function formatBotText(text) {
+        var html = text
+            .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        var lines = html.split('\n');
+        var result = [];
+        var inList = false;
+        for (var i = 0; i < lines.length; i++) {
+            var line = lines[i].trim();
+            var isBullet = /^[\u2022\-\*]\s/.test(line);
+            if (isBullet) {
+                if (!inList) { result.push('<ul>'); inList = true; }
+                result.push('<li>' + line.replace(/^[\u2022\-\*]\s+/,'') + '</li>');
+            } else {
+                if (inList) { result.push('</ul>'); inList = false; }
+                if (line !== '') result.push('<p>' + line + '</p>');
+            }
+        }
+        if (inList) result.push('</ul>');
+        return result.join('');
+    }
 
     function init() {
         var bubble     = document.getElementById('ai-bubble');
@@ -724,9 +735,8 @@ window.onload = () => {
         if (!bubble || !chatEl) return;
 
         if (headerSub) headerSub.textContent = sub;
-        if (inputEl) inputEl.placeholder = ph;
+        if (inputEl)   inputEl.placeholder   = ph;
 
-        // Chips
         if (suggestEl) {
             suggestEl.innerHTML = chips.map(function(c) {
                 return '<button class="ai-chip">' + c + '</button>';
@@ -744,12 +754,19 @@ window.onload = () => {
             isOpen = !isOpen;
             if (isOpen) {
                 chatEl.style.display = 'flex';
-                // force reflow for animation
                 chatEl.offsetHeight;
                 chatEl.classList.add('open');
                 if (!hasShownWelcome) {
                     hasShownWelcome = true;
-                    setTimeout(function() { addMessage('bot', welcome); }, 200);
+                    if (chatHistory.length > 0) {
+                        chatHistory.forEach(function(m) {
+                            addMessage(m.role === 'user' ? 'user' : 'bot', m.content, true);
+                        });
+                        if (suggestEl) suggestEl.style.display = 'none';
+                    } else {
+                        var welcome = isEs ? WELCOME_ES : WELCOME_EN;
+                        setTimeout(function() { addMessage('bot', welcome); }, 200);
+                    }
                 }
                 setTimeout(function() { if (inputEl) inputEl.focus(); }, 300);
             } else {
@@ -769,12 +786,16 @@ window.onload = () => {
             }
         });
 
-        function addMessage(role, text) {
+        function addMessage(role, text, silent) {
             if (!messagesEl) return;
             var div = document.createElement('div');
-            div.className = 'ai-msg ' + role;
-            div.innerHTML = text
-                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+            div.className = 'ai-msg ' + (role === 'user' ? 'user' : 'bot');
+            if (role === 'user') {
+                div.textContent = text;
+            } else {
+                div.innerHTML = formatBotText(text);
+            }
+            if (silent) div.style.animation = 'none';
             messagesEl.appendChild(div);
             messagesEl.scrollTop = messagesEl.scrollHeight;
         }
@@ -811,8 +832,8 @@ window.onload = () => {
                 headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + K },
                 body: JSON.stringify({
                     model: MODEL,
-                    messages: [{ role: 'system', content: SYSTEM }].concat(chatHistory.slice(-10)),
-                    max_tokens: 512,
+                    messages: [{ role: 'system', content: SYSTEM }].concat(chatHistory.slice(-14)),
+                    max_tokens: 600,
                     temperature: 0.7,
                     stream: false
                 })
@@ -822,13 +843,14 @@ window.onload = () => {
                 if (!r.ok) throw new Error(r.data.error && r.data.error.message || 'API error');
                 var reply = r.data.choices && r.data.choices[0] && r.data.choices[0].message && r.data.choices[0].message.content || errMsg;
                 chatHistory.push({ role: 'assistant', content: reply });
+                saveHistory();
                 hideTyping();
                 addMessage('bot', reply);
             })
             .catch(function(e) {
                 hideTyping();
                 addMessage('bot', errMsg);
-                console.error('[TaxUSA Chat]', e);
+                console.error('[Taxie]', e);
             })
             .finally(function() {
                 isLoading = false;
