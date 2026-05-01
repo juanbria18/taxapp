@@ -681,8 +681,8 @@ document.getElementById('userEmail').innerText = perfilNombre || user.email;
     var ERR_EN = 'Oops, something went wrong. Check your connection and try again.';
     var ERR_PT = 'Ops, algo deu errado. Verifique sua conex\u00e3o e tente novamente.';
 
-    var isEs = (lang !== 'en');
     var isPt = (lang === 'pt');
+    var isEs = (lang !== 'en' && lang !== 'pt');
     var chips  = isPt ? CHIPS_PT : isEs ? CHIPS_ES : CHIPS_EN;
     var sub    = isPt ? SUB_PT   : isEs ? SUB_ES   : SUB_EN;
     var ph     = isPt ? PH_PT    : isEs ? PH_ES    : PH_EN;
