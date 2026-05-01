@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>TaxUSA — Gastos</title>
-    <script src="https://www.google.com/recaptcha/api.js?render=6LeK6cssAAAAALxcJy-95R2nhVMmnuIyB78AQgvw" async defer></script>
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-    <noscript><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;800&display=swap" rel="stylesheet"></noscript>
+    <script src="https://www.google.com/recaptcha/api.js?render=6LeK6cssAAAAALxcJy-95R2nhVMmnuIyB78AQgvw"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script>const _t=localStorage.getItem('theme');if(_t)document.documentElement.setAttribute('data-theme',_t);else if(window.matchMedia('(prefers-color-scheme:dark)').matches)document.documentElement.setAttribute('data-theme','dark');</script>
     <style>
         :root{--primary:#2563eb;--primary-dim:rgba(37,99,235,.1);--accent:#7c3aed;--accent-dim:rgba(124,58,237,.1);--danger:#ef4444;--success:#10b981;--cyan:#0ea5e9;--bg:#f1f5f9;--surface:#fff;--surface-2:#f8fafc;--border:#e2e8f0;--input-bg:#f8fafc;--text:#0f172a;--text-sub:#64748b;--text-dim:#94a3b8;--header-color:#1e3a8a;--radius:20px;--radius-sm:12px;--shadow:0 4px 20px rgba(0,0,0,.06);--shadow-lg:0 12px 40px rgba(0,0,0,.1);--tr:all .25s cubic-bezier(.4,0,.2,1);}
@@ -104,14 +104,6 @@
         .drawer-btn:hover{background:var(--surface-2);border-color:var(--primary);}
         .btn-danger{color:var(--danger)!important;border-color:rgba(239,68,68,.3)!important;}
     </style>
-    <script>
-        // Registrar Service Worker para cache offline y carga rápida
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js').catch(() => {});
-            });
-        }
-    </script>
 </head>
 <body>
 <div class="wrap">
@@ -409,18 +401,6 @@ window.showSec=(s)=>{
 };
 
 window.startScanner=async()=>{
-    // Cargar Tesseract solo cuando el usuario lo necesita
-    if (typeof Tesseract === 'undefined') {
-        await new Promise((resolve, reject) => {
-            const s = document.createElement('script');
-            s.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
-            s.onload = resolve; s.onerror = reject;
-            document.head.appendChild(s);
-        });
-    }
-    _startScannerInner();
-};
-async function _startScannerInner(){
     document.getElementById('scanner-ui').style.display='block';
     document.getElementById('scanner-warning').style.display='block';
     video=document.getElementById('video-preview');
@@ -428,7 +408,6 @@ async function _startScannerInner(){
         stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});
         video.srcObject=stream;
     }catch(e){alert('Cámara no disponible.');stopScanner();}
-};
 };
 window.stopScanner=()=>{
     if(stream)stream.getTracks().forEach(t=>t.stop());
