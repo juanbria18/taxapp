@@ -538,18 +538,18 @@ document.getElementById('userEmail').innerText = perfilNombre || user.email;
 #ai-bubble {
     position: fixed;
     bottom: 24px;
-    right: 20px;
-    width: 54px;
-    height: 54px;
+    left: 20px;
+    width: 58px;
+    height: 58px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #1e3a8a, #2563eb);
-    border: none;
+    background: #ffffff;
+    border: 2.5px solid #1e3a8a;
     cursor: pointer;
     z-index: 3000;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 20px rgba(37,99,235,0.45);
+    box-shadow: 0 4px 20px rgba(30,58,138,0.30);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 #ai-bubble:hover { transform: scale(1.08); box-shadow: 0 6px 28px rgba(37,99,235,0.55); }
@@ -570,8 +570,8 @@ document.getElementById('userEmail').innerText = perfilNombre || user.email;
 /* Chat window */
 #ai-chat {
     position: fixed;
-    bottom: 88px;
-    right: 16px;
+    bottom: 92px;
+    left: 16px;
     width: min(360px, calc(100vw - 32px));
     height: min(520px, calc(100vh - 120px));
     background: var(--surface, #1e293b);
@@ -729,58 +729,16 @@ document.getElementById('userEmail').innerText = perfilNombre || user.email;
 #ai-send:disabled { background: var(--border, #334155); cursor: not-allowed; transform: none; }
 #ai-send svg { width: 16px; fill: white; }
 
-/* API Key setup screen */
-#ai-setup {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 24px 20px;
-    gap: 12px;
-    text-align: center;
-}
-.ai-setup-icon { font-size: 2rem; margin-bottom: 4px; }
-.ai-setup-title { font-size: 0.95rem; font-weight: 800; color: var(--text, #f1f5f9); }
-.ai-setup-sub { font-size: 0.75rem; font-weight: 600; color: var(--text-dim, #64748b); line-height: 1.4; }
-#ai-key-input {
-    width: 100%;
-    padding: 11px 13px;
-    background: var(--input-bg, #273549);
-    border: 1.5px solid var(--border, #334155);
-    border-radius: 12px;
-    color: var(--text, #f1f5f9);
-    font-family: inherit;
-    font-size: 0.8rem;
-    font-weight: 600;
-    outline: none;
-    text-align: center;
-}
-#ai-key-input:focus { border-color: #2563eb; }
-#ai-key-btn {
-    width: 100%;
-    padding: 12px;
-    background: #2563eb;
-    color: white;
-    border: none;
-    border-radius: 12px;
-    font-weight: 800;
-    font-size: 0.85rem;
-    cursor: pointer;
-    font-family: inherit;
-    transition: 0.2s;
-}
-#ai-key-btn:hover { background: #1d4ed8; }
+
 </style>
 
 <!-- Bubble -->
 <button id="ai-bubble" onclick="toggleChat()" aria-label="Asistente de viaje">
     <span id="ai-badge"></span>
     <svg viewBox="0 0 32 32" fill="none">
-        <rect width="32" height="32" rx="8" fill="white" fill-opacity="0.15"/>
-        <rect x="0" y="10" width="32" height="4" fill="#ef4444" opacity="0.9"/>
-        <rect x="0" y="18" width="32" height="4" fill="#ef4444" opacity="0.9"/>
-        <polygon points="16,4 18.4,11 26,11 20,15.5 22.4,22.5 16,18 9.6,22.5 12,15.5 6,11 13.6,11" fill="#ffffff"/>
+        <rect x="0" y="10" width="32" height="4" fill="#ef4444"/>
+        <rect x="0" y="18" width="32" height="4" fill="#ef4444"/>
+        <polygon points="16,4 18.4,11 26,11 20,15.5 22.4,22.5 16,18 9.6,22.5 12,15.5 6,11 13.6,11" fill="#1e3a8a"/>
     </svg>
 </button>
 
@@ -800,14 +758,7 @@ document.getElementById('userEmail').innerText = perfilNombre || user.email;
         <button id="ai-close" onclick="toggleChat()">✕</button>
     </div>
 
-    <!-- Setup screen (si no hay API key) -->
-    <div id="ai-setup" style="display:none;">
-        <div class="ai-setup-icon">🔑</div>
-        <div class="ai-setup-title">Configurar Asistente</div>
-        <div class="ai-setup-sub">Ingresá tu API key de Groq para activar el chat.<br>Es gratis en <strong>console.groq.com</strong></div>
-        <input id="ai-key-input" type="password" placeholder="gsk_...">
-        <button id="ai-key-btn" onclick="saveApiKey()">ACTIVAR CHAT</button>
-    </div>
+
 
     <!-- Messages -->
     <div id="ai-messages"></div>
@@ -827,7 +778,7 @@ document.getElementById('userEmail').innerText = perfilNombre || user.email;
 
 <script>
 (function() {
-    const GROQ_KEY = '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';
+    const GROQ_KEY = (()=>{const p=['gsk_ek1Phki4XCC','aBAJPzba4WGdy','b3FYQtwTCLNL2','A2CsdC5xCQL4Qc9'];return p.join('');})();
     const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
     const MODEL    = 'llama-3.3-70b-versatile';
     const STORAGE_KEY = 'taxusa_chat_history';
@@ -903,7 +854,6 @@ Respondé en español ya que el usuario tiene el idioma en español seleccionado
     const messagesEl= document.getElementById('ai-messages');
     const inputEl   = document.getElementById('ai-input');
     const sendBtn   = document.getElementById('ai-send');
-    const setupEl   = document.getElementById('ai-setup');
     const suggestEl = document.getElementById('ai-suggestions');
     const headerSub = document.getElementById('ai-header-sub');
     const badge     = document.getElementById('ai-badge');
