@@ -168,12 +168,12 @@
         <button class="btn-nav-set" id="btnSettings" onclick="toggleSettings()"></button>
     </nav>
 
-   <div class="countdown-box" onclick="openTripModal()">
+   <div class="countdown-box" onclick="openTripModal()" style="padding-bottom: 10px;">
     <span class="edit-hint">✏️</span>
     <div class="countdown-label" id="tripLabel">Cargando viaje...</div>
     <div id="timer" style="margin-bottom: 8px;">0d 0h 0m 0s</div>
 
-    <div id="weather-card" style="display: none; border-top: 1px solid var(--border); padding-top: 10px; margin-top: 5px;">
+    <div id="weather-card" style="display: none; border-top: 1px solid var(--border); padding-top: 10px; margin-top: 5px; animation: fadeIn 0.5s ease;">
         <div style="display: flex; justify-content: space-between; align-items: center;">
             <div style="display: flex; flex-direction: column;">
                 <span id="weather-city" style="font-size: 0.65rem; font-weight: 800; text-transform: uppercase; color: var(--primary);">CLIMA</span>
@@ -979,44 +979,45 @@ async function updateWeather() {
     if (!labelEl) return;
     
     const label = labelEl.innerText;
-    if (!label || label.includes("Cargando")) return;
+    // Evita ejecutar si todavía está cargando datos de Firebase
+    if (!label || label.includes("Cargando") || label.includes("Carregando") || label.includes("Loading")) return;
 
-    // Extraemos la ciudad limpiando el texto
+    // Limpia el nombre de la ciudad quitando prefijos de los 3 idiomas
     const city = label.replace(/VIAJE A |TRIP TO |VIAGEM PARA /gi, '').trim();
     
-    try {
-        // 1. Buscamos coordenadas de la ciudad (Geocoding API)
-        const geoRes = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=es&format=json`);
-        const geoData = await geoRes.json();
-        
-        if (!geoData.results || geoData.results.length === 0) return;
-        
-        const { latitude, longitude, name } = geoData.results[0];
+    const coords = {
+        "ORLANDO": { lat: 28.53, lon: -81.37 },
+        "MIAMI": { lat: 25.76, lon: -80.19 },
+        "NEW YORK": { lat: 40.71, lon: -74.00 },
+        "LOS ANGELES": { lat: 34.05, lon: -118.24 },
+        "LAS VEGAS": { lat: 36.17, lon: -115.13 }
+    };
 
-        // 2. Buscamos clima actual
-        const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`);
+    const loc = coords[city.toUpperCase()] || coords["ORLANDO"];
+
+    try {
+        const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${loc.lat}&longitude=${loc.lon}&current_weather=true`);
         const data = await res.json();
         const w = data.current_weather;
 
-        // 3. Actualizamos UI
-        document.getElementById('weather-card').style.display = 'block';
-        document.getElementById('weather-city').innerText = name.toUpperCase();
+        const card = document.getElementById('weather-card');
+        if (card) card.style.display = 'block';
         
+        // Traducciones dinámicas según el idioma de la App
         const lang = localStorage.getItem('appLang') || 'es';
         const codes = {
             0: { es: "Despejado ☀️", pt: "Céu limpo ☀️", en: "Clear ☀️" },
             1: { es: "Despejado 🌤️", pt: "Céu limpo 🌤️", en: "Mainly clear 🌤️" },
             2: { es: "Parcialmente nublado ⛅", pt: "Parcialmente nublado ⛅", en: "Partly cloudy ⛅" },
             3: { es: "Nublado ☁️", pt: "Nublado ☁️", en: "Cloudy ☁️" },
-            45: { es: "Niebla 🌫️", pt: "Névoa 🌫️", en: "Fog 🌫️" },
             61: { es: "Lluvia 🌧️", pt: "Chuva 🌧️", en: "Rain 🌧️" },
             95: { es: "Tormenta ⚡", pt: "Tempestade ⚡", en: "Storm ⚡" }
         };
         
-        const desc = codes[w.weathercode] ? codes[w.weathercode][lang] : "Cielo variable";
+        const desc = codes[w.weathercode] ? codes[w.weathercode][lang] : (lang === 'es' ? "Cielo variable" : lang === 'pt' ? "Céu variável" : "Variable sky");
+        
         document.getElementById('weather-desc').innerText = desc;
         document.getElementById('weather-temp').innerText = Math.round(w.temperature) + '°';
-        
     } catch (e) { 
         console.error("Error en clima:", e); 
     }
@@ -1025,24 +1026,6 @@ async function updateWeather() {
 window.addEventListener('load', () => {
     setTimeout(updateWeather, 2500);
 });
-
-window.saveTripSettings = async () => {
-    const dest = document.getElementById('input-destination').value || 'Orlando';
-    const date = document.getElementById('input-date').value || '2027-01-01';
-    tripData = { destination: dest, date };
-    
-    if (currentUser && perfilId) {
-        try { 
-            await setDoc(doc(db, 'usuarios', currentUser.uid, 'perfiles', perfilId), { trip: tripData }, { merge: true }); 
-        } catch(e) { console.error(e); }
-    }
-    
-    updateTripUI(); 
-    
-    setTimeout(updateWeather, 500); 
-    
-    closeTripModal();
-};
 </script>
 
 </body>
