@@ -801,11 +801,14 @@
 
     
     // ═══ Checklist ═══
-    window.addCustomCheckItem = () => {
+    // ═══ Checklist Personalizable ═══
+
+window.addCustomCheckItem = () => {
     const input = document.getElementById('customCheckInput');
     const text = input.value.trim();
     if (!text) return;
 
+    // Guardar el nuevo ítem en la lista de personalizados del perfil
     const key = 'custom_checklist_' + (perfilId || 'default');
     const customItems = JSON.parse(localStorage.getItem(key) || '[]');
     customItems.push(text);
@@ -814,26 +817,60 @@
     input.value = '';
     renderChecklist(localStorage.getItem('appLang') || 'es');
 };
-    function renderChecklist(lang) {
-        const items = checklistItems[lang] || checklistItems.es;
-        const saved = JSON.parse(localStorage.getItem('checklist_' + (perfilId||'default')) || '{}');
-        const container = document.getElementById('travelChecklist');
-        container.innerHTML = items.map((item, i) => `
-            <div class="checklist-item">
-                <div class="cl-check ${saved[i] ? 'checked' : ''}" onclick="toggleChecklist(${i})"></div>
-                <span class="cl-label">${item}</span>
-            </div>
-        `).join('');
-    }
 
-    window.toggleChecklist = (idx) => {
-        const key = 'checklist_' + (perfilId || 'default');
-        const saved = JSON.parse(localStorage.getItem(key) || '{}');
-        saved[idx] = !saved[idx];
-        localStorage.setItem(key, JSON.stringify(saved));
-        const lang = localStorage.getItem('appLang') || 'es';
-        renderChecklist(lang);
-    };
+function renderChecklist(lang) {
+    const baseItems = checklistItems[lang] || checklistItems.es;
+    const customKey = 'custom_checklist_' + (perfilId || 'default');
+    const customItems = JSON.parse(localStorage.getItem(customKey) || '[]');
+    
+    // Unimos los fijos con los del usuario
+    const allItems = [...baseItems, ...customItems];
+    
+    // Obtenemos el estado de los checks (cuáles están marcados)
+    const statusKey = 'checklist_status_' + (perfilId || 'default');
+    const savedStatus = JSON.parse(localStorage.getItem(statusKey) || '{}');
+    const container = document.getElementById('travelChecklist');
+    
+    if (!container) return;
+
+    container.innerHTML = allItems.map((item, i) => {
+        const isChecked = savedStatus[i] || false;
+        const isCustom = i >= baseItems.length; // Saber si es un ítem del usuario
+
+        return `
+            <div class="checklist-item" style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                <div class="cl-check ${isChecked ? 'checked' : ''}" onclick="toggleChecklist(${i})"></div>
+                <span class="cl-label" style="flex: 1; ${isChecked ? 'text-decoration: line-through; opacity: 0.5;' : ''}">${item}</span>
+                ${isCustom ? `<button onclick="removeCustomItem(${i - baseItems.length})" style="background:none; border:none; color:var(--danger); cursor:pointer; font-weight:bold; padding: 0 5px;">✕</button>` : ''}
+            </div>
+        `;
+    }).join('');
+}
+
+window.toggleChecklist = (idx) => {
+    const statusKey = 'checklist_status_' + (perfilId || 'default');
+    const savedStatus = JSON.parse(localStorage.getItem(statusKey) || '{}');
+    
+    savedStatus[idx] = !savedStatus[idx];
+    localStorage.setItem(statusKey, JSON.stringify(savedStatus));
+    
+    renderChecklist(localStorage.getItem('appLang') || 'es');
+};
+
+window.removeCustomItem = (customIdx) => {
+    const customKey = 'custom_checklist_' + (perfilId || 'default');
+    let customItems = JSON.parse(localStorage.getItem(customKey) || '[]');
+    
+    // Eliminar el ítem de la lista
+    customItems.splice(customIdx, 1);
+    localStorage.setItem(customKey, JSON.stringify(customItems));
+    
+    // Resetear los estados de check para evitar que se desfasen
+    const statusKey = 'checklist_status_' + (perfilId || 'default');
+    localStorage.removeItem(statusKey);
+    
+    renderChecklist(localStorage.getItem('appLang') || 'es');
+};
 
     // ═══ i18n apply ═══
     window.changeLanguage = (lang) => {
