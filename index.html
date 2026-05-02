@@ -112,6 +112,26 @@
         .app-footer img{width:16px;border-radius:2px;}
         .api-note{font-size:.55rem;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;opacity:.6;text-align:center;margin-top:4px;}
 
+        /* ── Weather Card ── */
+        .weather-card{background:var(--surface);border-radius:var(--radius);padding:16px 20px;width:100%;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:14px;position:relative;overflow:hidden;}
+        .weather-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(37,99,235,0.06),rgba(14,165,233,0.06));pointer-events:none;}
+        .wc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+        .wc-label{font-size:.6rem;font-weight:800;color:var(--text-dim);text-transform:uppercase;letter-spacing:.8px;}
+        .wc-refresh{background:none;border:none;cursor:pointer;font-size:.9rem;color:var(--text-dim);padding:4px;border-radius:8px;transition:var(--tr);}
+        .wc-refresh:hover{color:var(--primary);background:var(--primary-dim);}
+        .wc-main{display:flex;align-items:center;gap:14px;}
+        .wc-icon{font-size:2.8rem;line-height:1;flex-shrink:0;}
+        .wc-info{flex:1;}
+        .wc-temp{font-size:2rem;font-weight:900;color:var(--text);line-height:1;}
+        .wc-temp span{font-size:1rem;font-weight:600;color:var(--text-sub);}
+        .wc-city{font-size:.8rem;font-weight:700;color:var(--text-sub);margin-top:2px;}
+        .wc-desc{font-size:.72rem;font-weight:600;color:var(--primary);margin-top:3px;text-transform:capitalize;}
+        .wc-extras{display:flex;gap:16px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);}
+        .wc-extra{display:flex;align-items:center;gap:5px;font-size:.72rem;font-weight:700;color:var(--text-sub);}
+        .wc-extra span:first-child{font-size:.95rem;}
+        .wc-loading{text-align:center;padding:10px 0;font-size:.8rem;color:var(--text-dim);font-weight:600;}
+        .wc-error{font-size:.75rem;color:var(--text-dim);font-weight:600;text-align:center;padding:8px 0;}
+
         .modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:2000;padding:20px;backdrop-filter:blur(10px);}
         .modal.show{display:flex;animation:mIn .25s ease;}
         @keyframes mIn{from{opacity:0;transform:scale(.92) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
@@ -172,6 +192,15 @@
         <span class="edit-hint">✏️</span>
         <div class="countdown-label" id="tripLabel">Cargando viaje...</div>
         <div id="timer">0d 0h 0m 0s</div>
+    </div>
+
+    <!-- ── Weather Card ── -->
+    <div class="weather-card" id="weatherCard">
+        <div class="wc-top">
+            <span class="wc-label" id="wc-label">Clima en destino</span>
+            <button class="wc-refresh" onclick="fetchWeather()" title="Actualizar">🔄</button>
+        </div>
+        <div id="wc-body"><div class="wc-loading">📡 Obteniendo clima...</div></div>
     </div>
 
     <div class="card">
@@ -453,6 +482,7 @@ window.saveTripSettings = async () => {
         catch(e) { console.error(e); }
     }
     updateTripUI();
+    fetchWeather(dest);
     closeTripModal();
 };
 function updateTripUI() {
@@ -514,7 +544,133 @@ document.getElementById('userEmail').innerText = perfilNombre || user.email;    
     } catch(e) { console.error(e); }
 
     updateTripUI();
+    fetchWeather(tripData.destination);
 });
+
+// ── Weather ──────────────────────────────────────────────────
+const WMO = {
+    0:'Despejado',1:'Mayormente despejado',2:'Parcialmente nublado',3:'Nublado',
+    45:'Niebla',48:'Niebla con escarcha',
+    51:'Llovizna leve',53:'Llovizna',55:'Llovizna intensa',
+    61:'Lluvia leve',63:'Lluvia',65:'Lluvia intensa',
+    71:'Nieve leve',73:'Nieve',75:'Nieve intensa',
+    80:'Chubascos leves',81:'Chubascos',82:'Chubascos fuertes',
+    95:'Tormenta',96:'Tormenta con granizo',99:'Tormenta fuerte'
+};
+const WMO_EN = {
+    0:'Clear sky',1:'Mostly clear',2:'Partly cloudy',3:'Overcast',
+    45:'Foggy',48:'Icy fog',
+    51:'Light drizzle',53:'Drizzle',55:'Heavy drizzle',
+    61:'Light rain',63:'Rain',65:'Heavy rain',
+    71:'Light snow',73:'Snow',75:'Heavy snow',
+    80:'Light showers',81:'Showers',82:'Heavy showers',
+    95:'Thunderstorm',96:'Hail storm',99:'Severe storm'
+};
+const WMO_PT = {
+    0:'Céu limpo',1:'Principalmente limpo',2:'Parcialmente nublado',3:'Nublado',
+    45:'Neblina',48:'Neblina com geada',
+    51:'Garoa leve',53:'Garoa',55:'Garoa intensa',
+    61:'Chuva fraca',63:'Chuva',65:'Chuva forte',
+    71:'Neve fraca',73:'Neve',75:'Neve intensa',
+    80:'Pancadas leves',81:'Pancadas',82:'Pancadas fortes',
+    95:'Trovoada',96:'Trovoada com granizo',99:'Tempestade'
+};
+const WI = {
+    0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',48:'🌫️',
+    51:'🌦️',53:'🌦️',55:'🌧️',61:'🌧️',63:'🌧️',65:'🌧️',
+    71:'🌨️',73:'❄️',75:'❄️',80:'🌦️',81:'🌧️',82:'⛈️',
+    95:'⛈️',96:'⛈️',99:'🌪️'
+};
+const WIND_DIR = ['N','NE','E','SE','S','SO','O','NO'];
+
+let weatherCache = { city: '', data: null, ts: 0 };
+
+window.fetchWeather = async function(city) {
+    const lang = localStorage.getItem('appLang') || 'es';
+    city = city || tripData.destination || 'Orlando';
+    const body = document.getElementById('wc-body');
+    const lbl  = document.getElementById('wc-label');
+    if (!body) return;
+
+    // Cache 30 min per same city
+    const now = Date.now();
+    if (weatherCache.city === city && weatherCache.data && (now - weatherCache.ts) < 1800000) {
+        renderWeather(weatherCache.data, city, lang);
+        return;
+    }
+
+    body.innerHTML = '<div class="wc-loading">📡 ' + (lang==='en'?'Fetching weather...':lang==='pt'?'Obtendo clima...':'Obteniendo clima...') + '</div>';
+
+    try {
+        // Step 1: Geocode city → lat/lon using Open-Meteo geocoding API (free, no key)
+        const geoRes = await fetch('https://geocoding-api.open-meteo.com/v1/search?name=' + encodeURIComponent(city) + '&count=1&language=' + (lang==='pt'?'pt':'es') + '&format=json');
+        const geoData = await geoRes.json();
+        if (!geoData.results || !geoData.results.length) throw new Error('Ciudad no encontrada');
+
+        const { latitude, longitude, name, country_code } = geoData.results[0];
+        const displayName = name + (country_code ? ', ' + country_code.toUpperCase() : '');
+
+        // Step 2: Get weather from Open-Meteo (free, no key)
+        const wRes = await fetch(
+            'https://api.open-meteo.com/v1/forecast?latitude=' + latitude + '&longitude=' + longitude +
+            '&current=temperature_2m,apparent_temperature,relative_humidity_2m,precipitation,weather_code,wind_speed_10m,wind_direction_10m' +
+            '&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto'
+        );
+        const wData = await wRes.json();
+        const c = wData.current;
+
+        const result = {
+            tempF: Math.round(c.temperature_2m),
+            tempC: Math.round((c.temperature_2m - 32) * 5/9),
+            feelsF: Math.round(c.apparent_temperature),
+            feelsC: Math.round((c.apparent_temperature - 32) * 5/9),
+            humidity: c.relative_humidity_2m,
+            wind: Math.round(c.wind_speed_10m),
+            windDir: WIND_DIR[Math.round(c.wind_direction_10m / 45) % 8],
+            code: c.weather_code,
+            displayName
+        };
+
+        weatherCache = { city, data: result, ts: Date.now() };
+        renderWeather(result, city, lang);
+
+    } catch(e) {
+        const errTxt = lang==='en' ? 'Could not load weather. Tap 🔄 to retry.' : lang==='pt' ? 'Não foi possível carregar o clima. Toque 🔄 para tentar.' : 'No se pudo cargar el clima. Tocá 🔄 para reintentar.';
+        body.innerHTML = '<div class="wc-error">⚠️ ' + errTxt + '</div>';
+    }
+};
+
+function renderWeather(r, city, lang) {
+    const body = document.getElementById('wc-body');
+    const lbl  = document.getElementById('wc-label');
+    if (!body) return;
+
+    const wmoMap = lang==='en' ? WMO_EN : lang==='pt' ? WMO_PT : WMO;
+    const desc = wmoMap[r.code] || wmoMap[0];
+    const icon = WI[r.code] || '🌡️';
+
+    const feelsLbl = lang==='en' ? 'Feels like' : lang==='pt' ? 'Sensação' : 'Sensación';
+    const humLbl   = lang==='en' ? 'Humidity'   : lang==='pt' ? 'Umidade'  : 'Humedad';
+    const windLbl  = lang==='en' ? 'Wind'        : lang==='pt' ? 'Vento'    : 'Viento';
+    const lblTxt   = lang==='en' ? 'Weather at destination' : lang==='pt' ? 'Clima no destino' : 'Clima en destino';
+
+    if (lbl) lbl.textContent = lblTxt;
+
+    body.innerHTML =
+        '<div class="wc-main">' +
+            '<div class="wc-icon">' + icon + '</div>' +
+            '<div class="wc-info">' +
+                '<div class="wc-temp">' + r.tempF + '°<span>F / ' + r.tempC + '°C</span></div>' +
+                '<div class="wc-city">' + r.displayName + '</div>' +
+                '<div class="wc-desc">' + desc + '</div>' +
+            '</div>' +
+        '</div>' +
+        '<div class="wc-extras">' +
+            '<div class="wc-extra"><span>🌡️</span><span>' + feelsLbl + ': ' + r.feelsF + '°F</span></div>' +
+            '<div class="wc-extra"><span>💧</span><span>' + humLbl + ': ' + r.humidity + '%</span></div>' +
+            '<div class="wc-extra"><span>💨</span><span>' + windLbl + ': ' + r.wind + ' mph ' + r.windDir + '</span></div>' +
+        '</div>';
+}
 
 window.onload = () => {
     const ss = document.getElementById('state-select');
