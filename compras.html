@@ -302,18 +302,6 @@
 
         <div id="sec-talles" style="display:none;">
 
-            <!-- ── CONVERSOR INTERACTIVO ── -->
-            <div style="background:var(--primary-dim);border:1.5px solid var(--primary);border-radius:var(--radius-sm);padding:16px;margin-bottom:16px;">
-                <div style="font-size:.6rem;font-weight:800;color:var(--primary);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">🔄 Conversor de Talles</div>
-                <div style="display:flex;gap:8px;margin-bottom:10px;">
-                    <select id="conv-cat" onchange="convUpdate()" style="flex:1;padding:9px 10px;font-size:.82rem;border:1.5px solid var(--border);border-radius:10px;background:var(--surface);color:var(--text);font-weight:700;font-family:inherit;">
-                        <option value="shoe-m">👟 Calzado Hombre</option>
-                        <option value="shoe-w">👟 Calzado Mujer</option>
-                        <option value="top">👕 Remera / Top</option>
-                        <option value="jacket">🧥 Buzo / Campera</option>
-                        <option value="pants">👖 Pantalón (cm)</option>
-                    </select>
-                </div>
                 <div style="display:flex;gap:10px;align-items:center;">
                     <div style="flex:1;">
                         <div style="font-size:.58rem;font-weight:800;color:var(--text-dim);text-transform:uppercase;letter-spacing:.8px;margin-bottom:5px;">Talle ARG</div>
@@ -383,44 +371,6 @@
         </div>
 
         <script>
-        // ── Tablas de conversión ──
-        const CONV = {
-            'shoe-m': { arg:[38,39,40,41,42,43,44,45,46], us:[6,7,8,9,10,11,12,13,14] },
-            'shoe-w': { arg:[35,36,37,38,39,40,41,42],    us:[5,6,7,8,9,10,11,12] },
-            'top':    { arg:['XS','S','M','L','XL','2XL'], us:['S','M','L','XL','2XL','3XL'] },
-            'jacket': { arg:['S','M','L','XL','XXL'],      us:['XS/S','S/M','M/L','L/XL','XL/XXL'] },
-            'pants':  { arg:['70-72','73-77','78-82','83-87','88-92','93-97','98-102'], us:['28','30','32','34','36','38','40'] }
-        };
-        function convUpdate(){ document.getElementById('conv-arg').value=''; document.getElementById('conv-us').value=''; document.getElementById('conv-note').textContent=''; }
-        function convCalc(dir){
-            const cat=document.getElementById('conv-cat').value;
-            const tbl=CONV[cat]; if(!tbl)return;
-            const argEl=document.getElementById('conv-arg'), usEl=document.getElementById('conv-us'), note=document.getElementById('conv-note');
-            const isPants=(cat==='pants');
-            if(dir==='arg'){
-                const val=argEl.value.trim().toUpperCase();
-                if(!val){usEl.value='';note.textContent='';return;}
-                // Búsqueda exacta o numérica
-                let idx=-1;
-                if(isPants){
-                    const num=parseFloat(val);
-                    tbl.arg.forEach((r,i)=>{ const [lo,hi]=r.split('-').map(Number); if(num>=lo&&num<=hi) idx=i; });
-                } else {
-                    idx=tbl.arg.findIndex(a=>String(a).toUpperCase()===val);
-                }
-                if(idx>=0){ usEl.value=tbl.us[idx]; note.textContent='✅ Talle encontrado'; note.style.color='var(--success)'; }
-                else { usEl.value=''; note.textContent='⚠️ Talle no disponible en tabla'; note.style.color='var(--warn)'; }
-            } else {
-                const val=usEl.value.trim().toUpperCase();
-                if(!val){argEl.value='';note.textContent='';return;}
-                const idx=tbl.us.findIndex(u=>String(u).toUpperCase()===val);
-                if(idx>=0){ argEl.value=tbl.arg[idx]; note.textContent='✅ Talle encontrado'; note.style.color='var(--success)'; }
-                else { argEl.value=''; note.textContent='⚠️ Talle no en tabla — probá el más cercano'; note.style.color='var(--warn)'; }
-            }
-        }
-        </script>
-    </div>
-
     <div class="app-footer"><span data-i18n="footer_by">Creado por Juan Cruz Bria</span><img src="https://flagcdn.com/w40/ar.png" alt="AR"></div>
 </div>
 
