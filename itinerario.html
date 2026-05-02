@@ -801,14 +801,11 @@
 
     
     // ═══ Checklist ═══
-    // ═══ Checklist Personalizable ═══
-
 window.addCustomCheckItem = () => {
     const input = document.getElementById('customCheckInput');
     const text = input.value.trim();
     if (!text) return;
 
-    // Guardar el nuevo ítem en la lista de personalizados del perfil
     const key = 'custom_checklist_' + (perfilId || 'default');
     const customItems = JSON.parse(localStorage.getItem(key) || '[]');
     customItems.push(text);
@@ -823,10 +820,8 @@ function renderChecklist(lang) {
     const customKey = 'custom_checklist_' + (perfilId || 'default');
     const customItems = JSON.parse(localStorage.getItem(customKey) || '[]');
     
-    // Unimos los fijos con los del usuario
     const allItems = [...baseItems, ...customItems];
     
-    // Obtenemos el estado de los checks (cuáles están marcados)
     const statusKey = 'checklist_status_' + (perfilId || 'default');
     const savedStatus = JSON.parse(localStorage.getItem(statusKey) || '{}');
     const container = document.getElementById('travelChecklist');
@@ -835,7 +830,7 @@ function renderChecklist(lang) {
 
     container.innerHTML = allItems.map((item, i) => {
         const isChecked = savedStatus[i] || false;
-        const isCustom = i >= baseItems.length; // Saber si es un ítem del usuario
+        const isCustom = i >= baseItems.length; 
 
         return `
             <div class="checklist-item" style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
@@ -861,11 +856,9 @@ window.removeCustomItem = (customIdx) => {
     const customKey = 'custom_checklist_' + (perfilId || 'default');
     let customItems = JSON.parse(localStorage.getItem(customKey) || '[]');
     
-    // Eliminar el ítem de la lista
     customItems.splice(customIdx, 1);
     localStorage.setItem(customKey, JSON.stringify(customItems));
     
-    // Resetear los estados de check para evitar que se desfasen
     const statusKey = 'checklist_status_' + (perfilId || 'default');
     localStorage.removeItem(statusKey);
     
