@@ -108,6 +108,28 @@
         .st-label{font-size:.55rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--success);margin-bottom:3px;}
         #tip-content{font-size:.8rem;font-weight:600;color:var(--text);line-height:1.4;transition:opacity .3s;}
 
+        /* ── Split Bill ── */
+        .split-card{background:var(--surface);border-radius:var(--radius);padding:20px;width:100%;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:14px;}
+        .split-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;cursor:pointer;user-select:none;}
+        .split-title{font-size:.85rem;font-weight:900;color:var(--text);display:flex;align-items:center;gap:8px;}
+        .split-toggle{font-size:.7rem;color:var(--text-dim);font-weight:700;display:flex;align-items:center;gap:4px;transition:var(--tr);}
+        .split-body{display:none;}
+        .split-body.open{display:block;}
+        .people-row{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+        .people-btn{width:36px;height:36px;border-radius:10px;border:1.5px solid var(--border);background:var(--input-bg);font-size:1.1rem;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text);transition:var(--tr);flex-shrink:0;}
+        .people-btn:hover{border-color:var(--primary);background:var(--primary-dim);color:var(--primary);}
+        .people-count{font-size:1.4rem;font-weight:900;color:var(--primary);min-width:28px;text-align:center;}
+        .people-label{font-size:.7rem;color:var(--text-sub);font-weight:700;}
+        .split-result{background:linear-gradient(135deg,var(--primary),var(--accent));border-radius:var(--radius-sm);padding:16px;color:white;margin-top:14px;}
+        .split-result-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px;}
+        .split-stat{text-align:center;}
+        .split-stat-val{font-size:1.3rem;font-weight:900;line-height:1;}
+        .split-stat-lbl{font-size:.58rem;font-weight:700;opacity:.8;text-transform:uppercase;letter-spacing:.6px;margin-top:3px;}
+        .split-divider{width:1px;background:rgba(255,255,255,.25);border-radius:1px;}
+        .split-tip-row{display:flex;gap:6px;margin-bottom:14px;}
+        .split-tip-btn{flex:1;padding:9px 4px;border:1.5px solid var(--border);border-radius:10px;background:var(--input-bg);font-size:.75rem;font-weight:800;color:var(--text-sub);cursor:pointer;transition:var(--tr);font-family:inherit;text-align:center;}
+        .split-tip-btn.active{border-color:var(--accent);background:var(--accent-dim);color:var(--accent);}
+
         .app-footer{margin-top:8px;padding:12px 0;text-align:center;font-size:.7rem;color:var(--text-dim);font-weight:600;display:flex;align-items:center;justify-content:center;gap:6px;}
         .app-footer img{width:16px;border-radius:2px;}
         .api-note{font-size:.55rem;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;opacity:.6;text-align:center;margin-top:4px;}
@@ -253,6 +275,70 @@
         <div class="final-value" id="final-total">USD 0.00</div>
     </div>
 
+    <!-- ── Split Bill ── -->
+    <div class="split-card">
+        <div class="split-header" onclick="toggleSplit()">
+            <div class="split-title">🍽️ <span data-i18n="split_title">Dividir la Cuenta</span></div>
+            <div class="split-toggle" id="split-toggle-lbl">▼ <span data-i18n="split_open">VER</span></div>
+        </div>
+        <div class="split-body" id="split-body">
+
+            <span class="slabel" data-i18n="split_people">Personas</span>
+            <div class="people-row">
+                <button class="people-btn" onclick="changePeople(-1)">−</button>
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;">
+                    <div class="people-count" id="people-count">2</div>
+                    <div class="people-label" data-i18n="split_people_lbl">personas</div>
+                </div>
+                <button class="people-btn" onclick="changePeople(1)">+</button>
+            </div>
+
+            <span class="slabel" data-i18n="split_tip_pct">Propina</span>
+            <div class="split-tip-row">
+                <button class="split-tip-btn active" id="stip-0"  onclick="setSplitTip(0)">0%</button>
+                <button class="split-tip-btn" id="stip-10" onclick="setSplitTip(10)">10%</button>
+                <button class="split-tip-btn" id="stip-15" onclick="setSplitTip(15)">15%</button>
+                <button class="split-tip-btn" id="stip-18" onclick="setSplitTip(18)">18%</button>
+                <button class="split-tip-btn" id="stip-20" onclick="setSplitTip(20)">20%</button>
+            </div>
+
+            <span class="slabel" data-i18n="split_base">Base (precio en etiqueta)</span>
+            <div class="input-group">
+                <input type="number" id="split-price" placeholder="0.00" oninput="calcSplit()" step="0.01" inputmode="decimal">
+            </div>
+
+            <div class="split-result" id="split-result" style="display:none;">
+                <div style="font-size:.6rem;font-weight:800;opacity:.85;text-transform:uppercase;letter-spacing:.8px;" data-i18n="split_result_title">Resultado</div>
+                <div class="split-result-grid">
+                    <div class="split-stat">
+                        <div class="split-stat-val" id="split-per-person">$0.00</div>
+                        <div class="split-stat-lbl" data-i18n="split_per_person">por persona</div>
+                    </div>
+                    <div class="split-divider"></div>
+                    <div class="split-stat">
+                        <div class="split-stat-val" id="split-total-full">$0.00</div>
+                        <div class="split-stat-lbl" data-i18n="split_total">total cuenta</div>
+                    </div>
+                </div>
+                <div style="margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.2);display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;text-align:center;">
+                    <div>
+                        <div style="font-size:.9rem;font-weight:900;" id="split-subtotal-disp">$0.00</div>
+                        <div style="font-size:.55rem;font-weight:700;opacity:.75;text-transform:uppercase;letter-spacing:.5px;" data-i18n="split_subtotal">subtotal</div>
+                    </div>
+                    <div>
+                        <div style="font-size:.9rem;font-weight:900;" id="split-tax-disp">$0.00</div>
+                        <div style="font-size:.55rem;font-weight:700;opacity:.75;text-transform:uppercase;letter-spacing:.5px;" data-i18n="split_tax">tax</div>
+                    </div>
+                    <div>
+                        <div style="font-size:.9rem;font-weight:900;" id="split-tip-disp">$0.00</div>
+                        <div style="font-size:.55rem;font-weight:700;opacity:.75;text-transform:uppercase;letter-spacing:.5px;" data-i18n="split_tip_amt">propina</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
     <div class="smart-tip" onclick="clicConsejo()">
         <span class="st-icon">💡</span>
         <div>
@@ -356,7 +442,12 @@ const i18n = {
         btn_save:"GUARDAR",btn_close:"CERRAR",trip_prefix:"Faltan para",
         footer_by:"Creado por Juan Cruz Bria",tip_label:"CONSEJO ECONÓMICO",
         d:"d",h:"h",m:"m",s:"s",
-        alert_upcoming: "🚀 El Comparador de Precios estará disponible próximamente."
+        alert_upcoming: "🚀 El Comparador de Precios estará disponible próximamente.",
+        split_title:"Dividir la Cuenta",split_open:"VER",split_close:"OCULTAR",
+        split_people:"Personas",split_people_lbl:"personas",split_tip_pct:"Propina",
+        split_base:"Base (precio en etiqueta)",split_result_title:"Resultado",
+        split_per_person:"por persona",split_total:"total cuenta",
+        split_subtotal:"subtotal",split_tax:"tax",split_tip_amt:"propina"
     },
     en:{
         nav_expenses:"EXPENSES",nav_itinerary:"ITINERARY",nav_compare:"COMPARE",nav_units:"UNITS",
@@ -371,7 +462,12 @@ const i18n = {
         btn_save:"SAVE",btn_close:"CLOSE",trip_prefix:"Days until",
         footer_by:"Created by Juan Cruz Bria",tip_label:"ECONOMIC TIP",
         d:"d",h:"h",m:"m",s:"s",
-        alert_upcoming: "🚀 The Price Comparator will be available soon."
+        alert_upcoming: "🚀 The Price Comparator will be available soon.",
+        split_title:"Split the Bill",split_open:"SHOW",split_close:"HIDE",
+        split_people:"People",split_people_lbl:"people",split_tip_pct:"Tip",
+        split_base:"Base (pre-tax price)",split_result_title:"Result",
+        split_per_person:"per person",split_total:"total bill",
+        split_subtotal:"subtotal",split_tax:"tax",split_tip_amt:"tip"
     },
     pt:{
         nav_expenses:"GASTOS",nav_itinerary:"ITINERÁRIO",nav_compare:"COMPARAR",nav_units:"UNIDADES",
@@ -386,7 +482,12 @@ const i18n = {
         btn_save:"SALVAR",btn_close:"FECHAR",trip_prefix:"Faltam para",
         footer_by:"Criado por Juan Cruz Bria",tip_label:"DICA ECONÔMICA",
         d:"d",h:"h",m:"m",s:"s",
-        alert_upcoming: "🚀 O Comparador de Preços estará disponível em breve."
+        alert_upcoming: "🚀 O Comparador de Preços estará disponível em breve.",
+        split_title:"Dividir a Conta",split_open:"VER",split_close:"OCULTAR",
+        split_people:"Pessoas",split_people_lbl:"pessoas",split_tip_pct:"Gorjeta",
+        split_base:"Base (preço na etiqueta)",split_result_title:"Resultado",
+        split_per_person:"por pessoa",split_total:"total conta",
+        split_subtotal:"subtotal",split_tax:"tax",split_tip_amt:"gorjeta"
     }
 };
 
@@ -428,9 +529,6 @@ window.changeLanguage = (lang) => {
     updateTripUI();
     document.title = lang === 'en' ? 'TaxUSA — Home' : lang === 'pt' ? 'TaxUSA — Início' : 'TaxUSA — Inicio';
     if (window.taxieUpdateLang) window.taxieUpdateLang(lang);
-    // Re-render weather in new language (use cache, no new fetch needed)
-    if (weatherCache.data) renderWeather(weatherCache.data, weatherCache.city, lang);
-    else if (tripData.destination) fetchWeather(tripData.destination);
 };
 
 window.setCategory = (cat) => {
@@ -674,6 +772,78 @@ function renderWeather(r, city, lang) {
             '<div class="wc-extra"><span>💨</span><span>' + windLbl + ': ' + r.wind + ' mph ' + r.windDir + '</span></div>' +
         '</div>';
 }
+
+// ── Split Bill ─────────────────────────────────────────────
+let splitPeople = 2;
+let splitTipPct = 0;
+let splitOpen   = false;
+
+window.toggleSplit = () => {
+    splitOpen = !splitOpen;
+    const body = document.getElementById('split-body');
+    const lbl  = document.getElementById('split-toggle-lbl');
+    const lang = localStorage.getItem('appLang') || 'es';
+    body.classList.toggle('open', splitOpen);
+    if (lbl) lbl.innerHTML = splitOpen
+        ? '▲ <span>' + (i18n[lang].split_close || 'OCULTAR') + '</span>'
+        : '▼ <span>' + (i18n[lang].split_open  || 'VER') + '</span>';
+};
+
+window.changePeople = (delta) => {
+    splitPeople = Math.max(1, Math.min(20, splitPeople + delta));
+    const el = document.getElementById('people-count');
+    if (el) el.textContent = splitPeople;
+    calcSplit();
+};
+
+window.setSplitTip = (pct) => {
+    splitTipPct = pct;
+    document.querySelectorAll('.split-tip-btn').forEach(b => b.classList.remove('active'));
+    const btn = document.getElementById('stip-' + pct);
+    if (btn) btn.classList.add('active');
+    calcSplit();
+};
+
+window.calcSplit = () => {
+    const raw   = parseFloat(document.getElementById('split-price')?.value) || 0;
+    const res   = document.getElementById('split-result');
+    if (!res) return;
+    if (raw <= 0) { res.style.display = 'none'; return; }
+
+    // Use the currently selected tax from the main calculator
+    const taxPct = parseFloat(document.getElementById('city-select')?.value) || 0;
+    const cat    = document.querySelector('.cat-btn.active')?.id;
+    const noTax  = (cat === 'btn-med' || cat === 'btn-food');
+    const effectiveTax = noTax ? 0 : taxPct;
+
+    const tax      = raw * effectiveTax / 100;
+    const subtotal = raw + tax;
+    const tip      = subtotal * splitTipPct / 100;
+    const total    = subtotal + tip;
+    const perPerson = total / splitPeople;
+
+    const fmt = n => n.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+
+    document.getElementById('split-per-person').textContent  = '$' + fmt(perPerson);
+    document.getElementById('split-total-full').textContent  = '$' + fmt(total);
+    document.getElementById('split-subtotal-disp').textContent = '$' + fmt(raw);
+    document.getElementById('split-tax-disp').textContent    = '$' + fmt(tax);
+    document.getElementById('split-tip-disp').textContent    = '$' + fmt(tip);
+    res.style.display = 'block';
+};
+
+// Sync split price when main price changes
+const _origCalc = window.calculate;
+window.calculate = () => {
+    _origCalc && _origCalc();
+    // auto-fill split price from main price field
+    const mainPrice = document.getElementById('price')?.value;
+    const splitInput = document.getElementById('split-price');
+    if (splitInput && mainPrice && !splitInput.value) {
+        // don't overwrite if user typed something in split
+    }
+    calcSplit();
+};
 
 window.onload = () => {
     const ss = document.getElementById('state-select');
