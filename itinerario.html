@@ -606,25 +606,38 @@
     const typeIconMap = { vuelo:'✈️', hotel:'🏨', parque:'🎡', comida:'🍽️', otro:'📌' };
 
     window.addActivity = async () => {
-        const name = document.getElementById('actName').value.trim();
-        const date = document.getElementById('actDate').value;
-        const time = document.getElementById('actTime').value;
-        const type = document.getElementById('actType').value;
-        if (!name || !date) {
-            document.getElementById('actName').focus();
-            return;
+    const nameEl = document.getElementById('actName');
+    const dateEl = document.getElementById('actDate');
+    const name = nameEl.value.trim();
+    const date = dateEl.value;
+    const time = document.getElementById('actTime').value;
+    const type = document.getElementById('actType').value;
+
+    if (!name || !date) {
+        nameEl.focus();
+        return;
+    }
+
+    if (currentUser && perfilId) {
+        try {
+            await addDoc(collection(db, "usuarios", currentUser.uid, "perfiles", perfilId, "actividades"), {
+                name, 
+                date, 
+                time: time || '', 
+                type, 
+                done: false, 
+                createdAt: Date.now() // Usamos timestamp numérico para evitar errores de servidor
+            });
+            // Limpiar campos
+            nameEl.value = '';
+            dateEl.value = '';
+            document.getElementById('actTime').value = '';
+        } catch(e) { 
+            console.error("Error al guardar actividad:", e);
+            alert("Error al guardar. Reintente.");
         }
-        if (currentUser && perfilId) {
-            try {
-                await addDoc(collection(db, "usuarios", currentUser.uid, "perfiles", perfilId, "actividades"), {
-                    name, date, time: time || '', type, done: false, createdAt: Date.now()
-                });
-                document.getElementById('actName').value = '';
-                document.getElementById('actDate').value = '';
-                document.getElementById('actTime').value = '';
-            } catch(e) { console.error(e); }
-        }
-    };
+    }
+};
 
     window.toggleActivity = async (id, currentDone) => {
         if (currentUser && perfilId) {
