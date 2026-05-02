@@ -81,8 +81,11 @@
         .doc-name{font-size:.9rem;font-weight:800;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
         .doc-meta{font-size:.65rem;font-weight:600;color:var(--text-dim);margin-top:3px;display:flex;gap:8px;align-items:center;}
         .doc-meta-dot{width:3px;height:3px;border-radius:50%;background:var(--text-dim);flex-shrink:0;}
+        .doc-btns{display:flex;gap:6px;flex-shrink:0;}
         .doc-view-btn{padding:7px 14px;border-radius:8px;border:1.5px solid var(--border);background:var(--surface-2);font-size:.68rem;font-weight:800;color:var(--text-sub);cursor:pointer;font-family:inherit;transition:var(--tr);white-space:nowrap;flex-shrink:0;text-transform:uppercase;letter-spacing:.3px;}
         .doc-view-btn:hover{border-color:var(--primary);color:var(--primary);background:var(--primary-dim);}
+        .doc-del-btn{padding:7px 10px;border-radius:8px;border:1.5px solid var(--border);background:var(--surface-2);font-size:.75rem;cursor:pointer;font-family:inherit;transition:var(--tr);flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+        .doc-del-btn:hover{border-color:var(--danger);background:rgba(239,68,68,.08);}
 
         /* Preview de imagen */
         .doc-thumb{width:100%;height:100px;object-fit:cover;border-radius:10px;border:1px solid var(--border);display:block;}
@@ -607,7 +610,10 @@ function renderList() {
                             <span>${totalFiles} ${t.lbl_pgs||'pág.'}</span>
                         </div>
                     </div>
-                    <button class="doc-view-btn" onclick="event.stopPropagation();openViewer('${doc.id}')">${t.lbl_ver||'VER'}</button>
+                    <div class="doc-btns">
+                        <button class="doc-view-btn" onclick="event.stopPropagation();openViewer('${doc.id}')">${t.lbl_ver||'VER'}</button>
+                        <button class="doc-del-btn" onclick="event.stopPropagation();deleteDoc('${doc.id}')" title="Eliminar">🗑️</button>
+                    </div>
                 </div>
                 ${preview}
             </div>
