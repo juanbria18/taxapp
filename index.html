@@ -428,6 +428,9 @@ window.changeLanguage = (lang) => {
     updateTripUI();
     document.title = lang === 'en' ? 'TaxUSA — Home' : lang === 'pt' ? 'TaxUSA — Início' : 'TaxUSA — Inicio';
     if (window.taxieUpdateLang) window.taxieUpdateLang(lang);
+    // Re-render weather in new language (use cache, no new fetch needed)
+    if (weatherCache.data) renderWeather(weatherCache.data, weatherCache.city, lang);
+    else if (tripData.destination) fetchWeather(tripData.destination);
 };
 
 window.setCategory = (cat) => {
