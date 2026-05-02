@@ -369,7 +369,7 @@
     const perfilFoto = localStorage.getItem('perfilActivoFoto');
     let currentTipIndex = 0;
 
-    // ═══ i18n ═══
+    
     const i18n = {
         es: {
             nav_home:"INICIO", nav_expenses:"GASTOS", nav_units:"UNIDADES",
@@ -640,9 +640,9 @@
                 time: time || '', 
                 type, 
                 done: false, 
-                createdAt: Date.now() // Usamos timestamp numérico para evitar errores de servidor
+                createdAt: Date.now() 
             });
-            // Limpiar campos
+            
             nameEl.value = '';
             dateEl.value = '';
             document.getElementById('actTime').value = '';
@@ -865,7 +865,7 @@ window.removeCustomItem = (customIdx) => {
     renderChecklist(localStorage.getItem('appLang') || 'es');
 };
 
-    // ═══ i18n apply ═══
+    
     window.changeLanguage = (lang) => {
         localStorage.setItem('appLang', lang);
         document.querySelectorAll('[data-i18n]').forEach(el => {
@@ -880,7 +880,7 @@ window.removeCustomItem = (customIdx) => {
         const btn = document.getElementById('lang-' + lang);
         if (btn) btn.classList.add('active');
 
-        // Update select options
+        
         const actType = document.getElementById('actType');
         if (actType) {
             const types = [
@@ -918,7 +918,7 @@ window.removeCustomItem = (customIdx) => {
     window.changeProfile = () => { localStorage.removeItem('perfilActivoId'); window.location.href = "profiles.html"; };
     window.doLogout = () => signOut(auth).then(() => window.location.replace("login.html"));
 
-    // Placeholder account fns
+    
     window.executeWithToken = (fn) => fn();
     window.changeEmail = () => {};
     window.changePassword = () => {};
