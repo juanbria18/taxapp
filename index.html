@@ -5,6 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>TaxUSA — Inicio</title>
     <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#256<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TaxUSA — Inicio</title>
+    <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2563eb">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -113,7 +120,6 @@
         .people-count{font-size:1.4rem;font-weight:900;color:var(--primary);min-width:28px;text-align:center;}
         .people-label{font-size:.7rem;color:var(--text-sub);font-weight:700;}
         .split-result{background:linear-gradient(135deg,var(--primary),var(--accent));border-radius:var(--radius-sm);padding:16px;color:white;margin-top:14px;}
-        .split-result-header{font-size:.6rem;font-weight:800;opacity:.85;text-transform:uppercase;letter-spacing:.8px;}
         .split-result-grid{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;margin-top:10px;align-items:center;}
         .split-stat{text-align:center;}
         .split-stat-val{font-size:1.3rem;font-weight:900;line-height:1;}
@@ -122,9 +128,6 @@
         .split-tip-row{display:flex;gap:6px;margin-bottom:14px;}
         .split-tip-btn{flex:1;padding:9px 4px;border:1.5px solid var(--border);border-radius:10px;background:var(--input-bg);font-size:.75rem;font-weight:800;color:var(--text-sub);cursor:pointer;transition:var(--tr);font-family:inherit;text-align:center;}
         .split-tip-btn.active{border-color:var(--accent);background:var(--accent-dim);color:var(--accent);}
-        .split-breakdown{margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.2);display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;text-align:center;}
-        .split-breakdown-val{font-size:.9rem;font-weight:900;}
-        .split-breakdown-lbl{font-size:.55rem;font-weight:700;opacity:.75;text-transform:uppercase;letter-spacing:.5px;}
 
         .app-footer{margin-top:8px;padding:12px 0;text-align:center;font-size:.7rem;color:var(--text-dim);font-weight:600;display:flex;align-items:center;justify-content:center;gap:6px;}
         .app-footer img{width:16px;border-radius:2px;}
@@ -147,11 +150,8 @@
         .wc-extras{display:flex;gap:16px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);}
         .wc-extra{display:flex;align-items:center;gap:5px;font-size:.72rem;font-weight:700;color:var(--text-sub);}
         .wc-extra span:first-child{font-size:.95rem;}
-        .wc-loading{text-align:center;padding:14px 0;font-size:.82rem;color:var(--text-dim);font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;}
-        .wc-loading::before{content:'';width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0;}
-        @keyframes spin{to{transform:rotate(360deg)}}
-        .wc-error{font-size:.75rem;color:var(--text-dim);font-weight:600;text-align:center;padding:10px 0;cursor:pointer;}
-        .wc-error:hover{color:var(--danger);}
+        .wc-loading{text-align:center;padding:10px 0;font-size:.8rem;color:var(--text-dim);font-weight:600;}
+        .wc-error{font-size:.75rem;color:var(--text-dim);font-weight:600;text-align:center;padding:8px 0;}
 
         .modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:2000;padding:20px;backdrop-filter:blur(10px);}
         .modal.show{display:flex;animation:mIn .25s ease;}
@@ -177,15 +177,6 @@
         .drawer-btn{width:100%;padding:12px 14px;border-radius:var(--radius-sm);border:1.5px solid var(--border);background:var(--input-bg);color:var(--text);cursor:pointer;font-weight:700;margin-bottom:8px;font-size:.85rem;text-align:left;font-family:inherit;transition:var(--tr);display:flex;align-items:center;gap:10px;}
         .drawer-btn:hover{background:var(--surface-2);border-color:var(--primary);}
         .btn-danger{color:var(--danger)!important;border-color:rgba(239,68,68,.3)!important;}
-
-        /* ── Toast ── */
-        #toast-container{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;}
-        .toast{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:10px 18px;font-size:.82rem;font-weight:700;color:var(--text);box-shadow:var(--shadow-lg);animation:toastIn .25s ease;max-width:calc(100vw - 40px);text-align:center;}
-        .toast.success{border-color:var(--success);background:rgba(16,185,129,.08);}
-        .toast.warn{border-color:var(--warn);background:rgba(245,158,11,.08);}
-        .toast.error{border-color:var(--danger);background:rgba(239,68,68,.08);}
-        @keyframes toastIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-        @keyframes toastOut{from{opacity:1}to{opacity:0;transform:translateY(8px)}}
     </style>
     <script>
         if ('serviceWorker' in navigator) {
@@ -196,8 +187,6 @@
     </script>
 </head>
 <body>
-<div id="toast-container"></div>
-
 <div class="wrap">
     
    <div class="app-header">
@@ -213,12 +202,11 @@
 </div>
 
     <nav class="nav-bar">
-        <button class="btn-nav active" style="cursor:default;" aria-current="page"><span class="ni">🧮</span><span data-i18n="nav_tax">TAX</span></button>
         <a href="compras.html" class="btn-nav"><span class="ni">🛍️</span><span data-i18n="nav_expenses">GASTOS</span></a>
         <a href="itinerario.html" class="btn-nav"><span class="ni">📍</span><span data-i18n="nav_itinerary">ITINERARIO</span></a>
         <a href="unidades.html" class="btn-nav"><span class="ni">⚖️</span><span data-i18n="nav_units">UNIDADES</span></a>
         <a href="tickets.html" class="btn-nav"><span class="ni">📄</span><span data-i18n="nav_tickets">TICKETS</span></a>
-        <button class="btn-nav-set" id="btnSettings" onclick="toggleSettings()">⚙️</button>
+        <button class="btn-nav-set" id="btnSettings" onclick="toggleSettings()"></button>
     </nav>
 
     <div class="countdown-box" onclick="openTripModal()">
@@ -233,7 +221,7 @@
             <span class="wc-label" id="wc-label">Clima en destino</span>
             <button class="wc-refresh" onclick="fetchWeather()" title="Actualizar">🔄</button>
         </div>
-        <div id="wc-body"><div class="wc-loading">Obteniendo clima...</div></div>
+        <div id="wc-body"><div class="wc-loading">📡 Obteniendo clima...</div></div>
     </div>
 
     <div class="card">
@@ -319,11 +307,11 @@
             </div>
 
             <div class="split-result" id="split-result" style="display:none;">
-                <div class="split-result-header" data-i18n="split_result_title">Resultado</div>
+                <div style="font-size:.6rem;font-weight:800;opacity:.85;text-transform:uppercase;letter-spacing:.8px;" data-i18n="split_result_title">Resultado</div>
                 <div class="split-result-grid">
                     <div class="split-stat">
                         <div class="split-stat-val" id="split-per-person">$0.00</div>
-                <div class="split-stat-lbl" data-i18n="split_per_person">por persona</div>
+                        <div class="split-stat-lbl" data-i18n="split_per_person">por persona</div>
                     </div>
                     <div class="split-divider"></div>
                     <div class="split-stat">
@@ -331,18 +319,18 @@
                         <div class="split-stat-lbl" data-i18n="split_total">total cuenta</div>
                     </div>
                 </div>
-                <div class="split-breakdown">
+                <div style="margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.2);display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;text-align:center;">
                     <div>
-                        <div class="split-breakdown-val" id="split-subtotal-disp">$0.00</div>
-                        <div class="split-breakdown-lbl" data-i18n="split_subtotal">subtotal</div>
+                        <div style="font-size:.9rem;font-weight:900;" id="split-subtotal-disp">$0.00</div>
+                        <div style="font-size:.55rem;font-weight:700;opacity:.75;text-transform:uppercase;letter-spacing:.5px;" data-i18n="split_subtotal">subtotal</div>
                     </div>
                     <div>
-                        <div class="split-breakdown-val" id="split-tax-disp">$0.00</div>
-                        <div class="split-breakdown-lbl" data-i18n="split_tax">tax</div>
+                        <div style="font-size:.9rem;font-weight:900;" id="split-tax-disp">$0.00</div>
+                        <div style="font-size:.55rem;font-weight:700;opacity:.75;text-transform:uppercase;letter-spacing:.5px;" data-i18n="split_tax">tax</div>
                     </div>
                     <div>
-                        <div class="split-breakdown-val" id="split-tip-disp">$0.00</div>
-                        <div class="split-breakdown-lbl" data-i18n="split_tip_amt">propina</div>
+                        <div style="font-size:.9rem;font-weight:900;" id="split-tip-disp">$0.00</div>
+                        <div style="font-size:.55rem;font-weight:700;opacity:.75;text-transform:uppercase;letter-spacing:.5px;" data-i18n="split_tip_amt">propina</div>
                     </div>
                 </div>
             </div>
@@ -441,7 +429,6 @@ const taxData = {
 
 const i18n = {
     es:{
-        nav_tax:"TAX",nav_tickets:"TICKETS",
         nav_expenses:"GASTOS",nav_itinerary:"ITINERARIO",nav_compare:"COMPARAR",nav_units:"UNIDADES",
         label_price:"Precio en Etiqueta (USD)",label_category:"Categoría",
         cat_general:"GENERAL",cat_tech:"TECH",cat_food:"COMIDA",cat_med:"MEDICINA",
@@ -462,7 +449,6 @@ const i18n = {
         split_subtotal:"subtotal",split_tax:"tax",split_tip_amt:"propina"
     },
     en:{
-        nav_tax:"TAX",nav_tickets:"TICKETS",
         nav_expenses:"EXPENSES",nav_itinerary:"ITINERARY",nav_compare:"COMPARE",nav_units:"UNITS",
         label_price:"Pre-tax Price (USD)",label_category:"Category",
         cat_general:"GENERAL",cat_tech:"TECH",cat_food:"FOOD",cat_med:"MEDICINE",
@@ -483,7 +469,6 @@ const i18n = {
         split_subtotal:"subtotal",split_tax:"tax",split_tip_amt:"tip"
     },
     pt:{
-        nav_tax:"TAX",nav_tickets:"TICKETS",
         nav_expenses:"GASTOS",nav_itinerary:"ITINERÁRIO",nav_compare:"COMPARAR",nav_units:"UNIDADES",
         label_price:"Preço na Etiqueta (USD)",label_category:"Categoria",
         cat_general:"GERAL",cat_tech:"TECH",cat_food:"COMIDA",cat_med:"MEDICINA",
@@ -549,7 +534,6 @@ window.setCategory = (cat) => {
     document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
     document.getElementById('btn-' + cat).classList.add('active');
     calculate();
-    calcSplit();
 };
 window.setTip = (pct) => {
     currentTip = pct;
@@ -612,16 +596,9 @@ function updateCountdown() {
     const diff = new Date(tripData.date + 'T00:00:00').getTime() - Date.now();
     const lang = localStorage.getItem('appLang') || 'es';
     const t = i18n[lang];
-    const timerEl = document.getElementById('timer');
-    if (!timerEl) return;
-    if (diff <= 0) {
-        timerEl.innerText = lang === 'en' ? '¡Safe travels! ✈️' : lang === 'pt' ? 'Boa viagem! ✈️' : '¡Buen viaje! ✈️';
-        timerEl.style.color = 'var(--success)';
-        return;
-    }
-    timerEl.style.color = 'var(--primary)';
+    if (diff <= 0) { document.getElementById('timer').innerText = lang === 'es' ? '¡Buen viaje! ✈️' : 'Safe travels! ✈️'; return; }
     const d=Math.floor(diff/864e5), h=Math.floor((diff%864e5)/36e5), m=Math.floor((diff%36e5)/6e4), s=Math.floor((diff%6e4)/1e3);
-    timerEl.innerText = `${d}${t.d} ${h}${t.h} ${m}${t.m} ${s}${t.s}`;
+    document.getElementById('timer').innerText = `${d}${t.d} ${h}${t.h} ${m}${t.m} ${s}${t.s}`;
 }
 
 window.toggleSettings = () => {
@@ -640,27 +617,16 @@ window.doLogout = () => signOut(auth).then(() => window.location.replace('login.
 window.doChangeEmail = async () => {
     if (!currentUser) return;
     const e = prompt('Nuevo correo:');
-    if (e) {
-        try {
-            await verifyBeforeUpdateEmail(currentUser, e);
-            showToast('✉️ Verificación enviada a tu nuevo correo.', 'success');
-        } catch(er) { showToast('⚠️ ' + er.message, 'error', 5000); }
-    }
+    if (e) { try { await verifyBeforeUpdateEmail(currentUser, e); alert('Verificación enviada.'); } catch(er) { alert(er.message); } }
 };
 window.doChangePassword = async () => {
     if (!currentUser) return;
-    try {
-        await sendPasswordResetEmail(auth, currentUser.email);
-        showToast('🔑 Correo de recuperación enviado.', 'success');
-    } catch(er) { showToast('⚠️ ' + er.message, 'error', 5000); }
+    try { await sendPasswordResetEmail(auth, currentUser.email); alert('Correo de recuperación enviado.'); } catch(er) { alert(er.message); }
 };
 window.doDeleteAccount = async () => {
     if (!confirm('¿Eliminar cuenta permanentemente?')) return;
-    try {
-        await deleteDoc(doc(db, 'usuarios', currentUser.uid));
-        await deleteUser(currentUser);
-        window.location.replace('login.html');
-    } catch(e) { showToast('⚠️ Se requiere reautenticación. Cerrá sesión y volvé a ingresar.', 'error', 6000); }
+    try { await deleteDoc(doc(db, 'usuarios', currentUser.uid)); await deleteUser(currentUser); window.location.replace('login.html'); }
+    catch(e) { alert('Reautenticación requerida.'); }
 };
 
 onAuthStateChanged(auth, async (user) => {
@@ -670,13 +636,7 @@ const perfilNombre = localStorage.getItem('perfilActivoNombre');
 document.getElementById('userEmail').innerText = perfilNombre || user.email;    if (!perfilId) { window.location.replace('profiles.html'); return; }
 
     const img = perfilFoto || user.photoURL;
-    const btn = document.getElementById('btnSettings');
-    if (img && btn) {
-        btn.style.backgroundImage = `url(${img})`;
-        btn.innerText = '';
-    } else if (btn) {
-        btn.innerText = '⚙️';
-    }
+    if (img) { const btn = document.getElementById('btnSettings'); btn.style.backgroundImage = `url(${img})`; btn.innerText = ''; }
 
     try {
         const snap = await getDoc(doc(db, 'usuarios', user.uid, 'perfiles', perfilId));
@@ -739,7 +699,7 @@ window.fetchWeather = async function(city) {
         return;
     }
 
-    body.innerHTML = '<div class="wc-loading">' + (lang==='en'?'Fetching weather...':lang==='pt'?'Obtendo clima...':'Obteniendo clima...') + '</div>';
+    body.innerHTML = '<div class="wc-loading">📡 ' + (lang==='en'?'Fetching weather...':lang==='pt'?'Obtendo clima...':'Obteniendo clima...') + '</div>';
 
     try {
         
@@ -775,8 +735,8 @@ window.fetchWeather = async function(city) {
         renderWeather(result, city, lang);
 
     } catch(e) {
-        const errTxt = lang==='en' ? 'Could not load weather. Tap to retry.' : lang==='pt' ? 'Não foi possível carregar o clima. Toque para tentar.' : 'No se pudo cargar el clima. Tocá para reintentar.';
-        body.innerHTML = '<div class="wc-error" onclick="fetchWeather()">⚠️ ' + errTxt + '</div>';
+        const errTxt = lang==='en' ? 'Could not load weather. Tap 🔄 to retry.' : lang==='pt' ? 'Não foi possível carregar o clima. Toque 🔄 para tentar.' : 'No se pudo cargar el clima. Tocá 🔄 para reintentar.';
+        body.innerHTML = '<div class="wc-error">⚠️ ' + errTxt + '</div>';
     }
 };
 
@@ -875,20 +835,13 @@ window.calcSplit = () => {
 const _origCalc = window.calculate;
 window.calculate = () => {
     _origCalc && _origCalc();
+    
+    const mainPrice = document.getElementById('price')?.value;
+    const splitInput = document.getElementById('split-price');
+    if (splitInput && mainPrice && !splitInput.value) {
+        
+    }
     calcSplit();
-};
-
-window.showToast = (msg, type = '', duration = 3000) => {
-    const c = document.getElementById('toast-container');
-    if (!c) return;
-    const t = document.createElement('div');
-    t.className = 'toast' + (type ? ' ' + type : '');
-    t.textContent = msg;
-    c.appendChild(t);
-    setTimeout(() => {
-        t.style.animation = 'toastOut .25s ease forwards';
-        setTimeout(() => t.remove(), 280);
-    }, duration);
 };
 
 window.onload = () => {
