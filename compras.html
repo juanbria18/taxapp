@@ -87,6 +87,42 @@
         .size-table th,.size-table td{padding:7px 4px;text-align:center;border:1px solid var(--border);font-size:.65rem;color:var(--text);}
         .size-table th{background:var(--input-bg);font-weight:800;color:var(--text-sub);}
 
+        /* ── Dashboard / Resumen ── */
+        .donut-wrap{display:flex;align-items:center;justify-content:center;gap:20px;margin-bottom:20px;}
+        .donut-svg{flex-shrink:0;filter:drop-shadow(0 4px 12px rgba(0,0,0,.1));}
+        .donut-center{position:absolute;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;}
+        .donut-rel{position:relative;display:flex;align-items:center;justify-content:center;width:140px;height:140px;}
+        .donut-total-lbl{font-size:.55rem;font-weight:800;color:var(--text-dim);text-transform:uppercase;letter-spacing:.8px;}
+        .donut-total-val{font-size:1.3rem;font-weight:900;color:var(--text);line-height:1.1;}
+        .donut-legend{display:flex;flex-direction:column;gap:7px;flex:1;}
+        .legend-item{display:flex;align-items:center;gap:8px;cursor:pointer;}
+        .legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+        .legend-name{font-size:.75rem;font-weight:700;color:var(--text-sub);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+        .legend-val{font-size:.75rem;font-weight:800;color:var(--text);}
+        .legend-pct{font-size:.65rem;font-weight:700;color:var(--text-dim);min-width:30px;text-align:right;}
+
+        .cat-bars{display:flex;flex-direction:column;gap:10px;}
+        .cat-bar-row{display:flex;flex-direction:column;gap:4px;}
+        .cat-bar-top{display:flex;align-items:center;justify-content:space-between;}
+        .cat-bar-name{font-size:.75rem;font-weight:800;color:var(--text);display:flex;align-items:center;gap:5px;}
+        .cat-bar-amount{font-size:.75rem;font-weight:800;color:var(--text-sub);}
+        .cat-bar-track{height:8px;background:var(--surface-2);border-radius:99px;overflow:hidden;border:1px solid var(--border);}
+        .cat-bar-fill{height:100%;border-radius:99px;transition:width .6s cubic-bezier(.4,0,.2,1);}
+
+        .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+        .stat-box{background:var(--surface-2);border-radius:14px;padding:14px;border:1px solid var(--border);text-align:center;}
+        .stat-icon{font-size:1.3rem;margin-bottom:4px;}
+        .stat-val{font-size:1.1rem;font-weight:900;color:var(--text);line-height:1.1;}
+        .stat-lbl{font-size:.6rem;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;margin-top:2px;}
+
+        .cat-tag-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
+        .cat-tag{padding:5px 10px;border-radius:20px;border:1.5px solid var(--border);background:var(--input-bg);font-size:.7rem;font-weight:700;cursor:pointer;transition:var(--tr);color:var(--text-sub);font-family:inherit;}
+        .cat-tag.sel{border-color:var(--primary);background:var(--primary-dim);color:var(--primary);}
+        .cat-tag-label{font-size:.58rem;font-weight:800;color:var(--text-dim);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px;display:block;}
+
+        .empty-dash{text-align:center;padding:28px 0;color:var(--text-dim);font-size:.85rem;font-weight:600;}
+        .empty-dash span{display:block;font-size:2rem;margin-bottom:8px;}
+
         .app-footer{margin-top:8px;padding:12px 0;text-align:center;font-size:.7rem;color:var(--text-dim);font-weight:600;display:flex;align-items:center;justify-content:center;gap:6px;}
         .app-footer img{width:16px;border-radius:2px;}
 
@@ -156,6 +192,7 @@
 
         <div class="tab-bar">
             <button class="tab-btn active" id="t-gastos" onclick="showSec('gastos')" data-i18n="tab_list">GASTOS</button>
+            <button class="tab-btn" id="t-resumen" onclick="showSec('resumen')" data-i18n="tab_summary">RESUMEN</button>
             <button class="tab-btn" id="t-talles" onclick="showSec('talles')" data-i18n="tab_sizes">TALLES</button>
         </div>
 
@@ -198,8 +235,67 @@
 
             <div class="input-group"><input type="text" id="nombre" placeholder="Producto" data-i18n-ph="placeholder_product"></div>
             <div class="input-group"><input type="number" id="valor" placeholder="Precio USD" step="0.01" inputmode="decimal" data-i18n-ph="placeholder_price"></div>
+            <span class="cat-tag-label" data-i18n="label_cat_tag">Categoría</span>
+            <div class="cat-tag-row" id="cat-tag-row">
+                <button class="cat-tag sel" data-cat="🛍️ Compras">🛍️ Compras</button>
+                <button class="cat-tag" data-cat="👟 Ropa">👟 Ropa</button>
+                <button class="cat-tag" data-cat="🍔 Comida">🍔 Comida</button>
+                <button class="cat-tag" data-cat="🎢 Entretenimiento">🎢 Entretenimiento</button>
+                <button class="cat-tag" data-cat="🚗 Transporte">🚗 Transporte</button>
+                <button class="cat-tag" data-cat="🏨 Alojamiento">🏨 Alojamiento</button>
+                <button class="cat-tag" data-cat="💊 Farmacia">💊 Farmacia</button>
+                <button class="cat-tag" data-cat="📦 Otros">📦 Otros</button>
+            </div>
             <button class="btn btn-primary" onclick="addGasto()">💾 <span data-i18n="btn_save_expense">GUARDAR GASTO</span></button>
             <div id="listaGastos"><p style="text-align:center;color:var(--text-dim);font-size:.85rem;" data-i18n="loading">Cargando...</p></div>
+        </div>
+
+        <!-- ── RESUMEN / DASHBOARD ── -->
+        <div id="sec-resumen" style="display:none;">
+            <div id="dash-empty" class="empty-dash" style="display:none;">
+                <span>🛍️</span>Aún no hay gastos cargados.<br>¡Empezá a registrar tus compras!
+            </div>
+            <div id="dash-content">
+                <!-- Stats grid -->
+                <div class="stat-grid">
+                    <div class="stat-box">
+                        <div class="stat-icon">💸</div>
+                        <div class="stat-val" id="dash-total">$0</div>
+                        <div class="stat-lbl" data-i18n="dash_total">Total gastado</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-icon">🧾</div>
+                        <div class="stat-val" id="dash-count">0</div>
+                        <div class="stat-lbl" data-i18n="dash_count">Compras</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-icon">📦</div>
+                        <div class="stat-val" id="dash-avg">$0</div>
+                        <div class="stat-lbl" data-i18n="dash_avg">Promedio</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-icon">🏆</div>
+                        <div class="stat-val" id="dash-top" style="font-size:.85rem;">—</div>
+                        <div class="stat-lbl" data-i18n="dash_top">Mayor gasto</div>
+                    </div>
+                </div>
+
+                <!-- Donut chart -->
+                <span class="slabel" data-i18n="dash_by_cat">Por Categoría</span>
+                <div class="donut-wrap">
+                    <div class="donut-rel">
+                        <svg class="donut-svg" id="donut-svg" width="140" height="140" viewBox="0 0 140 140"></svg>
+                        <div class="donut-center">
+                            <div class="donut-total-lbl" id="donut-lbl">TOTAL</div>
+                            <div class="donut-total-val" id="donut-val">$0</div>
+                        </div>
+                    </div>
+                    <div class="donut-legend" id="donut-legend"></div>
+                </div>
+
+                <!-- Bar chart -->
+                <div class="cat-bars" id="cat-bars"></div>
+            </div>
         </div>
 
         <div id="sec-talles" style="display:none;">
@@ -270,9 +366,9 @@ const flags = {
 let video, stream;
 
 const i18n = {
-    es:{ nav_home:"INICIO",nav_itinerary:"ITINERARIO",nav_compare:"COMPARAR",nav_units:"UNIDADES",label_budget:"Presupuesto Restante",btn_set:"SET",ocr_analyzing:"Analizando ticket... 🧐",ocr_detecting:"Detectando Totales y Taxes",shopping_guide:"🛍️ GUÍA DE COMPRAS",tab_list:"GASTOS",tab_sizes:"TALLES",scanner_beta_msg:"⚠️ El escáner está en beta. Verificá siempre el monto detectado.",btn_scan_ticket:"ESCANEAR TICKET",rate_official:"Dólar Oficial",rate_card:"Dólar Tarjeta",label_exchange:"Cotizaciones",opt_pound:"Libra",opt_swiss:"F. Suizo",opt_real:"Real",opt_clp:"P. Chileno",opt_uyu:"P. Uruguayo",opt_mxn:"P. Mexicano",opt_pen:"Sol Peruano",opt_cop:"P. Colombiano",placeholder_product:"Producto",placeholder_price:"Precio USD",btn_save_expense:"GUARDAR GASTO",loading:"Cargando...",title_footwear:"👟 Calzado (ARG → US)",th_men:"H",th_women:"M",th_equiv:"EQUIV. US",title_tops:"👕 Remeras / Tops",title_jackets:"🧥 Buzos / Camperas",settings_title:"Ajustes",label_language:"Idioma",btn_change_profile:"Cambiar Perfil",btn_theme:"Cambiar Tema",btn_update:"Actualizar App",btn_email:"Cambiar Correo",btn_password:"Cambiar Contraseña",btn_logout:"Cerrar Sesión",btn_delete:"Eliminar Cuenta",footer_by:"Creado por Juan Cruz Bria",alert_no_total:"No se detectó el total. Cargalo manualmente.", alert_upcoming: "🚀 El Comparador de Precios estará disponible próximamente." },
-    en:{ nav_home:"HOME",nav_itinerary:"ITINERARY",nav_compare:"COMPARE",nav_units:"UNITS",label_budget:"Remaining Budget",btn_set:"SET",ocr_analyzing:"Analyzing ticket... 🧐",ocr_detecting:"Detecting Totals and Taxes",shopping_guide:"🛍️ SHOPPING GUIDE",tab_list:"EXPENSES",tab_sizes:"SIZES",scanner_beta_msg:"⚠️ Scanner is in beta. Always verify the detected amount.",btn_scan_ticket:"SCAN TICKET",rate_official:"Official Dollar",rate_card:"Card Dollar",label_exchange:"Exchange Rates",opt_pound:"Pound",opt_swiss:"Swiss F.",opt_real:"Real",opt_clp:"Chilean P.",opt_uyu:"Uruguayan P.",opt_mxn:"Mexican P.",opt_pen:"Peruvian Sol",opt_cop:"Colombian P.",placeholder_product:"Product Name",placeholder_price:"Price in USD",btn_save_expense:"SAVE EXPENSE",loading:"Loading...",title_footwear:"👟 Footwear (ARG → US)",th_men:"M",th_women:"W",th_equiv:"US SIZE",title_tops:"👕 T-Shirts / Tops",title_jackets:"🧥 Hoodies / Jackets",settings_title:"Settings",label_language:"Language",btn_change_profile:"Change Profile",btn_theme:"Toggle Theme",btn_update:"Update App",btn_email:"Change Email",btn_password:"Change Password",btn_logout:"Sign Out",btn_delete:"Delete Account",footer_by:"Created by Juan Cruz Bria",alert_no_total:"Total not detected. Please enter it manually.", alert_upcoming: "🚀 The Price Comparator will be available soon." },
-    pt:{ nav_home:"INÍCIO",nav_itinerary:"ITINERÁRIO",nav_compare:"COMPARAR",nav_units:"UNIDADES",label_budget:"Orçamento Restante",btn_set:"SET",ocr_analyzing:"Analisando ticket... 🧐",ocr_detecting:"Detectando Totais e Taxes",shopping_guide:"🛍️ GUIA DE COMPRAS",tab_list:"GASTOS",tab_sizes:"TAMANHOS",scanner_beta_msg:"⚠️ O scanner está em beta. Verifique sempre o valor detectado.",btn_scan_ticket:"ESCANEAR TICKET",rate_official:"Dólar Oficial",rate_card:"Dólar Cartão",label_exchange:"Cotações",opt_pound:"Libra",opt_swiss:"F. Suíço",opt_real:"Real",opt_clp:"P. Chileno",opt_uyu:"P. Uruguaio",opt_mxn:"P. Mexicano",opt_pen:"Sol Peruano",opt_cop:"P. Colombiano",placeholder_product:"Produto",placeholder_price:"Preço USD",btn_save_expense:"SALVAR GASTO",loading:"Carregando...",title_footwear:"👟 Calçados (BRL → US)",th_men:"H",th_women:"M",th_equiv:"EQUIV. US",title_tops:"👕 Camisetas / Tops",title_jackets:"🧥 Moletons / Jaquetas",settings_title:"Configurações",label_language:"Idioma",btn_change_profile:"Trocar Perfil",btn_theme:"Alternar Tema",btn_update:"Atualizar App",btn_email:"Alterar E-mail",btn_password:"Alterar Senha",btn_logout:"Sair",btn_delete:"Excluir Conta",footer_by:"Criado por Juan Cruz Bria",alert_no_total:"Total não detectado. Por favor insira manualmente.", alert_upcoming: "🚀 O Comparador de Preços estará disponível em breve." }
+    es:{ nav_home:"INICIO",nav_itinerary:"ITINERARIO",nav_compare:"COMPARAR",nav_units:"UNIDADES",label_budget:"Presupuesto Restante",btn_set:"SET",ocr_analyzing:"Analizando ticket... 🧐",ocr_detecting:"Detectando Totales y Taxes",shopping_guide:"🛍️ GUÍA DE COMPRAS",tab_list:"GASTOS",tab_summary:"RESUMEN",tab_sizes:"TALLES",scanner_beta_msg:"⚠️ El escáner está en beta. Verificá siempre el monto detectado.",btn_scan_ticket:"ESCANEAR TICKET",rate_official:"Dólar Oficial",rate_card:"Dólar Tarjeta",label_exchange:"Cotizaciones",opt_pound:"Libra",opt_swiss:"F. Suizo",opt_real:"Real",opt_clp:"P. Chileno",opt_uyu:"P. Uruguayo",opt_mxn:"P. Mexicano",opt_pen:"Sol Peruano",opt_cop:"P. Colombiano",placeholder_product:"Producto",placeholder_price:"Precio USD",label_cat_tag:"Categoría",btn_save_expense:"GUARDAR GASTO",loading:"Cargando...",title_footwear:"👟 Calzado (ARG → US)",th_men:"H",th_women:"M",th_equiv:"EQUIV. US",title_tops:"👕 Remeras / Tops",title_jackets:"🧥 Buzos / Camperas",settings_title:"Ajustes",label_language:"Idioma",btn_change_profile:"Cambiar Perfil",btn_theme:"Cambiar Tema",btn_update:"Actualizar App",btn_email:"Cambiar Correo",btn_password:"Cambiar Contraseña",btn_logout:"Cerrar Sesión",btn_delete:"Eliminar Cuenta",footer_by:"Creado por Juan Cruz Bria",alert_no_total:"No se detectó el total. Cargalo manualmente.",alert_upcoming:"🚀 El Comparador de Precios estará disponible próximamente.",dash_total:"Total gastado",dash_count:"Compras",dash_avg:"Promedio",dash_top:"Mayor gasto",dash_by_cat:"Por Categoría" },
+    en:{ nav_home:"HOME",nav_itinerary:"ITINERARY",nav_compare:"COMPARE",nav_units:"UNITS",label_budget:"Remaining Budget",btn_set:"SET",ocr_analyzing:"Analyzing ticket... 🧐",ocr_detecting:"Detecting Totals and Taxes",shopping_guide:"🛍️ SHOPPING GUIDE",tab_list:"EXPENSES",tab_summary:"SUMMARY",tab_sizes:"SIZES",scanner_beta_msg:"⚠️ Scanner is in beta. Always verify the detected amount.",btn_scan_ticket:"SCAN TICKET",rate_official:"Official Dollar",rate_card:"Card Dollar",label_exchange:"Exchange Rates",opt_pound:"Pound",opt_swiss:"Swiss F.",opt_real:"Real",opt_clp:"Chilean P.",opt_uyu:"Uruguayan P.",opt_mxn:"Mexican P.",opt_pen:"Peruvian Sol",opt_cop:"Colombian P.",placeholder_product:"Product Name",placeholder_price:"Price in USD",label_cat_tag:"Category",btn_save_expense:"SAVE EXPENSE",loading:"Loading...",title_footwear:"👟 Footwear (ARG → US)",th_men:"M",th_women:"W",th_equiv:"US SIZE",title_tops:"👕 T-Shirts / Tops",title_jackets:"🧥 Hoodies / Jackets",settings_title:"Settings",label_language:"Language",btn_change_profile:"Change Profile",btn_theme:"Toggle Theme",btn_update:"Update App",btn_email:"Change Email",btn_password:"Change Password",btn_logout:"Sign Out",btn_delete:"Delete Account",footer_by:"Created by Juan Cruz Bria",alert_no_total:"Total not detected. Please enter it manually.",alert_upcoming:"🚀 The Price Comparator will be available soon.",dash_total:"Total spent",dash_count:"Purchases",dash_avg:"Average",dash_top:"Biggest expense",dash_by_cat:"By Category" },
+    pt:{ nav_home:"INÍCIO",nav_itinerary:"ITINERÁRIO",nav_compare:"COMPARAR",nav_units:"UNIDADES",label_budget:"Orçamento Restante",btn_set:"SET",ocr_analyzing:"Analisando ticket... 🧐",ocr_detecting:"Detectando Totais e Taxes",shopping_guide:"🛍️ GUIA DE COMPRAS",tab_list:"GASTOS",tab_summary:"RESUMO",tab_sizes:"TAMANHOS",scanner_beta_msg:"⚠️ O scanner está em beta. Verifique sempre o valor detectado.",btn_scan_ticket:"ESCANEAR TICKET",rate_official:"Dólar Oficial",rate_card:"Dólar Cartão",label_exchange:"Cotações",opt_pound:"Libra",opt_swiss:"F. Suíço",opt_real:"Real",opt_clp:"P. Chileno",opt_uyu:"P. Uruguaio",opt_mxn:"P. Mexicano",opt_pen:"Sol Peruano",opt_cop:"P. Colombiano",placeholder_product:"Produto",placeholder_price:"Preço USD",label_cat_tag:"Categoria",btn_save_expense:"SALVAR GASTO",loading:"Carregando...",title_footwear:"👟 Calçados (BRL → US)",th_men:"H",th_women:"M",th_equiv:"EQUIV. US",title_tops:"👕 Camisetas / Tops",title_jackets:"🧥 Moletons / Jaquetas",settings_title:"Configurações",label_language:"Idioma",btn_change_profile:"Trocar Perfil",btn_theme:"Alternar Tema",btn_update:"Atualizar App",btn_email:"Alterar E-mail",btn_password:"Alterar Senha",btn_logout:"Sair",btn_delete:"Excluir Conta",footer_by:"Criado por Juan Cruz Bria",alert_no_total:"Total não detectado. Por favor insira manualmente.",alert_upcoming:"🚀 O Comparador de Preços estará disponível em breve.",dash_total:"Total gasto",dash_count:"Compras",dash_avg:"Média",dash_top:"Maior gasto",dash_by_cat:"Por Categoria" }
 };
 
 const shoppingTips = {
@@ -363,12 +459,17 @@ window.updateFondo=async()=>{
 };
 
 window.addGasto=async()=>{
-    const n=document.getElementById('nombre').value,v=parseFloat(document.getElementById('valor').value);
+    const n=document.getElementById('nombre').value;
+    const v=parseFloat(document.getElementById('valor').value);
+    const selTag=document.querySelector('#cat-tag-row .cat-tag.sel');
+    const cat=selTag?selTag.dataset.cat:'📦 Otros';
     if(!n||isNaN(v)||v<=0||!currentUser||!perfilId){alert('Completá nombre y precio.');return;}
     try{
-        await addDoc(collection(db,'usuarios',currentUser.uid,'perfiles',perfilId,'gastos'),{nombre:n,valor:v,fecha:Date.now()});
+        await addDoc(collection(db,'usuarios',currentUser.uid,'perfiles',perfilId,'gastos'),{nombre:n,valor:v,cat:cat,fecha:Date.now()});
         document.getElementById('nombre').value='';
         document.getElementById('valor').value='';
+    }catch(e){console.error(e);}
+};
     }catch(e){console.error(e);}
 };
 window.deleteGasto=async(id)=>{
@@ -377,19 +478,28 @@ window.deleteGasto=async(id)=>{
     catch(e){console.error(e);}
 };
 
+let allGastos=[];
+
+const CAT_COLORS={'🛍️ Compras':'#2563eb','👟 Ropa':'#7c3aed','🍔 Comida':'#f59e0b','🎢 Entretenimiento':'#0ea5e9','🚗 Transporte':'#10b981','🏨 Alojamiento':'#8b5cf6','💊 Farmacia':'#ef4444','📦 Otros':'#94a3b8'};
+function catColor(cat){return CAT_COLORS[cat]||'#94a3b8';}
+
 function listenGastos(){
     if(!currentUser||!perfilId)return;
     const q=query(collection(db,'usuarios',currentUser.uid,'perfiles',perfilId,'gastos'),orderBy('fecha','desc'));
     onSnapshot(q,(snap)=>{
         const c=document.getElementById('listaGastos');
-        let total=0;
-        if(snap.empty){c.innerHTML='<p style="text-align:center;color:var(--text-dim);font-size:.85rem;">No hay gastos.</p>';updateBudgetDisplay(0);return;}
-        c.innerHTML=snap.docs.map(d=>{
+        let total=0; allGastos=[];
+        if(snap.empty){
+            c.innerHTML='<p style="text-align:center;color:var(--text-dim);font-size:.85rem;">No hay gastos.</p>';
+            updateBudgetDisplay(0); renderDashboard([]); return;
+        }
+        snap.docs.forEach(d=>{
             const data=d.data(),val=parseFloat(data.valor)||0;
-            total+=val;
-            return `<div class="history-item"><div class="h-name">${data.nombre}</div><div class="h-right"><div class="h-amount">-$${fmt(val)}</div><button class="h-del" onclick="deleteGasto('${d.id}')">✕</button></div></div>`;
-        }).join('');
+            total+=val; allGastos.push({...data,id:d.id,valor:val});
+        });
+        c.innerHTML=allGastos.map(g=>`<div class="history-item" style="border-left-color:${catColor(g.cat||'📦 Otros')}"><div><div class="h-name">${g.nombre}</div><div style="font-size:.62rem;color:var(--text-dim);margin-top:1px;">${g.cat||'📦 Otros'}</div></div><div class="h-right"><div class="h-amount">-$${fmt(g.valor)}</div><button class="h-del" onclick="deleteGasto('${g.id}')">✕</button></div></div>`).join('');
         updateBudgetDisplay(total);
+        renderDashboard(allGastos);
     });
 }
 function updateBudgetDisplay(spent){
@@ -397,12 +507,64 @@ function updateBudgetDisplay(spent){
     if(el) el.innerText='USD '+fmt(presupuestoBase-spent);
 }
 
+function renderDashboard(gastos){
+    const empty=document.getElementById('dash-empty');
+    const content=document.getElementById('dash-content');
+    if(!empty||!content)return;
+    if(!gastos||!gastos.length){empty.style.display='block';content.style.display='none';return;}
+    empty.style.display='none'; content.style.display='block';
+    const total=gastos.reduce((s,g)=>s+g.valor,0);
+    const count=gastos.length;
+    const top=gastos.reduce((a,b)=>b.valor>a.valor?b:a,gastos[0]);
+    document.getElementById('dash-total').textContent='$'+fmt(total);
+    document.getElementById('dash-count').textContent=count;
+    document.getElementById('dash-avg').textContent='$'+fmt(total/count);
+    document.getElementById('dash-top').textContent=top.nombre.substring(0,13)+(top.nombre.length>13?'…':'');
+    document.getElementById('donut-val').textContent='$'+fmt(total);
+    // Group by cat
+    const bycat={};
+    gastos.forEach(g=>{const c=g.cat||'📦 Otros';bycat[c]=(bycat[c]||0)+g.valor;});
+    const cats=Object.entries(bycat).sort((a,b)=>b[1]-a[1]);
+    // Donut SVG
+    const svg=document.getElementById('donut-svg');
+    const cx=70,cy=70,R=58,r=38;
+    let angle=-Math.PI/2, paths='';
+    cats.forEach(([cat,val])=>{
+        const a=(val/total)*2*Math.PI;
+        const x1=cx+R*Math.cos(angle),y1=cy+R*Math.sin(angle);
+        const x2=cx+R*Math.cos(angle+a),y2=cy+R*Math.sin(angle+a);
+        const xi1=cx+r*Math.cos(angle),yi1=cy+r*Math.sin(angle);
+        const xi2=cx+r*Math.cos(angle+a),yi2=cy+r*Math.sin(angle+a);
+        const lg=a>Math.PI?1:0, col=catColor(cat);
+        paths+=`<path d="M${x1.toFixed(1)},${y1.toFixed(1)} A${R},${R} 0 ${lg},1 ${x2.toFixed(1)},${y2.toFixed(1)} L${xi2.toFixed(1)},${yi2.toFixed(1)} A${r},${r} 0 ${lg},0 ${xi1.toFixed(1)},${yi1.toFixed(1)} Z" fill="${col}" opacity="0.93" stroke="var(--surface)" stroke-width="2"/>`;
+        angle+=a;
+    });
+    svg.innerHTML=paths;
+    // Legend
+    document.getElementById('donut-legend').innerHTML=cats.slice(0,5).map(([cat,val])=>`<div class="legend-item"><div class="legend-dot" style="background:${catColor(cat)}"></div><div class="legend-name">${cat}</div><div class="legend-val">$${fmt(val)}</div><div class="legend-pct">${Math.round(val/total*100)}%</div></div>`).join('');
+    // Bars
+    document.getElementById('cat-bars').innerHTML=cats.map(([cat,val])=>`<div class="cat-bar-row"><div class="cat-bar-top"><div class="cat-bar-name">${cat}</div><div class="cat-bar-amount">$${fmt(val)} <span style="color:var(--text-dim);font-weight:600;">${Math.round(val/total*100)}%</span></div></div><div class="cat-bar-track"><div class="cat-bar-fill" style="width:${Math.round(val/total*100)}%;background:${catColor(cat)};"></div></div></div>`).join('');
+}
+
 window.showSec=(s)=>{
-    document.getElementById('sec-gastos').style.display=s==='gastos'?'block':'none';
-    document.getElementById('sec-talles').style.display=s==='talles'?'block':'none';
-    document.getElementById('t-gastos').className=s==='gastos'?'tab-btn active':'tab-btn';
-    document.getElementById('t-talles').className=s==='talles'?'tab-btn active':'tab-btn';
+    ['gastos','resumen','talles'].forEach(id=>{
+        const el=document.getElementById('sec-'+id);
+        if(el)el.style.display=s===id?'block':'none';
+        const tb=document.getElementById('t-'+id);
+        if(tb)tb.className=s===id?'tab-btn active':'tab-btn';
+    });
+    if(s==='resumen')renderDashboard(allGastos);
 };
+
+// Category tag selector
+document.addEventListener('DOMContentLoaded',()=>{
+    document.querySelectorAll('#cat-tag-row .cat-tag').forEach(btn=>{
+        btn.addEventListener('click',()=>{
+            document.querySelectorAll('#cat-tag-row .cat-tag').forEach(b=>b.classList.remove('sel'));
+            btn.classList.add('sel');
+        });
+    });
+});
 
 window.startScanner=async()=>{
     document.getElementById('scanner-ui').style.display='block';
@@ -501,7 +663,6 @@ document.getElementById('userEmail').innerText = perfilNombre || user.email;
 
 </script>
 
-<!-- ═══════════════ TAXUSA AI CHAT ═══════════════ -->
 <style>
 #ai-bubble {
     position: fixed; bottom: 24px; left: 20px; z-index: 3000;
@@ -934,7 +1095,6 @@ document.getElementById('userEmail').innerText = perfilNombre || user.email;
     }
 })();
 </script>
-<!-- ═══════════════ FIN TAXUSA AI CHAT ═══════════════ -->
 
 </body>
 </html>
