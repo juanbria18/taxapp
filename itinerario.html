@@ -785,27 +785,51 @@
         if (confirm(i18n[lang].confirm_delete)) await deleteDoc(doc(db, "usuarios", currentUser.uid, "perfiles", perfilId, "notas", id));
     };
 
-    // ═══ Checklist ═══
-    function renderChecklist(lang) {
-        const items = checklistItems[lang] || checklistItems.es;
-        const saved = JSON.parse(localStorage.getItem('checklist_' + (perfilId||'default')) || '{}');
-        const container = document.getElementById('travelChecklist');
-        container.innerHTML = items.map((item, i) => `
-            <div class="checklist-item">
-                <div class="cl-check ${saved[i] ? 'checked' : ''}" onclick="toggleChecklist(${i})"></div>
-                <span class="cl-label">${item}</span>
-            </div>
-        `).join('');
+   // ═══ Checklist con Barra de Progreso ═══
+function renderChecklist(lang) {
+    const items = checklistItems[lang] || checklistItems.es;
+    const key = 'checklist_' + (perfilId || 'default');
+    const saved = JSON.parse(localStorage.getItem(key) || '{}');
+    const container = document.getElementById('travelChecklist');
+    
+    // Elementos de la barra de progreso
+    const progressCard = document.getElementById('checkProgressCard');
+    const progressFill = document.getElementById('checkProgressFill');
+    const progressCount = document.getElementById('checkProgressCount');
+    const progressLabel = document.getElementById('checkProgressLabel');
+
+    // Cálculo de progreso
+    if (items.length > 0) {
+        if (progressCard) progressCard.style.display = 'block';
+        const doneCount = items.filter((_, i) => saved[i]).length;
+        const totalCount = items.length;
+        const percentage = Math.round((doneCount / totalCount) * 100);
+        
+        if (progressCount) progressCount.textContent = `${doneCount}/${totalCount}`;
+        if (progressFill) progressFill.style.width = percentage + '%';
+        
+        // Traducción del título de la barra
+        const labels = { es: "Preparativos", en: "Preparation", pt: "Preparação" };
+        if (progressLabel) progressLabel.textContent = labels[lang] || labels.es;
     }
 
-    window.toggleChecklist = (idx) => {
-        const key = 'checklist_' + (perfilId || 'default');
-        const saved = JSON.parse(localStorage.getItem(key) || '{}');
-        saved[idx] = !saved[idx];
-        localStorage.setItem(key, JSON.stringify(saved));
-        const lang = localStorage.getItem('appLang') || 'es';
-        renderChecklist(lang);
-    };
+    // Renderizado de la lista
+    container.innerHTML = items.map((item, i) => `
+        <div class="checklist-item ${saved[i] ? 'done' : ''}">
+            <div class="cl-check ${saved[i] ? 'checked' : ''}" onclick="toggleChecklist(${i})"></div>
+            <span class="cl-label" style="${saved[i] ? 'text-decoration: line-through; opacity: 0.6;' : ''}">${item}</span>
+        </div>
+    `).join('');
+}
+
+window.toggleChecklist = (idx) => {
+    const key = 'checklist_' + (perfilId || 'default');
+    const saved = JSON.parse(localStorage.getItem(key) || '{}');
+    saved[idx] = !saved[idx];
+    localStorage.setItem(key, JSON.stringify(saved));
+    const lang = localStorage.getItem('appLang') || 'es';
+    renderChecklist(lang);
+};
 
     // ═══ i18n apply ═══
     window.changeLanguage = (lang) => {
