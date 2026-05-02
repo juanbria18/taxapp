@@ -61,25 +61,48 @@
         .empty-state{text-align:center;padding:48px 20px;color:var(--text-dim);}
         .empty-state .empty-icon{font-size:3rem;margin-bottom:12px;display:block;}
         .empty-state p{font-size:.85rem;font-weight:600;line-height:1.6;}
-        .doc-list{display:flex;flex-direction:column;gap:12px;}
-        .doc-card{background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow);overflow:hidden;cursor:pointer;transition:var(--tr);}
+        .doc-list{display:flex;flex-direction:column;gap:10px;}
+
+        /* Card principal */
+        .doc-card{background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow);overflow:hidden;cursor:pointer;transition:var(--tr);display:flex;flex-direction:column;}
         .doc-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg);}
         .doc-card:active{transform:scale(.98);}
-        .doc-stripe{height:5px;width:100%;}
-        .doc-body{padding:14px 16px;}
-        .doc-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;}
-        .doc-left{display:flex;align-items:center;gap:12px;flex:1;min-width:0;}
-        .doc-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;}
+
+        /* Franja de color superior */
+        .doc-stripe{height:4px;width:100%;flex-shrink:0;}
+
+        /* Cuerpo */
+        .doc-body{padding:12px 14px;display:flex;flex-direction:column;gap:10px;}
+
+        /* Fila superior: ícono + info + botón VER */
+        .doc-top{display:flex;align-items:center;gap:12px;}
+        .doc-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0;}
         .doc-info{flex:1;min-width:0;}
         .doc-name{font-size:.9rem;font-weight:800;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-        .doc-meta{font-size:.68rem;font-weight:600;color:var(--text-dim);margin-top:2px;}
-        .doc-badge{font-size:.58rem;font-weight:800;padding:3px 8px;border-radius:20px;text-transform:uppercase;letter-spacing:.5px;flex-shrink:0;align-self:flex-start;margin-top:2px;}
-        .doc-thumb{width:100%;height:90px;object-fit:cover;border-radius:8px;margin-top:10px;border:1px solid var(--border);}
-        .doc-pdf-row{display:flex;align-items:center;gap:8px;margin-top:10px;padding:8px 12px;background:var(--surface-2);border-radius:8px;border:1px solid var(--border);}
-        .doc-actions{display:flex;gap:6px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);}
-        .doc-act-btn{flex:1;padding:8px;border:1px solid var(--border);border-radius:8px;background:var(--surface-2);font-size:.72rem;font-weight:800;color:var(--text-sub);cursor:pointer;font-family:inherit;transition:var(--tr);display:flex;align-items:center;justify-content:center;gap:4px;}
-        .doc-act-btn:hover{border-color:var(--primary);color:var(--primary);}
-        .doc-act-btn.del:hover{border-color:var(--danger);color:var(--danger);}
+        .doc-meta{font-size:.65rem;font-weight:600;color:var(--text-dim);margin-top:3px;display:flex;gap:8px;align-items:center;}
+        .doc-meta-dot{width:3px;height:3px;border-radius:50%;background:var(--text-dim);flex-shrink:0;}
+        .doc-view-btn{padding:7px 14px;border-radius:8px;border:1.5px solid var(--border);background:var(--surface-2);font-size:.68rem;font-weight:800;color:var(--text-sub);cursor:pointer;font-family:inherit;transition:var(--tr);white-space:nowrap;flex-shrink:0;text-transform:uppercase;letter-spacing:.3px;}
+        .doc-view-btn:hover{border-color:var(--primary);color:var(--primary);background:var(--primary-dim);}
+
+        /* Preview de imagen */
+        .doc-thumb{width:100%;height:100px;object-fit:cover;border-radius:10px;border:1px solid var(--border);display:block;}
+
+        /* Preview de PDF */
+        .doc-pdf-preview{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--surface-2);border-radius:10px;border:1px solid var(--border);}
+        .doc-pdf-icon{width:36px;height:44px;background:#ef4444;border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;position:relative;overflow:hidden;}
+        .doc-pdf-icon::before{content:'';position:absolute;top:0;right:0;width:10px;height:10px;background:rgba(255,255,255,.25);border-bottom-left-radius:6px;}
+        .doc-pdf-icon span{font-size:.45rem;font-weight:900;color:white;letter-spacing:.5px;text-transform:uppercase;margin-top:2px;}
+        .doc-pdf-lines{flex:1;display:flex;flex-direction:column;gap:5px;}
+        .doc-pdf-line{height:5px;border-radius:99px;background:var(--border);}
+        .doc-pdf-line:first-child{width:80%;}
+        .doc-pdf-line:nth-child(2){width:65%;}
+        .doc-pdf-line:last-child{width:45%;}
+        .doc-pdf-info{font-size:.65rem;font-weight:700;color:var(--text-sub);text-align:right;flex-shrink:0;}
+
+        .doc-actions{display:flex;gap:6px;padding-top:2px;border-top:1px solid var(--border);}
+        .doc-act-btn{flex:1;padding:8px;border:none;border-radius:8px;background:transparent;font-size:.72rem;font-weight:800;color:var(--text-sub);cursor:pointer;font-family:inherit;transition:var(--tr);display:flex;align-items:center;justify-content:center;gap:4px;}
+        .doc-act-btn:hover{color:var(--primary);background:var(--primary-dim);}
+        .doc-act-btn.del:hover{color:var(--danger);background:rgba(239,68,68,.08);}
         .storage-bar{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:14px;display:flex;align-items:center;gap:10px;}
         .storage-track{flex:1;height:5px;background:var(--surface-2);border-radius:99px;overflow:hidden;border:1px solid var(--border);}
         .storage-fill{height:100%;border-radius:99px;transition:width .5s ease;}
@@ -540,21 +563,54 @@ function renderList() {
     if (!filtered.length) { list.innerHTML=''; empty.style.display='flex'; return; }
     empty.style.display = 'none';
     list.innerHTML = filtered.map(doc => {
-        const cfg = TYPE_CFG[doc.type] || TYPE_CFG['📦'];
-        const f0  = doc.files?.[0];
-        let media = '';
-        if (f0?.kind === 'img') media = `<img class="doc-thumb" src="${f0.dataUrl}" alt="preview" loading="lazy">`;
-        else if (f0?.kind === 'pdf') media = `<div class="doc-thumb pdf-thumb"><span>📄</span><small>PDF</small></div>`;
-        const date = new Date(doc.createdAt).toLocaleDateString(lang==='pt'?'pt-BR':lang==='en'?'en-US':'es-AR',{day:'2-digit',month:'short'});
-        const pages = doc.files?.length || 0;
+        const cfg   = TYPE_CFG[doc.type] || TYPE_CFG['📦'];
+        const f0    = doc.files?.[0];
+        const pages = doc.files?.filter(f=>f.kind==='pdf').length || 0;
+        const imgs  = doc.files?.filter(f=>f.kind==='img').length || 0;
+        const date  = new Date(doc.createdAt).toLocaleDateString(
+            lang==='pt'?'pt-BR':lang==='en'?'en-US':'es-AR',
+            {day:'2-digit',month:'short',year:'numeric'}
+        );
+
+        // Preview: imagen si hay, sino PDF card
+        let preview = '';
+        if (f0?.kind === 'img') {
+            preview = `<img class="doc-thumb" src="${f0.dataUrl}" alt="preview" loading="lazy">`;
+        } else if (f0?.kind === 'pdf') {
+            const pagesLabel = pages === 1 ? '1 pág.' : pages + ' págs.';
+            preview = `<div class="doc-pdf-preview">
+                <div class="doc-pdf-icon"><span>PDF</span></div>
+                <div class="doc-pdf-lines">
+                    <div class="doc-pdf-line"></div>
+                    <div class="doc-pdf-line"></div>
+                    <div class="doc-pdf-line"></div>
+                </div>
+                <div class="doc-pdf-info">${pagesLabel}</div>
+            </div>`;
+        }
+
+        const typeLabel = lbl[doc.type] || 'Doc';
+        const totalFiles = (doc.files?.length || 0);
+
         return `<div class="doc-card" onclick="openViewer('${doc.id}')">
-            <div class="doc-badge" style="background:${cfg.bg};color:${cfg.color}">${doc.type}</div>
-            ${media}
-            <div class="doc-info">
-                <div class="doc-name">${doc.name}</div>
-                <div class="doc-meta"><span>${lbl[doc.type]||'Doc'}</span><span>${date}</span><span>${pages} ${t.lbl_pgs||'pág.'}</span></div>
+            <div class="doc-stripe" style="background:${cfg.color}"></div>
+            <div class="doc-body">
+                <div class="doc-top">
+                    <div class="doc-icon" style="background:${cfg.bg}">${doc.type}</div>
+                    <div class="doc-info">
+                        <div class="doc-name">${doc.name}</div>
+                        <div class="doc-meta">
+                            <span>${typeLabel}</span>
+                            <span class="doc-meta-dot"></span>
+                            <span>${date}</span>
+                            <span class="doc-meta-dot"></span>
+                            <span>${totalFiles} ${t.lbl_pgs||'pág.'}</span>
+                        </div>
+                    </div>
+                    <button class="doc-view-btn" onclick="event.stopPropagation();openViewer('${doc.id}')">${t.lbl_ver||'VER'}</button>
+                </div>
+                ${preview}
             </div>
-            <button class="doc-view-btn" onclick="event.stopPropagation();openViewer('${doc.id}')">${t.lbl_ver||'VER'}</button>
         </div>`;
     }).join('');
 }
