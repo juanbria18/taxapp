@@ -287,21 +287,35 @@
     </div>
 
     <!-- ═══════ TAB NOTAS ═══════ -->
-    <div class="tab-panel" id="panel-notas">
-        <!-- Quick notes -->
-        <div class="card">
-            <span class="slabel" data-i18n="label_notes">📝 Notas y Recordatorios</span>
-            <textarea id="noteInput" rows="3" data-i18n-placeholder="note_placeholder" placeholder="Vuelos, hoteles, recordatorios..." style="margin-bottom:10px;"></textarea>
-            <button class="btn btn-primary" onclick="addNote()" data-i18n="btn_add_note">AGREGAR NOTA</button>
-            <div id="notesList" style="margin-top:16px;"></div>
+   <div class="tab-panel" id="panel-notas">
+    <div class="card">
+        <span class="slabel" data-i18n="label_notes">📝 Notas y Recordatorios</span>
+        <textarea id="noteInput" rows="3" data-i18n-placeholder="note_placeholder" placeholder="Vuelos, hoteles, recordatorios..." style="margin-bottom:10px;"></textarea>
+        <button class="btn btn-primary" onclick="addNote()" data-i18n="btn_add_note">AGREGAR NOTA</button>
+        <div id="notesList" style="margin-top:16px;"></div>
+    </div>
+
+    <div class="card">
+        <span class="slabel" data-i18n="label_checklist">✅ Checklist de Viaje</span>
+        
+        <div class="progress-card" id="checkProgressCard" style="display: none; margin: 10px 0 20px 0; background: var(--primary-dim); padding: 12px; border-radius: 12px;">
+            <div class="progress-info" style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.85rem; font-weight: 700;">
+                <span id="checkProgressLabel">Preparativos</span>
+                <span id="checkProgressCount">0/0</span>
+            </div>
+            <div class="progress-bar" style="background: var(--border); height: 8px; border-radius: 4px; overflow: hidden;">
+                <div id="checkProgressFill" style="height: 100%; width: 0%; background: var(--success); transition: width 0.3s ease;"></div>
+            </div>
         </div>
 
-        <!-- Checklist esencial -->
-        <div class="card">
-            <span class="slabel" data-i18n="label_checklist">✅ Checklist de Viaje</span>
-            <div id="travelChecklist"></div>
+        <div style="display: flex; gap: 8px; margin-bottom: 15px;">
+            <input type="text" id="customCheckInput" placeholder="Agregar ítem..." style="flex:1; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--input-bg); color: var(--text); font-size: 0.9rem;">
+            <button onclick="addCustomCheckItem()" style="background: var(--primary); color: white; border: none; border-radius: 10px; width: 40px; font-weight: bold; cursor: pointer;">+</button>
         </div>
+
+        <div id="travelChecklist"></div>
     </div>
+</div>
 
     <div class="app-footer">
         <span data-i18n="footer_by">Creado por Juan Cruz Bria</span>
@@ -785,7 +799,21 @@
         if (confirm(i18n[lang].confirm_delete)) await deleteDoc(doc(db, "usuarios", currentUser.uid, "perfiles", perfilId, "notas", id));
     };
 
+    
     // ═══ Checklist ═══
+    window.addCustomCheckItem = () => {
+    const input = document.getElementById('customCheckInput');
+    const text = input.value.trim();
+    if (!text) return;
+
+    const key = 'custom_checklist_' + (perfilId || 'default');
+    const customItems = JSON.parse(localStorage.getItem(key) || '[]');
+    customItems.push(text);
+    localStorage.setItem(key, JSON.stringify(customItems));
+    
+    input.value = '';
+    renderChecklist(localStorage.getItem('appLang') || 'es');
+};
     function renderChecklist(lang) {
         const items = checklistItems[lang] || checklistItems.es;
         const saved = JSON.parse(localStorage.getItem('checklist_' + (perfilId||'default')) || '{}');
