@@ -470,8 +470,6 @@ window.addGasto=async()=>{
         document.getElementById('valor').value='';
     }catch(e){console.error(e);}
 };
-    }catch(e){console.error(e);}
-};
 window.deleteGasto=async(id)=>{
     if(!confirm('¿Eliminar este gasto?')||!currentUser||!perfilId)return;
     try{await deleteDoc(doc(db,'usuarios',currentUser.uid,'perfiles',perfilId,'gastos',id));}
@@ -663,6 +661,7 @@ document.getElementById('userEmail').innerText = perfilNombre || user.email;
 
 </script>
 
+<!-- ═══════════════ TAXUSA AI CHAT ═══════════════ -->
 <style>
 #ai-bubble {
     position: fixed; bottom: 24px; left: 20px; z-index: 3000;
@@ -1095,6 +1094,7 @@ document.getElementById('userEmail').innerText = perfilNombre || user.email;
     }
 })();
 </script>
+<!-- ═══════════════ FIN TAXUSA AI CHAT ═══════════════ -->
 
 </body>
 </html>
