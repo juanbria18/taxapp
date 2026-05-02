@@ -187,6 +187,7 @@
             cursor: pointer; letter-spacing: 0.5px;
             transition: var(--transition);
         }
+        
         .logout-btn {
             position: relative; z-index: 1;
             margin-top: 20px;
@@ -200,6 +201,8 @@
             display: flex; align-items: center; gap: 8px;
         }
         .logout-btn:hover { background: rgba(239,68,68,0.1); border-color: var(--danger); }
+        .btn-ghost { background: transparent; color: var(--text-sub); border: 1.5px solid var(--border); }
+        .btn-danger { background: transparent; color: var(--danger); margin-top: 6px; font-size: 0.8rem; }
     </style>
     <script>
         
@@ -217,8 +220,8 @@
 <div class="profiles-grid" id="profilesGrid"></div>
 
 <button class="manage-btn" id="manageBtn" onclick="toggleEditMode()">EDITAR PERFILES</button>
-
 <button class="logout-btn" onclick="doLogout()">🚪 CERRAR SESIÓN</button>
+
 
 <div class="modal" id="editModal">
     <div class="modal-content">
@@ -236,7 +239,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
     import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -264,7 +267,6 @@
         "https://raw.githubusercontent.com/TaxappUSA/TaxappUSA/main/assets/Mike.png",
         "https://raw.githubusercontent.com/TaxappUSA/TaxappUSA/main/assets/Stitch.png",
         "https://raw.githubusercontent.com/TaxappUSA/TaxappUSA/main/assets/WallE.png",
-        "https://raw.githubusercontent.com/TaxappUSA/TaxappUSA/main/assets/Coyote.png",
         "https://raw.githubusercontent.com/TaxappUSA/TaxappUSA/main/assets/Homer.png",
         "https://raw.githubusercontent.com/TaxappUSA/TaxappUSA/main/assets/Jerry.png",
         "https://raw.githubusercontent.com/TaxappUSA/TaxappUSA/main/assets/Mario.png",
@@ -388,7 +390,7 @@
         render();
     };
 
-    window.doLogout = () => signOut(auth).then(() => window.location.replace('login.html'));
+    window.deleteProfile = async () => {
         if (profiles.length <= 1 || !confirm(t.confirm)) return;
         profiles = profiles.filter(p => p.id !== editingId);
         await updateDoc(doc(db, 'usuarios', uid), { perfiles: profiles });
