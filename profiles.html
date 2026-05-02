@@ -145,7 +145,7 @@
 
         .photo-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr); /* 3 fotos por fila */
+            grid-template-columns: repeat(3, 1fr); 
             gap: 12px;
             margin: 20px 0;
             max-height: 220px; 
@@ -156,8 +156,8 @@
 }
         .photo-option {
             width: 100%;
-            aspect-ratio: 1 / 1; /* Fuerza a que sea un cuadrado */
-            object-fit: cover;   /* Corta los bordes sobrantes para que encaje perfecto */
+            aspect-ratio: 1 / 1; 
+            object-fit: cover;   
             border-radius: 12px;
             cursor: pointer;
             border: 2px solid transparent;
@@ -191,7 +191,7 @@
         .btn-danger { background: transparent; color: var(--danger); margin-top: 6px; font-size: 0.8rem; }
     </style>
     <script>
-        // Registrar Service Worker para cache offline y carga rápida
+        
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./sw.js').catch(() => {});
