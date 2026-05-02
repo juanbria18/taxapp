@@ -1208,8 +1208,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 <script>
 (function() {
-    var K = ['gsk_ek1Phki4XCC','aBAJPzba4WGdy','b3FYQtwTCLNL2','A2CsdC5xCQL4Qc9'].join('');
-    var GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
+    
+    var GROQ_URL = 'https://taxusa-proxy.juanbria18.workers.dev';
     var MODEL = 'llama-3.3-70b-versatile';
     var lang = localStorage.getItem('appLang') || 'es';
     var perfilId   = localStorage.getItem('perfilActivoId') || 'default';
@@ -1390,7 +1390,6 @@ document.addEventListener('DOMContentLoaded', () => {
             chatHistory.push({ role: 'user', content: text });
             fetch(GROQ_URL, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + K },
                 body: JSON.stringify({
                     model: MODEL,
                     messages: [{ role: 'system', content: SYSTEM }].concat(chatHistory.slice(-14)),
@@ -1417,7 +1416,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         ]);
                     return fetch(GROQ_URL, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + K },
                         body: JSON.stringify({ model: MODEL, messages: msgsWithTool, max_tokens: 800, temperature: 0.7, stream: false })
                     }).then(function(res2) { return res2.json().then(function(d2) { return { ok: res2.ok, data: d2 }; }); })
                     .then(function(r2) {
