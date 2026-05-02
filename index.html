@@ -981,9 +981,11 @@ async function updateWeather() {
     const label = labelEl.innerText;
     if (!label || label.includes("Cargando")) return;
 
+    // Extraemos la ciudad limpiando el texto
     const city = label.replace(/VIAJE A |TRIP TO |VIAGEM PARA /gi, '').trim();
     
     try {
+        // 1. Buscamos coordenadas de la ciudad (Geocoding API)
         const geoRes = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=es&format=json`);
         const geoData = await geoRes.json();
         
@@ -991,10 +993,12 @@ async function updateWeather() {
         
         const { latitude, longitude, name } = geoData.results[0];
 
+        // 2. Buscamos clima actual
         const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`);
         const data = await res.json();
         const w = data.current_weather;
 
+        // 3. Actualizamos UI
         document.getElementById('weather-card').style.display = 'block';
         document.getElementById('weather-city').innerText = name.toUpperCase();
         
@@ -1004,6 +1008,7 @@ async function updateWeather() {
             1: { es: "Despejado 🌤️", pt: "Céu limpo 🌤️", en: "Mainly clear 🌤️" },
             2: { es: "Parcialmente nublado ⛅", pt: "Parcialmente nublado ⛅", en: "Partly cloudy ⛅" },
             3: { es: "Nublado ☁️", pt: "Nublado ☁️", en: "Cloudy ☁️" },
+            45: { es: "Niebla 🌫️", pt: "Névoa 🌫️", en: "Fog 🌫️" },
             61: { es: "Lluvia 🌧️", pt: "Chuva 🌧️", en: "Rain 🌧️" },
             95: { es: "Tormenta ⚡", pt: "Tempestade ⚡", en: "Storm ⚡" }
         };
@@ -1013,7 +1018,7 @@ async function updateWeather() {
         document.getElementById('weather-temp').innerText = Math.round(w.temperature) + '°';
         
     } catch (e) { 
-        console.error("Error actualizando clima:", e); 
+        console.error("Error en clima:", e); 
     }
 }
 
