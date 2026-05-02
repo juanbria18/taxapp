@@ -395,10 +395,10 @@
 
 <!-- ═══════════ FIREBASE AUTH + FIRESTORE ═══════════ -->
 <script type="module">
-import { initializeApp }    from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-import { getAuth, onAuthStateChanged, signOut, deleteUser } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
-import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app-check.js";
-import { getFirestore, collection, doc, setDoc, deleteDoc, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+import { initializeApp }    from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut, deleteUser } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app-check.js";
+import { getFirestore, collection, doc, setDoc, deleteDoc, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const FB = { apiKey:"AIzaSyCm0Ig-CPklsjf6j-1uSAeF6I8xtyQKj7U", authDomain:"viajes-db538.firebaseapp.com", projectId:"viajes-db538", storageBucket:"viajes-db538.firebasestorage.googleapis.com", messagingSenderId:"1053003173098", appId:"1:1053003173098:web:ecf5cdc31b9cca17e2151f" };
 const app  = initializeApp(FB);
@@ -453,7 +453,14 @@ onAuthStateChanged(auth, user => {
     if (!localStorage.getItem('perfilActivoId')) { window.location.replace('profiles.html'); return; }
     const foto = localStorage.getItem('perfilActivoFoto') || user.photoURL;
     if (foto) { const b = document.getElementById('btnSettings'); b.style.backgroundImage=`url(${foto})`; b.innerText=''; }
-    initDocs();
+    if (typeof window.initDocs === 'function') {
+        window.initDocs();
+    } else {
+        // Script regular aún no cargó, esperar
+        const iv = setInterval(() => {
+            if (typeof window.initDocs === 'function') { clearInterval(iv); window.initDocs(); }
+        }, 50);
+    }
 });
 
 window.doLogout = () => signOut(auth).then(() => window.location.replace('login.html'));
@@ -504,6 +511,7 @@ Adicione seu boarding pass, vouchers e mais.',settings_title:'Configurações',l
 
 // ── Init — carga desde Firestore ───────────────────────────────────────────
 async function initDocs() {
+window.initDocs = initDocs;
     showSyncBanner('Cargando documentos…', false);
     try {
         allDocs = await window.fsLoad(window._uid, perfilId);
