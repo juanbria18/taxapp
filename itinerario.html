@@ -202,6 +202,9 @@
         <button class="tab-btn active" onclick="switchTab('lugares')" id="tab-lugares">
             <span class="ti">📍</span><span data-i18n="tab_places">LUGARES</span>
         </button>
+        <button class="tab-btn" onclick="switchTab('transporte')" id="tab-transporte">
+            <span class="ti">🚇</span><span data-i18n="tab_transport">TRANSP.</span>
+        </button>
         <button class="tab-btn" onclick="switchTab('actividades')" id="tab-actividades">
             <span class="ti">✅</span><span data-i18n="tab_activities">ACTIVIDADES</span>
         </button>
@@ -232,6 +235,16 @@
                     <div id="tip-text">Cargando tips...</div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- ═══════ TAB TRANSPORTE ═══════ -->
+    <div class="tab-panel" id="panel-transporte">
+        <div class="card" style="margin-bottom:14px;">
+            <span class="slabel" data-i18n="transport_title">🚇 Transporte Público por Ciudad</span>
+            <p id="transport-intro" style="font-size:.75rem;color:var(--text-sub);font-weight:600;margin-bottom:14px;line-height:1.4;" data-i18n="transport_intro">Seleccioná una ciudad para ver info de transporte, precios y mapas oficiales.</p>
+            <div id="city-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;"></div>
+            <div id="city-panel" style="display:none;"></div>
         </div>
     </div>
 
@@ -447,6 +460,12 @@
             alert_reauth_required:"Error: Reautenticación requerida para cambios sensibles.",
             confirm_delete_account:"¿ESTÁS SEGURO? Esta acción borrará todos tus datos de forma permanente.",
             confirm_delete:"¿Eliminar?",
+            tab_transport:"TRANSP.",
+            transport_title:"🚇 Transporte Público por Ciudad",
+            transport_intro:"Seleccioná una ciudad para ver info de transporte, precios y mapas oficiales.",
+            transport_system:"🚇 Sistema", transport_price:"💵 Precio", transport_payment:"💳 Pago",
+            transport_app:"📱 App recomendada", transport_tips:"💡 Tips locales",
+            transport_official:"Oficial PDF/Web", transport_realtime:"Tiempo real",
         },
         en: {
             nav_home:"HOME", nav_expenses:"EXPENSES", nav_units:"UNITS",
@@ -479,6 +498,12 @@
             alert_reauth_required:"Error: Re-authentication required for sensitive changes.",
             confirm_delete_account:"ARE YOU SURE? This action will permanently delete all your data.",
             confirm_delete:"Delete?",
+            tab_transport:"TRANSIT",
+            transport_title:"🚇 Public Transit by City",
+            transport_intro:"Select a city to see transit info, prices and official maps.",
+            transport_system:"🚇 System", transport_price:"💵 Price", transport_payment:"💳 Payment",
+            transport_app:"📱 Recommended App", transport_tips:"💡 Local Tips",
+            transport_official:"Official PDF/Web", transport_realtime:"Real time",
         },
         pt: {
             nav_home:"INÍCIO", nav_expenses:"GASTOS", nav_units:"UNIDADES",
@@ -511,6 +536,12 @@
             alert_reauth_required:"Erro: Reautenticação necessária para mudanças sensíveis.",
             confirm_delete_account:"TEM CERTEZA? Esta ação excluirá todos os seus dados permanentemente.",
             confirm_delete:"Excluir?",
+            tab_transport:"TRANSP.",
+            transport_title:"🚇 Transporte Público por Cidade",
+            transport_intro:"Selecione uma cidade para ver informações de transporte, preços e mapas oficiais.",
+            transport_system:"🚇 Sistema", transport_price:"💵 Preço", transport_payment:"💳 Pagamento",
+            transport_app:"📱 App recomendado", transport_tips:"💡 Dicas locais",
+            transport_official:"Oficial PDF/Web", transport_realtime:"Tempo real",
         }
     };
 
@@ -598,6 +629,7 @@
         document.getElementById('panel-' + tab).classList.add('active');
         document.getElementById('tab-' + tab).classList.add('active');
     };
+    window._i18n = i18n;
 
     // ═══ Queues ═══
     window.renderCityData = async () => {
@@ -946,6 +978,13 @@ window.removeCustomItem = (customIdx) => {
         renderCityData();
         renderChecklist(lang);
         if (window.taxieUpdateLang) window.taxieUpdateLang(lang);
+        // Re-render transport panel if open
+        if (window.activeCity !== undefined && activeCity) { const tmp = activeCity; activeCity = null; showCity(tmp); }
+        // Update transport section i18n labels
+        const transportTitle = document.querySelector('[data-i18n="transport_title"]');
+        if (transportTitle) transportTitle.textContent = i18n[lang].transport_title || '';
+        const transportIntro = document.querySelector('[data-i18n="transport_intro"]');
+        if (transportIntro) transportIntro.textContent = i18n[lang].transport_intro || '';
     };
 
     // ═══ Settings ═══
@@ -1007,7 +1046,237 @@ window.removeCustomItem = (customIdx) => {
     });
 </script>
 
-<!-- ═══════════════ TAXUSA AI CHAT ═══════════════ -->
+<!-- ═══════════════ TRANSPORTE PÚBLICO ═══════════════ -->
+<script>
+const CITIES = [
+    {
+        id:'orlando', name:'Orlando', flag:'🎢', state:'Florida',
+        system:'Lynx Bus + SunRail', price:'$2.00 por viaje (bus) · $2–$7 SunRail',
+        payment:'Efectivo, tarjeta o app', app:'Lynx Bus (Google Maps recomendado)',
+        appLink:'https://play.google.com/store/apps/details?id=com.itraque.lynx',
+        map:'https://www.golynx.com/system-info/system-maps.stml', mapLabel:'Mapa Lynx Bus',
+        gmaps:'https://maps.app.goo.gl/7UwbVdnvXVcMKZvB6',
+        tips_es:['🚗 Orlando está diseñada para el auto — el bus es lento entre parques','🎢 Los parques tienen shuttles propios desde hoteles de la zona','🚌 El I-Ride Trolley conecta International Drive por $2','🅿️ Uber/Lyft es la opción más práctica para turistas','🚂 SunRail conecta el centro con suburbios (lunes a viernes)'],
+        tips_en:['🚗 Orlando is car-centric — buses between parks are slow','🎢 Parks have their own shuttles from nearby hotels','🚌 I-Ride Trolley covers International Drive for $2','🅿️ Uber/Lyft is the most practical option for tourists','🚂 SunRail connects downtown to suburbs (Mon–Fri)'],
+        tips_pt:['🚗 Orlando é projetada para carros — ônibus entre parques é lento','🎢 Os parques têm shuttles próprios dos hotéis da região','🚌 O I-Ride Trolley conecta a International Drive por $2','🅿️ Uber/Lyft é a opção mais prática para turistas','🚂 SunRail conecta o centro aos subúrbios (seg–sex)'],
+    },
+    {
+        id:'newyork', name:'New York', flag:'🗽', state:'Nueva York',
+        system:'MTA Subway + Bus + LIRR', price:'$2.90 por viaje (metro y bus)',
+        payment:'OMNY (tarjeta/cel sin contacto) · MetroCard', app:'MTA app · Citymapper',
+        appLink:'https://new.mta.info/omny', map:'https://new.mta.info/maps', mapLabel:'Mapa Subway MTA',
+        gmaps:'https://maps.app.goo.gl/vFQ2sXxKbsmUvZdx5',
+        tips_es:['🕐 El metro funciona las 24 horas, los 7 días','💳 OMNY: tocá con tu tarjeta de crédito/débito directo','🎫 7-Day Unlimited: $34 — conviene si usás más de 12 veces','🚕 Evitá el taxi en hora pico — el metro es más rápido','✈️ AirTrain JFK + E train: la forma más barata de llegar desde el aeropuerto'],
+        tips_en:['🕐 Subway runs 24/7, 365 days','💳 OMNY: tap your credit/debit card directly','🎫 7-Day Unlimited: $34 — worth it if you ride more than 12 times','🚕 Avoid taxis in rush hour — the subway is faster','✈️ AirTrain JFK + E train: the cheapest way from the airport'],
+        tips_pt:['🕐 O metrô funciona 24 horas, 7 dias por semana','💳 OMNY: toque com seu cartão de crédito/débito diretamente','🎫 7-Day Unlimited: $34 — vale a pena se usar mais de 12 vezes','🚕 Evite táxis no horário de pico — o metrô é mais rápido','✈️ AirTrain JFK + trem E: a forma mais barata do aeroporto ao centro'],
+    },
+    {
+        id:'miami', name:'Miami', flag:'🌴', state:'Florida',
+        system:'Metrorail + Metrobus + Metromover', price:'$2.25 por viaje · Metromover GRATIS',
+        payment:'EASY Card o efectivo', app:'Miami-Dade Transit · Google Maps',
+        appLink:'https://www.miamidade.gov/transit/', map:'https://www.miamidade.gov/transit/maps.asp', mapLabel:'Mapa MDT',
+        gmaps:'https://maps.app.goo.gl/oBMQT5uNwS4Uo1cA9',
+        tips_es:['🆓 Metromover es completamente gratis — conecta el centro','🏖️ Miami Beach se llega en bus 150 o S desde el centro','🚗 Para las playas, Uber/Lyft sigue siendo lo más cómodo','🚴 Citi Bike disponible en Miami Beach y Brickell','💳 EASY Card recargable en estaciones de Metrorail'],
+        tips_en:['🆓 Metromover is completely free — connects downtown','🏖️ Reach Miami Beach via bus 150 or S from downtown','🚗 For beaches, Uber/Lyft is still most convenient','🚴 Citi Bike available in Miami Beach and Brickell','💳 EASY Card rechargeable at Metrorail stations'],
+        tips_pt:['🆓 O Metromover é completamente gratuito — conecta o centro','🏖️ Miami Beach pelo ônibus 150 ou S do centro','🚗 Para as praias, Uber/Lyft ainda é o mais cômodo','🚴 Citi Bike disponível em Miami Beach e Brickell','💳 EASY Card recarregável nas estações do Metrorail'],
+    },
+    {
+        id:'lasvegas', name:'Las Vegas', flag:'🎰', state:'Nevada',
+        system:'RTC Bus + Monorail + Deuce', price:'$2–$6 (bus) · $5–$16 (Monorail)',
+        payment:'Efectivo o tarjeta en máquinas', app:'RTC Transit · Google Maps',
+        appLink:'https://www.rtcsnv.com/', map:'https://www.rtcsnv.com/ways-to-travel/routes-schedules/', mapLabel:'Mapa RTC',
+        gmaps:'https://maps.app.goo.gl/wkbWAGmg5BGZK3q67',
+        tips_es:['🎰 El Strip es caminable — muchos turistas van a pie','🚌 Deuce on the Strip: $6 pase 2hs, cubre todo el Strip 24hs','🚝 Monorail conecta los casinos principales (no llega al aeropuerto)','🚕 Lyft/Uber desde el aeropuerto es la mejor opción','🎡 Las distancias parecen cortas pero hace calor — no subestimes'],
+        tips_en:['🎰 The Strip is walkable — many tourists go on foot','🚌 Deuce on the Strip: $6 for 2hr pass, covers the entire Strip 24/7','🚝 Monorail connects main casinos (does not reach airport)','🚕 Lyft/Uber from the airport is the best option','🎡 Distances seem short but it gets hot — don\'t underestimate'],
+        tips_pt:['🎰 A Strip é caminhável — muitos turistas vão a pé','🚌 Deuce on the Strip: $6 para 2h, cobre toda a Strip 24h','🚝 Monorail conecta os principais cassinos (não chega ao aeroporto)','🚕 Lyft/Uber do aeroporto é a melhor opção','🎡 As distâncias parecem curtas mas faz calor — não subestime'],
+    },
+    {
+        id:'losangeles', name:'Los Angeles', flag:'🎬', state:'California',
+        system:'Metro Rail + Metro Bus', price:'$1.75 por viaje',
+        payment:'TAP Card (recargable)', app:'Metro LA · Citymapper',
+        appLink:'https://www.metro.net/riding/tap-cards/', map:'https://www.metro.net/riding/maps/', mapLabel:'Mapa Metro LA',
+        gmaps:'https://maps.app.goo.gl/gFMqjGF6jaxSpMJh9',
+        tips_es:['🚗 LA está diseñada para el auto — el metro cubre zonas limitadas','🎬 Hollywood, Santa Monica y Downtown sí tienen metro','💳 TAP Card: $2 el plástico + carga mínima $1.75','🚌 Metro B Line conecta Hollywood con Downtown rápido','🏖️ Santa Monica: tomá el Expo Line hasta el final'],
+        tips_en:['🚗 LA is car-centric — metro covers limited areas','🎬 Hollywood, Santa Monica and Downtown do have metro','💳 TAP Card: $2 for the card + minimum $1.75 load','🚌 Metro B Line connects Hollywood to Downtown fast','🏖️ Santa Monica: take the Expo Line to the end'],
+        tips_pt:['🚗 LA é projetada para carros — o metrô cobre áreas limitadas','🎬 Hollywood, Santa Monica e Downtown têm metrô','💳 TAP Card: $2 pelo cartão + carga mínima $1.75','🚌 Metro B Line conecta Hollywood ao Downtown rapidamente','🏖️ Santa Monica: pegue o Expo Line até o final'],
+    },
+    {
+        id:'sanfrancisco', name:'San Francisco', flag:'🌉', state:'California',
+        system:'BART + Muni Metro + Cable Car', price:'$2.50–$6.85 BART · $2.50 Muni · $8 Cable Car',
+        payment:'Clipper Card · Apple Pay · Google Pay', app:'MuniMobile · BART app',
+        appLink:'https://www.clippercard.com/', map:'https://www.sfmta.com/maps', mapLabel:'Mapa Muni SFMTA',
+        gmaps:'https://maps.app.goo.gl/YEtrJ4hD1a6iWUf69',
+        tips_es:['🚡 Cable Car: icónico pero caro ($8) — hacelo al menos una vez','✈️ BART desde SFO al centro: $10, 30 minutos','💳 Clipper Card: usala en BART, Muni y hasta ferry','🚶 El centro es muy caminable — Fishermans Wharf, Union Square','🌁 Para Alcatraz reservá el ferry con anticipación en Alcatraz City Cruises'],
+        tips_en:['🚡 Cable Car: iconic but pricey ($8) — do it at least once','✈️ BART from SFO to downtown: $10, 30 minutes','💳 Clipper Card: use it on BART, Muni and even ferries','🚶 Downtown is very walkable — Fishermans Wharf, Union Square','🌁 For Alcatraz book the ferry early at Alcatraz City Cruises'],
+        tips_pt:['🚡 Cable Car: icônico mas caro ($8) — faça pelo menos uma vez','✈️ BART do SFO ao centro: $10, 30 minutos','💳 Clipper Card: use no BART, Muni e até balsa','🚶 O centro é muito caminhável — Fishermans Wharf, Union Square','🌁 Para Alcatraz reserve a balsa com antecedência na Alcatraz City Cruises'],
+    },
+    {
+        id:'chicago', name:'Chicago', flag:'🏙️', state:'Illinois',
+        system:'CTA L Train + Bus', price:'$2.50 por viaje ($0.25 trasbordo)',
+        payment:'Ventra Card · Ventra App · tarjeta sin contacto', app:'Ventra App · Citymapper',
+        appLink:'https://www.ventrachicago.com/', map:'https://www.transitchicago.com/maps/', mapLabel:'Mapa CTA',
+        gmaps:'https://maps.app.goo.gl/1BfqhKzf5h5qqhXj9',
+        tips_es:['🔵 El "L" (elevated train) cubre casi toda la ciudad','✈️ Blue Line desde O\'Hare al centro: $2.50, 45 min','💳 Ventra App: cargá desde el cel y viajá sin tarjeta física','🌬️ En invierno el frío es extremo — esperá el tren en ambientes cerrados','🏙️ The Loop (centro) es muy caminable en verano'],
+        tips_en:['🔵 The "L" (elevated train) covers nearly the whole city','✈️ Blue Line from O\'Hare to downtown: $2.50, 45 min','💳 Ventra App: load from your phone and travel without a physical card','🌬️ Winters are extreme — wait for trains in heated areas','🏙️ The Loop (downtown) is very walkable in summer'],
+        tips_pt:['🔵 O "L" (trem elevado) cobre quase toda a cidade','✈️ Blue Line do O\'Hare ao centro: $2.50, 45 min','💳 Ventra App: carregue pelo celular e viaje sem cartão físico','🌬️ No inverno o frio é extremo — espere o trem em locais fechados','🏙️ The Loop (centro) é muito caminhável no verão'],
+    },
+    {
+        id:'washington', name:'Washington DC', flag:'🏛️', state:'DC',
+        system:'Metro WMATA + Bus', price:'$2–$6 según distancia y horario',
+        payment:'SmarTrip Card · tarjeta sin contacto', app:'DC Metro & Bus · Citymapper',
+        appLink:'https://www.wmata.com/fares/smartrip/', map:'https://www.wmata.com/schedules/maps/', mapLabel:'Mapa Metro WMATA',
+        gmaps:'https://maps.app.goo.gl/6eDXoLJHhBT2c3Dj6',
+        tips_es:['🏛️ Todos los monumentos están en el Mall — se recorre a pie','💳 SmarTrip Card obligatoria en el metro (no acepta efectivo)','🚇 El metro cierra a medianoche (1am fines de semana)','🆓 Los museos del Smithsonian son gratuitos — no necesitás reserva','🚴 Capital Bikeshare disponible en toda la ciudad'],
+        tips_en:['🏛️ All monuments are on the Mall — easily walkable','💳 SmarTrip Card required for metro (no cash accepted)','🚇 Metro closes at midnight (1am on weekends)','🆓 Smithsonian museums are free — no reservation needed','🚴 Capital Bikeshare available throughout the city'],
+        tips_pt:['🏛️ Todos os monumentos estão no Mall — percurso a pé','💳 SmarTrip Card obrigatório no metrô (não aceita dinheiro)','🚇 O metrô fecha à meia-noite (1h nos fins de semana)','🆓 Os museus do Smithsonian são gratuitos — sem necessidade de reserva','🚴 Capital Bikeshare disponível por toda a cidade'],
+    },
+    {
+        id:'boston', name:'Boston', flag:'🦞', state:'Massachusetts',
+        system:'MBTA (The T) + Bus + Ferry', price:'$2.40 metro · $1.70 bus',
+        payment:'CharlieCard · CharlieTicket · tarjeta sin contacto', app:'MBTA app · Citymapper',
+        appLink:'https://www.mbta.com/fares/charliecard', map:'https://www.mbta.com/maps', mapLabel:'Mapa MBTA',
+        gmaps:'https://maps.app.goo.gl/k3rZ7WCkAm3G7jXv5',
+        tips_es:['🦞 El centro histórico es muy caminable — Freedom Trail a pie','✈️ Silver Line SL1 desde Logan Airport: GRATIS al centro','💳 CharlieCard recargable es más barata que el ticket de papel','🔴 Red Line conecta Harvard, MIT y el aeropuerto','⚾ Fenway Park: tomá la Green Line B/C/D hasta Kenmore'],
+        tips_en:['🦞 Historic downtown is very walkable — Freedom Trail on foot','✈️ Silver Line SL1 from Logan Airport: FREE to downtown','💳 CharlieCard is cheaper than the paper ticket','🔴 Red Line connects Harvard, MIT and the airport','⚾ Fenway Park: take the Green Line B/C/D to Kenmore'],
+        tips_pt:['🦞 O centro histórico é muito caminhável — Freedom Trail a pé','✈️ Silver Line SL1 do Logan Airport: GRATUITO ao centro','💳 CharlieCard recarregável é mais barata que o ticket de papel','🔴 Red Line conecta Harvard, MIT e o aeroporto','⚾ Fenway Park: pegue a Green Line B/C/D até Kenmore'],
+    },
+    {
+        id:'seattle', name:'Seattle', flag:'☕', state:'Washington',
+        system:'Link Light Rail + Bus + Monorail', price:'$2.25–$3.25 Light Rail · $2.75 Bus',
+        payment:'ORCA Card · tarjeta sin contacto', app:'One Bus Away · Google Maps',
+        appLink:'https://myorca.com/', map:'https://www.soundtransit.org/ride-with-us/maps', mapLabel:'Mapa Sound Transit',
+        gmaps:'https://maps.app.goo.gl/3F73FQyJuNhDCpAd8',
+        tips_es:['✈️ Link Light Rail desde SeaTac al centro: $3.25, 38 min','💳 ORCA Card: sirve en bus, light rail y ferry','🚡 Monorail conecta el centro con Seattle Center / Space Needle','⛴️ Washington State Ferries: vistas increíbles a las islas','☕ Capitol Hill y Pike Place son caminables desde el centro'],
+        tips_en:['✈️ Link Light Rail from SeaTac to downtown: $3.25, 38 min','💳 ORCA Card: works on bus, light rail and ferry','🚡 Monorail connects downtown to Seattle Center / Space Needle','⛴️ Washington State Ferries: amazing island views','☕ Capitol Hill and Pike Place are walkable from downtown'],
+        tips_pt:['✈️ Link Light Rail do SeaTac ao centro: $3.25, 38 min','💳 ORCA Card: serve em ônibus, light rail e balsa','🚡 Monorail conecta o centro ao Seattle Center / Space Needle','⛴️ Washington State Ferries: vistas incríveis das ilhas','☕ Capitol Hill e Pike Place são caminháveis do centro'],
+    },
+    {
+        id:'neworleans', name:'New Orleans', flag:'🎷', state:'Luisiana',
+        system:'RTA Streetcar + Bus', price:'$1.25 por viaje · $3 pase diario',
+        payment:'Jazzy Pass · efectivo', app:'Le Pass · Google Maps',
+        appLink:'https://www.norta.com/', map:'https://www.norta.com/Maps-Schedules', mapLabel:'Mapa RTA NOLA',
+        gmaps:'https://maps.app.goo.gl/uJx7hb5DfXfAnxcU8',
+        tips_es:['🚋 Streetcar St. Charles: el más antiguo del mundo en operación','🎷 El French Quarter es completamente caminable','🚌 Pase diario de $3 — conviene si usás más de 2 veces','🌙 El Streetcar corre hasta tarde (ideal para Bourbon Street)','🏘️ Garden District: tomá el Streetcar St. Charles desde Canal St'],
+        tips_en:['🚋 St. Charles Streetcar: oldest still in operation in the world','🎷 The French Quarter is completely walkable','🚌 Daily pass $3 — worth it if you ride more than twice','🌙 The Streetcar runs late (perfect for Bourbon Street)','🏘️ Garden District: take the St. Charles Streetcar from Canal St'],
+        tips_pt:['🚋 Streetcar St. Charles: o mais antigo em operação no mundo','🎷 O French Quarter é completamente caminhável','🚌 Passe diário de $3 — vale a pena se usar mais de 2 vezes','🌙 O Streetcar vai até tarde (ideal para Bourbon Street)','🏘️ Garden District: pegue o Streetcar St. Charles na Canal St'],
+    },
+    {
+        id:'denver', name:'Denver', flag:'🏔️', state:'Colorado',
+        system:'RTD Bus + Light Rail + A Line', price:'$3 por viaje · $10.50 al aeropuerto',
+        payment:'MyRide App · tarjeta sin contacto · efectivo', app:'RTD MyRide',
+        appLink:'https://www.rtd-denver.com/', map:'https://www.rtd-denver.com/maps-and-timetables/maps', mapLabel:'Mapa RTD Denver',
+        gmaps:'https://maps.app.goo.gl/TwkDSPn2mvxF4W176',
+        tips_es:['✈️ A Line desde DEN al centro: $10.50, 37 min (rapidísimo)','🏔️ Para los parques nacionales necesitás auto — el transporte no llega','🚋 Free MallRide: bus gratuito en el centro de Denver','🎿 Para ir a Vail/Breckenridge: Bustang o auto de alquiler','☀️ Denver tiene 300 días de sol al año — bici compartida es opción'],
+        tips_en:['✈️ A Line from DEN to downtown: $10.50, 37 min (super fast)','🏔️ For national parks you need a car — transit doesn\'t reach','🚋 Free MallRide: free bus in downtown Denver','🎿 For Vail/Breckenridge: Bustang or rental car','☀️ Denver has 300 sunny days a year — bike-share is an option'],
+        tips_pt:['✈️ A Line do DEN ao centro: $10.50, 37 min (rapidíssimo)','🏔️ Para os parques nacionais você precisa de carro — o transporte não chega','🚋 Free MallRide: ônibus gratuito no centro de Denver','🎿 Para Vail/Breckenridge: Bustang ou aluguel de carro','☀️ Denver tem 300 dias de sol por ano — bicicleta compartilhada é opção'],
+    },
+];
+
+function renderCityGrid() {
+    const grid = document.getElementById('city-grid');
+    if (!grid) return;
+    grid.innerHTML = CITIES.map(c => `
+        <button onclick="showCity('${c.id}')" id="citybtn-${c.id}" style="background:var(--surface-2);border:1.5px solid var(--border);border-radius:12px;padding:10px 8px;cursor:pointer;font-family:inherit;transition:all .2s;text-align:center;">
+            <div style="font-size:1.3rem;">${c.flag}</div>
+            <div style="font-size:.72rem;font-weight:800;color:var(--text);margin-top:3px;">${c.name}</div>
+            <div style="font-size:.58rem;font-weight:600;color:var(--text-dim);">${c.state}</div>
+        </button>
+    `).join('');
+}
+
+let activeCity = null;
+function showCity(id) {
+    const city = CITIES.find(c => c.id === id);
+    if (!city) return;
+    const panel = document.getElementById('city-panel');
+    const lang = localStorage.getItem('appLang') || 'es';
+    const t = (window._i18n && window._i18n[lang]) || {};
+
+    if (activeCity === id) {
+        activeCity = null;
+        panel.style.display = 'none';
+        document.querySelectorAll('[id^="citybtn-"]').forEach(b => {
+            b.style.borderColor = 'var(--border)';
+            b.style.background = 'var(--surface-2)';
+        });
+        return;
+    }
+
+    activeCity = id;
+    document.querySelectorAll('[id^="citybtn-"]').forEach(b => {
+        b.style.borderColor = 'var(--border)';
+        b.style.background = 'var(--surface-2)';
+    });
+    const activeBtn = document.getElementById('citybtn-' + id);
+    if (activeBtn) {
+        activeBtn.style.borderColor = 'var(--primary)';
+        activeBtn.style.background = 'var(--primary-dim)';
+    }
+
+    const tips = city['tips_' + lang] || city.tips_es;
+    const sysLabel = t.transport_system || '🚇 Sistema';
+    const priceLabel = t.transport_price || '💵 Precio';
+    const payLabel = t.transport_payment || '💳 Pago';
+    const appLabel = t.transport_app || '📱 App recomendada';
+    const tipsLabel = t.transport_tips || '💡 Tips locales';
+    const officialLabel = t.transport_official || 'Oficial PDF/Web';
+    const realtimeLabel = t.transport_realtime || 'Tiempo real';
+
+    panel.style.display = 'block';
+    panel.innerHTML = `
+        <div style="border-top:1px solid var(--border);padding-top:14px;margin-top:4px;">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+                <span style="font-size:1.8rem;">${city.flag}</span>
+                <div>
+                    <div style="font-size:1rem;font-weight:900;color:var(--text);">${city.name}</div>
+                    <div style="font-size:.7rem;font-weight:600;color:var(--text-dim);">${city.state}</div>
+                </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+                <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:12px 14px;">
+                    <div style="font-size:.6rem;font-weight:800;color:var(--text-dim);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;">${sysLabel}</div>
+                    <div style="font-size:.82rem;font-weight:700;color:var(--text);">${city.system}</div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                    <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:12px;">
+                        <div style="font-size:.6rem;font-weight:800;color:var(--text-dim);text-transform:uppercase;letter-spacing:.8px;margin-bottom:5px;">${priceLabel}</div>
+                        <div style="font-size:.75rem;font-weight:700;color:var(--text);line-height:1.4;">${city.price}</div>
+                    </div>
+                    <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:12px;">
+                        <div style="font-size:.6rem;font-weight:800;color:var(--text-dim);text-transform:uppercase;letter-spacing:.8px;margin-bottom:5px;">${payLabel}</div>
+                        <div style="font-size:.75rem;font-weight:700;color:var(--text);line-height:1.4;">${city.payment}</div>
+                    </div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                    <a href="${city.map}" target="_blank" style="background:var(--primary);color:white;border-radius:12px;padding:12px;text-decoration:none;display:flex;flex-direction:column;align-items:center;gap:5px;text-align:center;">
+                        <span style="font-size:1.2rem;">🗺️</span>
+                        <span style="font-size:.7rem;font-weight:800;">${city.mapLabel}</span>
+                        <span style="font-size:.6rem;opacity:.85;">${officialLabel}</span>
+                    </a>
+                    <a href="${city.gmaps}" target="_blank" style="background:var(--accent);color:white;border-radius:12px;padding:12px;text-decoration:none;display:flex;flex-direction:column;align-items:center;gap:5px;text-align:center;">
+                        <span style="font-size:1.2rem;">📍</span>
+                        <span style="font-size:.7rem;font-weight:800;">Google Maps</span>
+                        <span style="font-size:.6rem;opacity:.85;">${realtimeLabel}</span>
+                    </a>
+                </div>
+                <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:12px 14px;">
+                    <div style="font-size:.6rem;font-weight:800;color:var(--text-dim);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;">${appLabel}</div>
+                    <a href="${city.appLink}" target="_blank" style="font-size:.8rem;font-weight:700;color:var(--primary);text-decoration:none;">${city.app} →</a>
+                </div>
+                <div style="background:rgba(16,185,129,.08);border:1.5px solid var(--success);border-radius:12px;padding:12px 14px;">
+                    <div style="font-size:.6rem;font-weight:800;color:var(--success);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;">${tipsLabel}</div>
+                    <div style="display:flex;flex-direction:column;gap:6px;">
+                        ${tips.map(tip => `<div style="font-size:.75rem;font-weight:600;color:var(--text);line-height:1.4;">${tip}</div>`).join('')}
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+document.addEventListener('DOMContentLoaded', renderCityGrid);
+</script>
 <style>
 #ai-bubble {
     position: fixed; bottom: 24px; left: 20px;
