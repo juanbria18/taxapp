@@ -1,4 +1,4 @@
-// TaxUSA Service Worker — Cache First para assets estáticos
+// TaxUSA Service Worker — v5
 const CACHE = 'taxusa-v5';
 const PRECACHE = [
     './login.html',
@@ -16,10 +16,8 @@ const PRECACHE = [
     './assets/icon-192.png',
 ];
 
-// Página de fallback offline por si la red falla y no hay caché
 const OFFLINE_FALLBACK = './index.html';
 
-// Al instalar: pre-cachear todos los archivos del app
 self.addEventListener('install', e => {
     e.waitUntil(
         caches.open(CACHE).then(cache =>
@@ -29,7 +27,6 @@ self.addEventListener('install', e => {
     self.skipWaiting();
 });
 
-// Al activar: limpiar caches viejos
 self.addEventListener('activate', e => {
     e.waitUntil(
         caches.keys().then(keys =>
@@ -39,11 +36,10 @@ self.addEventListener('activate', e => {
     self.clients.claim();
 });
 
-// Fetch
 self.addEventListener('fetch', e => {
     const url = new URL(e.request.url);
 
-    // APIs externas siempre desde la red
+    // APIs externas — siempre red
     const networkOnly = [
         'dolarapi.com', 'open.er-api.com', 'queue-times.com',
         'firebaseapp.com', 'googleapis.com/firestore', 'googleapis.com/identitytoolkit',
@@ -52,9 +48,7 @@ self.addEventListener('fetch', e => {
         'taxusa-proxy', 'taxusa.juanbria18.workers.dev',
         'groq', 'llama',
     ];
-    if (networkOnly.some(d => url.href.includes(d))) {
-        return;
-    }
+    if (networkOnly.some(d => url.href.includes(d))) return;
 
     // Google Fonts → stale-while-revalidate
     if (url.href.includes('fonts.googleapis.com') || url.href.includes('fonts.gstatic.com')) {
@@ -72,7 +66,7 @@ self.addEventListener('fetch', e => {
         return;
     }
 
-    // Flags CDN → cache agresivo (no cambian)
+    // Flags CDN → cache agresivo
     if (url.href.includes('flagcdn.com')) {
         e.respondWith(
             caches.open(CACHE).then(cache =>
@@ -85,7 +79,7 @@ self.addEventListener('fetch', e => {
         return;
     }
 
-    // gstatic no-firebase (íconos, etc.) → cache
+    // gstatic / googleapis.com/ajax → cache
     if (url.href.includes('gstatic.com') || url.href.includes('googleapis.com/ajax')) {
         e.respondWith(
             caches.open(CACHE).then(cache =>
@@ -98,11 +92,11 @@ self.addEventListener('fetch', e => {
         return;
     }
 
-    // Archivos HTML propios → Network First (siempre intenta red, caché como fallback)
-    // Así los cambios se reflejan de inmediato cuando hay conexión
+    // Archivos HTML propios → Network First
+    // Siempre busca en red; usa caché solo si no hay conexión
     if (
-        e.request.headers.get('accept')?.includes('text/html') &&
-        url.origin === self.location.origin
+        url.origin === self.location.origin &&
+        e.request.headers.get('accept')?.includes('text/html')
     ) {
         e.respondWith(
             fetch(e.request).then(res => {
@@ -110,12 +104,14 @@ self.addEventListener('fetch', e => {
                     caches.open(CACHE).then(cache => cache.put(e.request, res.clone()));
                 }
                 return res;
-            }).catch(() => caches.match(e.request).then(cached => cached || caches.match(OFFLINE_FALLBACK)))
+            }).catch(() =>
+                caches.match(e.request).then(cached => cached || caches.match(OFFLINE_FALLBACK))
+            )
         );
         return;
     }
 
-    // Resto de archivos propios (css, js, imágenes) → Cache First
+    // Resto (css, js, imágenes) → Cache First
     if (
         url.origin === self.location.origin ||
         PRECACHE.some(p => url.pathname.endsWith(p.replace('./', '')))
