@@ -218,11 +218,128 @@
             window._connectivityPromise = null;
             return window._isOnline;
         })();
-        // Arrancar con todas las pantallas ocultas hasta saber el estado de red
+        // Arrancar con splash visible mientras esperamos el probe
         document.documentElement.style.visibility = 'hidden';
     </script>
 </head>
 <body>
+
+<!-- ════ SPLASH SCREEN ════ -->
+<div id="splash-screen" style="
+    position:fixed;inset:0;z-index:9999;
+    background:#000;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:0;
+    transition:opacity 0.4s ease;
+">
+    <style>
+        @keyframes logoPop {
+            from { opacity:0; transform:scale(0.3) rotate(-20deg); }
+            to   { opacity:1; transform:scale(1) rotate(0deg); }
+        }
+        @keyframes nameFade {
+            from { opacity:0; transform:translateY(16px); }
+            to   { opacity:1; transform:translateY(0); }
+        }
+        @keyframes tagFade {
+            from { opacity:0; }
+            to   { opacity:1; }
+        }
+        @keyframes starTwinkle {
+            0%,100% { opacity:0; transform:scale(0.5); }
+            50%      { opacity:0.55; transform:scale(1); }
+        }
+        @keyframes sweepMove {
+            0%   { left:-60%; opacity:0; }
+            8%   { opacity:1; }
+            92%  { opacity:1; }
+            100% { left:110%; opacity:0; }
+        }
+        @keyframes sweepMove2 {
+            0%   { left:-30%; opacity:0; }
+            8%   { opacity:1; }
+            92%  { opacity:1; }
+            100% { left:110%; opacity:0; }
+        }
+        @keyframes sparkFly {
+            0%   { opacity:1; transform:translate(0,0) scale(1); }
+            100% { opacity:0; transform:translate(var(--dx),var(--dy)) scale(0); }
+        }
+    </style>
+
+    <!-- Estrellas -->
+    <div id="sp-stars" style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 40%,#0a1628 0%,#000 70%);"></div>
+
+    <!-- Barridos de luz -->
+    <div style="position:absolute;top:0;left:-60%;width:60%;height:100%;
+        background:linear-gradient(90deg,transparent 0%,rgba(37,99,235,0.08) 30%,rgba(37,99,235,0.25) 50%,rgba(255,255,255,0.3) 55%,rgba(37,99,235,0.25) 60%,transparent 100%);
+        animation:sweepMove 1.8s ease-in-out 0.2s forwards;pointer-events:none;z-index:2;">
+    </div>
+    <div style="position:absolute;top:0;left:-30%;width:30%;height:100%;
+        background:linear-gradient(90deg,transparent 0%,rgba(239,68,68,0.06) 40%,rgba(239,68,68,0.18) 50%,rgba(239,68,68,0.06) 60%,transparent 100%);
+        animation:sweepMove2 1.4s ease-in-out 1.0s forwards;pointer-events:none;z-index:2;">
+    </div>
+
+    <!-- Logo + nombre -->
+    <div style="position:relative;z-index:10;display:flex;flex-direction:column;align-items:center;">
+        <div style="opacity:0;animation:logoPop 0.6s cubic-bezier(0.34,1.56,0.64,1) 1.0s forwards;">
+            <svg width="110" height="110" viewBox="0 0 80 80" fill="none">
+                <rect width="80" height="80" rx="20" fill="#1e3a8a"/>
+                <rect x="0" y="25" width="80" height="10" fill="#ef4444"/>
+                <rect x="0" y="45" width="80" height="10" fill="#ef4444"/>
+                <polygon points="40,8 46,26 66,26 50,38 56,56 40,44 24,56 30,38 14,26 34,26" fill="#ffffff"/>
+            </svg>
+        </div>
+        <div style="font-family:'DM Sans',-apple-system,system-ui,sans-serif;font-size:2.8rem;font-weight:900;letter-spacing:-1px;
+            opacity:0;animation:nameFade 0.7s cubic-bezier(0.34,1.56,0.64,1) 1.6s forwards;">
+            <span style="color:#2563eb">Tax</span><span style="color:#ef4444">USA</span>
+        </div>
+        <div style="font-family:'DM Sans',-apple-system,system-ui,sans-serif;font-size:0.75rem;font-weight:600;
+            color:rgba(255,255,255,0.4);letter-spacing:3px;text-transform:uppercase;
+            opacity:0;animation:tagFade 0.6s ease 2.2s forwards;">
+            Tu viaje a USA
+        </div>
+    </div>
+
+    <!-- Contenedor chispas -->
+    <div id="sp-sparks" style="position:absolute;inset:0;pointer-events:none;z-index:8;"></div>
+</div>
+
+<script>
+(function(){
+    // Estrellas
+    var starsEl = document.getElementById('sp-stars');
+    for(var i=0;i<70;i++){
+        var s=document.createElement('div');
+        var sz=(Math.random()*1.8+0.8).toFixed(1);
+        s.style.cssText='position:absolute;border-radius:50%;background:white;'
+            +'width:'+sz+'px;height:'+sz+'px;'
+            +'top:'+(Math.random()*100)+'%;left:'+(Math.random()*100)+'%;'
+            +'animation:starTwinkle '+(2+Math.random()*3).toFixed(1)+'s '+(Math.random()*4).toFixed(1)+'s ease-in-out infinite;opacity:0;';
+        starsEl.appendChild(s);
+    }
+    // Chispas al aparecer el logo
+    setTimeout(function(){
+        var sparksEl=document.getElementById('sp-sparks');
+        var colors=['rgba(37,99,235,1)','rgba(239,68,68,1)','rgba(255,255,255,1)'];
+        var cx=window.innerWidth/2, cy=window.innerHeight/2-20;
+        for(var i=0;i<20;i++){
+            var sp=document.createElement('div');
+            var angle=(i/20)*Math.PI*2;
+            var dist=50+Math.random()*70;
+            var dx=(Math.cos(angle)*dist).toFixed(1);
+            var dy=(Math.sin(angle)*dist).toFixed(1);
+            var c=colors[Math.floor(Math.random()*colors.length)];
+            sp.style.cssText='position:absolute;width:3px;height:3px;border-radius:50%;'
+                +'background:'+c+';left:'+cx+'px;top:'+cy+'px;'
+                +'--dx:'+dx+'px;--dy:'+dy+'px;'
+                +'animation:sparkFly 0.8s ease-out forwards;';
+            sparksEl.appendChild(sp);
+        }
+        setTimeout(function(){ sparksEl.innerHTML=''; }, 900);
+    }, 1000);
+})();
+</script>
 
 <!-- Lang selector -->
 <div class="lang-selector-top" id="langSelector" onclick="toggleLangMenu()">
@@ -733,8 +850,8 @@ window.resetPassword = async () => {
 // ── Auth state ──
 onAuthStateChanged(auth, async (user) => {
     if (!user) {
-        // No hay sesión — revelar UI y quedarse en login
-        document.documentElement.style.visibility = '';
+        // No hay sesión — ocultar splash y mostrar login
+        hideSplash();
         return;
     }
 
@@ -790,7 +907,7 @@ onAuthStateChanged(auth, async (user) => {
 });
 
 function goToApp() {
-    window.location.replace('selector.html');
+    hideSplash(() => window.location.replace('selector.html'));
 }
 
 // ── Decide initial screen ──
@@ -800,27 +917,38 @@ async function initScreen() {
     // Esperar el probe que se lanzó en <head> — ya debería estar resuelto
     await checkRealConnectivity();
 
-    // Revelar la UI ahora que sabemos el estado de red
-    document.documentElement.style.visibility = '';
-
+    // Mostrar la pantalla correcta y luego ocultar splash con fade
     if (isOnline()) {
-        showScreen('screen-login');
+        hideSplash(() => showScreen('screen-login'));
     } else {
         const cachedHash  = localStorage.getItem('taxusa_pin_hash');
         const cachedEmail = localStorage.getItem('taxusa_offline_email');
         const hasCachedPin = cachedHash && cachedHash !== '' && cachedHash !== 'null';
         if (cachedEmail && hasCachedPin) {
-            showOfflinePinScreen();
+            hideSplash(() => showOfflinePinScreen());
         } else {
-            showScreen('screen-login');
-            const badge = document.createElement('div');
-            badge.className = 'offline-badge show';
-            badge.style.marginBottom = '16px';
-            badge.innerHTML = '<span>📵</span><span>' + t('noPinOffline') + '</span>';
-            const card = document.querySelector('#screen-login .login-card');
-            card.insertBefore(badge, card.firstChild);
+            hideSplash(() => {
+                showScreen('screen-login');
+                const badge = document.createElement('div');
+                badge.className = 'offline-badge show';
+                badge.style.marginBottom = '16px';
+                badge.innerHTML = '<span>📵</span><span>' + t('noPinOffline') + '</span>';
+                const card = document.querySelector('#screen-login .login-card');
+                card.insertBefore(badge, card.firstChild);
+            });
         }
     }
+}
+
+function hideSplash(callback) {
+    document.documentElement.style.visibility = '';
+    const splash = document.getElementById('splash-screen');
+    if (!splash) { if (callback) callback(); return; }
+    splash.style.opacity = '0';
+    setTimeout(() => {
+        splash.style.display = 'none';
+        if (callback) callback();
+    }, 420);
 }
 
 window.addEventListener('online',  () => { if (document.getElementById('screen-pin-offline').classList.contains('hidden') === false) showScreen('screen-login'); });
@@ -828,6 +956,7 @@ window.addEventListener('offline', () => { if (!document.getElementById('screen-
 
 // ── Offline PIN screen ──
 function showOfflinePinScreen() {
+    document.documentElement.style.visibility = '';
     const name  = localStorage.getItem('taxusa_cached_name')  || '';
     const foto  = localStorage.getItem('taxusa_cached_foto')  || '';
     const email = localStorage.getItem('taxusa_offline_email') || '';
