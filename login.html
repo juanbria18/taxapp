@@ -585,15 +585,26 @@ async function sha256(str) {
 
 // navigator.onLine is unreliable on Safari/PWA — use a real fetch probe
 let _isOnline = navigator.onLine; // initial guess, refined below
+let _connectivityPromise = null;  // shared promise — avoids race condition
 
 async function checkRealConnectivity() {
-    try {
-        await fetch('https://www.gstatic.com/generate_204', { method: 'HEAD', cache: 'no-store', mode: 'no-cors', signal: AbortSignal.timeout(3000) });
-        _isOnline = true;
-    } catch(e) {
-        _isOnline = false;
-    }
-    return _isOnline;
+    // Return the in-flight probe if one is already running
+    if (_connectivityPromise) return _connectivityPromise;
+    _connectivityPromise = (async () => {
+        try {
+            // 1.5 s timeout — fast enough to decide before Firebase fires
+            await fetch('https://www.gstatic.com/generate_204', {
+                method: 'HEAD', cache: 'no-store', mode: 'no-cors',
+                signal: AbortSignal.timeout(1500)
+            });
+            _isOnline = true;
+        } catch(e) {
+            _isOnline = false;
+        }
+        _connectivityPromise = null; // reset so next call re-probes
+        return _isOnline;
+    })();
+    return _connectivityPromise;
 }
 
 function isOnline() { return _isOnline; }
@@ -704,7 +715,8 @@ window.resetPassword = async () => {
 onAuthStateChanged(auth, async (user) => {
     if (!user) return; // not logged in — stay on login screen
 
-    // Wait for the connectivity probe to finish (initScreen runs it concurrently)
+    // Wait for the shared connectivity probe (started by initScreen).
+    // If initScreen already resolved it, this returns instantly.
     await checkRealConnectivity();
 
     // ── If offline: Firebase fires this with cached user. Block goToApp and show PIN instead. ──
@@ -715,6 +727,7 @@ onAuthStateChanged(auth, async (user) => {
         if (cachedEmail && hasCachedPin) {
             showOfflinePinScreen();
         }
+        // No PIN configured — stay on login screen (already shown by initScreen)
         return;
     }
 
