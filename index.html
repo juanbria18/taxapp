@@ -394,7 +394,13 @@
     <div style="margin-top:auto;padding-top:16px;"><button class="drawer-btn btn-danger" onclick="doDeleteAccount()">🗑️ <span data-i18n="btn_delete">Eliminar Cuenta</span></button></div>
 </div>
 
-<div style="font-size:1rem;font-weight:900;color:var(--text);margin-bottom:4px;" id="pinModalTitle">Cambiar PIN Offline</div>
+
+<!-- ══════════ MODAL PIN OFFLINE ══════════ -->
+<div id="pinModalOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(4px);z-index:9999;align-items:center;justify-content:center;">
+  <div id="pinModalBox" style="background:var(--surface);border-radius:var(--radius);padding:28px 24px;width:calc(100% - 40px);max-width:360px;box-shadow:var(--shadow-lg);border:1px solid var(--border);position:relative;">
+    <button onclick="closePinModal()" style="position:absolute;top:12px;right:14px;background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--text-dim);line-height:1;">✕</button>
+    <div style="font-size:1.4rem;margin-bottom:6px;">🔢</div>
+    <div style="font-size:1rem;font-weight:900;color:var(--text);margin-bottom:4px;" id="pinModalTitle">Cambiar PIN Offline</div>
     <div style="font-size:.75rem;font-weight:600;color:var(--text-sub);margin-bottom:20px;" id="pinModalSub">Este PIN se usa para acceder sin conexión</div>
     <div id="pinStep1">
       <label style="font-size:.6rem;font-weight:800;color:var(--text-dim);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px;" id="pinLabel1">PIN Nuevo (4–6 dígitos)</label>
@@ -431,7 +437,6 @@ const FB = { apiKey:"AIzaSyCm0Ig-CPklsjf6j-1uSAeF6I8xtyQKj7U", authDomain:"viaje
 const app = initializeApp(FB);
 const auth = getAuth(app);
 const db = getFirestore(app);
-    window._taxusaFirebase = { auth, db };
 
 let currentUser = null;
 let tripData = { destination:'Orlando', date:'2027-01-01' };
@@ -645,7 +650,16 @@ window.toggleDarkMode = () => {
     localStorage.setItem('theme', next);
 };
 window.changeProfile = () => { localStorage.removeItem('perfilActivoId'); window.location.href = 'profiles.html'; };
-const t = texts[lang] || texts.es;
+window.gestionarPIN = () => {
+    document.getElementById('settingsDrawer').classList.remove('open');
+    document.getElementById('menuOverlay').style.display = 'none';
+    const lang = localStorage.getItem('appLang') || 'es';
+    const texts = {
+        es: { title:'Cambiar PIN Offline', sub:'Este PIN se usa para acceder sin conexión', l1:'PIN Nuevo (4–6 dígitos)', l2:'Confirmar PIN', btn:'Guardar PIN', ok:'¡PIN actualizado!', okSub:'Podés usarlo para entrar sin conexión' },
+        en: { title:'Change Offline PIN', sub:'This PIN is used to access without internet', l1:'New PIN (4–6 digits)', l2:'Confirm PIN', btn:'Save PIN', ok:'PIN updated!', okSub:'You can use it to sign in offline' },
+        pt: { title:'Alterar PIN Offline', sub:'Este PIN é usado para acessar sem internet', l1:'Novo PIN (4–6 dígitos)', l2:'Confirmar PIN', btn:'Salvar PIN', ok:'PIN atualizado!', okSub:'Você pode usá-lo para entrar sem conexão' }
+    };
+    const t = texts[lang] || texts.es;
     document.getElementById('pinModalTitle').textContent = t.title;
     document.getElementById('pinModalSub').textContent = t.sub;
     document.getElementById('pinLabel1').textContent = t.l1;
@@ -662,7 +676,13 @@ const t = texts[lang] || texts.es;
     overlay.style.display = 'flex';
     setTimeout(() => document.getElementById('pinInput1').focus(), 100);
 };
-const p1 = document.getElementById('pinInput1').value.trim();
+window.closePinModal = () => {
+    document.getElementById('pinModalOverlay').style.display = 'none';
+};
+window.confirmarPIN = () => {
+    const lang = localStorage.getItem('appLang') || 'es';
+    const errMsgs = { es:'Los PINs no coinciden o son muy cortos (mín. 4 dígitos).', en:"PINs don't match or are too short (min. 4 digits).", pt:'Os PINs não coincidem ou são curtos demais (mín. 4 dígitos).' };
+    const p1 = document.getElementById('pinInput1').value.trim();
     const p2 = document.getElementById('pinInput2').value.trim();
     const errEl = document.getElementById('pinError');
     if (p1.length < 4 || p1 !== p2) {
@@ -1361,179 +1381,5 @@ window.onload = () => {
 })();
 </script>
 
-
-<!-- ══ MODAL PIN OFFLINE ══ -->
-<style>
-#pinModalOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99999;align-items:center;justify-content:center;padding:20px;}
-.pm-box{background:var(--surface);border-radius:var(--radius);padding:28px 20px 24px;width:100%;max-width:320px;box-shadow:var(--shadow-lg);border:1px solid var(--border);position:relative;text-align:center;}
-.pm-close{position:absolute;top:12px;right:14px;background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--text-dim);}
-.pm-icon{font-size:2rem;margin-bottom:8px;}
-.pm-title{font-size:1rem;font-weight:900;color:var(--text);margin-bottom:4px;}
-.pm-sub{font-size:.75rem;font-weight:600;color:var(--text-sub);margin-bottom:20px;}
-.pm-dots{display:flex;gap:14px;justify-content:center;margin-bottom:24px;}
-.pm-dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--border);background:transparent;transition:all .2s;}
-.pm-dot.filled{background:var(--primary);border-color:var(--primary);}
-.pm-dot.error{background:var(--danger);border-color:var(--danger);}
-.pm-keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
-.pm-key{padding:16px 8px;border:1.5px solid var(--border);border-radius:12px;background:var(--input-bg);font-size:1.2rem;font-weight:800;color:var(--text);cursor:pointer;font-family:inherit;transition:all .15s;}
-.pm-key:hover{border-color:var(--primary);background:var(--primary-dim);color:var(--primary);}
-.pm-key:active{transform:scale(.93);background:var(--primary);color:white;border-color:var(--primary);}
-.pm-key.empty{border:none;background:transparent;pointer-events:none;}
-.pm-key.del{color:var(--text-sub);}
-.pm-label{font-size:.6rem;font-weight:800;color:var(--text-dim);text-transform:uppercase;letter-spacing:.8px;margin-bottom:16px;display:block;}
-.pm-error{font-size:.78rem;font-weight:700;color:var(--danger);min-height:1em;margin-bottom:8px;}
-.pm-success{display:none;padding:8px 0;}
-.pm-success-icon{font-size:2.8rem;margin-bottom:10px;}
-.pm-success-msg{font-size:1rem;font-weight:900;color:#10b981;margin-bottom:6px;}
-.pm-success-sub{font-size:.8rem;font-weight:600;color:var(--text-sub);}
-</style>
-<div id="pinModalOverlay" onclick="if(event.target===this)closePinModal()">
-  <div class="pm-box">
-    <button class="pm-close" onclick="closePinModal()">✕</button>
-    <div class="pm-icon">🔢</div>
-    <div class="pm-title" id="pmTitle">Cambiar PIN Offline</div>
-    <div class="pm-sub" id="pmSub">Ingresá tu nuevo PIN de 4 dígitos</div>
-    <div id="pmMain">
-      <span class="pm-label" id="pmStepLabel">PIN NUEVO</span>
-      <div class="pm-dots" id="pmDots">
-        <div class="pm-dot"></div><div class="pm-dot"></div>
-        <div class="pm-dot"></div><div class="pm-dot"></div>
-      </div>
-      <div class="pm-error" id="pmError"></div>
-      <div class="pm-keypad" id="pmKeypad"></div>
-    </div>
-    <div class="pm-success" id="pmSuccess">
-      <div class="pm-success-icon">✅</div>
-      <div class="pm-success-msg" id="pmSuccessMsg">¡PIN actualizado!</div>
-      <div class="pm-success-sub" id="pmSuccessSub">Podés usarlo para entrar sin conexión</div>
-    </div>
-  </div>
-</div>
-<script>
-(function() {
-  var _pmStep = 'enter'; // 'enter' | 'confirm'
-  var _pmFirst = '';
-  var _pmBuffer = '';
-
-  var L = {
-    es: { title:'Cambiar PIN Offline', sub:'Ingresá tu nuevo PIN de 4 dígitos', lEnter:'PIN NUEVO', lConfirm:'CONFIRMÁ EL PIN', ok:'¡PIN actualizado!', okSub:'Podés usarlo para entrar sin conexión', mismatch:'Los PINs no coinciden. Intentá de nuevo.' },
-    en: { title:'Change Offline PIN', sub:'Enter your new 4-digit PIN', lEnter:'NEW PIN', lConfirm:'CONFIRM PIN', ok:'PIN updated!', okSub:'You can use it to sign in offline', mismatch:"PINs don't match. Try again." },
-    pt: { title:'Alterar PIN Offline', sub:'Digite seu novo PIN de 4 dígitos', lEnter:'NOVO PIN', lConfirm:'CONFIRME O PIN', ok:'PIN atualizado!', okSub:'Você pode usá-lo para entrar sem conexão', mismatch:'Os PINs não coincidem. Tente novamente.' }
-  };
-
-  function lang() { return localStorage.getItem('appLang') || 'es'; }
-  function t(k) { return (L[lang()] || L.es)[k]; }
-
-  function updateDots(n, isError) {
-    var dots = document.querySelectorAll('#pmDots .pm-dot');
-    dots.forEach(function(d, i) {
-      d.classList.toggle('filled', i < n);
-      d.classList.toggle('error', !!isError);
-    });
-  }
-
-  function shake() {
-    updateDots(4, true);
-    setTimeout(function() { updateDots(0, false); }, 500);
-  }
-
-  async function sha256(str) {
-    var buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
-    return Array.from(new Uint8Array(buf)).map(function(b) { return b.toString(16).padStart(2,'0'); }).join('');
-  }
-
-  async function savePin(pin) {
-    var hash = await sha256(pin);
-    localStorage.setItem('taxusa_pin_hash', hash);
-    // Also save to Firestore if auth is available
-    try {
-      if (window._taxusaFirebase) {
-        var auth = window._taxusaFirebase.auth;
-        var db = window._taxusaFirebase.db;
-        var user = auth && auth.currentUser;
-        if (user && db) {
-          var { doc, setDoc } = await import('https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js');
-          await setDoc(doc(db, 'usuarios', user.uid), { pinHash: hash }, { merge: true });
-        }
-      }
-    } catch(e) { console.warn('PIN Firestore save skipped:', e); }
-  }
-
-  async function onKey(k) {
-    if (k === 'del') {
-      _pmBuffer = _pmBuffer.slice(0, -1);
-    } else {
-      if (_pmBuffer.length >= 4) return;
-      _pmBuffer += k;
-    }
-    updateDots(_pmBuffer.length, false);
-    document.getElementById('pmError').textContent = '';
-
-    if (_pmBuffer.length === 4) {
-      var entered = _pmBuffer;
-      _pmBuffer = '';
-      if (_pmStep === 'enter') {
-        _pmFirst = entered;
-        _pmStep = 'confirm';
-        updateDots(0, false);
-        document.getElementById('pmStepLabel').textContent = t('lConfirm');
-      } else {
-        if (entered !== _pmFirst) {
-          document.getElementById('pmError').textContent = t('mismatch');
-          shake();
-          _pmStep = 'enter';
-          _pmFirst = '';
-          setTimeout(function() {
-            document.getElementById('pmStepLabel').textContent = t('lEnter');
-          }, 500);
-        } else {
-          await savePin(_pmFirst);
-          document.getElementById('pmMain').style.display = 'none';
-          var s = document.getElementById('pmSuccess');
-          s.style.display = 'block';
-          document.getElementById('pmSuccessMsg').textContent = t('ok');
-          document.getElementById('pmSuccessSub').textContent = t('okSub');
-          setTimeout(function() { window.closePinModal(); }, 2000);
-        }
-      }
-    }
-  }
-
-  function buildKeypad() {
-    var kp = document.getElementById('pmKeypad');
-    kp.innerHTML = '';
-    ['1','2','3','4','5','6','7','8','9','empty','0','del'].forEach(function(k) {
-      var btn = document.createElement('button');
-      btn.className = 'pm-key' + (k==='del'?' del':'') + (k==='empty'?' empty':'');
-      btn.textContent = k==='del' ? '⌫' : k==='empty' ? '' : k;
-      if (k !== 'empty') btn.onclick = function() { onKey(k==='del'?'del':k); };
-      kp.appendChild(btn);
-    });
-  }
-
-  window.gestionarPIN = function() {
-    var drawer = document.getElementById('settingsDrawer');
-    var menuOv = document.getElementById('menuOverlay');
-    if (drawer) drawer.classList.remove('open');
-    if (menuOv) menuOv.style.display = 'none';
-    // Reset state
-    _pmStep = 'enter'; _pmFirst = ''; _pmBuffer = '';
-    document.getElementById('pmTitle').textContent = t('title');
-    document.getElementById('pmSub').textContent = t('sub');
-    document.getElementById('pmStepLabel').textContent = t('lEnter');
-    document.getElementById('pmError').textContent = '';
-    document.getElementById('pmMain').style.display = 'block';
-    document.getElementById('pmSuccess').style.display = 'none';
-    updateDots(0, false);
-    buildKeypad();
-    var ov = document.getElementById('pinModalOverlay');
-    ov.style.display = 'flex';
-  };
-
-  window.closePinModal = function() {
-    document.getElementById('pinModalOverlay').style.display = 'none';
-  };
-})();
-</script>
 </body>
 </html>
