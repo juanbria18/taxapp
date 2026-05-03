@@ -275,12 +275,12 @@
             <div>
                 <h2 id="g-titulo">—</h2>
             </div>
-            <button class="btn-danger-txt" onclick="volverLobby()" style="color:var(--text-sub);font-size:.8rem;">← Volver</button>
+            <button class="btn-danger-txt" onclick="volverLobby()" style="color:var(--text-sub);font-size:.8rem;" data-i18n="btn_volver">← Volver</button>
         </div>
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
             <div class="code-badge" onclick="copiarCodigo()" style="flex:1;justify-content:center;">🔑 <span id="g-codigo">—</span> · Copiar</div>
-            <button class="btn-danger-txt" id="btn-salir-grupo" onclick="abandonarGrupo()" style="font-size:.72rem;background:rgba(239,68,68,.08);border:1.5px solid rgba(239,68,68,.2);border-radius:20px;padding:5px 12px;white-space:nowrap;">🚪 Salir</button>
-            <button class="btn-danger-txt" id="btn-eliminar-grupo" onclick="eliminarGrupo()" style="display:none;font-size:.72rem;background:rgba(239,68,68,.08);border:1.5px solid rgba(239,68,68,.2);border-radius:20px;padding:5px 12px;white-space:nowrap;">🗑️ Eliminar</button>
+            <button class="btn-danger-txt" id="btn-salir-grupo" onclick="abandonarGrupo()" style="font-size:.72rem;background:rgba(239,68,68,.08);border:1.5px solid rgba(239,68,68,.2);border-radius:20px;padding:5px 12px;white-space:nowrap;"><span data-i18n="btn_salir_grupo">🚪 Salir</span></button>
+            <button class="btn-danger-txt" id="btn-eliminar-grupo" onclick="eliminarGrupo()" style="display:none;font-size:.72rem;background:rgba(239,68,68,.08);border:1.5px solid rgba(239,68,68,.2);border-radius:20px;padding:5px 12px;white-space:nowrap;"><span data-i18n="btn_eliminar_grupo">🗑️ Eliminar</span></button>
         </div>
 
         <!-- Tabs -->
@@ -707,7 +707,9 @@ window.abandonarGrupo = async () => {
     if (!currentGroup || currentGroup._demo) { showToast('\u26a0\ufe0f No disponible en modo demo'); return; }
     if (!currentUser) return;
     const nombre = currentGroup.data.nombre;
-    if (!confirm(`\u00bfSalir del grupo "${nombre}"?\n\nVas a dejar de ser miembro. Tus gastos registrados se mantendr\u00e1n.`)) return;
+    const lang = localStorage.getItem('appLang') || 'es';
+    const confirmMsg = (i18n[lang] || i18n.es).confirm_salir.replace('{nombre}', nombre).replace('{nome}', nombre);
+    if (!confirm(confirmMsg)) return;
     try {
         const ref = doc(db, 'grupos', currentGroup.id);
         const snap = await getDoc(ref);
@@ -1000,6 +1002,8 @@ const i18n = {
         empty_data:'Sin datos aún', lbl_members:'👥 Integrantes',
         lbl_total_group:'Total gastado por el grupo', lbl_per_person:'📊 Por persona',
         footer_by:'Creado por Juan Cruz Bria', all_good:'¡Todos están al día! 🎉',
+        btn_volver:'← Volver', btn_salir_grupo:'🚪 Salir', btn_eliminar_grupo:'🗑️ Eliminar',
+        confirm_salir:'¿Salir del grupo "{nombre}"?\n\nVas a dejar de ser miembro. Tus gastos registrados se mantendrán.',
     },
     en: {
         nav_home:'HOME', nav_expenses:'EXPENSES', nav_itinerary:'ITINERARY',
@@ -1022,6 +1026,8 @@ const i18n = {
         empty_data:'No data yet', lbl_members:'👥 Members',
         lbl_total_group:'Total spent by the group', lbl_per_person:'📊 Per person',
         footer_by:'Created by Juan Cruz Bria', all_good:'Everyone is settled up! 🎉',
+        btn_volver:'← Back', btn_salir_grupo:'🚪 Leave', btn_eliminar_grupo:'🗑️ Delete',
+        confirm_salir:'Leave group "{nombre}"?\n\nYou will no longer be a member. Your recorded expenses will remain.',
     },
     pt: {
         nav_home:'INÍCIO', nav_expenses:'GASTOS', nav_itinerary:'ITINERÁRIO',
@@ -1044,6 +1050,8 @@ const i18n = {
         empty_data:'Sem dados ainda', lbl_members:'👥 Integrantes',
         lbl_total_group:'Total gasto pelo grupo', lbl_per_person:'📊 Por pessoa',
         footer_by:'Criado por Juan Cruz Bria', all_good:'Todos estão quites! 🎉',
+        btn_volver:'← Voltar', btn_salir_grupo:'🚪 Sair', btn_eliminar_grupo:'🗑️ Excluir',
+        confirm_salir:'Sair do grupo "{nome}"?\n\nVocê deixará de ser membro. Suas despesas registradas serão mantidas.',
     }
 };
 
