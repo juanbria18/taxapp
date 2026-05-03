@@ -179,6 +179,55 @@
         .drawer-btn{width:100%;padding:12px 14px;border-radius:var(--radius-sm);border:1.5px solid var(--border);background:var(--input-bg);color:var(--text);cursor:pointer;font-weight:700;margin-bottom:8px;font-size:.85rem;text-align:left;font-family:inherit;transition:var(--tr);display:flex;align-items:center;gap:10px;}
         .drawer-btn:hover{background:var(--surface-2);border-color:var(--primary);}
         .btn-danger{color:var(--danger)!important;border-color:rgba(239,68,68,.3)!important;}
+    
+        /* ── PIN OFFLINE OVERLAY ── */
+        #pinOfflineOverlay{
+            display:none;position:fixed;inset:0;z-index:99999;
+            background:var(--bg);
+            flex-direction:column;align-items:center;justify-content:center;
+            padding:24px;font-family:'DM Sans',-apple-system,system-ui,sans-serif;
+        }
+        #pinOfflineOverlay.show{display:flex;}
+        .poo-card{
+            background:var(--surface);border-radius:28px;padding:32px 24px;
+            width:100%;max-width:360px;box-shadow:var(--shadow-lg);
+            border:1.5px solid var(--border);text-align:center;
+            animation:pooIn .35s cubic-bezier(0.34,1.56,0.64,1);
+        }
+        @keyframes pooIn{from{opacity:0;transform:scale(.88) translateY(16px)}to{opacity:1;transform:scale(1) translateY(0)}}
+        .poo-badge{
+            display:inline-flex;align-items:center;gap:6px;
+            background:rgba(245,158,11,.12);border:1.5px solid rgba(245,158,11,.3);
+            color:#d97706;border-radius:10px;padding:6px 12px;
+            font-size:.72rem;font-weight:800;margin-bottom:20px;letter-spacing:.3px;
+        }
+        .poo-avatar{
+            width:68px;height:68px;border-radius:16px;margin:0 auto 10px;
+            background:var(--input-bg) no-repeat center/cover;
+            border:2.5px solid var(--border);
+        }
+        .poo-name{font-size:1rem;font-weight:900;color:var(--text);margin-bottom:2px;}
+        .poo-email{font-size:.72rem;font-weight:600;color:var(--text-dim);margin-bottom:24px;}
+        .poo-dots{display:flex;gap:14px;justify-content:center;margin-bottom:28px;}
+        .poo-dot{
+            width:16px;height:16px;border-radius:50%;
+            border:2.5px solid var(--border);background:transparent;transition:all .2s;
+        }
+        .poo-dot.filled{background:var(--primary);border-color:var(--primary);}
+        .poo-dot.error{background:var(--danger);border-color:var(--danger);animation:pooShake .4s ease;}
+        @keyframes pooShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+        .poo-keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
+        .poo-key{
+            padding:0;border:1.5px solid var(--border);border-radius:14px;
+            background:var(--surface);font-family:inherit;font-size:1.3rem;font-weight:700;
+            color:var(--text);cursor:pointer;transition:var(--tr);aspect-ratio:1;
+            display:flex;align-items:center;justify-content:center;
+        }
+        .poo-key:hover{background:var(--input-bg);border-color:var(--primary);}
+        .poo-key:active{transform:scale(.92);background:var(--primary);color:white;border-color:var(--primary);}
+        .poo-key.empty{border:none;background:transparent;pointer-events:none;}
+        .poo-error{font-size:.78rem;font-weight:700;color:var(--danger);min-height:18px;margin-bottom:4px;}
+
     </style>
     <script>
         if ('serviceWorker' in navigator) {
@@ -1381,5 +1430,129 @@ window.onload = () => {
 })();
 </script>
 
+
+<!-- ══ PIN OFFLINE OVERLAY ══ -->
+<div id="pinOfflineOverlay">
+  <div class="poo-card">
+    <div class="poo-badge">📵 Sin conexión</div>
+    <div class="poo-avatar" id="pooAvatar"></div>
+    <div class="poo-name" id="pooName">Usuario</div>
+    <div class="poo-email" id="pooEmail"></div>
+    <div class="poo-dots" id="pooDots">
+      <div class="poo-dot"></div>
+      <div class="poo-dot"></div>
+      <div class="poo-dot"></div>
+      <div class="poo-dot"></div>
+    </div>
+    <div class="poo-error" id="pooError"></div>
+    <div class="poo-keypad" id="pooKeypad"></div>
+  </div>
+</div>
+
+<script>
+// ══ PIN OFFLINE OVERLAY LOGIC ══
+(function() {
+    const MAX_ATTEMPTS = 5;
+    let buf = '', attempts = 0;
+
+    async function sha256(str) {
+        const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+        return Array.from(new Uint8Array(b)).map(x => x.toString(16).padStart(2,'0')).join('');
+    }
+
+    async function checkOffline() {
+        // Probe real connectivity (navigator.onLine no es confiable en Safari)
+        try {
+            await fetch('https://www.gstatic.com/generate_204', { method:'HEAD', cache:'no-store', mode:'no-cors', signal: AbortSignal.timeout(3000) });
+            return false; // hay internet
+        } catch(e) {
+            return true; // sin internet
+        }
+    }
+
+    function updateDots(n) {
+        document.querySelectorAll('#pooDots .poo-dot').forEach((d,i) => {
+            d.classList.toggle('filled', i < n);
+            d.classList.remove('error');
+        });
+    }
+
+    function shakeError(msg) {
+        document.getElementById('pooError').innerText = msg;
+        document.querySelectorAll('#pooDots .poo-dot').forEach(d => d.classList.add('error'));
+        setTimeout(() => document.querySelectorAll('#pooDots .poo-dot').forEach(d => d.classList.remove('error')), 500);
+    }
+
+    function renderKeypad() {
+        const keys = ['1','2','3','4','5','6','7','8','9','empty','0','del'];
+        const kp = document.getElementById('pooKeypad');
+        kp.innerHTML = '';
+        keys.forEach(k => {
+            const btn = document.createElement('button');
+            btn.className = 'poo-key' + (k === 'empty' ? ' empty' : '');
+            btn.innerText = k === 'del' ? '⌫' : k === 'empty' ? '' : k;
+            if (k !== 'empty') btn.addEventListener('click', () => onKey(k === 'del' ? 'del' : k));
+            kp.appendChild(btn);
+        });
+    }
+
+    async function onKey(key) {
+        if (attempts >= MAX_ATTEMPTS) return;
+        if (key === 'del') { buf = buf.slice(0,-1); }
+        else { if (buf.length >= 4) return; buf += key; }
+        updateDots(buf.length);
+        document.getElementById('pooError').innerText = '';
+
+        if (buf.length === 4) {
+            const entered = buf; buf = ''; updateDots(0);
+            const hash = await sha256(entered);
+            const stored = localStorage.getItem('taxusa_pin_hash');
+            if (hash === stored) {
+                // PIN correcto — ocultar overlay
+                document.getElementById('pinOfflineOverlay').classList.remove('show');
+            } else {
+                attempts++;
+                const left = MAX_ATTEMPTS - attempts;
+                const lang = localStorage.getItem('appLang') || 'es';
+                const msgs = {
+                    es: left > 0 ? `PIN incorrecto. Quedan ${left} intentos.` : 'Demasiados intentos fallidos.',
+                    en: left > 0 ? `Wrong PIN. ${left} attempts left.` : 'Too many failed attempts.',
+                    pt: left > 0 ? `PIN incorreto. ${left} tentativas restantes.` : 'Muitas tentativas.'
+                };
+                shakeError(msgs[lang] || msgs.es);
+            }
+        }
+    }
+
+    async function init() {
+        const offline = await checkOffline();
+        if (!offline) return; // hay internet, no mostrar nada
+
+        const hash = localStorage.getItem('taxusa_pin_hash');
+        if (!hash) return; // no hay PIN configurado, dejar pasar
+
+        // Mostrar overlay
+        const overlay = document.getElementById('pinOfflineOverlay');
+        overlay.classList.add('show');
+
+        // Cargar datos del usuario
+        const name  = localStorage.getItem('perfilActivoNombre') || localStorage.getItem('taxusa_offline_email') || '';
+        const email = localStorage.getItem('taxusa_offline_email') || '';
+        const foto  = localStorage.getItem('perfilActivoFoto') || '';
+        document.getElementById('pooName').innerText  = name.split('@')[0];
+        document.getElementById('pooEmail').innerText = email;
+        if (foto) document.getElementById('pooAvatar').style.backgroundImage = `url('${foto}')`;
+
+        renderKeypad();
+    }
+
+    // Arrancar apenas carga el DOM
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+})();
+</script>
 </body>
 </html>
