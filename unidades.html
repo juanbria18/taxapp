@@ -123,9 +123,24 @@
         .btn-danger{color:var(--danger)!important;border-color:rgba(239,68,68,.3)!important;}
     
         @keyframes pinBoxIn{from{opacity:0;transform:scale(.88) translateY(16px)}to{opacity:1;transform:scale(1) translateY(0)}}
+
+        /* ── Offline Toast ── */
+        #offline-toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);display:none;align-items:center;gap:9px;padding:10px 18px;background:var(--surface);border:1.5px solid var(--warn);border-radius:14px;font-size:.78rem;font-weight:700;color:var(--text);box-shadow:var(--shadow-lg);z-index:9998;white-space:nowrap;animation:ot-in .3s cubic-bezier(.34,1.56,.64,1);}
+        #offline-toast.show{display:flex;}
+        #offline-toast .ot-dot{width:8px;height:8px;border-radius:50%;background:var(--warn);flex-shrink:0;animation:ot-pulse 1.8s ease-in-out infinite;}
+        @keyframes ot-in{from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+        @keyframes ot-pulse{0%,100%{opacity:1}50%{opacity:.35}}
+        #sync-ok-toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);display:none;align-items:center;gap:9px;padding:10px 18px;background:rgba(16,185,129,.12);border:1.5px solid var(--success);border-radius:14px;font-size:.78rem;font-weight:700;color:var(--success);box-shadow:var(--shadow-lg);z-index:9998;white-space:nowrap;animation:ot-in .3s cubic-bezier(.34,1.56,.64,1);}
+        #sync-ok-toast.show{display:flex;}
     </style>
 </head>
 <body>
+<!-- ── Offline Toast ── -->
+<div id="offline-toast">
+  <span class="ot-dot"></span>
+  <span id="offline-toast-msg">Sin conexión — el chat de Taxie no está disponible</span>
+</div>
+<div id="sync-ok-toast">✅ <span id="sync-ok-msg">Todo sincronizado</span></div>
 <div class="wrap">
 
     <div class="app-header">
@@ -627,11 +642,19 @@ window.confirmarPIN = async () => {
     const hash = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
     // Cache locally (same key as login.html uses)
     localStorage.setItem('taxusa_pin_hash', hash);
-    // Sync to Firestore (same field as login.html uses)
+    // Sync to Firestore — queue if offline
     if (currentUser) {
-        try {
-            await setDoc(doc(db,'usuarios',currentUser.uid), { pinHash: hash }, { merge: true });
-        } catch(e) { console.warn('PIN sync error:', e); }
+        if (!navigator.onLine) {
+            localStorage.setItem('taxusa_pin_pending_sync', hash);
+        } else {
+            try {
+                await setDoc(doc(db,'usuarios',currentUser.uid), { pinHash: hash }, { merge: true });
+                localStorage.removeItem('taxusa_pin_pending_sync');
+            } catch(e) {
+                console.warn('PIN sync error:', e);
+                localStorage.setItem('taxusa_pin_pending_sync', hash);
+            }
+        }
     }
     document.getElementById('pinStep1').style.display = 'none';
     document.getElementById('pinStep2').style.display = 'block';
@@ -672,6 +695,20 @@ document.getElementById('userEmail').innerText = perfilNombre || user.email;
     const tc = document.getElementById('tip-content');
     if (tc) tc.innerText = unitTips[lang][tipIndex];
     setInterval(window.nextTip, 8000);
+
+    // Expose PIN flush so the offline script can call it on reconnect
+    window._flushPinPending = async () => {
+        const pendingHash = localStorage.getItem('taxusa_pin_pending_sync');
+        if (!pendingHash || !navigator.onLine || !currentUser) return;
+        try {
+            await setDoc(doc(db,'usuarios',currentUser.uid), { pinHash: pendingHash }, { merge: true });
+            localStorage.removeItem('taxusa_pin_pending_sync');
+            const t = document.getElementById('sync-ok-toast');
+            const m = document.getElementById('sync-ok-msg');
+            if (t) { if(m) m.textContent = 'PIN sincronizado'; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),3000); }
+        } catch(e) { console.warn('PIN flush error:', e); }
+    };
+    if (navigator.onLine) window._flushPinPending();
 });
   
 </script>
@@ -1107,6 +1144,40 @@ document.getElementById('userEmail').innerText = perfilNombre || user.email;
 })();
 </script>
 <!-- ═══════════════ FIN TAXUSA AI CHAT ═══════════════ -->
+
+<!-- ── Offline detection ── -->
+<script>
+(function() {
+    function updateOfflineToast() {
+        const toast = document.getElementById('offline-toast');
+        if (!toast) return;
+        const msgEl = document.getElementById('offline-toast-msg');
+        const hasPendingPin = !!localStorage.getItem('taxusa_pin_pending_sync');
+        if (!navigator.onLine) {
+            if (msgEl) msgEl.textContent = hasPendingPin
+                ? 'Sin conexión — el PIN se sincronizará al reconectar'
+                : 'Sin conexión — el chat de Taxie no está disponible';
+            toast.classList.add('show');
+        } else {
+            toast.classList.remove('show');
+        }
+    }
+
+    window.addEventListener('online', async () => {
+        updateOfflineToast();
+        if (window._flushPinPending) {
+            try { await window._flushPinPending(); } catch(e) {}
+        }
+    });
+    window.addEventListener('offline', updateOfflineToast);
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', updateOfflineToast);
+    } else {
+        updateOfflineToast();
+    }
+})();
+</script>
 
 </body>
 </html>
