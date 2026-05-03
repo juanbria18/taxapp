@@ -5,7 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>TaxUSA — Login</title>
     <link rel="manifest" href="./manifest.json">
-    <link rel="apple-touch-icon" href="icon-512.png">
+    <link rel="icon" href="assets/icon-512.png" type="image/png">
+    <link rel="apple-touch-icon" href="assets/icon-512.png">
+    <link rel="apple-touch-icon" sizes="512x512" href="assets/icon-512.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="assets/icon-512.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="TaxUSA">
     <meta name="theme-color" content="#2563eb">
     <script src="https://www.google.com/recaptcha/api.js?render=6LeK6cssAAAAALxcJy-95R2nhVMmnuIyB78AQgvw" async defer></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -153,6 +159,62 @@
         .link-toggle:hover { color: var(--primary); }
 
         .grecaptcha-badge { bottom: 15px !important; }
+        /* ── Install buttons ── */
+        .install-wrap {
+            display: none; flex-direction: column; gap: 8px;
+            margin-top: 16px;
+        }
+        .btn-install {
+            width: 100%; padding: 13px 16px; border: none; border-radius: 14px;
+            font-family: inherit; font-size: .85rem; font-weight: 800;
+            letter-spacing: .4px; cursor: pointer; transition: .2s;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .btn-install:active { transform: scale(.97); }
+        .btn-android { background: #22c55e; color: white; box-shadow: 0 4px 14px rgba(34,197,94,.35); }
+        .btn-ios     { background: #0ea5e9; color: white; box-shadow: 0 4px 14px rgba(14,165,233,.35); }
+
+        /* iOS instruction modal */
+        .ios-modal-overlay {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,.6); z-index: 9000;
+            backdrop-filter: blur(4px);
+            align-items: flex-end; justify-content: center;
+        }
+        .ios-modal-overlay.show { display: flex; }
+        .ios-modal {
+            background: var(--surface); border-radius: 24px 24px 0 0;
+            padding: 28px 24px 40px; width: 100%; max-width: 460px;
+            border: 1.5px solid var(--border);
+            box-shadow: 0 -12px 40px rgba(0,0,0,.3);
+            animation: slideUp .3s ease;
+        }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .ios-modal-title {
+            font-size: 1rem; font-weight: 900; text-align: center;
+            margin-bottom: 20px; color: var(--text);
+        }
+        .ios-step {
+            display: flex; align-items: center; gap: 14px;
+            padding: 12px 0; border-bottom: 1px solid var(--border);
+        }
+        .ios-step:last-of-type { border-bottom: none; }
+        .ios-step-num {
+            width: 28px; height: 28px; border-radius: 50%;
+            background: #0ea5e9; color: white;
+            font-size: .75rem; font-weight: 900;
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+        .ios-step-text { font-size: .82rem; font-weight: 600; color: var(--text-sub); line-height: 1.4; }
+        .ios-step-text strong { color: var(--text); }
+        .ios-step-icon { font-size: 1.2rem; flex-shrink: 0; }
+        .ios-modal-close {
+            width: 100%; margin-top: 20px; padding: 14px;
+            background: var(--input-bg); border: 1.5px solid var(--border);
+            border-radius: 14px; font-family: inherit; font-size: .85rem;
+            font-weight: 800; cursor: pointer; color: var(--text);
+        }
+
     </style>
     <script>
         
@@ -209,6 +271,88 @@
         <span class="link-toggle" id="toggleLink" onclick="toggleMode()">¿No tenés cuenta? Registrate aquí</span>
     </div>
 </div>
+
+<!-- Install buttons -->
+<div class="install-wrap" id="installWrap">
+    <button class="btn-install btn-android" id="btnAndroid" onclick="installAndroid()">
+        ➕ Agregar a inicio (Android)
+    </button>
+    <button class="btn-install btn-ios" id="btnIos" onclick="showIosModal()">
+        📲 Agregar a inicio (iPhone)
+    </button>
+</div>
+
+<!-- iOS modal -->
+<div class="ios-modal-overlay" id="iosOverlay" onclick="hideIosModal()">
+    <div class="ios-modal" onclick="event.stopPropagation()">
+        <div class="ios-modal-title">📲 Agregar TaxUSA al inicio</div>
+        <div class="ios-step">
+            <div class="ios-step-num">1</div>
+            <div class="ios-step-icon">⬆️</div>
+            <div class="ios-step-text">Tocá el botón <strong>Compartir</strong> en la barra de Safari (el ícono de caja con flecha arriba)</div>
+        </div>
+        <div class="ios-step">
+            <div class="ios-step-num">2</div>
+            <div class="ios-step-icon">📋</div>
+            <div class="ios-step-text">Deslizá hacia abajo y tocá <strong>"Agregar a pantalla de inicio"</strong></div>
+        </div>
+        <div class="ios-step">
+            <div class="ios-step-num">3</div>
+            <div class="ios-step-icon">✅</div>
+            <div class="ios-step-text">Tocá <strong>"Agregar"</strong> en la esquina superior derecha</div>
+        </div>
+        <button class="ios-modal-close" onclick="hideIosModal()">Entendido</button>
+    </div>
+</div>
+
+<script>
+    // ── Install logic ──
+    let deferredPrompt = null;
+    const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    const isAndroid = /android/i.test(navigator.userAgent);
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+
+    function showInstallButtons() {
+        if (isStandalone) return; // ya está instalada
+        const wrap = document.getElementById('installWrap');
+        if (!wrap) return;
+        if (isAndroid) {
+            wrap.style.display = 'flex';
+            document.getElementById('btnIos').style.display = 'none';
+        } else if (isIos) {
+            wrap.style.display = 'flex';
+            document.getElementById('btnAndroid').style.display = 'none';
+        }
+    }
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        showInstallButtons();
+    });
+
+    window.installAndroid = async () => {
+        if (!deferredPrompt) return;
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        deferredPrompt = null;
+        if (outcome === 'accepted') {
+            document.getElementById('installWrap').style.display = 'none';
+        }
+    };
+
+    window.showIosModal = () => {
+        document.getElementById('iosOverlay').classList.add('show');
+    };
+    window.hideIosModal = () => {
+        document.getElementById('iosOverlay').classList.remove('show');
+    };
+
+    // Mostrar botón iOS al cargar (no tiene evento beforeinstallprompt)
+    if (isIos && !isStandalone) {
+        showInstallButtons();
+    }
+</script>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
