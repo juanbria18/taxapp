@@ -193,6 +193,68 @@
         .app-footer img{width:16px;border-radius:2px;}
 
         .divider{height:1px;background:var(--border);margin:12px 0;}
+
+        /* ── Offline Toast ── */
+        #offline-toast{
+            position:fixed;
+            bottom:24px;
+            left:50%;
+            transform:translateX(-50%) translateY(0);
+            z-index:9999;
+            display:flex;
+            align-items:center;
+            gap:10px;
+            padding:11px 16px;
+            background:var(--surface);
+            border:0.5px solid #EF9F27;
+            border-left:3px solid #BA7517;
+            border-radius:14px;
+            box-shadow:0 8px 28px rgba(0,0,0,.18);
+            font-size:.8rem;
+            font-weight:700;
+            color:var(--text);
+            white-space:nowrap;
+            pointer-events:none;
+            opacity:0;
+            transition:opacity .35s ease, transform .35s ease;
+            max-width:calc(100vw - 32px);
+        }
+        #offline-toast.show{opacity:1;pointer-events:auto;}
+        #offline-toast.hide{opacity:0;transform:translateX(-50%) translateY(12px);}
+        #offline-dot{width:8px;height:8px;border-radius:50%;background:#BA7517;flex-shrink:0;flex-shrink:0;}
+        #offline-label{display:flex;flex-direction:column;gap:1px;}
+        #offline-label strong{font-size:.82rem;color:var(--text);}
+        #offline-label span{font-size:.7rem;font-weight:600;color:var(--text-sub);}
+
+        /* ── Sync banner (aparece cuando vuelve la conexión y hay pendientes) ── */
+        #sync-banner{
+            display:none;
+            align-items:center;
+            gap:10px;
+            padding:11px 16px;
+            background:rgba(16,185,129,.08);
+            border:0.5px solid var(--success);
+            border-radius:var(--radius-sm);
+            font-size:.8rem;
+            font-weight:700;
+            color:var(--success);
+            margin-bottom:14px;
+            animation:sb-in .3s ease;
+        }
+        @keyframes sb-in{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+        #sync-banner.visible{display:flex;}
+        .sync-spinner{width:14px;height:14px;border-radius:50%;border:2px solid rgba(16,185,129,.3);border-top-color:var(--success);animation:sp .7s linear infinite;flex-shrink:0;}
+        #pending-badge{
+            display:none;
+            background:#BA7517;
+            color:white;
+            font-size:.6rem;
+            font-weight:900;
+            border-radius:20px;
+            padding:2px 7px;
+            margin-left:4px;
+            vertical-align:middle;
+        }
     </style>
     <script>
         if ('serviceWorker' in navigator) {
@@ -201,6 +263,16 @@
     </script>
 </head>
 <body>
+
+<!-- Offline toast -->
+<div id="offline-toast" role="status" aria-live="polite">
+    <div id="offline-dot"></div>
+    <div id="offline-label">
+        <strong>Sin conexión</strong>
+        <span>Los gastos se guardan localmente y se sincronizan al volver</span>
+    </div>
+</div>
+
 <div class="wrap">
 
     <!-- Header -->
@@ -281,6 +353,12 @@
             <div class="code-badge" onclick="copiarCodigo()" style="flex:1;justify-content:center;">🔑 <span id="g-codigo">—</span> · Copiar</div>
             <button class="btn-danger-txt" id="btn-salir-grupo" onclick="abandonarGrupo()" style="font-size:.72rem;background:rgba(239,68,68,.08);border:1.5px solid rgba(239,68,68,.2);border-radius:20px;padding:5px 12px;white-space:nowrap;"><span data-i18n="btn_salir_grupo">🚪 Salir</span></button>
             <button class="btn-danger-txt" id="btn-eliminar-grupo" onclick="eliminarGrupo()" style="display:none;font-size:.72rem;background:rgba(239,68,68,.08);border:1.5px solid rgba(239,68,68,.2);border-radius:20px;padding:5px 12px;white-space:nowrap;"><span data-i18n="btn_eliminar_grupo">🗑️ Eliminar</span></button>
+        </div>
+
+        <!-- Sync banner: aparece cuando hay gastos pendientes de sincronizar -->
+        <div id="sync-banner">
+            <div class="sync-spinner"></div>
+            <span id="sync-text">Sincronizando gastos pendientes…</span>
         </div>
 
         <!-- Tabs -->
@@ -676,6 +754,66 @@ function suscribirGrupo(code) {
         renderGrupo();
     });
     showSection('s-grupo');
+    // Exponer flush para el listener de online del script global
+    window._flushPending = flushPending;
+    // Si ya hay conexión y hay pendientes, sincronizar ahora
+    if (navigator.onLine && getPending().length > 0) {
+        flushPending();
+    }
+    updatePendingBadge();
+}
+
+// ── Cola offline ──
+const PENDING_KEY = 'taxusa_pending_ops';
+
+function getPending() {
+    try { return JSON.parse(localStorage.getItem(PENDING_KEY) || '[]'); } catch(e) { return []; }
+}
+function savePending(ops) {
+    localStorage.setItem(PENDING_KEY, JSON.stringify(ops));
+    updatePendingBadge();
+}
+function updatePendingBadge() {
+    const n = getPending().length;
+    const badge = document.getElementById('pending-badge');
+    if (badge) { badge.textContent = n; badge.style.display = n ? 'inline' : 'none'; }
+}
+function queueOp(op) {
+    const ops = getPending();
+    ops.push(op);
+    savePending(ops);
+}
+
+async function flushPending() {
+    const ops = getPending();
+    if (!ops.empty && ops.length === 0) return;
+    const banner = document.getElementById('sync-banner');
+    const syncText = document.getElementById('sync-text');
+    if (banner) { banner.classList.add('visible'); if(syncText) syncText.textContent = 'Sincronizando ' + ops.length + ' gasto' + (ops.length > 1 ? 's' : '') + ' pendiente' + (ops.length > 1 ? 's' : '') + '…'; }
+    const failed = [];
+    for (const op of ops) {
+        try {
+            if (op.type === 'add_gasto') {
+                await updateDoc(doc(db, 'grupos', op.groupId), { gastos: arrayUnion(op.gasto) });
+            } else if (op.type === 'del_gasto') {
+                const ref = doc(db, 'grupos', op.groupId);
+                const snap = await getDoc(ref);
+                if (snap.exists()) {
+                    const nuevosGastos = snap.data().gastos.filter(g => g.id !== op.gastoId);
+                    await updateDoc(ref, { gastos: nuevosGastos });
+                }
+            }
+        } catch(e) { failed.push(op); }
+    }
+    savePending(failed);
+    if (banner) {
+        if (failed.length === 0) {
+            if(syncText) syncText.textContent = '✅ Todo sincronizado';
+            setTimeout(() => banner.classList.remove('visible'), 2200);
+        } else {
+            if(syncText) syncText.textContent = '⚠️ ' + failed.length + ' gasto' + (failed.length > 1 ? 's' : '') + ' sin sincronizar';
+        }
+    }
 }
 
 // Agregar gasto
@@ -694,11 +832,17 @@ window.agregarGasto = async () => {
     if (currentGroup._demo) {
         currentGroup.data.gastos.push(gasto);
         renderGrupo();
+    } else if (!navigator.onLine) {
+        // Guardar offline: actualizar UI local y encolar para sync
+        currentGroup.data.gastos.push(gasto);
+        renderGrupo();
+        queueOp({ type: 'add_gasto', groupId: currentGroup.id, gasto });
+        showToast('📥 Gasto guardado — se sincronizará al volver la conexión');
     } else {
         await updateDoc(doc(db,'grupos',currentGroup.id),{gastos:arrayUnion(gasto)});
+        showToast('✅ Gasto registrado');
     }
     $('g-desc').value=''; $('g-monto').value='';
-    showToast('✅ Gasto registrado');
 };
 
 window.setCategoria = (cat,el) => {
@@ -771,6 +915,18 @@ window.eliminarGasto = async (gastoId) => {
     if (currentGroup._demo) {
         currentGroup.data.gastos = currentGroup.data.gastos.filter(g=>g.id!==gastoId);
         renderGrupo(); showToast('🗑️ Gasto eliminado');
+        return;
+    }
+    if (!navigator.onLine) {
+        // Remover localmente y encolar para sync
+        currentGroup.data.gastos = currentGroup.data.gastos.filter(g=>g.id!==gastoId);
+        // Si había un add_gasto pendiente para este id, cancelarlo
+        const ops = getPending().filter(op => !(op.type === 'add_gasto' && op.gasto.id === gastoId));
+        // Solo encolar delete si el gasto ya existía en Firestore (no era pendiente local)
+        const wasLocal = getPending().some(op => op.type === 'add_gasto' && op.gasto.id === gastoId);
+        savePending(wasLocal ? ops : [...ops, { type: 'del_gasto', groupId: currentGroup.id, gastoId }]);
+        renderGrupo();
+        showToast('📥 Eliminado localmente — se sincronizará al volver la conexión');
         return;
     }
     try {
@@ -1505,6 +1661,30 @@ setTimeout(()=>{
 })();
 </script>
 <!-- ═══════════════ FIN TAXUSA AI CHAT ═══════════════ -->
+<!-- ── Offline Toast + Auto-sync ── -->
+<script>
+(function(){
+    var toast = document.getElementById('offline-toast');
+
+    function updateStatus() {
+        if (!navigator.onLine) {
+            toast.classList.remove('hide');
+            toast.classList.add('show');
+        } else {
+            toast.classList.remove('show');
+            toast.classList.add('hide');
+            // Intentar flush cuando vuelve la conexión
+            if (typeof window._flushPending === 'function') {
+                window._flushPending();
+            }
+        }
+    }
+
+    window.addEventListener('online',  updateStatus);
+    window.addEventListener('offline', updateStatus);
+    updateStatus();
+})();
+</script>
 
 </body>
 </html>
