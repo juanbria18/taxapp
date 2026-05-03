@@ -175,18 +175,6 @@
         .btn:active { transform: scale(0.97); }
         .btn-primary { background: white; color: black; }
 
-        .lang-switcher {
-            position: fixed; top: 20px; right: 20px;
-            z-index: 100; display: flex; gap: 6px;
-        }
-        .lang-btn {
-            background: var(--surface); border: 1.5px solid var(--border);
-            color: var(--text-sub); border-radius: 8px;
-            padding: 6px 12px; font-family: inherit;
-            font-size: 0.75rem; font-weight: 800;
-            cursor: pointer; letter-spacing: 0.5px;
-            transition: var(--transition);
-        }
         
         .logout-btn {
             position: relative; z-index: 1;
@@ -214,19 +202,6 @@
     </script>
 </head>
 <body>
-
-<!-- Lang selector -->
-<div class="lang-switcher">
-    <button class="lang-btn" id="lbtn-es" onclick="window.setLang('es')">
-        <img src="https://flagcdn.com/w20/ar.png" style="width:16px;vertical-align:middle;border-radius:2px;margin-right:4px;" alt=""> ES
-    </button>
-    <button class="lang-btn" id="lbtn-en" onclick="window.setLang('en')">
-        <img src="https://flagcdn.com/w20/us.png" style="width:16px;vertical-align:middle;border-radius:2px;margin-right:4px;" alt=""> EN
-    </button>
-    <button class="lang-btn" id="lbtn-pt" onclick="window.setLang('pt')">
-        <img src="https://flagcdn.com/w20/br.png" style="width:16px;vertical-align:middle;border-radius:2px;margin-right:4px;" alt=""> PT
-    </button>
-</div>
 
 <h1 class="page-title" id="pageTitle">¿Quién está planificando hoy?</h1>
 
@@ -304,19 +279,9 @@
         if (logoutBtn) logoutBtn.innerText = t.logout;
         const nameInput = document.getElementById('nameInput');
         if (nameInput) nameInput.placeholder = t.namePlaceholder;
-        // Active lang button highlight
-        ['es','en','pt'].forEach(l => {
-            const b = document.getElementById('lbtn-' + l);
-            if (b) { b.style.borderColor = l === lang ? 'var(--primary)' : 'var(--border)'; b.style.color = l === lang ? 'white' : ''; b.style.background = l === lang ? 'var(--primary)' : ''; }
-        });
+
         render();
     }
-
-    window.setLang = (newLang) => {
-        lang = newLang;
-        localStorage.setItem('appLang', lang);
-        applyLang();
-    };
 
     applyLang();
 
