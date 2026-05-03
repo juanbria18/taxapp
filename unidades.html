@@ -660,18 +660,6 @@ window.confirmarPIN = async () => {
     document.getElementById('pinStep2').style.display = 'block';
     setTimeout(() => window.closePinModal(), 2200);
 };
-    const p1 = document.getElementById('pinInput1').value.trim();
-    const p2 = document.getElementById('pinInput2').value.trim();
-    const errEl = document.getElementById('pinError');
-    if (p1.length < 4 || p1 !== p2) {
-        errEl.textContent = errMsgs[lang] || errMsgs.es;
-        errEl.style.display = 'block';
-        document.getElementById('pinInput1').style.borderColor = 'var(--danger)';
-        document.getElementById('pinInput2').style.borderColor = 'var(--danger)';
-        return;
-    }
-    errEl.style.display = 'none';
-};
 window.doLogout = () => signOut(auth).then(() => window.location.replace('login.html'));
 window.doChangeEmail=async()=>{if(!currentUser)return;const l=localStorage.getItem('appLang')||'es',m={es:{p:"Nuevo correo:",s:"Verificación enviada.",e:"Error: "},en:{p:"New email:",s:"Verification sent.",e:"Error: "}},t=m[l],e=prompt(t.p);if(e){try{await verifyBeforeUpdateEmail(currentUser,e);alert(t.s);}catch(er){alert(t.e+er.message);}}};
 window.doChangePassword=async()=>{if(!currentUser)return;const l=localStorage.getItem('appLang')||'es',m={es:{s:"Correo de recuperación enviado.",e:"Error: "},en:{s:"Recovery email sent.",e:"Error: "}},t=m[l];try{await sendPasswordResetEmail(auth,currentUser.email);alert(t.s);}catch(er){alert(t.e+er.message);}};
