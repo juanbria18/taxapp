@@ -1,14 +1,15 @@
 // TaxUSA Service Worker — Cache First para assets estáticos
-const CACHE = 'taxusa-v2';
+const CACHE = 'taxusa-v3';
 const PRECACHE = [
     './login.html',
+    './selector.html',
     './profiles.html',
     './index.html',
     './compras.html',
     './itinerario.html',
     './unidades.html',
-    './comparador.html',
     './tickets.html',
+    './grupo.html',
     './style.css',
     './manifest.json',
     './icon-512.png',
@@ -22,7 +23,6 @@ const OFFLINE_FALLBACK = './index.html';
 self.addEventListener('install', e => {
     e.waitUntil(
         caches.open(CACHE).then(cache =>
-            // allSettled para ignorar archivos que no existan aún
             Promise.allSettled(PRECACHE.map(url => cache.add(url)))
         )
     );
@@ -49,7 +49,8 @@ self.addEventListener('fetch', e => {
         'firebaseapp.com', 'googleapis.com/firestore', 'googleapis.com/identitytoolkit',
         'securetoken.googleapis.com', 'firebaseio.com',
         'corsproxy.io', 'recaptcha', 'gstatic.com/firebasejs',
-        'taxusa-proxy',
+        'taxusa-proxy', 'taxusa.juanbria18.workers.dev',
+        'groq', 'llama',
     ];
     if (networkOnly.some(d => url.href.includes(d))) {
         return;
