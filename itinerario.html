@@ -401,6 +401,7 @@
     <button class="drawer-btn" onclick="location.reload()">🔄 <span data-i18n="btn_refresh">Actualizar App</span></button>
     <button class="drawer-btn" onclick="executeWithToken(changeEmail)">📧 <span data-i18n="btn_change_email">Cambiar Correo</span></button>
     <button class="drawer-btn" onclick="executeWithToken(changePassword)">🔑 <span data-i18n="btn_change_pass">Cambiar Contraseña</span></button>
+    <button class="drawer-btn" onclick="gestionarPIN()">🔢 <span>Cambiar PIN offline</span></button>
     <button class="drawer-btn" onclick="doLogout()">🚪 <span data-i18n="btn_logout">Cerrar Sesión</span></button>
     <div style="margin-top:auto;padding-top:20px;">
         <button class="drawer-btn btn-danger-text" onclick="executeWithToken(deleteAccount)">🗑️ <span data-i18n="btn_delete_acc">Eliminar Cuenta</span></button>
@@ -1011,7 +1012,18 @@ window.removeCustomItem = (customIdx) => {
         localStorage.setItem('theme', next);
     };
     window.changeProfile = () => { localStorage.removeItem('perfilActivoId'); window.location.href = "profiles.html"; };
-    window.doLogout = () => signOut(auth).then(() => window.location.replace("login.html"));
+    window.gestionarPIN = () => {
+    document.getElementById('settingsDrawer').classList.remove('open');
+    document.getElementById('menuOverlay').style.display = 'none';
+    if (!navigator.onLine) {
+        const lang = localStorage.getItem('appLang') || 'es';
+        alert(lang==='en' ? 'You need internet to change your PIN.' : lang==='pt' ? 'Você precisa de internet para alterar o PIN.' : 'Necesitás internet para cambiar el PIN.');
+        return;
+    }
+    localStorage.setItem('taxusa_action', 'change_pin');
+    window.location.href = 'login.html';
+};
+window.doLogout = () => signOut(auth).then(() => window.location.replace("login.html"));
 
     
     window.executeWithToken = (fn) => fn();
