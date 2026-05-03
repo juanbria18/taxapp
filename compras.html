@@ -765,17 +765,32 @@ window.confirmarPIN = async () => {
         return;
     }
     errEl.style.display = 'none';
-    const pinHash = btoa(p1);
-    localStorage.setItem('taxusa_offline_pin', pinHash);
-    // Sync to Firestore
+    // Hash with SHA-256 (same as login.html)
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(p1));
+    const hash = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+    // Cache locally (same key as login.html uses)
+    localStorage.setItem('taxusa_pin_hash', hash);
+    // Sync to Firestore (same field as login.html uses)
     if (currentUser) {
         try {
-            await setDoc(doc(db,'usuarios',currentUser.uid), { offlinePin: pinHash }, { merge: true });
+            await setDoc(doc(db,'usuarios',currentUser.uid), { pinHash: hash }, { merge: true });
         } catch(e) { console.warn('PIN sync error:', e); }
     }
     document.getElementById('pinStep1').style.display = 'none';
     document.getElementById('pinStep2').style.display = 'block';
     setTimeout(() => window.closePinModal(), 2200);
+};
+    const p1 = document.getElementById('pinInput1').value.trim();
+    const p2 = document.getElementById('pinInput2').value.trim();
+    const errEl = document.getElementById('pinError');
+    if (p1.length < 4 || p1 !== p2) {
+        errEl.textContent = errMsgs[lang] || errMsgs.es;
+        errEl.style.display = 'block';
+        document.getElementById('pinInput1').style.borderColor = 'var(--danger)';
+        document.getElementById('pinInput2').style.borderColor = 'var(--danger)';
+        return;
+    }
+    errEl.style.display = 'none';
 };
 window.doLogout=()=>signOut(auth).then(()=>window.location.replace('login.html'));
 window.doChangeEmail=async()=>{if(!currentUser)return;const l=localStorage.getItem('appLang')||'es',m={es:{p:"Ingresá tu nuevo correo:",s:"Verificación enviada.",e:"Error: "},en:{p:"Enter your new email:",s:"Verification sent.",e:"Error: "}},t=m[l],e=prompt(t.p);if(e){try{await verifyBeforeUpdateEmail(currentUser,e);alert(t.s);}catch(er){alert(t.e+er.message);}}};
