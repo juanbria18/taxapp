@@ -42,6 +42,10 @@
             background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(37,99,235,0.15),transparent);
         }
 
+        /* ── SPLASH LOADING STATE ── */
+        .splash-loading .screen,
+        .splash-loading .lang-selector-top { visibility: hidden; }
+
         /* ── LANG SELECTOR ── */
         .lang-selector-top{
             position:fixed;top:16px;right:16px;z-index:100;
@@ -218,8 +222,8 @@
             window._connectivityPromise = null;
             return window._isOnline;
         })();
-        // Arrancar con splash visible mientras esperamos el probe
-        document.documentElement.style.visibility = 'hidden';
+        // El splash ya es visible; ocultar solo el resto del body vía clase
+        document.documentElement.classList.add('splash-loading');
     </script>
 </head>
 <body>
@@ -941,7 +945,7 @@ async function initScreen() {
 }
 
 function hideSplash(callback) {
-    document.documentElement.style.visibility = '';
+    document.documentElement.classList.remove('splash-loading');
     const splash = document.getElementById('splash-screen');
     if (!splash) { if (callback) callback(); return; }
     splash.style.opacity = '0';
@@ -956,7 +960,7 @@ window.addEventListener('offline', () => { if (!document.getElementById('screen-
 
 // ── Offline PIN screen ──
 function showOfflinePinScreen() {
-    document.documentElement.style.visibility = '';
+    document.documentElement.classList.remove('splash-loading');
     const name  = localStorage.getItem('taxusa_cached_name')  || '';
     const foto  = localStorage.getItem('taxusa_cached_foto')  || '';
     const email = localStorage.getItem('taxusa_offline_email') || '';
