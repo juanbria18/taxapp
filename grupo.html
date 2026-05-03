@@ -499,14 +499,12 @@ onAuthStateChanged(auth, async user => {
 
 async function buscarGrupoEnFirestore(uid) {
     try {
-        const q = query(collection(db, 'grupos'), where('miembros', 'array-contains-any', [{ uid }]));
+        const q = query(collection(db, 'grupos'), where('miembroUids', 'array-contains', uid));
         const snap = await getDocs(q);
         if (!snap.empty) {
             const grupos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
             grupos.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
-            // Guardar todos en lista local
             grupos.forEach(g => guardarGrupoEnLista(g.id, g.nombre));
-            // Ir al más reciente si hay uno activo guardado, sino mostrar lobby
             const savedCode = localStorage.getItem('grupoActivo');
             if (savedCode && grupos.find(g=>g.id===savedCode)) {
                 suscribirGrupo(savedCode);
@@ -566,17 +564,12 @@ window.doDeleteAccount = async () => {
 
 window.cambiarApodo = async () => {
     if (!currentUser) { showToast('⚠️ No hay sesión activa'); return; }
-    if (!currentGroup) { showToast('⚠️ Primero ingresá a un grupo'); return; }
-    // Mostrar apodo actual en el grupo (puede diferir del nombre de perfil)
-    const apodoActual = currentGroup._demo
-        ? currentUser.name
-        : (currentGroup.data?.miembros?.find(m=>m.uid===currentUser.uid)?.nombre || currentUser.name);
-    const nuevo = prompt('Nuevo apodo en este grupo:', apodoActual);
+    const nuevo = prompt('Nuevo apodo:', currentUser.name);
     if (!nuevo || !nuevo.trim()) return;
     const nuevoNombre = nuevo.trim();
     try {
-        if (!currentGroup._demo) {
-            // Solo actualizar en Firestore: miembros y gastos de ESTE grupo
+        // Actualizar en Firestore si está en un grupo
+        if (currentGroup && !currentGroup._demo) {
             const ref = doc(db, 'grupos', currentGroup.id);
             const snap = await getDoc(ref);
             if (snap.exists()) {
@@ -589,15 +582,12 @@ window.cambiarApodo = async () => {
                 );
                 await updateDoc(ref, { miembros, gastos });
             }
-        } else {
-            // En demo solo actualizar localmente la vista
-            currentGroup.data.miembros = currentGroup.data.miembros.map(m =>
-                m.uid === currentUser.uid ? { ...m, nombre: nuevoNombre } : m
-            );
-            renderGrupo();
         }
-        // NO tocar perfilActivoNombre ni userEmail — eso es el perfil global
-        showToast('✅ Apodo en el grupo cambiado a ' + nuevoNombre);
+        // Actualizar localmente
+        currentUser.name = nuevoNombre;
+        localStorage.setItem('perfilActivoNombre', nuevoNombre);
+        document.getElementById('userEmail').innerText = nuevoNombre;
+        showToast('✅ Apodo cambiado a ' + nuevoNombre);
         window.toggleSettings();
     } catch(er) { showToast('❌ ' + er.message); }
 };
@@ -618,6 +608,7 @@ window.crearGrupo = async () => {
             nombre, codigo:code, creadoPor:currentUser.uid,
             createdAt:serverTimestamp(),
             miembros:[{uid:currentUser.uid, nombre:apodo}],
+            miembroUids:[currentUser.uid],
             gastos:[]
         });
         currentUser.name = apodo;
@@ -646,7 +637,10 @@ window.unirseGrupo = async () => {
         if (!snap.exists()) { showToast('❌ Código no encontrado'); return; }
         const data = snap.data();
         if (!data.miembros.some(m=>m.uid===currentUser.uid)) {
-            await updateDoc(ref,{miembros:arrayUnion({uid:currentUser.uid, nombre:apodo})});
+            await updateDoc(ref,{
+                miembros: arrayUnion({uid:currentUser.uid, nombre:apodo}),
+                miembroUids: arrayUnion(currentUser.uid)
+            });
         }
         currentUser.name = apodo;
         localStorage.setItem('perfilActivoNombre', apodo);
