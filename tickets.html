@@ -599,18 +599,6 @@ window.confirmarPIN = async () => {
     document.getElementById('pinStep2').style.display = 'block';
     setTimeout(() => window.closePinModal(), 2200);
 };
-    const p1 = document.getElementById('pinInput1').value.trim();
-    const p2 = document.getElementById('pinInput2').value.trim();
-    const errEl = document.getElementById('pinError');
-    if (p1.length < 4 || p1 !== p2) {
-        errEl.textContent = errMsgs[lang] || errMsgs.es;
-        errEl.style.display = 'block';
-        document.getElementById('pinInput1').style.borderColor = 'var(--danger)';
-        document.getElementById('pinInput2').style.borderColor = 'var(--danger)';
-        return;
-    }
-    errEl.style.display = 'none';
-};
 window.doLogout = () => signOut(auth).then(() => window.location.replace('login.html'));
 window.doDeleteAccount = async () => {
     if (!confirm('¿Eliminar cuenta permanentemente?')) return;
