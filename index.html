@@ -769,7 +769,7 @@ window.gestionarPIN = () => {
 window.closePinModal = () => {
     document.getElementById('pinModalOverlay').style.display = 'none';
 };
-window.confirmarPIN = () => {
+window.confirmarPIN = async () => {
     const lang = localStorage.getItem('appLang') || 'es';
     const errMsgs = { es:'Los PINs no coinciden o son muy cortos (mín. 4 dígitos).', en:"PINs don't match or are too short (min. 4 digits).", pt:'Os PINs não coincidem ou são curtos demais (mín. 4 dígitos).' };
     const p1 = document.getElementById('pinInput1').value.trim();
@@ -783,7 +783,11 @@ window.confirmarPIN = () => {
         return;
     }
     errEl.style.display = 'none';
-    localStorage.setItem('taxusa_offline_pin', btoa(p1));
+    // FIX: guardar como SHA-256 en taxusa_pin_hash (misma clave que usa el overlay offline)
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(p1));
+    const hashHex = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+    localStorage.setItem('taxusa_pin_hash', hashHex);
+    localStorage.removeItem('taxusa_offline_pin'); // limpiar clave vieja si existía
     document.getElementById('pinStep1').style.display = 'none';
     document.getElementById('pinStep2').style.display = 'block';
     setTimeout(() => window.closePinModal(), 2200);
@@ -805,10 +809,33 @@ window.doDeleteAccount = async () => {
 };
 
 onAuthStateChanged(auth, async (user) => {
-    if (!user) { window.location.replace('login.html'); return; }
+    // ── OFFLINE: Firebase devuelve null si no puede validar token online.
+    // Si hay un PIN guardado y la sesión fue desbloqueada, permitir continuar. ──
+    if (!user) {
+        const pinHash   = localStorage.getItem('taxusa_pin_hash');
+        const pinEmail  = localStorage.getItem('taxusa_offline_email');
+        const unlocked  = sessionStorage.getItem('offline_unlocked');
+        // Si hay PIN configurado: el overlay offline se encargará de pedirlo (o ya fue desbloqueado)
+        if (pinHash && pinEmail) {
+            // Cargar datos cacheados para mostrar la UI
+            const perfilNombre = localStorage.getItem('perfilActivoNombre');
+            const emailEl = document.getElementById('userEmail');
+            if (emailEl) emailEl.innerText = perfilNombre || pinEmail;
+            const foto = localStorage.getItem('perfilActivoFoto') || '';
+            if (foto) { const btn = document.getElementById('btnSettings'); if(btn){ btn.style.backgroundImage = `url(${foto})`; btn.innerText = ''; } }
+            updateTripUI();
+            // No llamar fetchWeather — sin internet fallará; el overlay mostrará el PIN
+            return;
+        }
+        // Sin PIN ni sesión cacheada → redirigir a login
+        window.location.replace('login.html');
+        return;
+    }
+
     currentUser = user;
-const perfilNombre = localStorage.getItem('perfilActivoNombre');
-document.getElementById('userEmail').innerText = perfilNombre || user.email;    if (!perfilId) { window.location.replace('profiles.html'); return; }
+    const perfilNombre = localStorage.getItem('perfilActivoNombre');
+    document.getElementById('userEmail').innerText = perfilNombre || user.email;
+    if (!perfilId) { window.location.replace('profiles.html'); return; }
 
     const img = perfilFoto || user.photoURL;
     if (img) { const btn = document.getElementById('btnSettings'); btn.style.backgroundImage = `url(${img})`; btn.innerText = ''; }
@@ -1504,7 +1531,7 @@ window.onload = () => {
     async function checkOffline() {
         // Probe real connectivity (navigator.onLine no es confiable en Safari)
         try {
-            await fetch('https://www.gstatic.com/generate_204', { method:'HEAD', cache:'no-store', mode:'no-cors', signal: AbortSignal.timeout(3000) });
+            await fetch('https://www.gstatic.com/generate_204', { method:'HEAD', cache:'no-store', mode:'no-cors', signal: AbortSignal.timeout(1500) });
             return false; // hay internet
         } catch(e) {
             return true; // sin internet
