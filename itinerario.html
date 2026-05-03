@@ -168,6 +168,58 @@
         .divider{height:1px;background:var(--border);margin:14px 0;}
     
         @keyframes pinBoxIn{from{opacity:0;transform:scale(.88) translateY(16px)}to{opacity:1;transform:scale(1) translateY(0)}}
+
+        /* ── Offline Toast ── */
+        #offline-toast{
+            position:fixed;
+            bottom:24px;
+            left:50%;
+            transform:translateX(-50%) translateY(0);
+            z-index:9998;
+            display:flex;
+            align-items:center;
+            gap:10px;
+            padding:11px 16px;
+            background:var(--surface);
+            border:0.5px solid #EF9F27;
+            border-left:3px solid #BA7517;
+            border-radius:14px;
+            box-shadow:0 8px 28px rgba(0,0,0,.18);
+            font-size:.8rem;
+            font-weight:700;
+            color:var(--text);
+            white-space:nowrap;
+            pointer-events:none;
+            opacity:0;
+            transition:opacity .35s ease, transform .35s ease;
+            max-width:calc(100vw - 32px);
+        }
+        #offline-toast.show{opacity:1;pointer-events:auto;}
+        #offline-toast.hide{opacity:0;transform:translateX(-50%) translateY(12px);}
+        #offline-dot{width:8px;height:8px;border-radius:50%;background:#BA7517;flex-shrink:0;}
+        #offline-label{display:flex;flex-direction:column;gap:1px;}
+        #offline-label strong{font-size:.82rem;color:var(--text);}
+        #offline-label span{font-size:.7rem;font-weight:600;color:var(--text-sub);}
+
+        /* ── Sync banner ── */
+        #sync-banner{
+            display:none;
+            align-items:center;
+            gap:10px;
+            padding:11px 16px;
+            background:rgba(16,185,129,.08);
+            border:0.5px solid var(--success);
+            border-radius:var(--radius-sm);
+            font-size:.8rem;
+            font-weight:700;
+            color:var(--success);
+            margin-bottom:14px;
+            animation:sb-in .3s ease;
+        }
+        @keyframes sb-in{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+        #sync-banner.visible{display:flex;}
+        .sync-spinner{width:14px;height:14px;border-radius:50%;border:2px solid rgba(16,185,129,.3);border-top-color:var(--success);animation:sp .7s linear infinite;flex-shrink:0;}
+        @keyframes sp{to{transform:rotate(360deg);}}
     </style>
     <script>
         if ('serviceWorker' in navigator) {
@@ -178,6 +230,16 @@
     </script>
 </head>
 <body>
+
+<!-- Offline toast -->
+<div id="offline-toast" role="status" aria-live="polite">
+    <div id="offline-dot"></div>
+    <div id="offline-label">
+        <strong>Sin conexión</strong>
+        <span>Los cambios se guardan y se sincronizan al volver</span>
+    </div>
+</div>
+
 <div class="wrap">
     <div class="app-header">
         <a href="index.html" class="logo" style="text-decoration:none;">
@@ -214,6 +276,12 @@
         <button class="tab-btn" onclick="switchTab('notas')" id="tab-notas">
             <span class="ti">📝</span><span data-i18n="tab_notes">NOTAS</span>
         </button>
+    </div>
+
+    <!-- Sync banner: aparece cuando hay cambios pendientes de sincronizar -->
+    <div id="sync-banner">
+        <div class="sync-spinner"></div>
+        <span id="sync-text">Sincronizando cambios pendientes…</span>
     </div>
 
     <!-- ═══════ TAB LUGARES ═══════ -->
@@ -733,8 +801,52 @@
         }, 300);
     };
 
+    // ═══ Cola offline ═══
+    const PENDING_KEY = 'taxusa_itin_pending';
+    function getPending() { try { return JSON.parse(localStorage.getItem(PENDING_KEY) || '[]'); } catch(e) { return []; } }
+    function savePending(ops) { localStorage.setItem(PENDING_KEY, JSON.stringify(ops)); }
+    function queueOp(op) { const ops = getPending(); ops.push(op); savePending(ops); }
+
+    async function flushPending() {
+        const ops = getPending();
+        if (!ops.length) return;
+        const banner = document.getElementById('sync-banner');
+        const syncText = document.getElementById('sync-text');
+        if (banner) { banner.classList.add('visible'); if (syncText) syncText.textContent = 'Sincronizando ' + ops.length + ' cambio' + (ops.length > 1 ? 's' : '') + ' pendiente' + (ops.length > 1 ? 's' : '') + '…'; }
+        const failed = [];
+        for (const op of ops) {
+            try {
+                const base = ["usuarios", currentUser.uid, "perfiles", perfilId];
+                if (op.type === 'add_activity') {
+                    await addDoc(collection(db, ...base, "actividades"), op.data);
+                } else if (op.type === 'toggle_activity') {
+                    await updateDoc(doc(db, ...base, "actividades", op.id), { done: op.done });
+                } else if (op.type === 'del_activity') {
+                    await deleteDoc(doc(db, ...base, "actividades", op.id));
+                } else if (op.type === 'add_note') {
+                    await addDoc(collection(db, ...base, "notas"), op.data);
+                } else if (op.type === 'del_note') {
+                    await deleteDoc(doc(db, ...base, "notas", op.id));
+                }
+            } catch(e) { failed.push(op); }
+        }
+        savePending(failed);
+        if (banner) {
+            if (!failed.length) {
+                if (syncText) syncText.textContent = '✅ Todo sincronizado';
+                setTimeout(() => banner.classList.remove('visible'), 2200);
+            } else {
+                if (syncText) syncText.textContent = '⚠️ ' + failed.length + ' cambio' + (failed.length > 1 ? 's' : '') + ' sin sincronizar';
+            }
+        }
+    }
+    window._flushPending = flushPending;
+
     // ═══ Activities ═══
     const typeIconMap = { vuelo:'✈️', hotel:'🏨', parque:'🎡', comida:'🍽️', otro:'📌' };
+
+    // Estado local de actividades para poder operar offline
+    let localActivities = [];
 
     window.addActivity = async () => {
     const nameEl = document.getElementById('actName');
@@ -744,44 +856,60 @@
     const time = document.getElementById('actTime').value;
     const type = document.getElementById('actType').value;
 
-    if (!name || !date) {
-        nameEl.focus();
-        return;
-    }
+    if (!name || !date) { nameEl.focus(); return; }
+
+    const data = { name, date, time: time || '', type, done: false, createdAt: Date.now() };
 
     if (currentUser && perfilId) {
-        try {
-            await addDoc(collection(db, "usuarios", currentUser.uid, "perfiles", perfilId, "actividades"), {
-                name, 
-                date, 
-                time: time || '', 
-                type, 
-                done: false, 
-                createdAt: Date.now() 
-            });
-            
-            nameEl.value = '';
-            dateEl.value = '';
-            document.getElementById('actTime').value = '';
-        } catch(e) { 
-            console.error("Error al guardar actividad:", e);
-            alert("Error al guardar. Reintente.");
+        if (!navigator.onLine) {
+            // Guardar localmente con ID temporal y encolar
+            const tempId = 'tmp_' + Date.now();
+            localActivities.push({ id: tempId, ...data, _pending: true });
+            renderActivities(localActivities);
+            queueOp({ type: 'add_activity', data, tempId });
+            showOfflineToast('📥 Actividad guardada — se sincronizará al volver la conexión');
+        } else {
+            try {
+                await addDoc(collection(db, "usuarios", currentUser.uid, "perfiles", perfilId, "actividades"), data);
+            } catch(e) {
+                console.error("Error al guardar actividad:", e);
+                alert("Error al guardar. Reintente.");
+            }
         }
+        nameEl.value = ''; dateEl.value = ''; document.getElementById('actTime').value = '';
     }
 };
 
     window.toggleActivity = async (id, currentDone) => {
-        if (currentUser && perfilId) {
-            try {
-                await updateDoc(doc(db, "usuarios", currentUser.uid, "perfiles", perfilId, "actividades", id), { done: !currentDone });
-            } catch(e) {}
+        if (!currentUser || !perfilId) return;
+        // Actualizar localmente de inmediato
+        localActivities = localActivities.map(a => a.id === id ? { ...a, done: !currentDone } : a);
+        renderActivities(localActivities);
+        if (!navigator.onLine) {
+            // Si es una actividad pendiente local (tmp_), actualizar la op en cola
+            const ops = getPending().map(op => op.tempId === id ? { ...op, data: { ...op.data, done: !currentDone } } : op);
+            savePending(ops);
+        } else {
+            try { await updateDoc(doc(db, "usuarios", currentUser.uid, "perfiles", perfilId, "actividades", id), { done: !currentDone }); }
+            catch(e) { queueOp({ type: 'toggle_activity', id, done: !currentDone }); }
         }
     };
 
     window.deleteActivity = async (id) => {
         const lang = localStorage.getItem('appLang') || 'es';
-        if (confirm(i18n[lang].confirm_delete)) {
-            await deleteDoc(doc(db, "usuarios", currentUser.uid, "perfiles", perfilId, "actividades", id));
+        if (!confirm(i18n[lang].confirm_delete)) return;
+        // Quitar localmente de inmediato
+        const wasPending = localActivities.find(a => a.id === id)?._pending;
+        localActivities = localActivities.filter(a => a.id !== id);
+        renderActivities(localActivities);
+        if (!navigator.onLine || wasPending) {
+            // Cancelar add pendiente si existe, o encolar delete real
+            const ops = getPending().filter(op => op.tempId !== id);
+            if (!wasPending) ops.push({ type: 'del_activity', id });
+            savePending(ops);
+        } else {
+            try { await deleteDoc(doc(db, "usuarios", currentUser.uid, "perfiles", perfilId, "actividades", id)); }
+            catch(e) { queueOp({ type: 'del_activity', id }); }
         }
     };
 
@@ -863,57 +991,79 @@
     function listenActivities() {
         if (!currentUser || !perfilId) return;
         const q = query(
-        collection(db, "usuarios", currentUser.uid, "perfiles", perfilId, "actividades"), 
-        orderBy("date", "asc")
-    );
-    
-    onSnapshot(q, (sn) => {
-        const acts = sn.docs.map(d => ({ id: d.id, ...d.data() }));
-        renderActivities(acts);
-    }, (error) => {
-        console.error("Error en actividades:", error);
-    });
-}
+            collection(db, "usuarios", currentUser.uid, "perfiles", perfilId, "actividades"), 
+            orderBy("date", "asc")
+        );
+        onSnapshot(q, (sn) => {
+            localActivities = sn.docs.map(d => ({ id: d.id, ...d.data() }));
+            renderActivities(localActivities);
+        }, (error) => {
+            console.error("Error en actividades:", error);
+        });
+    }
 
     // ═══ Notes ═══
+    let localNotes = [];
+
     window.addNote = async () => {
         const input = document.getElementById('noteInput');
         const text = input.value.trim();
-        if (text && currentUser && perfilId) {
+        if (!text || !currentUser || !perfilId) return;
+        const data = { text, createdAt: Date.now() };
+        if (!navigator.onLine) {
+            const tempId = 'tmp_note_' + Date.now();
+            localNotes.unshift({ id: tempId, ...data, _pending: true });
+            renderNotes(localNotes);
+            queueOp({ type: 'add_note', data, tempId });
+            showOfflineToast('📥 Nota guardada — se sincronizará al volver la conexión');
+        } else {
             try {
-                await addDoc(collection(db, "usuarios", currentUser.uid, "perfiles", perfilId, "notas"), { text, createdAt: Date.now() });
-                input.value = "";
+                await addDoc(collection(db, "usuarios", currentUser.uid, "perfiles", perfilId, "notas"), data);
             } catch(e) { console.error(e); }
         }
+        input.value = "";
     };
+
+    function renderNotes(notes) {
+        const lang = localStorage.getItem('appLang') || 'es';
+        const notesList = document.getElementById('notesList');
+        if (!notes.length) { notesList.innerHTML = ''; return; }
+        notesList.innerHTML = notes.map(d => {
+            const ts = d.createdAt ? new Date(d.createdAt).toLocaleDateString(lang === 'en' ? 'en-US' : lang === 'pt' ? 'pt-BR' : 'es-AR') : '';
+            return `
+            <div class="note-item" style="${d._pending ? 'opacity:.7;' : ''}">
+                <div>
+                    <div class="note-text">${d.text}${d._pending ? ' <span style="font-size:.6rem;color:var(--text-dim);">📥</span>' : ''}</div>
+                    ${ts ? `<div class="note-meta">${ts}</div>` : ''}
+                </div>
+                <button class="note-del" onclick="window.deleteNote('${d.id}')">✕</button>
+            </div>`;
+        }).join('');
+    }
 
     function listenNotes() {
         if (!currentUser || !perfilId) return;
         const q = query(collection(db, "usuarios", currentUser.uid, "perfiles", perfilId, "notas"), orderBy("createdAt", "desc"));
         onSnapshot(q, (sn) => {
-            const lang = localStorage.getItem('appLang') || 'es';
-            const notesList = document.getElementById('notesList');
-            if (sn.docs.length === 0) {
-                notesList.innerHTML = '';
-                return;
-            }
-            notesList.innerHTML = sn.docs.map(d => {
-                const ts = d.data().createdAt ? new Date(d.data().createdAt).toLocaleDateString(lang === 'en' ? 'en-US' : lang === 'pt' ? 'pt-BR' : 'es-AR') : '';
-                return `
-                <div class="note-item">
-                    <div>
-                        <div class="note-text">${d.data().text}</div>
-                        ${ts ? `<div class="note-meta">${ts}</div>` : ''}
-                    </div>
-                    <button class="note-del" onclick="window.deleteNote('${d.id}')">✕</button>
-                </div>`;
-            }).join('');
+            localNotes = sn.docs.map(d => ({ id: d.id, ...d.data() }));
+            renderNotes(localNotes);
         });
     }
 
     window.deleteNote = async (id) => {
         const lang = localStorage.getItem('appLang') || 'es';
-        if (confirm(i18n[lang].confirm_delete)) await deleteDoc(doc(db, "usuarios", currentUser.uid, "perfiles", perfilId, "notas", id));
+        if (!confirm(i18n[lang].confirm_delete)) return;
+        const wasPending = localNotes.find(n => n.id === id)?._pending;
+        localNotes = localNotes.filter(n => n.id !== id);
+        renderNotes(localNotes);
+        if (!navigator.onLine || wasPending) {
+            const ops = getPending().filter(op => op.tempId !== id);
+            if (!wasPending) ops.push({ type: 'del_note', id });
+            savePending(ops);
+        } else {
+            try { await deleteDoc(doc(db, "usuarios", currentUser.uid, "perfiles", perfilId, "notas", id)); }
+            catch(e) { queueOp({ type: 'del_note', id }); }
+        }
     };
 
     
@@ -1154,6 +1304,8 @@ window.doLogout = () => signOut(auth).then(() => window.location.replace("login.
             const lang = localStorage.getItem('appLang') || 'es';
             window.changeLanguage(lang);
             setInterval(window.nextTip, 8000);
+            // Si ya hay conexión y hay pendientes del itinerario, sincronizar
+            if (navigator.onLine && getPending().length > 0) flushPending();
         } else { window.location.replace("login.html"); }
     });
 </script>
@@ -1677,5 +1829,38 @@ document.addEventListener('DOMContentLoaded', renderCityGrid);
 })();
 </script>
 <!-- ═══════════════ FIN TAXUSA AI CHAT ═══════════════ -->
+
+<!-- ── Offline Toast + Auto-sync ── -->
+<script>
+(function(){
+    var toast = document.getElementById('offline-toast');
+
+    // Helper accesible desde el módulo
+    window.showOfflineToast = function(msg) {
+        var labelEl = document.querySelector('#offline-label span');
+        if (labelEl && msg) labelEl.textContent = msg;
+    };
+
+    function updateStatus() {
+        if (!navigator.onLine) {
+            toast.classList.remove('hide');
+            toast.classList.add('show');
+            // Restaurar mensaje por defecto
+            var labelEl = document.querySelector('#offline-label span');
+            if (labelEl) labelEl.textContent = 'Los cambios se guardan y se sincronizan al volver';
+        } else {
+            toast.classList.remove('show');
+            toast.classList.add('hide');
+            if (typeof window._flushPending === 'function') {
+                window._flushPending();
+            }
+        }
+    }
+
+    window.addEventListener('online',  updateStatus);
+    window.addEventListener('offline', updateStatus);
+    updateStatus();
+})();
+</script>
 </body>
 </html>
