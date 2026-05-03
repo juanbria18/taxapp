@@ -160,6 +160,30 @@
         @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
         .shake{animation:shake .35s ease;}
 
+        /* Boton eliminar gasto */
+        .gasto-del{background:none;border:none;cursor:pointer;color:var(--text-dim);font-size:1rem;padding:4px 6px;border-radius:6px;transition:var(--tr);flex-shrink:0;}
+        .gasto-del:hover{color:var(--danger);background:rgba(239,68,68,.1);}
+
+        /* Member chip con X */
+        .member-chip{background:var(--surface-2);border:1.5px solid var(--border);border-radius:20px;padding:5px 12px;font-size:.72rem;font-weight:700;color:var(--text-sub);display:inline-flex;align-items:center;gap:6px;}
+        .member-del{background:none;border:none;cursor:pointer;color:var(--text-dim);font-size:.75rem;font-weight:900;padding:0 2px;line-height:1;transition:var(--tr);}
+        .member-del:hover{color:var(--danger);}
+
+        /* Lista de grupos en lobby */
+        .grupos-list{display:flex;flex-direction:column;gap:8px;margin-bottom:14px;}
+        .grupo-item{display:flex;align-items:center;justify-content:space-between;background:var(--surface-2);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;cursor:pointer;transition:var(--tr);}
+        .grupo-item:hover{border-color:var(--primary);}
+        .grupo-item-name{font-weight:800;font-size:.88rem;}
+        .grupo-item-code{font-size:.68rem;color:var(--text-dim);font-weight:700;margin-top:2px;}
+        .grupo-item-btn{background:var(--primary);color:white;border:none;border-radius:8px;padding:6px 12px;font-size:.72rem;font-weight:800;cursor:pointer;font-family:inherit;}
+
+        /* Explanation card */
+        .explain-card{background:rgba(37,99,235,.06);border:1.5px solid rgba(37,99,235,.2);border-radius:var(--radius-sm);padding:14px;margin-top:14px;}
+        .explain-title{font-size:.65rem;font-weight:900;text-transform:uppercase;letter-spacing:.8px;color:var(--primary);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+        .explain-step{display:flex;gap:10px;margin-bottom:8px;align-items:flex-start;}
+        .explain-num{width:20px;height:20px;border-radius:50%;background:var(--primary);color:white;font-size:.6rem;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+        .explain-text{font-size:.74rem;font-weight:600;color:var(--text-sub);line-height:1.4;}
+
         /* Spinner */
         .spinner{width:18px;height:18px;border-radius:50%;border:2.5px solid var(--border);border-top-color:var(--primary);animation:sp .7s linear infinite;flex-shrink:0;}
         @keyframes sp{to{transform:rotate(360deg);}}
@@ -211,6 +235,12 @@
     <!-- S1: Lobby -->
     <div id="s-lobby" class="hidden">
         <button class="demo-chip" onclick="activarDemo()">▶ <span data-i18n="demo_btn">Probar en modo demo — sin cuenta</span></button>
+
+        <!-- Grupos existentes -->
+        <div id="mis-grupos-wrap" class="hidden">
+            <span class="slabel">📂 Mis grupos</span>
+            <div id="mis-grupos-list" class="grupos-list"></div>
+        </div>
 
         <div class="lobby-grid">
             <div class="card" style="margin-bottom:0;">
@@ -306,6 +336,31 @@
                     Algoritmo de transferencias mínimas — la menor cantidad de pagos posible.
                 </p>
                 <div id="balances-cont"><div class="empty-state" data-i18n="empty_data">Sin datos aún</div></div>
+
+                <!-- Explicación del algoritmo -->
+                <div class="explain-card">
+                    <div class="explain-title">💡 ¿Cómo funciona la división?</div>
+                    <div class="explain-step">
+                        <div class="explain-num">1</div>
+                        <div class="explain-text"><strong>Se registra quién pagó</strong> cada gasto y el monto total.</div>
+                    </div>
+                    <div class="explain-step">
+                        <div class="explain-num">2</div>
+                        <div class="explain-text"><strong>Se divide en partes iguales</strong> entre todos los miembros del grupo al momento del gasto.</div>
+                    </div>
+                    <div class="explain-step">
+                        <div class="explain-num">3</div>
+                        <div class="explain-text"><strong>Se calcula el balance</strong> de cada persona: lo que pagó menos lo que le corresponde.</div>
+                    </div>
+                    <div class="explain-step">
+                        <div class="explain-num">4</div>
+                        <div class="explain-text"><strong>Se minimizan las transferencias</strong>: el algoritmo calcula la menor cantidad de pagos posibles para saldar todas las deudas.</div>
+                    </div>
+                    <div style="background:rgba(245,158,11,.1);border:1.5px solid rgba(245,158,11,.3);border-radius:8px;padding:9px 11px;margin-top:10px;">
+                        <span style="font-size:.7rem;font-weight:700;color:#f59e0b;">⚠️ Importante:</span>
+                        <span style="font-size:.7rem;font-weight:600;color:var(--text-sub);"> Si alguien se une o sale del grupo <em>después</em> de que se registraron gastos, esos gastos no se recalculan automáticamente. Verificá el historial si hubo cambios de miembros.</span>
+                    </div>
+                </div>
             </div>
             <div class="card">
                 <span class="slabel" data-i18n="lbl_members">👥 Integrantes</span>
@@ -447,15 +502,25 @@ async function buscarGrupoEnFirestore(uid) {
         const q = query(collection(db, 'grupos'), where('miembros', 'array-contains-any', [{ uid }]));
         const snap = await getDocs(q);
         if (!snap.empty) {
-            // Tomar el grupo más reciente
             const grupos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
             grupos.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
-            suscribirGrupo(grupos[0].id);
+            // Guardar todos en lista local
+            grupos.forEach(g => guardarGrupoEnLista(g.id, g.nombre));
+            // Ir al más reciente si hay uno activo guardado, sino mostrar lobby
+            const savedCode = localStorage.getItem('grupoActivo');
+            if (savedCode && grupos.find(g=>g.id===savedCode)) {
+                suscribirGrupo(savedCode);
+            } else {
+                showSection('s-lobby');
+                cargarMisGrupos();
+            }
         } else {
             showSection('s-lobby');
+            cargarMisGrupos();
         }
     } catch(e) {
         showSection('s-lobby');
+        cargarMisGrupos();
     }
 }
 
@@ -501,12 +566,17 @@ window.doDeleteAccount = async () => {
 
 window.cambiarApodo = async () => {
     if (!currentUser) { showToast('⚠️ No hay sesión activa'); return; }
-    const nuevo = prompt('Nuevo apodo:', currentUser.name);
+    if (!currentGroup) { showToast('⚠️ Primero ingresá a un grupo'); return; }
+    // Mostrar apodo actual en el grupo (puede diferir del nombre de perfil)
+    const apodoActual = currentGroup._demo
+        ? currentUser.name
+        : (currentGroup.data?.miembros?.find(m=>m.uid===currentUser.uid)?.nombre || currentUser.name);
+    const nuevo = prompt('Nuevo apodo en este grupo:', apodoActual);
     if (!nuevo || !nuevo.trim()) return;
     const nuevoNombre = nuevo.trim();
     try {
-        // Actualizar en Firestore si está en un grupo
-        if (currentGroup && !currentGroup._demo) {
+        if (!currentGroup._demo) {
+            // Solo actualizar en Firestore: miembros y gastos de ESTE grupo
             const ref = doc(db, 'grupos', currentGroup.id);
             const snap = await getDoc(ref);
             if (snap.exists()) {
@@ -519,12 +589,15 @@ window.cambiarApodo = async () => {
                 );
                 await updateDoc(ref, { miembros, gastos });
             }
+        } else {
+            // En demo solo actualizar localmente la vista
+            currentGroup.data.miembros = currentGroup.data.miembros.map(m =>
+                m.uid === currentUser.uid ? { ...m, nombre: nuevoNombre } : m
+            );
+            renderGrupo();
         }
-        // Actualizar localmente
-        currentUser.name = nuevoNombre;
-        localStorage.setItem('perfilActivoNombre', nuevoNombre);
-        document.getElementById('userEmail').innerText = nuevoNombre;
-        showToast('✅ Apodo cambiado a ' + nuevoNombre);
+        // NO tocar perfilActivoNombre ni userEmail — eso es el perfil global
+        showToast('✅ Apodo en el grupo cambiado a ' + nuevoNombre);
         window.toggleSettings();
     } catch(er) { showToast('❌ ' + er.message); }
 };
@@ -592,6 +665,7 @@ function suscribirGrupo(code) {
     unsubscribe = onSnapshot(doc(db,'grupos',code), snap=>{
         if (!snap.exists()) return;
         currentGroup = {id:snap.id,data:snap.data()};
+        guardarGrupoEnLista(snap.id, snap.data().nombre);
         renderGrupo();
     });
     showSection('s-grupo');
@@ -629,7 +703,9 @@ window.setCategoria = (cat,el) => {
 window.salirGrupo = () => {
     if (unsubscribe) unsubscribe();
     localStorage.removeItem('grupoActivo');
-    currentGroup=null; showSection('s-lobby');
+    currentGroup=null;
+    showSection('s-lobby');
+    cargarMisGrupos();
 };
 
 window.eliminarGrupo = async () => {
@@ -640,14 +716,91 @@ window.eliminarGrupo = async () => {
     try {
         if (unsubscribe) unsubscribe();
         await deleteDoc(doc(db, 'grupos', currentGroup.id));
+        // Quitar de la lista local
+        const grupos = JSON.parse(localStorage.getItem('misGrupos')||'[]').filter(g=>g.id!==currentGroup.id);
+        localStorage.setItem('misGrupos', JSON.stringify(grupos));
         localStorage.removeItem('grupoActivo');
         currentGroup = null;
         showSection('s-lobby');
+        cargarMisGrupos();
         showToast('🗑️ Grupo eliminado correctamente');
     } catch(e) {
         showToast('❌ Error al eliminar: ' + e.message);
         console.error('[eliminarGrupo]', e);
     }
+};
+
+window.eliminarGasto = async (gastoId) => {
+    if (!currentGroup) return;
+    if (!confirm('¿Eliminar este gasto?')) return;
+    if (currentGroup._demo) {
+        currentGroup.data.gastos = currentGroup.data.gastos.filter(g=>g.id!==gastoId);
+        renderGrupo(); showToast('🗑️ Gasto eliminado');
+        return;
+    }
+    try {
+        const ref = doc(db,'grupos',currentGroup.id);
+        const snap = await getDoc(ref);
+        if (!snap.exists()) return;
+        const nuevosGastos = snap.data().gastos.filter(g=>g.id!==gastoId);
+        await updateDoc(ref,{gastos:nuevosGastos});
+        showToast('🗑️ Gasto eliminado');
+    } catch(e) { showToast('❌ Error: '+e.message); }
+};
+
+window.eliminarMiembro = async (uid) => {
+    if (!currentGroup || currentGroup._demo) { showToast('⚠️ No disponible en modo demo'); return; }
+    if (currentGroup.data.creadoPor !== currentUser.uid) { showToast('❌ Solo el creador puede eliminar miembros'); return; }
+    const miembro = currentGroup.data.miembros.find(m=>m.uid===uid);
+    if (!miembro) return;
+    if (!confirm(`¿Eliminar a "${miembro.nombre}" del grupo?\n\nSus gastos registrados se mantendrán.`)) return;
+    try {
+        const ref = doc(db,'grupos',currentGroup.id);
+        const snap = await getDoc(ref);
+        if (!snap.exists()) return;
+        const nuevosMiembros = snap.data().miembros.filter(m=>m.uid!==uid);
+        await updateDoc(ref,{miembros:nuevosMiembros});
+        showToast(`✅ ${miembro.nombre} eliminado del grupo`);
+    } catch(e) { showToast('❌ Error: '+e.message); }
+};
+
+// ── Múltiples grupos ──
+function guardarGrupoEnLista(id, nombre) {
+    const grupos = JSON.parse(localStorage.getItem('misGrupos')||'[]');
+    if (!grupos.find(g=>g.id===id)) {
+        grupos.unshift({id, nombre});
+        localStorage.setItem('misGrupos', JSON.stringify(grupos.slice(0,10)));
+    }
+}
+
+function cargarMisGrupos() {
+    const grupos = JSON.parse(localStorage.getItem('misGrupos')||'[]');
+    const wrap = $('mis-grupos-wrap');
+    const lista = $('mis-grupos-list');
+    if (!wrap || !lista) return;
+    if (!grupos.length) { wrap.classList.add('hidden'); return; }
+    wrap.classList.remove('hidden');
+    lista.innerHTML = grupos.map(g=>`
+        <div class="grupo-item" onclick="volverAGrupo('${g.id}')">
+            <div>
+                <div class="grupo-item-name">✈️ ${g.nombre}</div>
+                <div class="grupo-item-code">${g.id}</div>
+            </div>
+            <button class="grupo-item-btn">Abrir</button>
+        </div>`).join('');
+}
+
+window.volverAGrupo = async (id) => {
+    try {
+        const snap = await getDoc(doc(db,'grupos',id));
+        if (snap.exists()) { suscribirGrupo(id); }
+        else {
+            showToast('❌ Grupo no encontrado');
+            const grupos = JSON.parse(localStorage.getItem('misGrupos')||'[]').filter(g=>g.id!==id);
+            localStorage.setItem('misGrupos', JSON.stringify(grupos));
+            cargarMisGrupos();
+        }
+    } catch(e) { showToast('❌ Error al abrir grupo'); }
 };
 
 window.copiarCodigo = () => {
@@ -674,21 +827,28 @@ function renderGrupo() {
     ).join('');
 
     const lista=$('lista-gastos');
+    const esCreador = currentUser && creadoPor === currentUser.uid;
     if (!gastos.length) {
         lista.innerHTML=`<div class="empty-state">${(i18n[localStorage.getItem('appLang')||'es']||i18n.es).empty_expenses}</div>`;
     } else {
         lista.innerHTML=[...gastos].reverse().map(g=>`
-            <div class="gasto-item">
+            <div class="gasto-item" id="gasto-${g.id}">
                 <div class="gasto-emoji">${catEmoji(g.cat)}</div>
                 <div class="gasto-body">
                     <div class="gasto-desc">${g.desc}</div>
                     <div class="gasto-meta">${g.pagadorNombre} · ${g.fecha}</div>
                 </div>
                 <div class="gasto-monto">${fmt(g.monto)}</div>
+                <button class="gasto-del" onclick="eliminarGasto('${g.id}')" title="Eliminar gasto">🗑️</button>
             </div>`).join('');
     }
 
-    $('members-list').innerHTML=miembros.map(m=>`<span class="member-chip">👤 ${m.nombre}</span>`).join('');
+    // Members con botón eliminar (solo creador, no puede eliminarse a sí mismo)
+    $('members-list').innerHTML=miembros.map(m=>{
+        const puedeEliminar = esCreador && m.uid !== currentUser.uid && !currentGroup._demo;
+        return `<span class="member-chip">👤 ${m.nombre}${puedeEliminar ? `<button class="member-del" onclick="eliminarMiembro('${m.uid}')" title="Eliminar miembro">✕</button>` : ''}</span>`;
+    }).join('');
+
     renderBalances(miembros,gastos);
     renderResumen(miembros,gastos);
 }
