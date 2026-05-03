@@ -330,7 +330,7 @@
     <button class="drawer-btn" onclick="location.reload()">🔄 <span data-i18n="btn_update">Actualizar App</span></button>
     <button class="drawer-btn" onclick="doChangeEmail()">📧 <span data-i18n="btn_email">Cambiar Correo</span></button>
     <button class="drawer-btn" onclick="doChangePassword()">🔑 <span data-i18n="btn_password">Cambiar Contraseña</span></button>
-    <button class="drawer-btn" onclick="gestionarPIN()">🔢 <span>Cambiar PIN offline</span></button>
+    <button class="drawer-btn" onclick="doChangePassword()">🔢 <span data-i18n="btn_pin">Cambiar PIN Offline</span></button>
     <button class="drawer-btn" onclick="doLogout()">🚪 <span data-i18n="btn_logout">Cerrar Sesión</span></button>
     <div style="margin-top:auto;padding-top:16px;">
         <button class="drawer-btn btn-danger" onclick="doDeleteAccount()">🗑️ <span data-i18n="btn_delete">Eliminar Cuenta</span></button>
@@ -365,7 +365,7 @@ const i18n = {
         label_converters:"Conversores",
         grp_temp:"Clima / Temperatura", grp_speed:"Velocidad y Distancia",
         grp_weight:"Peso — Valija / Supermercado", grp_oz:"Onzas — Comida / Paquetes",
-        grp_liquid:"Combustible y Bebidas", grp_length:"Estatura / Objetos",
+        grp_liquid:"Combustible y Bebidas", grp_length:"Estatura / Objetos", btn_pin: "Cambiar PIN Offline",
         tip_temp:"🌞 Temperatura agradable: 68-77°F (20-25°C). Bajo 32°F (0°C) es congelamiento.",
         tip_speed:"⚠️ Límites comunes: 25-35 mph (ciudad) | 65-70 mph (autopista)",
         tip_weight:"✈️ El límite de equipaje suele ser 50 lbs = 23 kg.",
@@ -384,7 +384,7 @@ const i18n = {
         label_converters:"Converters",
         grp_temp:"Weather / Temperature", grp_speed:"Speed & Distance",
         grp_weight:"Weight — Luggage / Grocery", grp_oz:"Ounces — Food / Packages",
-        grp_liquid:"Fuel & Drinks", grp_length:"Height / Objects",
+        grp_liquid:"Fuel & Drinks", grp_length:"Height / Objects", btn_pin: "Change PIN Offline",
         tip_temp:"🌞 Comfortable: 68-77°F (20-25°C). Below 32°F (0°C) is freezing.",
         tip_speed:"⚠️ Common limits: 25-35 mph (city) | 65-70 mph (highway)",
         tip_weight:"✈️ Luggage limit is usually 50 lbs = 23 kg.",
@@ -403,7 +403,7 @@ const i18n = {
         label_converters:"Conversores",
         grp_temp:"Clima / Temperatura", grp_speed:"Velocidade e Distância",
         grp_weight:"Peso — Mala / Supermercado", grp_oz:"Onças — Comida / Pacotes",
-        grp_liquid:"Combustível e Bebidas", grp_length:"Altura / Objetos",
+        grp_liquid:"Combustível e Bebidas", grp_length:"Altura / Objetos", btn_pin: "Alterar PIN Offline",
         tip_temp:"🌞 Temperatura agradável: 68-77°F (20-25°C). Abaixo de 32°F (0°C) é congelamento.",
         tip_speed:"⚠️ Limites comuns: 25-35 mph (cidade) | 65-70 mph (rodovia)",
         tip_weight:"✈️ O limite de bagagem costuma ser 50 lbs = 23 kg.",
