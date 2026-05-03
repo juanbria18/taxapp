@@ -202,6 +202,25 @@
             window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
         }
     </script>
+    <script>
+        // Lanzar probe de conectividad LO ANTES POSIBLE — antes que Firebase
+        // Así cuando onAuthStateChanged dispare, la promise ya está resuelta o en vuelo
+        window._connectivityPromise = (async () => {
+            try {
+                await fetch('https://www.gstatic.com/generate_204', {
+                    method: 'HEAD', cache: 'no-store', mode: 'no-cors',
+                    signal: AbortSignal.timeout(1500)
+                });
+                window._isOnline = true;
+            } catch(e) {
+                window._isOnline = false;
+            }
+            window._connectivityPromise = null;
+            return window._isOnline;
+        })();
+        // Arrancar con todas las pantallas ocultas hasta saber el estado de red
+        document.documentElement.style.visibility = 'hidden';
+    </script>
 </head>
 <body>
 
@@ -583,31 +602,31 @@ async function sha256(str) {
     return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
 }
 
-// navigator.onLine is unreliable on Safari/PWA — use a real fetch probe
-let _isOnline = navigator.onLine; // initial guess, refined below
-let _connectivityPromise = null;  // shared promise — avoids race condition
+// Probe lanzado desde <head> — usar window globals para compartir con Firebase
+// que puede disparar onAuthStateChanged antes de que este módulo ejecute
+function isOnline() { return window._isOnline === true; }
 
 async function checkRealConnectivity() {
-    // Return the in-flight probe if one is already running
-    if (_connectivityPromise) return _connectivityPromise;
-    _connectivityPromise = (async () => {
+    // Si el probe del <head> todavía está en vuelo, esperarlo
+    if (window._connectivityPromise) return window._connectivityPromise;
+    // Si ya resolvió, retornar el resultado directo
+    if (window._isOnline !== undefined) return window._isOnline;
+    // Fallback: lanzar uno nuevo (no debería llegar acá)
+    window._connectivityPromise = (async () => {
         try {
-            // 1.5 s timeout — fast enough to decide before Firebase fires
             await fetch('https://www.gstatic.com/generate_204', {
                 method: 'HEAD', cache: 'no-store', mode: 'no-cors',
                 signal: AbortSignal.timeout(1500)
             });
-            _isOnline = true;
+            window._isOnline = true;
         } catch(e) {
-            _isOnline = false;
+            window._isOnline = false;
         }
-        _connectivityPromise = null; // reset so next call re-probes
-        return _isOnline;
+        window._connectivityPromise = null;
+        return window._isOnline;
     })();
-    return _connectivityPromise;
+    return window._connectivityPromise;
 }
-
-function isOnline() { return _isOnline; }
 
 function showScreen(id) {
     document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
@@ -713,10 +732,13 @@ window.resetPassword = async () => {
 
 // ── Auth state ──
 onAuthStateChanged(auth, async (user) => {
-    if (!user) return; // not logged in — stay on login screen
+    if (!user) {
+        // No hay sesión — revelar UI y quedarse en login
+        document.documentElement.style.visibility = '';
+        return;
+    }
 
-    // Wait for the shared connectivity probe (started by initScreen).
-    // If initScreen already resolved it, this returns instantly.
+    // Esperar el probe del <head> — compartido con initScreen
     await checkRealConnectivity();
 
     // ── If offline: Firebase fires this with cached user. Block goToApp and show PIN instead. ──
@@ -775,8 +797,11 @@ function goToApp() {
 async function initScreen() {
     applyLanguage(currentLang);
 
-    // navigator.onLine is unreliable on Safari/PWA — verify with a real probe
+    // Esperar el probe que se lanzó en <head> — ya debería estar resuelto
     await checkRealConnectivity();
+
+    // Revelar la UI ahora que sabemos el estado de red
+    document.documentElement.style.visibility = '';
 
     if (isOnline()) {
         showScreen('screen-login');
