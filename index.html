@@ -683,7 +683,7 @@ window.closePinModal = () => {
 };
 document.addEventListener('keydown', function(e){ if(e.key==='Escape' && document.getElementById('pinModalOverlay').style.display==='flex') window.closePinModal(); });
 
-window.confirmarPIN = () => {
+window.confirmarPIN = async () => {
     const lang = localStorage.getItem('appLang') || 'es';
     const errMsgs = { es:'Los PINs no coinciden o son muy cortos (mín. 4 dígitos).', en:"PINs don't match or are too short (min. 4 digits).", pt:'Os PINs não coincidem ou são curtos demais (mín. 4 dígitos).' };
     const p1 = document.getElementById('pinInput1').value.trim();
@@ -697,7 +697,14 @@ window.confirmarPIN = () => {
         return;
     }
     errEl.style.display = 'none';
-    localStorage.setItem('taxusa_offline_pin', btoa(p1));
+    const pinHash = btoa(p1);
+    localStorage.setItem('taxusa_offline_pin', pinHash);
+    // Sync to Firestore
+    if (currentUser) {
+        try {
+            await setDoc(doc(db,'usuarios',currentUser.uid), { offlinePin: pinHash }, { merge: true });
+        } catch(e) { console.warn('PIN sync error:', e); }
+    }
     document.getElementById('pinStep1').style.display = 'none';
     document.getElementById('pinStep2').style.display = 'block';
     setTimeout(() => window.closePinModal(), 2200);
