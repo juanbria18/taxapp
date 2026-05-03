@@ -197,7 +197,7 @@
         <a href="index.html"      class="btn-nav"><span class="ni">🏠</span><span data-i18n="nav_home">INICIO</span></a>
         <a href="compras.html"    class="btn-nav"><span class="ni">🛍️</span><span data-i18n="nav_expenses">GASTOS</span></a>
         <a href="itinerario.html" class="btn-nav"><span class="ni">📍</span><span data-i18n="nav_itinerary">ITINERARIO</span></a>
-        <a href="unidades.html"   class="btn-nav"><span class="ni">⚖️</span><span data-i18n="nav_units">UNIDADES</span></a>
+        <a href="unidades.html"   class="btn-nav"><span class="ni">📐</span><span data-i18n="nav_units">UNIDADES</span></a>
         <a href="tickets.html"    class="btn-nav"><span class="ni">📄</span><span data-i18n="nav_tickets">TICKETS</span></a>
         <button class="btn-nav-set" id="btnSettings" onclick="toggleSettings()"></button>
     </nav>
@@ -338,6 +338,7 @@
         <button class="lang-opt" id="lang-pt" onclick="window.changeLanguage('pt')"><img src="https://flagcdn.com/w20/br.png" alt=""> PT</button>
     </div>
     <button class="drawer-btn" onclick="changeProfile()">👤 <span data-i18n="btn_change_profile">Cambiar Perfil</span></button>
+    <button class="drawer-btn" onclick="cambiarApodo()">✏️ <span data-i18n="btn_apodo">Cambiar Apodo</span></button>
     <button class="drawer-btn" onclick="toggleDarkMode()">🌓 <span data-i18n="btn_theme">Cambiar Tema</span></button>
     <button class="drawer-btn" onclick="location.reload()">🔄 <span data-i18n="btn_update">Actualizar App</span></button>
     <button class="drawer-btn" onclick="doChangeEmail()">📧 <span data-i18n="btn_email">Cambiar Correo</span></button>
@@ -354,8 +355,8 @@
 <script type="module">
 import { initializeApp }        from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import {
-    getFirestore, doc, setDoc, getDoc, updateDoc,
-    arrayUnion, onSnapshot, serverTimestamp
+    getFirestore, doc, setDoc, getDoc, updateDoc, deleteDoc,
+    arrayUnion, onSnapshot, serverTimestamp, query, collection, where, getDocs
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { getAuth, onAuthStateChanged, signOut, sendPasswordResetEmail, deleteUser, verifyBeforeUpdateEmail }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
@@ -408,22 +409,17 @@ onAuthStateChanged(auth, async user => {
         const perfilNombre = localStorage.getItem('perfilActivoNombre');
         document.getElementById('userEmail').innerText = perfilNombre || user.email;
 
-        // Restaurar grupo guardado
+        // 1. Intentar restaurar desde localStorage
         const savedCode = localStorage.getItem('grupoActivo');
         if (savedCode) {
             try {
                 const snap = await getDoc(doc(db, 'grupos', savedCode));
-                if (snap.exists()) {
-                    suscribirGrupo(savedCode);
-                } else {
-                    localStorage.removeItem('grupoActivo');
-                    showSection('s-lobby');
-                }
-            } catch(e) {
-                showSection('s-lobby');
-            }
+                if (snap.exists()) { suscribirGrupo(savedCode); }
+                else { localStorage.removeItem('grupoActivo'); buscarGrupoEnFirestore(user.uid); }
+            } catch(e) { buscarGrupoEnFirestore(user.uid); }
         } else {
-            showSection('s-lobby');
+            // 2. Si no hay en localStorage, buscar en Firestore grupos donde está el usuario
+            buscarGrupoEnFirestore(user.uid);
         }
     } else {
         currentUser = null;
@@ -439,7 +435,92 @@ onAuthStateChanged(auth, async user => {
     window.changeLanguage(lang);
 });
 
-// Crear grupo
+async function buscarGrupoEnFirestore(uid) {
+    try {
+        const q = query(collection(db, 'grupos'), where('miembros', 'array-contains-any', [{ uid }]));
+        const snap = await getDocs(q);
+        if (!snap.empty) {
+            // Tomar el grupo más reciente
+            const grupos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            grupos.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+            suscribirGrupo(grupos[0].id);
+        } else {
+            showSection('s-lobby');
+        }
+    } catch(e) {
+        showSection('s-lobby');
+    }
+}
+
+// ── Funciones del drawer (dentro del módulo para acceder a auth/db) ──
+window.changeProfile = () => { localStorage.removeItem('perfilActivoId'); window.location.href = 'profiles.html'; };
+
+window.doLogout = () => {
+    signOut(auth).then(() => {
+        window.location.replace('login.html');
+    }).catch(er => showToast('❌ ' + er.message));
+};
+
+window.doChangeEmail = async () => {
+    const firebaseUser = auth.currentUser;
+    if (!firebaseUser) { showToast('⚠️ No hay sesión activa'); return; }
+    const e = prompt('Nuevo correo:');
+    if (!e) return;
+    try {
+        await verifyBeforeUpdateEmail(firebaseUser, e);
+        showToast('📧 Verificación enviada a ' + e);
+    } catch(er) { showToast('❌ ' + er.message); }
+};
+
+window.doChangePassword = async () => {
+    const firebaseUser = auth.currentUser;
+    if (!firebaseUser) { showToast('⚠️ No hay sesión activa'); return; }
+    try {
+        await sendPasswordResetEmail(auth, firebaseUser.email);
+        showToast('🔑 Correo de recuperación enviado');
+    } catch(er) { showToast('❌ ' + er.message); }
+};
+
+window.doDeleteAccount = async () => {
+    const firebaseUser = auth.currentUser;
+    if (!firebaseUser) return;
+    if (!confirm('¿Eliminar cuenta permanentemente?')) return;
+    try {
+        await deleteDoc(doc(db, 'usuarios', firebaseUser.uid));
+        await deleteUser(firebaseUser);
+        window.location.replace('login.html');
+    } catch(er) { showToast('❌ Reautenticación requerida'); }
+};
+
+window.cambiarApodo = async () => {
+    if (!currentUser) { showToast('⚠️ No hay sesión activa'); return; }
+    const nuevo = prompt('Nuevo apodo:', currentUser.name);
+    if (!nuevo || !nuevo.trim()) return;
+    const nuevoNombre = nuevo.trim();
+    try {
+        // Actualizar en Firestore si está en un grupo
+        if (currentGroup && !currentGroup._demo) {
+            const ref = doc(db, 'grupos', currentGroup.id);
+            const snap = await getDoc(ref);
+            if (snap.exists()) {
+                const data = snap.data();
+                const miembros = data.miembros.map(m =>
+                    m.uid === currentUser.uid ? { ...m, nombre: nuevoNombre } : m
+                );
+                const gastos = data.gastos.map(g =>
+                    g.pagadorUid === currentUser.uid ? { ...g, pagadorNombre: nuevoNombre } : g
+                );
+                await updateDoc(ref, { miembros, gastos });
+            }
+        }
+        // Actualizar localmente
+        currentUser.name = nuevoNombre;
+        localStorage.setItem('perfilActivoNombre', nuevoNombre);
+        document.getElementById('userEmail').innerText = nuevoNombre;
+        showToast('✅ Apodo cambiado a ' + nuevoNombre);
+        window.toggleSettings();
+    } catch(er) { showToast('❌ ' + er.message); }
+};
 window.crearGrupo = async () => {
     const nombre = $('inp-nombre').value.trim();
     if (!nombre) { shake('btn-crear'); showToast('⚠️ Escribí un nombre para el viaje'); return; }
@@ -677,28 +758,12 @@ window.toggleDarkMode = () => {
     document.documentElement.setAttribute('data-theme', next);
     localStorage.setItem('theme', next);
 };
-window.changeProfile = () => { localStorage.removeItem('perfilActivoId'); window.location.href = 'profiles.html'; };
-window.doLogout = () => signOut(auth).then(() => window.location.replace('login.html'));
-window.doChangeEmail = async () => {
-    if (!currentUser) return;
-    const e = prompt('Nuevo correo:');
-    if (e) { try { await verifyBeforeUpdateEmail(currentUser, e); alert('Verificación enviada.'); } catch(er) { alert(er.message); } }
-};
-window.doChangePassword = async () => {
-    if (!currentUser) return;
-    try { await sendPasswordResetEmail(auth, currentUser.email); alert('Correo de recuperación enviado.'); } catch(er) { alert(er.message); }
-};
-window.doDeleteAccount = async () => {
-    if (!confirm('¿Eliminar cuenta permanentemente?')) return;
-    try { await deleteDoc(doc(db, 'usuarios', currentUser.uid)); await deleteUser(currentUser); window.location.replace('login.html'); }
-    catch(e) { alert('Reautenticación requerida.'); }
-};
 const i18n = {
     es: {
         nav_home:'INICIO', nav_expenses:'GASTOS', nav_itinerary:'ITINERARIO',
         nav_units:'UNIDADES', nav_tickets:'TICKETS',
         settings_title:'Ajustes', label_language:'Idioma',
-        btn_change_profile:'Cambiar Perfil', btn_theme:'Cambiar Tema',
+        btn_change_profile:'Cambiar Perfil', btn_apodo:'Cambiar Apodo', btn_theme:'Cambiar Tema',
         btn_update:'Actualizar App', btn_email:'Cambiar Correo',
         btn_password:'Cambiar Contraseña', btn_logout:'Cerrar Sesión', btn_delete:'Eliminar Cuenta',
         demo_btn:'Probar en modo demo — sin cuenta',
@@ -720,7 +785,7 @@ const i18n = {
         nav_home:'HOME', nav_expenses:'EXPENSES', nav_itinerary:'ITINERARY',
         nav_units:'UNITS', nav_tickets:'TICKETS',
         settings_title:'Settings', label_language:'Language',
-        btn_change_profile:'Change Profile', btn_theme:'Toggle Theme',
+        btn_change_profile:'Change Profile', btn_apodo:'Change Nickname', btn_theme:'Toggle Theme',
         btn_update:'Update App', btn_email:'Change Email',
         btn_password:'Change Password', btn_logout:'Sign Out', btn_delete:'Delete Account',
         demo_btn:'Try demo mode — no account needed',
@@ -742,7 +807,7 @@ const i18n = {
         nav_home:'INÍCIO', nav_expenses:'GASTOS', nav_itinerary:'ITINERÁRIO',
         nav_units:'UNIDADES', nav_tickets:'TICKETS',
         settings_title:'Configurações', label_language:'Idioma',
-        btn_change_profile:'Mudar Perfil', btn_theme:'Mudar Tema',
+        btn_change_profile:'Mudar Perfil', btn_apodo:'Mudar Apelido', btn_theme:'Mudar Tema',
         btn_update:'Atualizar App', btn_email:'Mudar E-mail',
         btn_password:'Mudar Senha', btn_logout:'Sair', btn_delete:'Excluir Conta',
         demo_btn:'Testar modo demo — sem conta',
@@ -787,6 +852,419 @@ setTimeout(()=>{
     }
 },2000);
 </script>
+
+<!-- ═══════════════ TAXUSA AI CHAT ═══════════════ -->
+<style>
+#ai-bubble {
+    position: fixed; bottom: 24px; left: 20px; z-index: 3000;
+    width: 56px; height: 56px; border-radius: 50%; border: none; cursor: pointer;
+    background: linear-gradient(135deg,#2563eb,#1d4ed8);
+    box-shadow: 0 4px 20px rgba(37,99,235,0.45);
+    display: flex; align-items: center; justify-content: center;
+    transition: transform .2s, box-shadow .2s;
+}
+#ai-bubble:hover { transform: scale(1.08); box-shadow: 0 6px 28px rgba(37,99,235,0.55); }
+#ai-bubble:active { transform: scale(0.95); }
+#ai-bubble svg { width: 26px; height: 26px; }
+#ai-badge {
+    position:absolute; top:6px; right:6px; width:10px; height:10px;
+    background:#22c55e; border-radius:50%; border:2px solid #1e3a8a; display:none;
+}
+#ai-chat {
+    position: fixed; bottom: 88px; left: 16px; z-index: 2999;
+    width: min(360px, calc(100vw - 32px));
+    width: 340px; max-height: 520px; border-radius: 16px; overflow: hidden;
+    display: none; flex-direction: column;
+    background: var(--card, #1e293b);
+    box-shadow: 0 8px 40px rgba(0,0,0,0.45);
+    border: 1px solid var(--border, #334155);
+    animation: chatIn 0.25s cubic-bezier(0.34,1.56,0.64,1);
+}
+#ai-chat.open { display: flex; }
+@keyframes chatIn {
+    from { opacity:0; transform:translateY(16px) scale(0.96); }
+    to   { opacity:1; transform:translateY(0)   scale(1); }
+}
+#ai-header {
+    display:flex; align-items:center; gap:10px; padding:12px 14px;
+    background: linear-gradient(135deg,#2563eb,#1d4ed8); flex-shrink:0;
+}
+#ai-header svg { width:22px; height:22px; flex-shrink:0; }
+.ai-header-text { flex:1; }
+.ai-header-title { font-size:0.9rem; font-weight:800; color:white; line-height:1; }
+.ai-header-sub   { font-size:0.65rem; color:rgba(255,255,255,0.75); font-weight:600; margin-top:2px; }
+#ai-close {
+    background:rgba(255,255,255,0.15); border:none; color:white; cursor:pointer;
+    width:24px; height:24px; border-radius:50%; font-size:0.75rem; display:flex;
+    align-items:center; justify-content:center; transition:background .15s;
+}
+#ai-close:hover { background:rgba(255,255,255,0.3); }
+#ai-messages {
+    flex:1; overflow-y:auto; padding:12px 12px 4px; display:flex;
+    flex-direction:column; gap:8px; scroll-behavior:smooth;
+}
+#ai-messages::-webkit-scrollbar { width:4px; }
+#ai-messages::-webkit-scrollbar-track { background:transparent; }
+#ai-messages::-webkit-scrollbar-thumb { background:var(--border,#334155); border-radius:4px; }
+.ai-msg {
+    max-width:88%; padding:9px 12px; border-radius:12px; font-size:0.82rem;
+    line-height:1.5; word-break:break-word; animation:msgIn .18s ease;
+}
+@keyframes msgIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none} }
+.ai-msg.user {
+    align-self:flex-end; background:#2563eb; color:white; border-bottom-right-radius:4px;
+}
+.ai-msg.bot {
+    align-self:flex-start; background:var(--hover,#273548); color:var(--text,#e2e8f0);
+    border-bottom-left-radius:4px;
+}
+.ai-msg.bot ul  { margin:4px 0 4px 0; padding-left:18px; }
+.ai-msg.bot li  { margin:2px 0; }
+.ai-msg.bot p   { margin:4px 0; }
+.ai-msg.bot strong { color:#93c5fd; }
+.ai-msg.bot h3  { font-size:0.85rem; font-weight:700; margin:6px 0 2px; color:#93c5fd; }
+.ai-msg.bot a   { color:#60a5fa; text-decoration:underline; }
+.ai-msg.bot.typing {
+    display:flex; gap:5px; align-items:center; padding:10px 14px;
+}
+.ai-dot {
+    width:7px; height:7px; background:var(--muted,#64748b); border-radius:50%;
+    animation:dot .9s infinite ease-in-out;
+}
+.ai-dot:nth-child(2){animation-delay:.18s}
+.ai-dot:nth-child(3){animation-delay:.36s}
+@keyframes dot { 0%,80%,100%{transform:scale(0.7);opacity:.5} 40%{transform:scale(1);opacity:1} }
+#ai-suggestions {
+    display:flex; gap:6px; flex-wrap:wrap; padding:6px 10px 2px; flex-shrink:0;
+}
+.ai-chip {
+    background:var(--hover,#273548); border:1px solid var(--border,#334155);
+    color:var(--text,#e2e8f0); border-radius:20px; padding:4px 10px; font-size:0.72rem;
+    cursor:pointer; transition:background .15s, transform .1s; white-space:nowrap;
+}
+.ai-chip:hover { background:var(--border,#334155); transform:scale(1.04); }
+#ai-input-area {
+    display:flex; gap:6px; padding:10px; border-top:1px solid var(--border,#334155);
+    flex-shrink:0; background:var(--card,#1e293b);
+}
+#ai-input {
+    flex:1; background:var(--hover,#273548); border:1px solid var(--border,#334155);
+    border-radius:10px; padding:8px 12px; color:var(--text,#e2e8f0); font-size:0.83rem;
+    resize:none; outline:none; line-height:1.4; max-height:80px; overflow-y:auto; font-family:inherit;
+}
+#ai-input:focus { border-color:#2563eb; }
+#ai-send {
+    width:36px; height:36px; border-radius:10px; border:none; background:#2563eb;
+    cursor:pointer; display:flex; align-items:center; justify-content:center;
+    transition:background .15s, transform .1s; flex-shrink:0; align-self:flex-end;
+}
+#ai-send:hover { background:#1d4ed8; transform:scale(1.05); }
+#ai-send:disabled { background:var(--border,#334155); cursor:not-allowed; transform:none; }
+#ai-send svg { width:16px; fill:white; }
+</style>
+
+<button id="ai-bubble" aria-label="Taxie — Asistente de viaje">
+    <span id="ai-badge"></span>
+    <svg viewBox="0 0 32 32" fill="none">
+        <rect width="32" height="32" rx="8" fill="white" fill-opacity="0.15"/>
+        <rect x="0" y="10" width="32" height="4" fill="#ef4444" opacity="0.9"/>
+        <rect x="0" y="18" width="32" height="4" fill="#ef4444" opacity="0.9"/>
+        <polygon points="16,4 18.4,11 26,11 20,15.5 22.4,22.5 16,18 9.6,22.5 12,15.5 6,11 13.6,11" fill="#ffffff"/>
+    </svg>
+</button>
+
+<div id="ai-chat">
+    <div id="ai-header">
+        <svg viewBox="0 0 32 32" fill="none">
+            <rect x="0" y="10" width="32" height="4" fill="#ef4444" opacity="0.9"/>
+            <rect x="0" y="18" width="32" height="4" fill="#ef4444" opacity="0.9"/>
+            <polygon points="16,4 18.4,11 26,11 20,15.5 22.4,22.5 16,18 9.6,22.5 12,15.5 6,11 13.6,11" fill="#ffffff"/>
+        </svg>
+        <div class="ai-header-text">
+            <div class="ai-header-title">Taxie ✈️</div>
+            <div class="ai-header-sub" id="ai-header-sub">Tu guia de viaje a USA</div>
+        </div>
+        <button id="ai-close">x</button>
+    </div>
+    <div id="ai-messages"></div>
+    <div id="ai-suggestions"></div>
+    <div id="ai-input-area">
+        <textarea id="ai-input" rows="1"></textarea>
+        <button id="ai-send">
+            <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
+        </button>
+    </div>
+</div>
+
+<script>
+(function() {
+    var GROQ_URL = 'https://taxusa.juanbria18.workers.dev';
+    var MODEL = 'llama-3.3-70b-versatile';
+    var lang = localStorage.getItem('appLang') || 'es';
+    var perfilId   = localStorage.getItem('perfilActivoId') || 'default';
+    var HISTORY_KEY = 'taxie_history_' + perfilId;
+
+    var chatHistory = [];
+    try {
+        var saved = localStorage.getItem(HISTORY_KEY);
+        if (saved) chatHistory = JSON.parse(saved);
+    } catch(e) { chatHistory = []; }
+
+    var isOpen = false;
+    var isLoading = false;
+    var hasShownWelcome = false;
+
+    var WELCOME_ES = '¡Hola! Soy **Taxie** 🗽✈️\n\nTu asistente personal para viajes a USA. Puedo ayudarte con:\n\n• 🏰 Destinos y parques temáticos\n• 🛍️ Outlets y compras sin tax\n• 💵 Propinas, impuestos y presupuesto\n• 🏨 Hoteles y transporte\n• 🌤️ Clima y documentación\n\n¿En qué puedo ayudarte hoy?';
+    var WELCOME_EN = 'Hi! I am **Taxie** 🗽✈️\n\nYour personal USA travel guide. I can help you with:\n\n• 🏰 Destinations & theme parks\n• 🛍️ Outlets & tax-free shopping\n• 💵 Tips, taxes & budgeting\n• 🏨 Hotels & transportation\n• 🌤️ Weather & travel documents\n\nWhat can I help you with today?';
+    var WELCOME_PT = 'Olá! Sou o **Taxie** 🗽✈️\n\nSeu assistente pessoal para viagens aos EUA. Posso te ajudar com:\n\n• 🏰 Destinos e parques temáticos\n• 🛍️ Outlets e compras sem tax\n• 💵 Gorjetas, impostos e orçamento\n• 🏨 Hotéis e transporte\n• 🌤️ Clima e documentação\n\nComo posso te ajudar hoje?';
+
+    var CHIPS_ES = ['🏰 Disney Orlando', '🛍️ Mejores outlets', '💰 Propinas en USA', '🌡️ Clima en Florida', '✈️ Aeropuertos', '🚗 Alquilar auto'];
+    var CHIPS_EN = ['🏰 Disney Orlando', '🛍️ Best outlets', '💰 Tipping in USA', '🌡️ Florida weather', '✈️ Airports', '🚗 Rent a car'];
+    var CHIPS_PT = ['🏰 Disney Orlando', '🛍️ Melhores outlets', '💰 Gorjetas nos EUA', '🌡️ Clima na Flórida', '✈️ Aeroportos', '🚗 Alugar carro'];
+
+    var SUB_ES = 'Tu guia de viaje a USA 🗺️';
+    var SUB_EN = 'Your USA Travel Guide 🗺️';
+    var SUB_PT = 'Seu guia de viagem aos EUA 🗺️';
+    var PH_ES  = 'Preguntale a Taxie sobre tu viaje...';
+    var PH_EN  = 'Ask Taxie about your trip...';
+    var PH_PT  = 'Pergunte ao Taxie sobre sua viagem...';
+    var ERR_ES = 'Ups, algo falló. Verificá tu conexión e intentá de nuevo.';
+    var ERR_EN = 'Oops, something went wrong. Check your connection and try again.';
+    var ERR_PT = 'Ops, algo deu errado. Verifique sua conexão e tente novamente.';
+
+    var isPt = (lang === 'pt');
+    var isEs = (lang !== 'en' && lang !== 'pt');
+    var chips  = isPt ? CHIPS_PT : isEs ? CHIPS_ES : CHIPS_EN;
+    var sub    = isPt ? SUB_PT   : isEs ? SUB_ES   : SUB_EN;
+    var ph     = isPt ? PH_PT    : isEs ? PH_ES    : PH_EN;
+    var errMsg = isPt ? ERR_PT   : isEs ? ERR_ES   : ERR_EN;
+
+    var SYSTEM = isPt
+        ? 'Você é o Taxie, assistente de viagens para os EUA. Seu tom é claro, direto e amigável. Quando alguém pergunta sobre informações em tempo real (filas nos parques, cotações, clima atual, horários ou preços atualizados), você busca as informações antes de responder. Use marcadores e **negritos** só quando realmente ajudam; para respostas simples, uma ou duas frases diretas são suficientes. Nunca comece com "Claro!", "Com certeza!" ou frases de preenchimento. Responda apenas sobre viagens aos EUA. Data atual: ' + new Date().toLocaleDateString('pt-BR') + '.'
+        : isEs
+        ? 'Eres Taxie, asistente de viajes a USA. Tu tono es claro, directo y amable — ni frío ni demasiado informal. Cuando alguien pregunta por info en tiempo real (filas en parques, cotizaciones, clima actual, horarios o precios actualizados), buscás la información actualizada antes de responder. Usás viñetas y **negritas** solo cuando realmente ayudan a organizar la info; si la respuesta es simple, una o dos oraciones directas son suficientes. Nunca empezás con "¡Claro!", "¡Por supuesto!" ni frases de relleno. Solo respondés sobre viajes a USA; si preguntan otra cosa, lo aclarás brevemente y redirigís. Fecha actual: ' + new Date().toLocaleDateString('es-AR') + '.'
+        : 'You are Taxie, a USA travel assistant. Your tone is clear, direct and warm — not overly casual, not robotic. When someone asks for real-time info (park wait times, exchange rates, current weather, updated prices), search for current data before answering. Use bullet points and **bold** only when they genuinely help organize information; for simple questions, one or two direct sentences are better. Never open with "Of course!", "Great question!" or filler phrases. Only answer about USA travel; redirect anything off-topic without making it awkward. Today\'s date: ' + new Date().toLocaleDateString('en-US') + '.';
+
+    function saveHistory() {
+        try { localStorage.setItem(HISTORY_KEY, JSON.stringify(chatHistory.slice(-40))); } catch(e) {}
+    }
+
+    function formatBotText(text) {
+        var html = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        var lines = html.split('\n');
+        var result = [];
+        var inList = false;
+        for (var i = 0; i < lines.length; i++) {
+            var line = lines[i].trim();
+            var isBullet = /^[•\-\*]\s/.test(line);
+            if (isBullet) {
+                if (!inList) { result.push('<ul>'); inList = true; }
+                result.push('<li>' + line.replace(/^[•\-\*]\s+/,'') + '</li>');
+            } else {
+                if (inList) { result.push('</ul>'); inList = false; }
+                if (line !== '') result.push('<p>' + line + '</p>');
+            }
+        }
+        if (inList) result.push('</ul>');
+        return result.join('');
+    }
+
+    function init() {
+        var bubble     = document.getElementById('ai-bubble');
+        var chatEl     = document.getElementById('ai-chat');
+        var messagesEl = document.getElementById('ai-messages');
+        var inputEl    = document.getElementById('ai-input');
+        var sendBtn    = document.getElementById('ai-send');
+        var suggestEl  = document.getElementById('ai-suggestions');
+        var headerSub  = document.getElementById('ai-header-sub');
+        var closeBtn   = document.getElementById('ai-close');
+
+        if (!bubble || !chatEl) return;
+
+        if (headerSub) headerSub.textContent = sub;
+        if (inputEl)   inputEl.placeholder   = ph;
+
+        if (suggestEl) {
+            suggestEl.innerHTML = chips.map(function(c) {
+                return '<button class="ai-chip">' + c + '</button>';
+            }).join('');
+            suggestEl.querySelectorAll('.ai-chip').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    if (inputEl) inputEl.value = btn.textContent;
+                    sendMessage();
+                    suggestEl.style.display = 'none';
+                });
+            });
+        }
+
+        function toggleChat() {
+            isOpen = !isOpen;
+            if (isOpen) {
+                chatEl.style.display = 'flex';
+                chatEl.offsetHeight;
+                chatEl.classList.add('open');
+                if (!hasShownWelcome) {
+                    hasShownWelcome = true;
+                    if (chatHistory.length > 0) {
+                        chatHistory.forEach(function(m) {
+                            addMessage(m.role === 'user' ? 'user' : 'bot', m.content, true);
+                        });
+                        if (suggestEl) suggestEl.style.display = 'none';
+                    } else {
+                        var welcome = isPt ? WELCOME_PT : isEs ? WELCOME_ES : WELCOME_EN;
+                        setTimeout(function() { addMessage('bot', welcome); }, 200);
+                    }
+                }
+                setTimeout(function() { if (inputEl) inputEl.focus(); }, 300);
+            } else {
+                chatEl.classList.remove('open');
+                setTimeout(function() { chatEl.style.display = 'none'; }, 250);
+            }
+        }
+
+        bubble.addEventListener('click', function(e) { e.stopPropagation(); toggleChat(); });
+        if (closeBtn) closeBtn.addEventListener('click', function(e) { e.stopPropagation(); toggleChat(); });
+
+        document.addEventListener('click', function(e) {
+            if (isOpen && !chatEl.contains(e.target) && !bubble.contains(e.target)) {
+                isOpen = false;
+                chatEl.classList.remove('open');
+                setTimeout(function() { chatEl.style.display = 'none'; }, 250);
+            }
+        });
+
+        function addMessage(role, text, silent) {
+            if (!messagesEl) return;
+            var div = document.createElement('div');
+            div.className = 'ai-msg ' + (role === 'user' ? 'user' : 'bot');
+            if (role === 'user') { div.textContent = text; }
+            else { div.innerHTML = formatBotText(text); }
+            if (silent) div.style.animation = 'none';
+            messagesEl.appendChild(div);
+            messagesEl.scrollTop = messagesEl.scrollHeight;
+        }
+
+        function showTyping() {
+            if (!messagesEl) return;
+            var div = document.createElement('div');
+            div.className = 'ai-msg bot typing'; div.id = 'ai-typing';
+            div.innerHTML = '<div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div>';
+            messagesEl.appendChild(div);
+            messagesEl.scrollTop = messagesEl.scrollHeight;
+        }
+
+        function hideTyping() { var el = document.getElementById('ai-typing'); if (el) el.remove(); }
+
+        function sendMessage() {
+            window._taxieSend = sendMessage;
+            if (!inputEl) return;
+            var text = inputEl.value.trim();
+            if (!text || isLoading) return;
+            inputEl.value = ''; inputEl.style.height = 'auto';
+            addMessage('user', text);
+            if (suggestEl) suggestEl.style.display = 'none';
+            isLoading = true;
+            if (sendBtn) sendBtn.disabled = true;
+            showTyping();
+            chatHistory.push({ role: 'user', content: text });
+            fetch(GROQ_URL, {
+                method: 'POST',
+                body: JSON.stringify({
+                    model: MODEL,
+                    messages: [{ role: 'system', content: SYSTEM }].concat(chatHistory.slice(-14)),
+                    max_tokens: 800, temperature: 0.7, stream: false,
+                    tools: [{ type: 'function', function: { name: 'web_search', description: 'Search the web for real-time information like park wait times, exchange rates, current weather, store hours or updated prices.', parameters: { type: 'object', properties: { query: { type: 'string', description: 'Search query' } }, required: ['query'] } } }],
+                    tool_choice: 'auto'
+                })
+            })
+            .then(function(res) { return res.json().then(function(d) { return { ok: res.ok, data: d }; }); })
+            .then(function(r) {
+                if (!r.ok) throw new Error(r.data.error && r.data.error.message || 'API error');
+                var msg = r.data.choices && r.data.choices[0] && r.data.choices[0].message;
+                if (msg && msg.tool_calls && msg.tool_calls.length > 0) {
+                    var tc = msg.tool_calls[0];
+                    var query = '';
+                    try { query = JSON.parse(tc.function.arguments).query; } catch(e) {}
+                    var msgsWithTool = [{ role: 'system', content: SYSTEM }]
+                        .concat(chatHistory.slice(-14))
+                        .concat([
+                            { role: 'assistant', content: null, tool_calls: msg.tool_calls },
+                            { role: 'tool', tool_call_id: tc.id, content: 'No se pudo obtener resultado en tiempo real para: ' + query + '. Respondé con lo que sabés e indicá que los datos pueden no ser del momento exacto.' }
+                        ]);
+                    return fetch(GROQ_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({ model: MODEL, messages: msgsWithTool, max_tokens: 800, temperature: 0.7, stream: false })
+                    }).then(function(res2) { return res2.json().then(function(d2) { return { ok: res2.ok, data: d2 }; }); })
+                    .then(function(r2) {
+                        if (!r2.ok) throw new Error(r2.data.error && r2.data.error.message || 'API error');
+                        var reply2 = r2.data.choices && r2.data.choices[0] && r2.data.choices[0].message && r2.data.choices[0].message.content || errMsg;
+                        chatHistory.push({ role: 'assistant', content: reply2 });
+                        saveHistory(); hideTyping(); addMessage('bot', reply2);
+                    });
+                }
+                var reply = msg && msg.content || errMsg;
+                chatHistory.push({ role: 'assistant', content: reply });
+                saveHistory(); hideTyping(); addMessage('bot', reply);
+            })
+            .catch(function(e) { hideTyping(); addMessage('bot', errMsg); console.error('[Taxie]', e); })
+            .finally(function() {
+                isLoading = false;
+                if (sendBtn) sendBtn.disabled = false;
+                if (inputEl) inputEl.focus();
+            });
+        }
+
+        if (sendBtn) sendBtn.addEventListener('click', sendMessage);
+        if (inputEl) {
+            inputEl.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+            });
+            inputEl.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = Math.min(this.scrollHeight, 80) + 'px';
+            });
+        }
+    }
+
+    window.taxieUpdateLang = function(newLang) {
+        isPt = (newLang === 'pt');
+        isEs = (newLang !== 'en' && newLang !== 'pt');
+        SYSTEM = isPt
+            ? 'Você é o Taxie, assistente de viagens para os EUA. Seu tom é claro, direto e amigável. Quando alguém pergunta sobre informações em tempo real (filas nos parques, cotações, clima atual, horários ou preços atualizados), você busca as informações antes de responder. Use marcadores e **negritos** só quando realmente ajudam; para respostas simples, uma ou duas frases diretas são suficientes. Nunca comece com "Claro!", "Com certeza!" ou frases de preenchimento. Responda apenas sobre viagens aos EUA. Data atual: ' + new Date().toLocaleDateString('pt-BR') + '.'
+            : isEs
+            ? 'Eres Taxie, asistente de viajes a USA. Tu tono es claro, directo y amable — ni frío ni demasiado informal. Cuando alguien pregunta por info en tiempo real (filas en parques, cotizaciones, clima actual, horarios o precios actualizados), buscás la información actualizada antes de responder. Usás viñetas y **negritas** solo cuando realmente ayudan a organizar la info; si la respuesta es simple, una o dos oraciones directas son suficientes. Nunca empezás con "¡Claro!", "¡Por supuesto!" ni frases de relleno. Solo respondés sobre viajes a USA; si preguntan otra cosa, lo aclarás brevemente y redirigís. Fecha actual: ' + new Date().toLocaleDateString('es-AR') + '.'
+            : 'You are Taxie, a USA travel assistant. Your tone is clear, direct and warm — not overly casual, not robotic. When someone asks for real-time info (park wait times, exchange rates, current weather, updated prices), search for current data before answering. Use bullet points and **bold** only when they genuinely help organize information; for simple questions, one or two direct sentences are better. Never open with "Of course!", "Great question!" or filler phrases. Only answer about USA travel; redirect anything off-topic without making it awkward. Today\'s date: ' + new Date().toLocaleDateString('en-US') + '.';
+        errMsg = isPt ? ERR_PT : isEs ? ERR_ES : ERR_EN;
+        var inputEl   = document.getElementById('ai-input');
+        var headerSub = document.getElementById('ai-header-sub');
+        var suggestEl = document.getElementById('ai-suggestions');
+        if (inputEl)   inputEl.placeholder = isPt ? PH_PT : isEs ? PH_ES : PH_EN;
+        if (headerSub) headerSub.textContent = isPt ? SUB_PT : isEs ? SUB_ES : SUB_EN;
+        if (suggestEl) {
+            var newChips = isPt ? CHIPS_PT : isEs ? CHIPS_ES : CHIPS_EN;
+            suggestEl.innerHTML = newChips.map(function(c) {
+                return '<button class="ai-chip">' + c + '</button>';
+            }).join('');
+            suggestEl.querySelectorAll('.ai-chip').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    var inp = document.getElementById('ai-input');
+                    if (inp) inp.value = btn.textContent;
+                    if (window._taxieSend) window._taxieSend();
+                    suggestEl.style.display = 'none';
+                });
+            });
+        }
+    };
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+})();
+</script>
+<!-- ═══════════════ FIN TAXUSA AI CHAT ═══════════════ -->
 
 </body>
 </html>
