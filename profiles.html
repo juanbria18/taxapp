@@ -215,12 +215,25 @@
 </head>
 <body>
 
+<!-- Lang selector -->
+<div class="lang-switcher">
+    <button class="lang-btn" id="lbtn-es" onclick="window.setLang('es')">
+        <img src="https://flagcdn.com/w20/ar.png" style="width:16px;vertical-align:middle;border-radius:2px;margin-right:4px;" alt=""> ES
+    </button>
+    <button class="lang-btn" id="lbtn-en" onclick="window.setLang('en')">
+        <img src="https://flagcdn.com/w20/us.png" style="width:16px;vertical-align:middle;border-radius:2px;margin-right:4px;" alt=""> EN
+    </button>
+    <button class="lang-btn" id="lbtn-pt" onclick="window.setLang('pt')">
+        <img src="https://flagcdn.com/w20/br.png" style="width:16px;vertical-align:middle;border-radius:2px;margin-right:4px;" alt=""> PT
+    </button>
+</div>
+
 <h1 class="page-title" id="pageTitle">¿Quién está planificando hoy?</h1>
 
 <div class="profiles-grid" id="profilesGrid"></div>
 
 <button class="manage-btn" id="manageBtn" onclick="toggleEditMode()">EDITAR PERFILES</button>
-<button class="logout-btn" onclick="doLogout()">🚪 CERRAR SESIÓN</button>
+<button class="logout-btn" id="logoutBtn" onclick="doLogout()">🚪 CERRAR SESIÓN</button>
 
 
 <div class="modal" id="editModal">
@@ -256,9 +269,9 @@
     const db = getFirestore(app);
 
     const i18n = {
-        es: { pageTitle: "TaxUSA — Perfiles", title: "¿Quién está planificando hoy?", editTitle: "Administrar Perfiles", manage: "EDITAR PERFILES", done: "LISTO", save: "GUARDAR", cancel: "CANCELAR", delete: "Eliminar Perfil", edit: "Editar Perfil", newProfile: "Nuevo Perfil", guest: "Invitado", confirm: "¿Eliminar este perfil?" },
-        en: { pageTitle: "TaxUSA — Profiles", title: "Who's planning today?", editTitle: "Manage Profiles", manage: "EDIT PROFILES", done: "DONE", save: "SAVE", cancel: "CANCEL", delete: "Delete Profile", edit: "Edit Profile", newProfile: "New Profile", guest: "Guest", confirm: "Delete this profile?" },
-        pt: { pageTitle: "TaxUSA — Perfis", title: "Quem está planejando hoje?", editTitle: "Gerenciar Perfis", manage: "EDITAR PERFIS", done: "PRONTO", save: "SALVAR", cancel: "CANCELAR", delete: "Excluir Perfil", edit: "Editar Perfil", newProfile: "Novo Perfil", guest: "Convidado", confirm: "Excluir este perfil?" }
+        es: { pageTitle: "TaxUSA — Perfiles", title: "¿Quién está planificando hoy?", editTitle: "Administrar Perfiles", manage: "EDITAR PERFILES", done: "LISTO", save: "GUARDAR", cancel: "CANCELAR", delete: "Eliminar Perfil", edit: "Editar Perfil", newProfile: "Nuevo Perfil", guest: "Invitado", confirm: "¿Eliminar este perfil?", logout: "🚪 CERRAR SESIÓN", namePlaceholder: "Tu nombre" },
+        en: { pageTitle: "TaxUSA — Profiles", title: "Who's planning today?", editTitle: "Manage Profiles", manage: "EDIT PROFILES", done: "DONE", save: "SAVE", cancel: "CANCEL", delete: "Delete Profile", edit: "Edit Profile", newProfile: "New Profile", guest: "Guest", confirm: "Delete this profile?", logout: "🚪 SIGN OUT", namePlaceholder: "Your name" },
+        pt: { pageTitle: "TaxUSA — Perfis", title: "Quem está planejando hoje?", editTitle: "Gerenciar Perfis", manage: "EDITAR PERFIS", done: "PRONTO", save: "SALVAR", cancel: "CANCELAR", delete: "Excluir Perfil", edit: "Editar Perfil", newProfile: "Novo Perfil", guest: "Convidado", confirm: "Excluir este perfil?", logout: "🚪 SAIR", namePlaceholder: "Seu nome" }
     };
 
     const photos = [
@@ -287,6 +300,15 @@
         document.getElementById('btnSave').innerText = t.save;
         document.getElementById('btnCancel').innerText = t.cancel;
         document.getElementById('btnDelete').innerText = t.delete;
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) logoutBtn.innerText = t.logout;
+        const nameInput = document.getElementById('nameInput');
+        if (nameInput) nameInput.placeholder = t.namePlaceholder;
+        // Active lang button highlight
+        ['es','en','pt'].forEach(l => {
+            const b = document.getElementById('lbtn-' + l);
+            if (b) { b.style.borderColor = l === lang ? 'var(--primary)' : 'var(--border)'; b.style.color = l === lang ? 'white' : ''; b.style.background = l === lang ? 'var(--primary)' : ''; }
+        });
         render();
     }
 
