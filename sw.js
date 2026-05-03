@@ -1,5 +1,5 @@
 // TaxUSA Service Worker — Cache First para assets estáticos
-const CACHE = 'taxusa-v4';
+const CACHE = 'taxusa-v5';
 const PRECACHE = [
     './login.html',
     './selector.html',
@@ -98,7 +98,24 @@ self.addEventListener('fetch', e => {
         return;
     }
 
-    // Archivos propios → Cache First, fallback a red, fallback offline
+    // Archivos HTML propios → Network First (siempre intenta red, caché como fallback)
+    // Así los cambios se reflejan de inmediato cuando hay conexión
+    if (
+        e.request.headers.get('accept')?.includes('text/html') &&
+        url.origin === self.location.origin
+    ) {
+        e.respondWith(
+            fetch(e.request).then(res => {
+                if (res && res.status === 200) {
+                    caches.open(CACHE).then(cache => cache.put(e.request, res.clone()));
+                }
+                return res;
+            }).catch(() => caches.match(e.request).then(cached => cached || caches.match(OFFLINE_FALLBACK)))
+        );
+        return;
+    }
+
+    // Resto de archivos propios (css, js, imágenes) → Cache First
     if (
         url.origin === self.location.origin ||
         PRECACHE.some(p => url.pathname.endsWith(p.replace('./', '')))
