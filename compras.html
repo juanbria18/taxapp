@@ -376,9 +376,46 @@
     <button class="drawer-btn" onclick="location.reload()">🔄 <span data-i18n="btn_update">Actualizar App</span></button>
     <button class="drawer-btn" onclick="doChangeEmail()">📧 <span data-i18n="btn_email">Cambiar Correo</span></button>
     <button class="drawer-btn" onclick="doChangePassword()">🔑 <span data-i18n="btn_password">Cambiar Contraseña</span></button>
-    <button class="drawer-btn" onclick="doChangePassword()">🔢 <span data-i18n="btn_pin">Cambiar PIN Offline</span></button>
+    <button class="drawer-btn" onclick="gestionarPIN()">🔢 <span data-i18n="btn_pin">Cambiar PIN Offline</span></button>
     <button class="drawer-btn" onclick="doLogout()">🚪 <span data-i18n="btn_logout">Cerrar Sesión</span></button>
     <div style="margin-top:auto;padding-top:16px;"><button class="drawer-btn btn-danger" onclick="doDeleteAccount()">🗑️ <span data-i18n="btn_delete">Eliminar Cuenta</span></button></div>
+</div>
+
+<!-- ══════════ MODAL PIN OFFLINE ══════════ -->
+<div id="pinModalOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(4px);z-index:9999;align-items:center;justify-content:center;">
+  <div id="pinModalBox" style="background:var(--surface);border-radius:var(--radius);padding:28px 24px;width:calc(100% - 40px);max-width:360px;box-shadow:var(--shadow-lg);border:1px solid var(--border);position:relative;">
+    <button onclick="closePinModal()" style="position:absolute;top:12px;right:14px;background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--text-dim);line-height:1;">✕</button>
+    <div style="font-size:1.4rem;margin-bottom:6px;">🔢</div>
+    <div style="font-size:1rem;font-weight:900;color:var(--text);margin-bottom:4px;" id="pinModalTitle">Cambiar PIN Offline</div>
+    <div style="font-size:.75rem;font-weight:600;color:var(--text-sub);margin-bottom:20px;" id="pinModalSub">Este PIN se usa para acceder sin conexión</div>
+
+    <!-- Step 1: ingresar nuevo PIN -->
+    <div id="pinStep1">
+      <label style="font-size:.6rem;font-weight:800;color:var(--text-dim);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px;" id="pinLabel1">PIN Nuevo (4–6 dígitos)</label>
+      <input id="pinInput1" type="password" inputmode="numeric" maxlength="6" pattern="[0-9]*"
+        style="width:100%;padding:14px 16px;background:var(--input-bg);border:1.5px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:inherit;font-size:1.5rem;font-weight:900;text-align:center;letter-spacing:6px;outline:none;margin-bottom:12px;transition:all .2s;"
+        oninput="this.value=this.value.replace(/[^0-9]/g,'');pinInputFocus(this)"
+        onfocus="this.style.borderColor='var(--primary)';this.style.boxShadow='0 0 0 3px var(--primary-dim)'"
+        onblur="this.style.borderColor='var(--border)';this.style.boxShadow='none'"
+        placeholder="••••">
+      <label style="font-size:.6rem;font-weight:800;color:var(--text-dim);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:6px;" id="pinLabel2">Confirmar PIN</label>
+      <input id="pinInput2" type="password" inputmode="numeric" maxlength="6" pattern="[0-9]*"
+        style="width:100%;padding:14px 16px;background:var(--input-bg);border:1.5px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:inherit;font-size:1.5rem;font-weight:900;text-align:center;letter-spacing:6px;outline:none;margin-bottom:16px;transition:all .2s;"
+        oninput="this.value=this.value.replace(/[^0-9]/g,'')"
+        onfocus="this.style.borderColor='var(--primary)';this.style.boxShadow='0 0 0 3px var(--primary-dim)'"
+        onblur="this.style.borderColor='var(--border)';this.style.boxShadow='none'"
+        placeholder="••••">
+      <div id="pinError" style="display:none;background:rgba(239,68,68,.1);border:1.5px solid var(--danger);border-radius:10px;padding:10px 12px;font-size:.78rem;font-weight:700;color:var(--danger);margin-bottom:12px;text-align:center;"></div>
+      <button onclick="confirmarPIN()" style="width:100%;padding:15px;border:none;border-radius:var(--radius-sm);background:var(--primary);color:white;font-family:inherit;font-size:.85rem;font-weight:800;text-transform:uppercase;letter-spacing:.4px;cursor:pointer;box-shadow:0 4px 14px rgba(37,99,235,.3);transition:.2s;" id="pinConfirmBtn">Guardar PIN</button>
+    </div>
+
+    <!-- Step 2: éxito -->
+    <div id="pinStep2" style="display:none;text-align:center;padding:8px 0;">
+      <div style="font-size:2.8rem;margin-bottom:10px;">✅</div>
+      <div style="font-size:1rem;font-weight:900;color:var(--success);margin-bottom:6px;" id="pinSuccessMsg">¡PIN actualizado!</div>
+      <div style="font-size:.8rem;font-weight:600;color:var(--text-sub);" id="pinSuccessSub">Podés usarlo para entrar sin conexión</div>
+    </div>
+  </div>
 </div>
 
 <script type="module">
@@ -683,13 +720,51 @@ window.changeProfile=()=>{localStorage.removeItem('perfilActivoId');window.locat
 window.gestionarPIN = () => {
     document.getElementById('settingsDrawer').classList.remove('open');
     document.getElementById('menuOverlay').style.display = 'none';
-    if (!navigator.onLine) {
-        const lang = localStorage.getItem('appLang') || 'es';
-        alert(lang==='en' ? 'You need internet to change your PIN.' : lang==='pt' ? 'Você precisa de internet para alterar o PIN.' : 'Necesitás internet para cambiar el PIN.');
+    const lang = localStorage.getItem('appLang') || 'es';
+    const texts = {
+        es: { title:'Cambiar PIN Offline', sub:'Este PIN se usa para acceder sin conexión', l1:'PIN Nuevo (4–6 dígitos)', l2:'Confirmar PIN', btn:'Guardar PIN', ok:'¡PIN actualizado!', okSub:'Podés usarlo para entrar sin conexión' },
+        en: { title:'Change Offline PIN', sub:'This PIN is used to access without internet', l1:'New PIN (4–6 digits)', l2:'Confirm PIN', btn:'Save PIN', ok:'PIN updated!', okSub:'You can use it to sign in offline' },
+        pt: { title:'Alterar PIN Offline', sub:'Este PIN é usado para acessar sem internet', l1:'Novo PIN (4–6 dígitos)', l2:'Confirmar PIN', btn:'Salvar PIN', ok:'PIN atualizado!', okSub:'Você pode usá-lo para entrar sem conexão' }
+    };
+    const t = texts[lang] || texts.es;
+    document.getElementById('pinModalTitle').textContent = t.title;
+    document.getElementById('pinModalSub').textContent = t.sub;
+    document.getElementById('pinLabel1').textContent = t.l1;
+    document.getElementById('pinLabel2').textContent = t.l2;
+    document.getElementById('pinConfirmBtn').textContent = t.btn;
+    document.getElementById('pinSuccessMsg').textContent = t.ok;
+    document.getElementById('pinSuccessSub').textContent = t.okSub;
+    document.getElementById('pinInput1').value = '';
+    document.getElementById('pinInput2').value = '';
+    document.getElementById('pinError').style.display = 'none';
+    document.getElementById('pinStep1').style.display = 'block';
+    document.getElementById('pinStep2').style.display = 'none';
+    const overlay = document.getElementById('pinModalOverlay');
+    overlay.style.display = 'flex';
+    setTimeout(() => document.getElementById('pinInput1').focus(), 100);
+};
+window.closePinModal = () => {
+    document.getElementById('pinModalOverlay').style.display = 'none';
+};
+window.pinInputFocus = (el) => { /* handled inline */ };
+window.confirmarPIN = () => {
+    const lang = localStorage.getItem('appLang') || 'es';
+    const errMsgs = { es:'Los PINs no coinciden o son muy cortos (mín. 4 dígitos).', en:'PINs don\'t match or are too short (min. 4 digits).', pt:'Os PINs não coincidem ou são curtos demais (mín. 4 dígitos).' };
+    const p1 = document.getElementById('pinInput1').value.trim();
+    const p2 = document.getElementById('pinInput2').value.trim();
+    const errEl = document.getElementById('pinError');
+    if (p1.length < 4 || p1 !== p2) {
+        errEl.textContent = errMsgs[lang] || errMsgs.es;
+        errEl.style.display = 'block';
+        document.getElementById('pinInput1').style.borderColor = 'var(--danger)';
+        document.getElementById('pinInput2').style.borderColor = 'var(--danger)';
         return;
     }
-    localStorage.setItem('taxusa_action', 'change_pin');
-    window.location.href = 'login.html';
+    errEl.style.display = 'none';
+    localStorage.setItem('taxusa_offline_pin', btoa(p1));
+    document.getElementById('pinStep1').style.display = 'none';
+    document.getElementById('pinStep2').style.display = 'block';
+    setTimeout(() => window.closePinModal(), 2200);
 };
 window.doLogout=()=>signOut(auth).then(()=>window.location.replace('login.html'));
 window.doChangeEmail=async()=>{if(!currentUser)return;const l=localStorage.getItem('appLang')||'es',m={es:{p:"Ingresá tu nuevo correo:",s:"Verificación enviada.",e:"Error: "},en:{p:"Enter your new email:",s:"Verification sent.",e:"Error: "}},t=m[l],e=prompt(t.p);if(e){try{await verifyBeforeUpdateEmail(currentUser,e);alert(t.s);}catch(er){alert(t.e+er.message);}}};
