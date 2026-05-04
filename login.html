@@ -571,7 +571,6 @@ const FB = {
 const app  = initializeApp(FB);
 const auth = getAuth(app);
 const db   = getFirestore(app);
-self.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
 initializeAppCheck(app, { provider: new ReCaptchaV3Provider('6LeK6cssAAAAALxcJy-95R2nhVMmnuIyB78AQgvw'), isTokenAutoRefreshEnabled: true });
 
 // ── i18n ──
