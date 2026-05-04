@@ -455,6 +455,7 @@
     <div class="login-card">
         <div class="card-logo">
             <svg width="38" height="38" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+
                 <path d="M60 5 Q5 5 5 60 Q5 115 60 115 Z" fill="#FAEEDA" stroke="#BA7517" stroke-width="3"/>
                 <path d="M60 5 Q34 34 34 60 Q34 86 60 115" fill="none" stroke="#EF9F27" stroke-width="2" opacity="0.5"/>
                 <path d="M60 5 Q115 5 115 60 Q115 115 60 115 Z" fill="#FAC775" stroke="#BA7517" stroke-width="3"/>
@@ -470,6 +471,7 @@
                 </g>
             </svg>
         </div>
+        <h2 class="card-title" id="change-pin-title" style="margin-bottom:16px;">Cambiar PIN</h2>
         <div class="info-box">
             <span class="info-box-icon">📧</span>
             <span id="change-pin-info">Para cambiar tu PIN, te enviaremos un correo de verificación. Una vez confirmado, podrás crear uno nuevo.</span>
@@ -775,33 +777,42 @@ function applyLanguage(lang) {
 }
 window.applyLanguage = applyLanguage;
 
+function setText(id, value) {
+    const el = document.getElementById(id);
+    if (el) el.innerText = value;
+}
+function setPlaceholder(id, value) {
+    const el = document.getElementById(id);
+    if (el) el.placeholder = value;
+}
+
 function applyTexts() {
     // Online login
-    document.getElementById('login-title').innerText  = isLoginMode ? t('welcome') : t('create');
-    document.getElementById('mainBtn').innerText       = isLoginMode ? t('login')   : t('register');
-    document.getElementById('toggleLink').innerText   = isLoginMode ? t('noAccount') : t('haveAccount');
-    document.getElementById('forgotLink').innerText   = t('forgot');
-    document.getElementById('verifNotice').innerText  = t('verif');
-    document.getElementById('email').placeholder      = t('email');
-    document.getElementById('password').placeholder   = t('pass');
+    setText('login-title', isLoginMode ? t('welcome') : t('create'));
+    setText('mainBtn',     isLoginMode ? t('login')   : t('register'));
+    setText('toggleLink',  isLoginMode ? t('noAccount') : t('haveAccount'));
+    setText('forgotLink',  t('forgot'));
+    setText('verifNotice', t('verif'));
+    setPlaceholder('email',    t('email'));
+    setPlaceholder('password', t('pass'));
     // Offline PIN
-    document.getElementById('offline-badge-text').innerText = t('offlineBadge');
-    document.getElementById('try-online-btn').innerText     = t('tryOnline');
+    setText('offline-badge-text', t('offlineBadge'));
+    setText('try-online-btn',     t('tryOnline'));
     // Create PIN
-    document.getElementById('skip-pin-btn').innerText = t('skipPin');
+    setText('skip-pin-btn', t('skipPin'));
     if (pinStep === 1) {
-        document.getElementById('create-pin-title').innerText = t('createPinTitle');
-        document.getElementById('create-pin-sub').innerText   = t('createPinSub');
+        setText('create-pin-title', t('createPinTitle'));
+        setText('create-pin-sub',   t('createPinSub'));
     } else {
-        document.getElementById('create-pin-title').innerText = t('confirmPinTitle');
-        document.getElementById('create-pin-sub').innerText   = t('confirmPinSub');
+        setText('create-pin-title', t('confirmPinTitle'));
+        setText('create-pin-sub',   t('confirmPinSub'));
     }
     // Change PIN
-    document.getElementById('change-pin-title').innerText  = t('changePinTitle');
-    document.getElementById('change-pin-info').innerText   = t('changePinInfo');
-    document.getElementById('send-verify-btn').innerText   = t('sendVerify');
-    document.getElementById('new-pin-title').innerText     = t('newPinTitle');
-    document.getElementById('new-pin-sub').innerText       = t('newPinSub');
+    setText('change-pin-title', t('changePinTitle'));
+    setText('change-pin-info',  t('changePinInfo'));
+    setText('send-verify-btn',  t('sendVerify'));
+    setText('new-pin-title',    t('newPinTitle'));
+    setText('new-pin-sub',      t('newPinSub'));
 }
 
 // ── Online auth ──
