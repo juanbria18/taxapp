@@ -9,13 +9,28 @@
     <noscript><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;800&display=swap" rel="stylesheet"></noscript>
     <style>
         :root {
-            --primary: #2563eb; --danger: #ef4444;
+            --primary: #2563eb; --primary-glow: rgba(37,99,235,0.12);
+            --accent: #ef4444; --danger: #ef4444;
             --bg: #0f172a; --surface: #1e293b; --surface-2: #273549;
             --border: #334155; --input-bg: #273549;
             --text: #f1f5f9; --text-sub: #94a3b8; --text-dim: #64748b;
             --radius: 20px; --radius-sm: 12px;
             --shadow: 0 4px 20px rgba(0,0,0,0.3);
             --transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
+        }
+        /* Tema USA (default) */
+        body.tema-usa {
+            --primary: #2563eb;
+            --accent: #ef4444;
+            --primary-glow: rgba(37,99,235,0.12);
+            --bg: #0f172a; --surface: #1e293b; --surface-2: #273549; --border: #334155;
+        }
+        /* Tema Europe */
+        body.tema-europe {
+            --primary: #003399;
+            --accent: #ffcc00;
+            --primary-glow: rgba(0,51,153,0.12);
+            --bg: #05081a; --surface: #0d1233; --surface-2: #131b40; --border: #1e2d6b;
         }
         *, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
         body {
@@ -28,7 +43,7 @@
         }
         body::before {
             content: ''; position: fixed; inset: 0; z-index: 0;
-            background: radial-gradient(ellipse 70% 50% at 50% 0%, rgba(37,99,235,0.12), transparent);
+            background: radial-gradient(ellipse 70% 50% at 50% 0%, var(--primary-glow), transparent);
             pointer-events: none;
         }
 
@@ -66,7 +81,7 @@
 
         body:not(.editing-mode) .profile-item:hover .avatar {
             transform: scale(1.06); border-color: white;
-            box-shadow: 0 8px 30px rgba(37,99,235,0.3);
+            box-shadow: 0 8px 30px rgba(var(--primary-rgb, 37,99,235),0.3);
         }
 
         .edit-overlay {
@@ -193,12 +208,22 @@
         .btn-danger { background: transparent; color: var(--danger); margin-top: 6px; font-size: 0.8rem; }
     </style>
     <script>
-        
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./sw.js').catch(() => {});
             });
         }
+        // Aplicar tema según destino guardado
+        (function() {
+            const destino = localStorage.getItem('taxfly_destino') || 'usa';
+            document.addEventListener('DOMContentLoaded', () => {
+                document.body.classList.add('tema-' + destino);
+                // Actualizar title e i18n pageTitle según destino
+                if (destino === 'europe') {
+                    document.title = document.title.replace('TaxUSA', 'TaxEurope');
+                }
+            });
+        })();
     </script>
 </head>
 <body>
@@ -243,10 +268,13 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
+    const destino = localStorage.getItem('taxfly_destino') || 'usa';
+    const destinoLabel = destino === 'europe' ? 'TaxEurope' : 'TaxUSA';
+
     const i18n = {
-        es: { pageTitle: "TaxUSA — Perfiles", title: "¿Quién está planificando hoy?", editTitle: "Administrar Perfiles", manage: "EDITAR PERFILES", done: "LISTO", save: "GUARDAR", cancel: "CANCELAR", delete: "Eliminar Perfil", edit: "Editar Perfil", newProfile: "Nuevo Perfil", guest: "Invitado", confirm: "¿Eliminar este perfil?", logout: "🚪 CERRAR SESIÓN", namePlaceholder: "Tu nombre" },
-        en: { pageTitle: "TaxUSA — Profiles", title: "Who's planning today?", editTitle: "Manage Profiles", manage: "EDIT PROFILES", done: "DONE", save: "SAVE", cancel: "CANCEL", delete: "Delete Profile", edit: "Edit Profile", newProfile: "New Profile", guest: "Guest", confirm: "Delete this profile?", logout: "🚪 SIGN OUT", namePlaceholder: "Your name" },
-        pt: { pageTitle: "TaxUSA — Perfis", title: "Quem está planejando hoje?", editTitle: "Gerenciar Perfis", manage: "EDITAR PERFIS", done: "PRONTO", save: "SALVAR", cancel: "CANCELAR", delete: "Excluir Perfil", edit: "Editar Perfil", newProfile: "Novo Perfil", guest: "Convidado", confirm: "Excluir este perfil?", logout: "🚪 SAIR", namePlaceholder: "Seu nome" }
+        es: { pageTitle: `${destinoLabel} — Perfiles`, title: "¿Quién está planificando hoy?", editTitle: "Administrar Perfiles", manage: "EDITAR PERFILES", done: "LISTO", save: "GUARDAR", cancel: "CANCELAR", delete: "Eliminar Perfil", edit: "Editar Perfil", newProfile: "Nuevo Perfil", guest: "Invitado", confirm: "¿Eliminar este perfil?", logout: "🚪 CERRAR SESIÓN", namePlaceholder: "Tu nombre" },
+        en: { pageTitle: `${destinoLabel} — Profiles`, title: "Who's planning today?", editTitle: "Manage Profiles", manage: "EDIT PROFILES", done: "DONE", save: "SAVE", cancel: "CANCEL", delete: "Delete Profile", edit: "Edit Profile", newProfile: "New Profile", guest: "Guest", confirm: "Delete this profile?", logout: "🚪 SIGN OUT", namePlaceholder: "Your name" },
+        pt: { pageTitle: `${destinoLabel} — Perfis`, title: "Quem está planejando hoje?", editTitle: "Gerenciar Perfis", manage: "EDITAR PERFIS", done: "PRONTO", save: "SALVAR", cancel: "CANCELAR", delete: "Excluir Perfil", edit: "Editar Perfil", newProfile: "Novo Perfil", guest: "Convidado", confirm: "Excluir este perfil?", logout: "🚪 SAIR", namePlaceholder: "Seu nome" }
     };
 
     const photos = [
@@ -333,7 +361,8 @@
         localStorage.setItem('perfilActivoId', id);
         localStorage.setItem('perfilActivoNombre', nombre);
         localStorage.setItem('perfilActivoFoto', foto);
-        window.location.replace('index.html');
+        const destino = localStorage.getItem('taxfly_destino') || 'usa';
+        window.location.replace(destino === 'europe' ? 'europe.html' : 'index.html');
     };
 
     window.openEditor = (id) => {
