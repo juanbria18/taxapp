@@ -13,14 +13,15 @@
     </script>
     <style>
         :root {
-            --bg: #f1f5f9; --surface: #ffffff; --border: #e2e8f0;
-            --text: #0f172a; --text-sub: #64748b; --text-dim: #94a3b8;
-            --input-bg: #f8fafc;
+            --primary: #EF9F27; --primary-dark: #BA7517; --primary-glow: rgba(239,159,39,0.18);
+            --bg: #fdf8f0; --surface: #ffffff; --border: #f0e0c0; --input-bg: #fdf5e8;
+            --text: #1a0f00; --text-sub: #7a5c2e; --text-dim: #b8924a;
+            --shadow: 0 4px 20px rgba(186,117,23,0.10); --shadow-lg: 0 20px 60px rgba(186,117,23,0.18);
         }
         [data-theme="dark"] {
-            --bg: #0f172a; --surface: #1e293b; --border: #334155;
-            --text: #f1f5f9; --text-sub: #94a3b8; --text-dim: #64748b;
-            --input-bg: #273549;
+            --bg: #120d04; --surface: #1e1508; --border: #3d2e10; --input-bg: #2a1f0a;
+            --text: #fdf5e8; --text-sub: #c4924a; --text-dim: #7a5c2e;
+            --shadow: 0 4px 20px rgba(0,0,0,0.45); --shadow-lg: 0 20px 60px rgba(0,0,0,0.6);
         }
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         html { scroll-behavior: smooth; }
@@ -37,9 +38,7 @@
         /* Background glow */
         body::before {
             content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none;
-            background:
-                radial-gradient(ellipse 60% 50% at 20% 50%, rgba(37,99,235,0.12), transparent),
-                radial-gradient(ellipse 60% 50% at 80% 50%, rgba(0,102,204,0.10), transparent);
+            background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(239,159,39,0.12), transparent);
         }
 
         .wrap {
@@ -57,9 +56,9 @@
             text-align: center; margin-bottom: 36px;
         }
         .brand {
-            font-size: 1rem; font-weight: 800; color: var(--text-dim);
+            font-size: 1rem; font-weight: 800; color: var(--primary);
             text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px;
-            display: block;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
         }
         .page-title {
             font-size: 1.7rem; font-weight: 900; color: var(--text);
@@ -74,7 +73,7 @@
 
         .region-card {
             background: var(--surface); border-radius: 24px;
-            border: 2px solid var(--border);
+            border: 2px solid transparent;
             padding: 28px 24px; cursor: pointer;
             transition: all .25s cubic-bezier(0.4,0,0.2,1);
             box-shadow: 0 4px 20px rgba(0,0,0,0.06);
@@ -89,12 +88,12 @@
         .region-card:active { transform: scale(.98); }
 
         /* USA card */
-        .card-usa { border-color: rgba(239,68,68,0.35); }
+        .card-usa { background: #1e293b; border-color: rgba(239,68,68,0.35); }
         .card-usa::before { background: linear-gradient(135deg, rgba(37,99,235,0.08), rgba(239,68,68,0.07)); }
         .card-usa:hover { border-color: #ef4444; box-shadow: 0 8px 32px rgba(239,68,68,0.22), 0 0 0 1px rgba(37,99,235,0.2); transform: translateY(-2px); }
         .card-usa:hover::before { opacity: 1; }
 
-        .card-europe { border-color: rgba(0,51,153,0.35); }
+        .card-europe { background: #1e293b; border-color: rgba(0,51,153,0.35); }
         .card-europe::before { background: linear-gradient(135deg, rgba(0,51,153,0.07), rgba(255,204,0,0.06)); }
         .card-europe:hover { border-color: #003399; box-shadow: 0 8px 32px rgba(0,51,153,0.22), 0 0 0 1px rgba(255,204,0,0.15); transform: translateY(-2px); }
         .card-europe:hover::before { opacity: 1; }
@@ -167,7 +166,7 @@
             box-shadow: 0 2px 12px rgba(0,0,0,.1); user-select: none;
         }
         .lang-sel { padding: 8px 12px; display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: .85rem; }
-        .lang-sel .arr { font-size: .55rem; color: #2563eb; margin-left: auto; }
+        .lang-sel .arr { font-size: .55rem; color: var(--primary); margin-left: auto; }
         .lang-opts { display: none; position: absolute; top: calc(100% + 6px); left: 0; width: 100%; background: var(--surface); border: 1.5px solid var(--border); border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,.12); }
         .lang-opts.show { display: block; }
         .lang-opt { padding: 10px 12px; display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: .85rem; cursor: pointer; transition: .15s; }
@@ -182,7 +181,7 @@
             font-size: .85rem; font-weight: 800; color: var(--text-sub);
             box-shadow: 0 2px 12px rgba(0,0,0,.1); transition: .2s;
         }
-        .theme-btn:hover { border-color: #2563eb; color: #2563eb; }
+        .theme-btn:hover { border-color: var(--primary); color: var(--primary); }
     </style>
 </head>
 <body>
@@ -207,7 +206,24 @@
 <div class="wrap">
 
     <div class="page-header">
-        <span class="brand">Travel Assistant</span>
+        <span class="brand">
+            <svg width="22" height="22" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+                <path d="M60 5 Q5 5 5 60 Q5 115 60 115 Z" fill="#FAEEDA" stroke="#BA7517" stroke-width="3"/>
+                <path d="M60 5 Q34 34 34 60 Q34 86 60 115" fill="none" stroke="#EF9F27" stroke-width="2" opacity="0.5"/>
+                <path d="M60 5 Q115 5 115 60 Q115 115 60 115 Z" fill="#FAC775" stroke="#BA7517" stroke-width="3"/>
+                <path d="M60 5 Q86 34 86 60 Q86 86 60 115" fill="none" stroke="#854F0B" stroke-width="2" opacity="0.4"/>
+                <line x1="5" y1="60" x2="115" y2="60" stroke="#854F0B" stroke-width="2" opacity="0.3"/>
+                <line x1="60" y1="5" x2="60" y2="115" stroke="#854F0B" stroke-width="3"/>
+                <g transform="translate(60,48)">
+                    <polygon points="0,-24 18,8 0,2 -18,8" fill="#633806"/>
+                    <polygon points="0,2 -18,8 -9,15" fill="#854F0B"/>
+                    <polygon points="0,2 18,8 9,15" fill="#854F0B"/>
+                    <polygon points="0,2 -5,19 0,14" fill="#BA7517"/>
+                    <polygon points="0,2 5,19 0,14" fill="#BA7517"/>
+                </g>
+            </svg>
+            <span style="color:var(--primary-dark)">Tax</span><span style="color:var(--primary)">Fly</span>
+        </span>
         <h1 class="page-title" id="txt-title">¿A dónde viajás?</h1>
         <p class="page-sub" id="txt-sub">Elegí tu destino y accedé a tu asistente de viaje</p>
     </div>
