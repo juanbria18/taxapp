@@ -472,6 +472,7 @@
     <button class="drawer-btn" onclick="executeWithToken(changeEmail)">📧 <span data-i18n="btn_change_email">Cambiar Correo</span></button>
     <button class="drawer-btn" onclick="executeWithToken(changePassword)">🔑 <span data-i18n="btn_change_pass">Cambiar Contraseña</span></button>
     <button class="drawer-btn" onclick="gestionarPIN()">🔢 <span data-i18n="btn_pin">Cambiar PIN Offline</span></button>
+    <button class="drawer-btn" onclick="openSwitchApp()">🌍 <span data-i18n="btn_switch_app">Cambiar Aplicación</span></button>
     <button class="drawer-btn" onclick="doLogout()">🚪 <span data-i18n="btn_logout">Cerrar Sesión</span></button>
     <div style="margin-top:auto;padding-top:20px;">
         <button class="drawer-btn btn-danger-text" onclick="executeWithToken(deleteAccount)">🗑️ <span data-i18n="btn_delete_acc">Eliminar Cuenta</span></button>
@@ -559,7 +560,7 @@
             settings_title:"Ajustes", label_language:"Idioma",
             btn_change_profile:"Cambiar Perfil", btn_theme:"Cambiar Tema", btn_refresh:"Actualizar App",
             btn_change_email:"Cambiar Correo", btn_change_pass:"Cambiar Contraseña",
-            btn_logout:"Cerrar Sesión", btn_delete_acc:"Eliminar Cuenta",
+            btn_switch_app:"Cambiar Aplicación",btn_logout:"Cerrar Sesión", btn_delete_acc:"Eliminar Cuenta",
             footer_by:"Creado por Juan Cruz Bria",
             prompt_new_email:"Ingresa el nuevo correo electrónico:",
             prompt_new_pass:"Ingresa la nueva contraseña (mínimo 6 caracteres):",
@@ -597,7 +598,7 @@
             settings_title:"Settings", label_language:"Language",
             btn_change_profile:"Change Profile", btn_theme:"Toggle Theme", btn_refresh:"Refresh App",
             btn_change_email:"Change Email", btn_change_pass:"Change Password",
-            btn_logout:"Sign Out", btn_delete_acc:"Delete Account",
+            btn_switch_app:"Switch App",btn_logout:"Sign Out", btn_delete_acc:"Delete Account",
             footer_by:"Created by Juan Cruz Bria",
             prompt_new_email:"Enter your new email address:",
             prompt_new_pass:"Enter new password (min 6 characters):",
@@ -635,7 +636,7 @@
             settings_title:"Configurações", label_language:"Idioma",
             btn_change_profile:"Trocar Perfil", btn_theme:"Alternar Tema", btn_refresh:"Atualizar App",
             btn_change_email:"Alterar Email", btn_change_pass:"Alterar Senha",
-            btn_logout:"Sair", btn_delete_acc:"Excluir Conta",
+            btn_switch_app:"Trocar Aplicativo",btn_logout:"Sair", btn_delete_acc:"Excluir Conta",
             footer_by:"Criado por Juan Cruz Bria",
             prompt_new_email:"Digite o novo endereço de email:",
             prompt_new_pass:"Digite a nova senha (mínimo 6 caracteres):",
@@ -1850,5 +1851,55 @@ document.addEventListener('DOMContentLoaded', renderCityGrid);
     updateStatus();
 })();
 </script>
+
+<!-- ══════════ MODAL CAMBIAR APLICACIÓN ══════════ -->
+<div id="switchAppModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(12px);z-index:9999;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:var(--surface);border-radius:28px;padding:28px 24px;width:100%;max-width:340px;box-shadow:var(--shadow-lg);border:1px solid var(--border);text-align:center;">
+    <div id="switchAppTitle" style="font-size:1.1rem;font-weight:900;color:var(--text);margin-bottom:6px;">Cambiar Aplicación</div>
+    <div id="switchAppSub" style="font-size:.8rem;font-weight:600;color:var(--text-sub);margin-bottom:22px;">¿A qué destino querés ir?</div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <button onclick="doSwitchApp('usa')" style="width:100%;padding:14px;border-radius:14px;border:2px solid rgba(239,68,68,.4);background:linear-gradient(135deg,rgba(37,99,235,.1),rgba(239,68,68,.08));cursor:pointer;font-family:inherit;font-weight:800;font-size:.95rem;color:var(--text);display:flex;align-items:center;gap:12px;transition:all .2s;">
+        <span style="font-size:1.4rem;">🇺🇸</span>
+        <div style="text-align:left;">
+          <div style="color:#ef4444;font-weight:900;">TaxUSA</div>
+          <div style="font-size:.72rem;font-weight:600;color:var(--text-sub);">Estados Unidos</div>
+        </div>
+      </button>
+      <button onclick="doSwitchApp('europe')" style="width:100%;padding:14px;border-radius:14px;border:2px solid rgba(0,51,153,.4);background:linear-gradient(135deg,rgba(0,51,153,.1),rgba(255,204,0,.06));cursor:pointer;font-family:inherit;font-weight:800;font-size:.95rem;color:var(--text);display:flex;align-items:center;gap:12px;transition:all .2s;">
+        <span style="font-size:1.4rem;">🇪🇺</span>
+        <div style="text-align:left;">
+          <div style="color:#003399;font-weight:900;">TaxEurope</div>
+          <div style="font-size:.72rem;font-weight:600;color:var(--text-sub);">Europa</div>
+        </div>
+      </button>
+      <button onclick="document.getElementById('switchAppModal').style.display='none'" id="switchAppCancel" style="width:100%;padding:11px;border-radius:12px;border:1.5px solid var(--border);background:var(--surface-2);cursor:pointer;font-family:inherit;font-weight:700;font-size:.85rem;color:var(--text-sub);margin-top:4px;">Cancelar</button>
+    </div>
+  </div>
+</div>
+<script>
+window.openSwitchApp = function() {
+  const lang = localStorage.getItem('taxfly_lang') || 'es';
+  const texts = {
+    es: { title:'Cambiar Aplicación', sub:'¿A qué destino querés ir?', cancel:'Cancelar' },
+    en: { title:'Switch App', sub:'Which destination do you want?', cancel:'Cancel' },
+    pt: { title:'Trocar Aplicativo', sub:'Para qual destino você quer ir?', cancel:'Cancelar' }
+  };
+  const t = texts[lang] || texts.es;
+  document.getElementById('switchAppTitle').textContent = t.title;
+  document.getElementById('switchAppSub').textContent = t.sub;
+  document.getElementById('switchAppCancel').textContent = t.cancel;
+  document.getElementById('switchAppModal').style.display = 'flex';
+};
+window.doSwitchApp = function(destino) {
+  localStorage.setItem('taxfly_destino', destino);
+  document.getElementById('switchAppModal').style.display = 'none';
+  if (destino === 'usa') {
+    window.location.href = 'index.html';
+  } else {
+    window.location.href = 'europe.html';
+  }
+};
+</script>
+
 </body>
 </html>
