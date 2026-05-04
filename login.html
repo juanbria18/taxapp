@@ -224,6 +224,7 @@
         })();
         // El splash ya es visible; ocultar solo el resto del body vía clase
         document.documentElement.classList.add('splash-loading');
+        window._splashMinEnd = Date.now() + 2800; // garantizar splash mínimo 2.8s
     </script>
 </head>
 <body>
@@ -965,14 +966,18 @@ async function initScreen() {
 }
 
 function hideSplash(callback) {
-    document.documentElement.classList.remove('splash-loading');
-    const splash = document.getElementById('splash-screen');
-    if (!splash) { if (callback) callback(); return; }
-    splash.style.opacity = '0';
+    const remaining = (window._splashMinEnd || 0) - Date.now();
+    const delay = Math.max(0, remaining);
     setTimeout(() => {
-        splash.style.display = 'none';
-        if (callback) callback();
-    }, 420);
+        document.documentElement.classList.remove('splash-loading');
+        const splash = document.getElementById('splash-screen');
+        if (!splash) { if (callback) callback(); return; }
+        splash.style.opacity = '0';
+        setTimeout(() => {
+            splash.style.display = 'none';
+            if (callback) callback();
+        }, 420);
+    }, delay);
 }
 
 window.addEventListener('online',  () => { if (document.getElementById('screen-pin-offline').classList.contains('hidden') === false) showScreen('screen-login'); });
