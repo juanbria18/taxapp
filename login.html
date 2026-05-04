@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TaxUSA — Login</title>
+    <title>TaxFly — Login</title>
     <link rel="manifest" href="./manifest.json">
     <link rel="icon" href="assets/icon-512.png" type="image/png">
     <link rel="apple-touch-icon" href="assets/icon-512.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="TaxUSA">
-    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-title" content="TaxFly">
+    <meta name="theme-color" content="#EF9F27">
     <script src="https://www.google.com/recaptcha/api.js?render=6LeK6cssAAAAALxcJy-95R2nhVMmnuIyB78AQgvw" async defer></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,17 +18,18 @@
     <noscript><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;800&display=swap" rel="stylesheet"></noscript>
     <style>
         :root {
-            --primary:#2563eb; --accent:#7c3aed; --danger:#ef4444; --success:#10b981;
-            --bg:#f1f5f9; --surface:#ffffff; --border:#e2e8f0; --input-bg:#f8fafc;
-            --text:#0f172a; --text-sub:#64748b; --text-dim:#94a3b8;
+            --primary:#EF9F27; --primary-dark:#BA7517; --primary-glow:rgba(239,159,39,0.18);
+            --accent:#854F0B; --danger:#ef4444; --success:#10b981;
+            --bg:#fdf8f0; --surface:#ffffff; --border:#f0e0c0; --input-bg:#fdf5e8;
+            --text:#1a0f00; --text-sub:#7a5c2e; --text-dim:#b8924a;
             --radius:20px; --radius-sm:12px;
-            --shadow:0 4px 20px rgba(0,0,0,0.08); --shadow-lg:0 20px 60px rgba(0,0,0,0.15);
+            --shadow:0 4px 20px rgba(186,117,23,0.10); --shadow-lg:0 20px 60px rgba(186,117,23,0.18);
             --tr:all 0.25s cubic-bezier(0.4,0,0.2,1);
         }
         [data-theme="dark"] {
-            --bg:#0f172a; --surface:#1e293b; --border:#334155; --input-bg:#273549;
-            --text:#f1f5f9; --text-sub:#94a3b8; --text-dim:#64748b;
-            --shadow:0 4px 20px rgba(0,0,0,0.35); --shadow-lg:0 20px 60px rgba(0,0,0,0.5);
+            --bg:#120d04; --surface:#1e1508; --border:#3d2e10; --input-bg:#2a1f0a;
+            --text:#fdf5e8; --text-sub:#c4924a; --text-dim:#7a5c2e;
+            --shadow:0 4px 20px rgba(0,0,0,0.45); --shadow-lg:0 20px 60px rgba(0,0,0,0.6);
         }
         *,*::before,*::after{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0;}
         body{
@@ -39,7 +40,7 @@
         }
         body::before{
             content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
-            background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(37,99,235,0.15),transparent);
+            background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(239,159,39,0.12),transparent);
         }
 
         /* ── SPLASH LOADING STATE ── */
@@ -71,9 +72,9 @@
             background:var(--surface);padding:36px 28px;border-radius:28px;
             box-shadow:var(--shadow-lg);border:1.5px solid var(--border);
         }
-        .card-logo{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:28px;font-size:1.6rem;font-weight:900;color:var(--primary);}
+        .card-logo{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:28px;font-size:1.6rem;font-weight:900;color:var(--primary-dark);}
         .logo-svg{animation:logoBounce .6s cubic-bezier(0.34,1.56,0.64,1) both;}
-        .logo-text{animation:textSlide .5s .15s cubic-bezier(0.34,1.56,0.64,1) both;}
+        .logo-text{animation:textSlide .5s .15s cubic-bezier(0.34,1.56,0.64,1) both;color:var(--primary-dark);}
         @keyframes logoBounce{from{opacity:0;transform:scale(.4) rotate(-15deg)}to{opacity:1;transform:scale(1) rotate(0)}}
         @keyframes textSlide{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:translateX(0)}}
 
@@ -86,7 +87,7 @@
             font-size:.95rem;font-weight:600;font-family:inherit;color:var(--text);
             outline:none;transition:var(--tr);-webkit-appearance:none;
         }
-        input:focus{border-color:var(--primary);background:var(--surface);box-shadow:0 0 0 3px rgba(37,99,235,.12);}
+        input:focus{border-color:var(--primary);background:var(--surface);box-shadow:0 0 0 3px rgba(239,159,39,.15);}
         input::placeholder{color:var(--text-dim);font-weight:500;}
 
         .btn{
@@ -95,16 +96,16 @@
             cursor:pointer;transition:var(--tr);margin-bottom:12px;display:flex;align-items:center;justify-content:center;gap:8px;
         }
         .btn:active{transform:scale(.97);}
-        .btn-primary{background:var(--primary);color:white;box-shadow:0 4px 16px rgba(37,99,235,.35);}
-        .btn-primary:hover{background:#1d4ed8;}
+        .btn-primary{background:var(--primary);color:white;box-shadow:0 4px 16px rgba(239,159,39,.4);}
+        .btn-primary:hover{background:var(--primary-dark);}
         .btn-ghost{background:var(--input-bg);color:var(--text-sub);border:1.5px solid var(--border);}
         .btn-ghost:hover{border-color:var(--primary);color:var(--primary);}
         .btn-danger{background:transparent;color:var(--danger);border:1.5px solid rgba(239,68,68,.3);}
 
         .verif-notice{
-            display:none;background:rgba(37,99,235,.1);color:var(--primary);
+            display:none;background:rgba(239,159,39,.1);color:var(--primary-dark);
             padding:12px 14px;border-radius:12px;font-size:.8rem;font-weight:600;
-            margin-bottom:14px;line-height:1.45;border:1.5px solid rgba(37,99,235,.2);
+            margin-bottom:14px;line-height:1.45;border:1.5px solid rgba(239,159,39,.25);
         }
         .links{display:flex;flex-direction:column;gap:10px;text-align:center;}
         .link-danger{color:var(--danger);font-size:.8rem;font-weight:700;cursor:pointer;background:none;border:none;font-family:inherit;}
@@ -137,8 +138,7 @@
             transition:var(--tr);
         }
         .pin-dot.filled{background:var(--primary);border-color:var(--primary);}
-        .pin-dot.error{background:var(--danger);border-color:var(--danger);animation:shake .4s ease;}
-        @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+        .pin-dot.error{background:var(--danger);border-color:var(--danger);animation:shake .4s ease;}        @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
 
         .pin-keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;}
         .pin-key{
@@ -168,7 +168,7 @@
 
         /* ── CHANGE PIN SCREEN ── */
         .info-box{
-            background:rgba(37,99,235,.08);border:1.5px solid rgba(37,99,235,.2);
+            background:rgba(239,159,39,.08);border:1.5px solid rgba(239,159,39,.22);
             border-radius:14px;padding:16px;margin-bottom:20px;
             font-size:.82rem;font-weight:600;color:var(--text-sub);line-height:1.5;
             display:flex;gap:10px;align-items:flex-start;
@@ -224,8 +224,6 @@
         })();
         // El splash ya es visible; ocultar solo el resto del body vía clase
         document.documentElement.classList.add('splash-loading');
-        // Tiempo mínimo que debe mostrarse el splash (última animación termina a ~2.8s)
-        window._splashMinEnd = Date.now() + 2800;
     </script>
 </head>
 <body>
@@ -239,111 +237,95 @@
     transition:opacity 0.4s ease;
 ">
     <style>
-        @keyframes logoPop {
-            from { opacity:0; transform:scale(0.3) rotate(-20deg); }
-            to   { opacity:1; transform:scale(1) rotate(0deg); }
+        @keyframes tfGlobeIn {
+            from { opacity:0; transform:scale(1.08); }
+            to   { opacity:1; transform:scale(1); }
         }
-        @keyframes nameFade {
-            from { opacity:0; transform:translateY(16px); }
-            to   { opacity:1; transform:translateY(0); }
+        @keyframes tfWipe {
+            from { clip-path:inset(0 100% 0 0); opacity:1; }
+            to   { clip-path:inset(0 0% 0 0);   opacity:1; }
         }
-        @keyframes tagFade {
-            from { opacity:0; }
-            to   { opacity:1; }
+        @keyframes tfTagIn {
+            from { opacity:0; letter-spacing:8px; }
+            to   { opacity:1; letter-spacing:4px; }
         }
-        @keyframes starTwinkle {
-            0%,100% { opacity:0; transform:scale(0.5); }
-            50%      { opacity:0.55; transform:scale(1); }
+        @keyframes tfStarTwinkle {
+            0%,100% { opacity:0; transform:scale(0.4); }
+            50%      { opacity:0.5; transform:scale(1); }
         }
-        @keyframes sweepMove {
-            0%   { left:-60%; opacity:0; }
-            8%   { opacity:1; }
-            92%  { opacity:1; }
+        @keyframes tfSweep {
+            0%   { left:-25%; opacity:0; }
+            10%  { opacity:1; }
+            90%  { opacity:1; }
             100% { left:110%; opacity:0; }
-        }
-        @keyframes sweepMove2 {
-            0%   { left:-30%; opacity:0; }
-            8%   { opacity:1; }
-            92%  { opacity:1; }
-            100% { left:110%; opacity:0; }
-        }
-        @keyframes sparkFly {
-            0%   { opacity:1; transform:translate(0,0) scale(1); }
-            100% { opacity:0; transform:translate(var(--dx),var(--dy)) scale(0); }
         }
     </style>
 
-    <!-- Estrellas -->
-    <div id="sp-stars" style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 40%,#0a1628 0%,#000 70%);"></div>
+    <!-- Estrellas + glow ámbar de fondo -->
+    <div id="sp-stars" style="position:absolute;inset:0;"></div>
+    <div style="position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 50% 45%,rgba(239,159,39,0.13) 0%,transparent 70%);pointer-events:none;"></div>
 
-    <!-- Barridos de luz -->
-    <div style="position:absolute;top:0;left:-60%;width:60%;height:100%;
-        background:linear-gradient(90deg,transparent 0%,rgba(37,99,235,0.08) 30%,rgba(37,99,235,0.25) 50%,rgba(255,255,255,0.3) 55%,rgba(37,99,235,0.25) 60%,transparent 100%);
-        animation:sweepMove 1.8s ease-in-out 0.2s forwards;pointer-events:none;z-index:2;">
-    </div>
-    <div style="position:absolute;top:0;left:-30%;width:30%;height:100%;
-        background:linear-gradient(90deg,transparent 0%,rgba(239,68,68,0.06) 40%,rgba(239,68,68,0.18) 50%,rgba(239,68,68,0.06) 60%,transparent 100%);
-        animation:sweepMove2 1.4s ease-in-out 1.0s forwards;pointer-events:none;z-index:2;">
+    <!-- Barrido de luz ámbar/blanco — Prime Video style -->
+    <div style="position:absolute;top:0;left:-25%;width:25%;height:100%;
+        background:linear-gradient(90deg,transparent 0%,rgba(255,220,120,0.06) 35%,rgba(255,255,255,0.45) 50%,rgba(255,220,120,0.06) 65%,transparent 100%);
+        animation:tfSweep 0.6s ease-in-out 0.72s forwards;pointer-events:none;z-index:2;">
     </div>
 
     <!-- Logo + nombre -->
-    <div style="position:relative;z-index:10;display:flex;flex-direction:column;align-items:center;">
-        <div style="opacity:0;animation:logoPop 0.6s cubic-bezier(0.34,1.56,0.64,1) 1.0s forwards;">
-            <svg width="110" height="110" viewBox="0 0 80 80" fill="none">
-                <rect width="80" height="80" rx="20" fill="#1e3a8a"/>
-                <rect x="0" y="25" width="80" height="10" fill="#ef4444"/>
-                <rect x="0" y="45" width="80" height="10" fill="#ef4444"/>
-                <polygon points="40,8 46,26 66,26 50,38 56,56 40,44 24,56 30,38 14,26 34,26" fill="#ffffff"/>
+    <div style="position:relative;z-index:10;display:flex;flex-direction:column;align-items:center;gap:0;">
+
+        <!-- Globo Eclipse -->
+        <div style="opacity:0;animation:tfGlobeIn 0.45s cubic-bezier(0.16,1,0.3,1) 0.2s forwards;margin-bottom:18px;">
+            <svg width="110" height="110" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+                <path d="M60 5 Q5 5 5 60 Q5 115 60 115 Z" fill="#FAEEDA" stroke="#BA7517" stroke-width="1.5"/>
+                <path d="M60 5 Q34 34 34 60 Q34 86 60 115" fill="none" stroke="#EF9F27" stroke-width="0.9" opacity="0.5"/>
+                <path d="M60 5 Q12 32 12 60 Q12 88 60 115" fill="none" stroke="#EF9F27" stroke-width="0.6" opacity="0.3"/>
+                <path d="M60 5 Q115 5 115 60 Q115 115 60 115 Z" fill="#FAC775" stroke="#BA7517" stroke-width="1.5"/>
+                <path d="M60 5 Q86 34 86 60 Q86 86 60 115" fill="none" stroke="#854F0B" stroke-width="0.9" opacity="0.4"/>
+                <path d="M60 5 Q108 32 108 60 Q108 88 60 115" fill="none" stroke="#854F0B" stroke-width="0.6" opacity="0.25"/>
+                <line x1="5" y1="60" x2="115" y2="60" stroke="#854F0B" stroke-width="0.8" opacity="0.35"/>
+                <line x1="60" y1="5" x2="60" y2="115" stroke="#854F0B" stroke-width="1.5"/>
+                <g transform="translate(60,48)">
+                    <polygon points="0,-26 20,9 0,3 -20,9" fill="#633806"/>
+                    <polygon points="0,3 -20,9 -10,17" fill="#854F0B"/>
+                    <polygon points="0,3 20,9 10,17" fill="#854F0B"/>
+                    <polygon points="0,3 -6,21 0,16" fill="#BA7517"/>
+                    <polygon points="0,3 6,21 0,16" fill="#BA7517"/>
+                </g>
             </svg>
         </div>
-        <div style="font-family:'DM Sans',-apple-system,system-ui,sans-serif;font-size:2.8rem;font-weight:900;letter-spacing:-1px;
-            opacity:0;animation:nameFade 0.7s cubic-bezier(0.34,1.56,0.64,1) 1.6s forwards;">
-            <span style="color:#2563eb">Tax</span><span style="color:#ef4444">USA</span>
+
+        <!-- Wordmark con wipe de izquierda a derecha -->
+        <div style="clip-path:inset(0 100% 0 0);opacity:0;
+            animation:tfWipe 0.38s cubic-bezier(0.16,1,0.3,1) 0.56s forwards;
+            font-family:'DM Sans',-apple-system,system-ui,sans-serif;
+            font-size:2.8rem;font-weight:900;letter-spacing:-1.5px;line-height:1;">
+            <span style="color:#EF9F27">Tax</span><span style="color:#ffffff">Fly</span>
         </div>
-        <div style="font-family:'DM Sans',-apple-system,system-ui,sans-serif;font-size:0.75rem;font-weight:600;
-            color:rgba(255,255,255,0.4);letter-spacing:3px;text-transform:uppercase;
-            opacity:0;animation:tagFade 0.6s ease 2.2s forwards;">
-            Tu viaje a USA
+
+        <!-- Tagline -->
+        <div style="font-family:'DM Sans',-apple-system,system-ui,sans-serif;
+            font-size:0.68rem;font-weight:600;
+            color:rgba(255,255,255,0.38);letter-spacing:4px;text-transform:uppercase;
+            opacity:0;animation:tfTagIn 0.45s ease 0.95s forwards;margin-top:10px;">
+            Global Travel Assistance
         </div>
     </div>
-
-    <!-- Contenedor chispas -->
-    <div id="sp-sparks" style="position:absolute;inset:0;pointer-events:none;z-index:8;"></div>
 </div>
 
 <script>
 (function(){
     // Estrellas
     var starsEl = document.getElementById('sp-stars');
-    for(var i=0;i<70;i++){
+    for(var i=0;i<60;i++){
         var s=document.createElement('div');
-        var sz=(Math.random()*1.8+0.8).toFixed(1);
+        var sz=(Math.random()*1.6+0.6).toFixed(1);
         s.style.cssText='position:absolute;border-radius:50%;background:white;'
             +'width:'+sz+'px;height:'+sz+'px;'
             +'top:'+(Math.random()*100)+'%;left:'+(Math.random()*100)+'%;'
-            +'animation:starTwinkle '+(2+Math.random()*3).toFixed(1)+'s '+(Math.random()*4).toFixed(1)+'s ease-in-out infinite;opacity:0;';
+            +'animation:tfStarTwinkle '+(2.5+Math.random()*3).toFixed(1)+'s '+(Math.random()*5).toFixed(1)+'s ease-in-out infinite;opacity:0;';
         starsEl.appendChild(s);
     }
-    // Chispas al aparecer el logo
-    setTimeout(function(){
-        var sparksEl=document.getElementById('sp-sparks');
-        var colors=['rgba(37,99,235,1)','rgba(239,68,68,1)','rgba(255,255,255,1)'];
-        var cx=window.innerWidth/2, cy=window.innerHeight/2-20;
-        for(var i=0;i<20;i++){
-            var sp=document.createElement('div');
-            var angle=(i/20)*Math.PI*2;
-            var dist=50+Math.random()*70;
-            var dx=(Math.cos(angle)*dist).toFixed(1);
-            var dy=(Math.sin(angle)*dist).toFixed(1);
-            var c=colors[Math.floor(Math.random()*colors.length)];
-            sp.style.cssText='position:absolute;width:3px;height:3px;border-radius:50%;'
-                +'background:'+c+';left:'+cx+'px;top:'+cy+'px;'
-                +'--dx:'+dx+'px;--dy:'+dy+'px;'
-                +'animation:sparkFly 0.8s ease-out forwards;';
-            sparksEl.appendChild(sp);
-        }
-        setTimeout(function(){ sparksEl.innerHTML=''; }, 900);
-    }, 1000);
 })();
 </script>
 
@@ -367,13 +349,22 @@
 <div class="screen" id="screen-login">
     <div class="login-card">
         <div class="card-logo">
-            <svg class="logo-svg" width="36" height="36" viewBox="0 0 32 32" fill="none">
-                <rect width="32" height="32" rx="8" fill="#1e3a8a"/>
-                <rect x="0" y="10" width="32" height="4" fill="#ef4444"/>
-                <rect x="0" y="18" width="32" height="4" fill="#ef4444"/>
-                <polygon points="16,4 18.4,11 26,11 20,15.5 22.4,22.5 16,18 9.6,22.5 12,15.5 6,11 13.6,11" fill="#ffffff"/>
+            <svg class="logo-svg" width="38" height="38" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+                <path d="M60 5 Q5 5 5 60 Q5 115 60 115 Z" fill="#FAEEDA" stroke="#BA7517" stroke-width="3"/>
+                <path d="M60 5 Q34 34 34 60 Q34 86 60 115" fill="none" stroke="#EF9F27" stroke-width="2" opacity="0.5"/>
+                <path d="M60 5 Q115 5 115 60 Q115 115 60 115 Z" fill="#FAC775" stroke="#BA7517" stroke-width="3"/>
+                <path d="M60 5 Q86 34 86 60 Q86 86 60 115" fill="none" stroke="#854F0B" stroke-width="2" opacity="0.4"/>
+                <line x1="5" y1="60" x2="115" y2="60" stroke="#854F0B" stroke-width="2" opacity="0.3"/>
+                <line x1="60" y1="5" x2="60" y2="115" stroke="#854F0B" stroke-width="3"/>
+                <g transform="translate(60,48)">
+                    <polygon points="0,-24 18,8 0,2 -18,8" fill="#633806"/>
+                    <polygon points="0,2 -18,8 -9,15" fill="#854F0B"/>
+                    <polygon points="0,2 18,8 9,15" fill="#854F0B"/>
+                    <polygon points="0,2 -5,19 0,14" fill="#BA7517"/>
+                    <polygon points="0,2 5,19 0,14" fill="#BA7517"/>
+                </g>
             </svg>
-            <span class="logo-text">Tax<span style="color:#ef4444">USA</span></span>
+            <span class="logo-text">Tax<span style="color:#EF9F27">Fly</span></span>
         </div>
         <h1 class="card-title" id="login-title">Bienvenido</h1>
         <input type="email" id="email" placeholder="Correo electrónico">
@@ -423,11 +414,20 @@
 <div class="screen hidden" id="screen-create-pin">
     <div class="login-card">
         <div class="card-logo">
-            <svg width="36" height="36" viewBox="0 0 32 32" fill="none">
-                <rect width="32" height="32" rx="8" fill="#1e3a8a"/>
-                <rect x="0" y="10" width="32" height="4" fill="#ef4444"/>
-                <rect x="0" y="18" width="32" height="4" fill="#ef4444"/>
-                <polygon points="16,4 18.4,11 26,11 20,15.5 22.4,22.5 16,18 9.6,22.5 12,15.5 6,11 13.6,11" fill="#ffffff"/>
+            <svg width="38" height="38" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+                <path d="M60 5 Q5 5 5 60 Q5 115 60 115 Z" fill="#FAEEDA" stroke="#BA7517" stroke-width="3"/>
+                <path d="M60 5 Q34 34 34 60 Q34 86 60 115" fill="none" stroke="#EF9F27" stroke-width="2" opacity="0.5"/>
+                <path d="M60 5 Q115 5 115 60 Q115 115 60 115 Z" fill="#FAC775" stroke="#BA7517" stroke-width="3"/>
+                <path d="M60 5 Q86 34 86 60 Q86 86 60 115" fill="none" stroke="#854F0B" stroke-width="2" opacity="0.4"/>
+                <line x1="5" y1="60" x2="115" y2="60" stroke="#854F0B" stroke-width="2" opacity="0.3"/>
+                <line x1="60" y1="5" x2="60" y2="115" stroke="#854F0B" stroke-width="3"/>
+                <g transform="translate(60,48)">
+                    <polygon points="0,-24 18,8 0,2 -18,8" fill="#633806"/>
+                    <polygon points="0,2 -18,8 -9,15" fill="#854F0B"/>
+                    <polygon points="0,2 18,8 9,15" fill="#854F0B"/>
+                    <polygon points="0,2 -5,19 0,14" fill="#BA7517"/>
+                    <polygon points="0,2 5,19 0,14" fill="#BA7517"/>
+                </g>
             </svg>
         </div>
         <div class="pin-step-indicator">
@@ -454,14 +454,22 @@
 <div class="screen hidden" id="screen-change-pin">
     <div class="login-card">
         <div class="card-logo">
-            <svg width="36" height="36" viewBox="0 0 32 32" fill="none">
-                <rect width="32" height="32" rx="8" fill="#1e3a8a"/>
-                <rect x="0" y="10" width="32" height="4" fill="#ef4444"/>
-                <rect x="0" y="18" width="32" height="4" fill="#ef4444"/>
-                <polygon points="16,4 18.4,11 26,11 20,15.5 22.4,22.5 16,18 9.6,22.5 12,15.5 6,11 13.6,11" fill="#ffffff"/>
+            <svg width="38" height="38" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+                <path d="M60 5 Q5 5 5 60 Q5 115 60 115 Z" fill="#FAEEDA" stroke="#BA7517" stroke-width="3"/>
+                <path d="M60 5 Q34 34 34 60 Q34 86 60 115" fill="none" stroke="#EF9F27" stroke-width="2" opacity="0.5"/>
+                <path d="M60 5 Q115 5 115 60 Q115 115 60 115 Z" fill="#FAC775" stroke="#BA7517" stroke-width="3"/>
+                <path d="M60 5 Q86 34 86 60 Q86 86 60 115" fill="none" stroke="#854F0B" stroke-width="2" opacity="0.4"/>
+                <line x1="5" y1="60" x2="115" y2="60" stroke="#854F0B" stroke-width="2" opacity="0.3"/>
+                <line x1="60" y1="5" x2="60" y2="115" stroke="#854F0B" stroke-width="3"/>
+                <g transform="translate(60,48)">
+                    <polygon points="0,-24 18,8 0,2 -18,8" fill="#633806"/>
+                    <polygon points="0,2 -18,8 -9,15" fill="#854F0B"/>
+                    <polygon points="0,2 18,8 9,15" fill="#854F0B"/>
+                    <polygon points="0,2 -5,19 0,14" fill="#BA7517"/>
+                    <polygon points="0,2 5,19 0,14" fill="#BA7517"/>
+                </g>
             </svg>
         </div>
-        <h1 class="card-title" id="change-pin-title">Cambiar PIN</h1>
         <div class="info-box">
             <span class="info-box-icon">📧</span>
             <span id="change-pin-info">Para cambiar tu PIN, te enviaremos un correo de verificación. Una vez confirmado, podrás crear uno nuevo.</span>
@@ -947,18 +955,14 @@ async function initScreen() {
 }
 
 function hideSplash(callback) {
-    const remaining = window._splashMinEnd ? window._splashMinEnd - Date.now() : 0;
-    const delay = Math.max(0, remaining);
+    document.documentElement.classList.remove('splash-loading');
+    const splash = document.getElementById('splash-screen');
+    if (!splash) { if (callback) callback(); return; }
+    splash.style.opacity = '0';
     setTimeout(() => {
-        document.documentElement.classList.remove('splash-loading');
-        const splash = document.getElementById('splash-screen');
-        if (!splash) { if (callback) callback(); return; }
-        splash.style.opacity = '0';
-        setTimeout(() => {
-            splash.style.display = 'none';
-            if (callback) callback();
-        }, 420);
-    }, delay);
+        splash.style.display = 'none';
+        if (callback) callback();
+    }, 420);
 }
 
 window.addEventListener('online',  () => { if (document.getElementById('screen-pin-offline').classList.contains('hidden') === false) showScreen('screen-login'); });
